@@ -1,0 +1,45 @@
+# golangci-lint v2 — lean, idiomatic set. Run with `make lint`; auto-fix
+# formatting with `make fmt`. sqlc-generated files (the `// Code generated`
+# header) are skipped automatically via exclusions.generated.
+version: "2"
+
+run:
+  timeout: 3m
+
+linters:
+  enable:
+    - errcheck # unchecked errors
+    - govet
+    - ineffassign
+    - staticcheck # bundles gosimple + stylecheck in v2
+    - unused
+    - errorlint # correct errors.Is / %w wrapping
+    - misspell
+    - nolintlint # keep //nolint directives honest
+    - wsl_v5 # blank line before return / if / block — no wall-of-code
+  settings:
+    wsl_v5:
+      allow-first-in-block: true
+      allow-whole-block: false
+      branch-max-lines: 2
+  exclusions:
+    generated: lax
+    rules:
+      # Test helpers routinely ignore errors on setup calls.
+      - path: _test\.go
+        linters: [errcheck]
+
+# gofmt + gci only. gofumpt is deliberately omitted: in golangci-lint v2.12.2
+# its `fmt` (apply) and `run` (check) disagree on multi-line call formatting, so
+# `make fmt` can't produce `make lint`-clean output. gofmt's apply == check, and
+# gci enforces the CLAUDE.md import order (std / third-party / local).
+formatters:
+  enable:
+    - gofmt
+    - gci
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(budget_me/backend)

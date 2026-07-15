@@ -1,0 +1,17 @@
+# budget_me deferred-job runner — the schedule that actually deletes accounts
+# whose 30-day grace period has run out (cmd/worker; see infra/compose/prod.yml).
+#
+# INSTALLED AS THE `deploy` USER'S CRONTAB, not /etc/cron.d: the deploy user has
+# no passwordless sudo on the box, and it does not need any — it owns
+# ~/budget_me and is in the docker group. Reinstall with:
+#
+#   ssh deploy@<host> 'crontab -l' | grep -q 'rm -T worker' || \
+#     ssh deploy@<host> '(crontab -l 2>/dev/null; cat) | crontab -' < infra/cron/budget_me-worker
+#
+# One sweep a day is plenty: the only job purges expired deletion requests, so a
+# few hours either way is immaterial. -T + </dev/null keeps `compose run` from
+# grabbing stdin (the same trap that once ate the deploy script). Output goes to
+# ~/budget_me/worker.log — the box has no MTA to mail it to.
+
+# budget_me: ежедневная зачистка аккаунтов с истёкшей отсрочкой (cmd/worker)
+17 3 * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env -f prod.yml --profile tools run --rm -T worker </dev/null >> ~/budget_me/worker.log 2>&1

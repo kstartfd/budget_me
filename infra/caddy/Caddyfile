@@ -1,0 +1,27 @@
+# Reverse proxy + automatic HTTPS (Let's Encrypt) for budget_me.
+# {$DOMAIN} is injected from the environment (compose passes DOMAIN).
+#
+# The backend serves its routes under /api/v1/* (see backend/internal/server),
+# so we must forward the FULL path. `handle /api/*` matches and proxies while
+# preserving the /api prefix — do NOT use `handle_path`, which would strip
+# /api and turn /api/v1/foo into /v1/foo (a 404 on the backend).
+
+{$DOMAIN} {
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy backend:8080
+	}
+
+	# The backend's liveness probe, exposed so an EXTERNAL monitor can reach it.
+	# An alert that only runs on the box cannot fire when the box is the thing
+	# that died; this is the one URL an uptime service outside the VPS can watch
+	# (it answers 503 when the DB is down, so it catches more than "process up").
+	handle /healthz {
+		reverse_proxy backend:8080
+	}
+
+	handle {
+		reverse_proxy frontend:3000
+	}
+}

@@ -1,0 +1,44 @@
+name: budget_me-dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: budget_me
+      POSTGRES_USER: budget_me
+      POSTGRES_PASSWORD: budget_me
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U budget_me"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ../..
+      dockerfile: infra/docker/backend.dev.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ENV: dev
+      PORT: "8080"
+      DATABASE_URL: postgres://budget_me:budget_me@postgres:5432/budget_me?sslmode=disable
+      CORS_ORIGINS: http://localhost:3000
+      AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+    ports:
+      - "8080:8080"
+    volumes:
+      - ../../backend:/app
+      - go_mod_cache:/go/pkg/mod
+      - go_build_cache:/root/.cache/go-build
+
+volumes:
+  postgres_data:
+  go_mod_cache:
+  go_build_cache:

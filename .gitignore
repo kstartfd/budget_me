@@ -1,0 +1,44 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Claude Code (local agent config)
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Env
+.env
+.env.local
+
+# Backend artifacts
+backend/tmp/
+backend/bin/
+backend/build-errors.log
+
+# Frontend
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/build/
+frontend/.turbo/
+
+# Playwright
+frontend/playwright-report/
+frontend/test-results/
+frontend/playwright/.auth/
+
+# Root-level Node artifacts (shadcn MCP runs via npx; no local install needed)
+/node_modules/
+/package.json
+/package-lock.json
+
+# Reference repos kept locally for inspection
+/go-hexagonal-master/
+
+# Logs
+*.log

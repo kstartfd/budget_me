@@ -1,0 +1,257 @@
+# budget_me — CI/CD
+#
+# Flow: git push main  ->  build:backend + build:frontend build Docker images on
+# the runner (Docker-in-Docker) and push them to the GitLab Container Registry
+# ->  deploy SSHes into the VPS, renders ~/budget_me/.env, docker login, then
+# `docker compose pull && up -d && migrate`. The VPS never builds (1 GB RAM).
+#
+# Registry (auto): registry.gitlab.com/kstartfd/budget_me
+#   $CI_REGISTRY_IMAGE/backend:<sha>   $CI_REGISTRY_IMAGE/frontend:<sha>
+#
+# Required CI/CD variables (Settings -> CI/CD -> Variables) — see infra/CI_CD.md:
+#   SSH_PRIVATE_KEY (File, protected)  SSH_HOST  SSH_KNOWN_HOSTS
+#   DEPLOY_TOKEN_USER  DEPLOY_TOKEN_PASSWORD (masked)
+#   DOMAIN  POSTGRES_PASSWORD (masked)  AUTH_SECRET (masked)  TELEGRAM_BOT_TOKEN (masked)
+
+stages:
+  - test
+  - build
+  - deploy
+
+# ── test ─────────────────────────────────────────────────────────────────────
+# Gate the pipeline on a clean backend (vet + tests) and frontend (lint + types).
+# Runs on main, tags and merge requests.
+.test-rules:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_MERGE_REQUEST_IID'
+
+test:backend:
+  extends: .test-rules
+  stage: test
+  image: golang:1.25-alpine
+  script:
+    - cd backend
+    - go vet ./...
+    - go test ./...
+
+test:frontend:
+  extends: .test-rules
+  stage: test
+  image: node:22-alpine
+  before_script:
+    - corepack enable
+  script:
+    - cd frontend
+    # --ignore-scripts: pnpm 10 fails install in CI on unapproved dependency
+    # build scripts (sharp/@swc/core/…); lint+typecheck don't need them built.
+    - pnpm install --frozen-lockfile --ignore-scripts
+    - pnpm lint
+    - pnpm typecheck
+  cache:
+    key:
+      files:
+        - frontend/pnpm-lock.yaml
+    paths:
+      - frontend/node_modules
+
+# ── build ────────────────────────────────────────────────────────────────────
+# Shared Docker-in-Docker config. DOCKER_TLS_CERTDIR="/certs" turns on TLS; the
+# remaining DOCKER_* vars point the docker client at the dind service over TLS
+# (without them the build cannot reach the daemon).
+.build:
+  stage: build
+  image: docker:27
+  services:
+    - docker:27-dind
+  variables:
+    DOCKER_TLS_CERTDIR: "/certs"
+    DOCKER_HOST: tcp://docker:2376
+    DOCKER_TLS_VERIFY: "1"
+    DOCKER_CERT_PATH: "/certs/client"
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_TAG'
+
+build:backend:
+  extends: .build
+  script:
+    # Context is the repo root; the Dockerfile COPYs backend/… from there.
+    - docker build
+        -f infra/docker/backend.Dockerfile
+        -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
+        -t "$CI_REGISTRY_IMAGE/backend:latest"
+        .
+    - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE/backend:latest"
+
+build:frontend:
+  extends: .build
+  script:
+    # Context is frontend/ (repo-root .dockerignore excludes it, so a root
+    # context would ship no source).
+    - docker build
+        -f infra/docker/frontend.Dockerfile
+        -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
+        -t "$CI_REGISTRY_IMAGE/frontend:latest"
+        frontend
+    - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
+    - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
+
+# ── deploy ───────────────────────────────────────────────────────────────────
+# SSH into the VPS, push the compose file + Caddyfile + a freshly rendered .env,
+# then pull the images just built and (re)start the stack.
+#
+# Auto-deploys every green `main` pipeline (no manual gate). The rollout is
+# fail-safe: the new env is staged as .env.new, migrations run BEFORE the app is
+# switched, and the backend must pass /healthz. If ANY step fails the previous
+# images are restored, so prod stays on the last good version and the pipeline
+# goes red — a broken version is never shipped, and nothing new ships until the
+# fix lands. `resource_group: production` serialises overlapping deploys.
+deploy:
+  stage: deploy
+  image: alpine:3.20
+  needs:
+    - build:backend
+    - build:frontend
+  resource_group: production
+  environment:
+    name: production
+    url: https://$DOMAIN
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval "$(ssh-agent -s)"
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    # SSH_PRIVATE_KEY is a File-type variable -> $SSH_PRIVATE_KEY is a path.
+    # (cat; echo) guarantees a trailing newline — a key pasted into the CI
+    # variable without one makes ssh-add fail with "error in libcrypto".
+    - (cat "$SSH_PRIVATE_KEY"; echo) > ~/.ssh/id_deploy && chmod 400 ~/.ssh/id_deploy
+    - ssh-add ~/.ssh/id_deploy
+    - printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+  script:
+    # 1. Layout on the server: compose at ~/budget_me/prod.yml, Caddyfile at
+    #    ~/budget_me/infra/caddy/Caddyfile (matches the ./infra/caddy mount).
+    - ssh "deploy@$SSH_HOST" "mkdir -p ~/budget_me/infra/caddy ~/budget_me/scripts"
+    - scp infra/compose/prod.yml "deploy@$SSH_HOST:~/budget_me/prod.yml"
+    - scp infra/caddy/Caddyfile "deploy@$SSH_HOST:~/budget_me/infra/caddy/Caddyfile"
+    - scp infra/scripts/backup.sh infra/scripts/healthcheck.sh infra/scripts/merge-env.sh "deploy@$SSH_HOST:~/budget_me/scripts/"
+    - ssh "deploy@$SSH_HOST" "chmod +x ~/budget_me/scripts/*.sh"
+    # The crons are owned by the repo, not by whoever last SSHed in: the deploy
+    # plants a missing line and leaves an existing one alone.
+    - |
+      ssh "deploy@$SSH_HOST" 'bash -s' < infra/cron/install-crons.sh
+    # Backups are only as real as their config: say so here rather than let the
+    # cron fail into a log nobody reads.
+    - |
+      if [ -z "$BACKUP_PASSPHRASE" ] || [ -z "$BACKUP_CHAT_ID" ]; then
+        echo "NOTE: BACKUP_* not in CI — expecting them in ~/budget_me/.env.local"
+        echo "NOTE: on the server (see infra/DEPLOY.md). If they are in neither,"
+        echo "NOTE: the nightly backup fails and prod keeps its only copy on one disk."
+      fi
+    # 2. Stage the NEW env as .env.new (NOT the live .env) so a failed rollout
+    #    can fall back to the previous images. The heredoc expands on THIS runner.
+    - |
+      ssh "deploy@$SSH_HOST" "cat > ~/budget_me/.env.new && chmod 600 ~/budget_me/.env.new" <<EOF
+      DOMAIN=$DOMAIN
+      POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      AUTH_SECRET=$AUTH_SECRET
+      TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
+      ACCOUNT_DELETION_GRACE=${ACCOUNT_DELETION_GRACE:-720h}
+      AI_API_KEY=$AI_API_KEY
+      AI_MODEL=${AI_MODEL:-glm-4.5-flash}
+      AI_BASE_URL=${AI_BASE_URL:-https://api.z.ai/api/paas/v4}
+      BACKUP_CHAT_ID=$BACKUP_CHAT_ID
+      BACKUP_PASSPHRASE=$BACKUP_PASSPHRASE
+      ALERT_CHAT_ID=$ALERT_CHAT_ID
+      BACKEND_IMAGE=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+      FRONTEND_IMAGE=$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
+      EOF
+    # Secrets the operator chose to keep on the server (~/budget_me/.env.local)
+    # fill in whatever CI left empty. Without this the render above would blank
+    # them on every deploy, and the CI variables would be the only place a value
+    # could live.
+    - ssh "deploy@$SSH_HOST" "cd ~/budget_me && ./scripts/merge-env.sh .env.new .env.local"
+    # 3. Deploy with automatic rollback. Runner-side $vars expand in this
+    #    unquoted heredoc; remote-only vars are escaped as \$var. On any error
+    #    the ERR trap restores .env.prev and brings the old images back up.
+    - |
+      ssh "deploy@$SSH_HOST" 'bash -s' <<EOF
+      set -e
+      cd ~/budget_me
+      docker login registry.gitlab.com -u '$DEPLOY_TOKEN_USER' -p '$DEPLOY_TOKEN_PASSWORD'
+
+      rollback() {
+        echo "deploy failed — rolling back to previous version"
+        if [ -f .env.prev ]; then
+          mv -f .env.prev .env
+          docker compose --env-file .env -f prod.yml up -d || true
+        fi
+        exit 1
+      }
+      trap rollback ERR
+
+      cp -f .env .env.prev 2>/dev/null || true
+      mv -f .env.new .env
+
+      docker compose --env-file .env -f prod.yml pull
+      # Migrate before switching the app so a bad migration never leaves new
+      # code running against an unmigrated DB (postgres image is pinned, so
+      # "up -d postgres" only ensures the DB is up — it never swaps versions).
+      docker compose --env-file .env -f prod.yml up -d postgres
+
+      # A dump taken seconds before the migration — the rollback above restores
+      # the previous IMAGES, but nothing restores a table a migration dropped.
+      # Local copy only (Telegram is the nightly job's business), and never fatal:
+      # a deploy that is fine must not be blocked by a backup that is not.
+      # </dev/null here too: this heredoc IS the remote shell's stdin, and anything
+      # inside the script that reads stdin devours the rest of the deploy.
+      ./scripts/backup.sh --local </dev/null || echo "pre-migrate backup failed — continuing"
+      # -T + </dev/null: this whole script is piped to the remote 'bash -s' over
+      # ssh stdin, and 'compose run' attaches stdin by default — without the
+      # redirect it swallows the rest of the script and the deploy stops here.
+      docker compose --env-file .env -f prod.yml --profile tools run --rm -T migrate </dev/null
+      docker compose --env-file .env -f prod.yml up -d
+
+      # The Caddyfile is bind-mounted, so a changed FILE does not change the
+      # container spec and "up -d" leaves the old config running in memory. Ask
+      # Caddy to re-read it (zero downtime); force a recreate if that fails.
+      docker compose --env-file .env -f prod.yml exec -T caddy \
+        caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile </dev/null \
+        || docker compose --env-file .env -f prod.yml up -d --force-recreate caddy
+
+      # The containers must actually BE the version we just shipped. A deploy that
+      # silently changes nothing and reports success is worse than a failed one:
+      # a `compose exec` inside a called script ate the rest of this heredoc from
+      # ssh stdin, and two green pipelines in a row left prod on the old image.
+      want_backend="\$(grep '^BACKEND_IMAGE=' .env | cut -d= -f2-)"
+      got_backend="\$(docker inspect budget_me-backend-1 --format '{{.Config.Image}}')"
+      if [ "\$want_backend" != "\$got_backend" ]; then
+        echo "backend runs \$got_backend, expected \$want_backend — deploy did not take"
+        false
+      fi
+
+      # Health gate: backend must report healthy within ~30s or we roll back.
+      ok=""
+      for i in \$(seq 1 10); do
+        if docker run --rm --network budget_me_default curlimages/curl:latest \
+             -fsS http://backend:8080/healthz </dev/null >/dev/null 2>&1; then
+          ok=1; break
+        fi
+        sleep 3
+      done
+      [ -n "\$ok" ] || false
+
+      trap - ERR
+      rm -f .env.prev
+      # Reclaim disk: past deploys leave old per-SHA backend/frontend images.
+      # Runs only here (health passed, no rollback), so nothing in use is hit —
+      # the 4 running services keep their images; the registry stays the source
+      # of truth for any future rollback. Never fail the deploy on cleanup.
+      docker image prune -af >/dev/null 2>&1 || true
+      echo "deploy healthy on $CI_COMMIT_SHORT_SHA"
+      EOF
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'

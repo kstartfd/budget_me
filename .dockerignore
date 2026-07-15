@@ -1,0 +1,13 @@
+# Keep build context small — only backend is needed for the dev image
+.git
+.idea
+.vscode
+docs/
+mobile/
+scripts/
+frontend/
+infra/
+backend/tmp/
+backend/bin/
+**/*.log
+**/.DS_Store
