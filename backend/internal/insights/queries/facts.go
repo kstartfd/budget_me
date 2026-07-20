@@ -342,3 +342,59 @@ func MonthBounds(month, timezone string, now time.Time) (time.Time, time.Time) {
 
 	return from, from.AddDate(0, 1, 0)
 }
+
+// clampDay pins a start-of-period day into a real day of (year, month): days
+// 29–31 don't exist in every month, so anything past the month's length lands on
+// its last day. Mirrors the frontend's clampStartDay so both sides agree on which
+// day a period actually opens.
+func clampDay(day, year, month int) int {
+	if day < 1 {
+		day = 1
+	}
+
+	last := time.Date(year, time.Month(month)+1, 0, 0, 0, 0, 0, time.UTC).Day()
+	if day > last {
+		day = last
+	}
+
+	return day
+}
+
+// PeriodBounds returns the [from, to) instants of the BILLING PERIOD that
+// contains `now`, in the user's zone, honouring the day the period starts on
+// (startDay). It also returns the calendar-month key of `now` — the same key the
+// budgets/limits screen and cached advice are stored under, so a period's spend
+// is compared against that month's limits (and advice caches per month).
+//
+// With startDay 1 this is the plain calendar month, so nothing shifts from
+// MonthBounds' behaviour until the user moves their start day (e.g. payday on the
+// 5th → 5 Jul 00:00 .. 5 Aug 00:00). Before the start day, `now` still belongs to
+// the period that opened LAST month — mirroring the frontend's periodOpenKey so
+// the dashboard and the AI insights measure the same span. Empty/unknown zone
+// falls back to UTC.
+func PeriodBounds(startDay int, timezone string, now time.Time) (time.Time, time.Time, string) {
+	loc, err := time.LoadLocation(timezone)
+	if err != nil {
+		loc = time.UTC
+	}
+
+	local := now.In(loc)
+	month := local.Format("2006-01")
+
+	// Which month did the period containing `now` open in? This month if we are on
+	// or past its start day; otherwise last month.
+	openYear, openMonth := local.Year(), int(local.Month())
+	if local.Day() < clampDay(startDay, openYear, openMonth) {
+		prev := time.Date(openYear, time.Month(openMonth), 1, 0, 0, 0, 0, loc).AddDate(0, -1, 0)
+		openYear, openMonth = prev.Year(), int(prev.Month())
+	}
+
+	from := time.Date(openYear, time.Month(openMonth), clampDay(startDay, openYear, openMonth), 0, 0, 0, 0, loc)
+
+	// The next period opens on startDay of the following month (Go normalises a
+	// 13th month into January of the next year).
+	next := time.Date(openYear, time.Month(openMonth)+1, 1, 0, 0, 0, 0, loc)
+	to := time.Date(next.Year(), next.Month(), clampDay(startDay, next.Year(), int(next.Month())), 0, 0, 0, 0, loc)
+
+	return from, to, month
+}

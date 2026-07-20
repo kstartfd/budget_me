@@ -171,8 +171,12 @@ export default function OverviewPage() {
           <div className="text-muted-foreground mt-0.5 font-mono text-[13px] font-medium">
             {spentApprox && <>≈ {spentApprox}</>}
             {spentApprox && hasIncome && " · "}
-            {hasIncome &&
-              t("fromIncome", { amount: `${formatBr(incomeMinor)} Br` })}
+            {hasIncome && (
+              <>
+                {t("fromIncome", { amount: `${formatBr(incomeMinor)} Br` })}
+                {fx(incomeMinor) && <> (≈ {fx(incomeMinor)})</>}
+              </>
+            )}
           </div>
         )}
         <div className="bg-secondary mt-4 h-2 overflow-hidden rounded-full">
@@ -186,19 +190,27 @@ export default function OverviewPage() {
         </div>
         {hasIncome ? (
           <div className="mt-4 grid grid-cols-2 gap-2">
-            {[
-              [t("left"), `${formatBr(leftMinor)} Br`],
-              [t("daysLeft"), String(daysLeft)],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <div className="text-faint font-mono text-[10px] font-semibold tracking-[0.06em] uppercase">
-                  {label}
-                </div>
-                <div className="mt-[5px] text-[14.5px] font-semibold">
-                  {value}
-                </div>
+            <div>
+              <div className="text-faint font-mono text-[10px] font-semibold tracking-[0.06em] uppercase">
+                {t("left")}
               </div>
-            ))}
+              <div className="mt-[5px] text-[14.5px] font-semibold">
+                {formatBr(leftMinor)} Br
+              </div>
+              {fx(leftMinor) && (
+                <div className="text-muted-foreground mt-0.5 font-mono text-[11px]">
+                  ≈ {fx(leftMinor)}
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-faint font-mono text-[10px] font-semibold tracking-[0.06em] uppercase">
+                {t("daysLeft")}
+              </div>
+              <div className="mt-[5px] text-[14.5px] font-semibold">
+                {daysLeft}
+              </div>
+            </div>
           </div>
         ) : (
           <p className="text-muted-foreground mt-4 text-[13px] font-medium">
@@ -257,8 +269,15 @@ export default function OverviewPage() {
                 <span className="min-w-0 flex-1 truncate text-sm font-medium">
                   {plan.title}
                 </span>
-                <span className="text-faint shrink-0 font-mono text-[13px]">
-                  {formatBr(plan.amountMinor)} Br
+                <span className="shrink-0 text-right">
+                  <span className="text-faint block font-mono text-[13px]">
+                    {formatBr(plan.amountMinor)} Br
+                  </span>
+                  {fx(plan.amountMinor) && (
+                    <span className="text-faint block font-mono text-[10.5px] opacity-70">
+                      ≈ {fx(plan.amountMinor)}
+                    </span>
+                  )}
                 </span>
                 <button
                   type="button"
@@ -307,8 +326,15 @@ export default function OverviewPage() {
                     }}
                   />
                 </span>
-                <span className="w-[82px] text-right font-mono text-[13px] font-medium">
-                  {formatBr(row.spentMinor)} Br
+                <span className="w-[82px] shrink-0 text-right">
+                  <span className="block font-mono text-[13px] font-medium">
+                    {formatBr(row.spentMinor)} Br
+                  </span>
+                  {fx(row.spentMinor) && (
+                    <span className="text-muted-foreground block font-mono text-[11px]">
+                      ≈ {fx(row.spentMinor)}
+                    </span>
+                  )}
                 </span>
               </div>
             )

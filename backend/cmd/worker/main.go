@@ -115,9 +115,22 @@ func writeAdvice(ctx context.Context, q *db.Queries, clk clock.Clock, client *ai
 
 	for _, u := range users {
 		userID := ids.FromPg(u.ID)
-		from, to := queries.MonthBounds("", u.Timezone, clk.Now())
 
-		monthFacts, err := facts.Handle(ctx, userID, from.Format("2006-01"), from, to)
+		// The nightly pass has no client attached, so the user's own settings say
+		// which span is "current": their zone (already on the row) and their
+		// monthStartDay decide the billing period the advice is written about.
+		full, err := q.GetUserByID(ctx, u.ID)
+		if err != nil {
+			fmt.Printf("  %s: load user failed: %v\n", userID, err)
+
+			failed++
+
+			continue
+		}
+
+		from, to, month := queries.PeriodBounds(int(full.MonthStartDay), u.Timezone, clk.Now())
+
+		monthFacts, err := facts.Handle(ctx, userID, month, from, to)
 		if err != nil {
 			fmt.Printf("  %s: facts failed: %v\n", userID, err)
 

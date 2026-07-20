@@ -43,8 +43,11 @@ type Insight struct {
 type InsightList struct {
 	UserID uuid.UUID
 	Month  string
-	// Timezone — IANA-зона клиента: границы месяца режутся по его календарю.
+	// Timezone — IANA-зона клиента: границы периода режутся по его календарю.
 	Timezone string
+	// MonthStartDay — день начала биллинг-периода из настроек пользователя.
+	// Траты считаются за этот период, а не за календарный месяц.
+	MonthStartDay int
 }
 
 type ListHandler struct {
@@ -61,9 +64,9 @@ func NewListHandler(q *db.Queries, clk clock.Clock) ListHandler {
 // broke its limit, then a nudge to put a limit on the biggest category that has
 // none, and — when limits exist and none were broken — one card saying so.
 func (h ListHandler) Handle(ctx context.Context, query InsightList) ([]Insight, error) {
-	from, to := MonthBounds(query.Month, query.Timezone, h.clock.Now())
+	from, to, month := PeriodBounds(query.MonthStartDay, query.Timezone, h.clock.Now())
 
-	facts, err := h.facts.Handle(ctx, query.UserID, from.Format("2006-01"), from, to)
+	facts, err := h.facts.Handle(ctx, query.UserID, month, from, to)
 	if err != nil {
 		return nil, err
 	}
