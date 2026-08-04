@@ -142,6 +142,11 @@ export const monthSummarySchema = z.object({
   spentMinor: z.number().int().min(0),
   /** Total income (приход) logged in the period — «Осталось» = incomeMinor − spentMinor. */
   incomeMinor: z.number().int().min(0),
+  /** Unspent income carried in from the immediately preceding period (0 if that
+   *  period was fully spent, or overspent — never a debt). Shown as its own line,
+   *  never folded into incomeMinor: incomeMinor stays "money that arrived this
+   *  period" per the money-info-sheet explainer. */
+  carriedInMinor: z.number().int().min(0),
   byCategory: z.array(
     z.object({
       categoryId: z.string(),

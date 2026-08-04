@@ -102,6 +102,23 @@ export function periodLabel(
 }
 
 /**
+ * The [from, to] calendar range (`YYYY-MM-DD`, both inclusive) that `month`'s
+ * billing period actually spans — the single place this gets decided, so a
+ * fetch and a link built for the same `month` never disagree. The RUNNING
+ * period (the one containing `today`, found via periodOpenKey) is capped at
+ * `today`; any other (closed) period runs to its full end.
+ */
+export function periodBoundsISO(
+  month: MonthKey,
+  today: string,
+  startDay: number,
+): { from: string; to: string } {
+  return month === currentMonthKey(today)
+    ? { from: periodStartISO(periodOpenKey(today, startDay), startDay), to: today }
+    : { from: periodStartISO(month, startDay), to: periodEndISO(month, startDay) }
+}
+
+/**
  * Days left in `key` counting `today`, or null when `key` isn't `today`'s
  * month. `today` is the server calendar date (`YYYY-MM-DD`).
  */

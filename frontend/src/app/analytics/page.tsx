@@ -1,17 +1,26 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
 
+import { ChevronLeftIcon, ChevronRightIcon } from "@/components/app-icons"
 import {
   useCategories,
   useMonthSummary,
   useTrend,
 } from "@/features/budget"
 import { useCategoryLabel } from "@/features/budget/category-label"
-import { useToday } from "@/features/settings"
+import { readMonthStartDay, useToday } from "@/features/settings"
 import { formatBr } from "@/lib/money"
-import { currentMonthKey, daysInMonth, monthShort } from "@/lib/month"
+import {
+  daysInMonth,
+  monthShort,
+  monthTitle,
+  periodBoundsISO,
+  periodOpenKey,
+  shiftMonth,
+} from "@/lib/month"
 import { AnalyticsSkeleton } from "./skeleton"
 
 const card =
@@ -24,7 +33,10 @@ export default function AnalyticsPage() {
   const tCommon = useTranslations("common")
 
   const today = useToday()
-  const month = currentMonthKey(today)
+  const startDay = readMonthStartDay()
+  const [monthsBack, setMonthsBack] = useState(0)
+  const isCurrentPeriod = monthsBack === 0
+  const month = shiftMonth(periodOpenKey(today, startDay), -monthsBack)
   const summary = useMonthSummary(month)
   const categories = useCategories()
   const trend = useTrend()
@@ -42,6 +54,11 @@ export default function AnalyticsPage() {
 
   const catById = new Map(categories.data.map((c) => [c.id, c]))
   const { spentMinor, byCategory } = summary.data
+  // Category links carry the SAME period the numbers above came from, so
+  // tapping through from a past period lands on transactions for THAT period
+  // instead of silently swapping in "today".
+  const { from: periodFrom, to: periodTo } = periodBoundsISO(month, today, startDay)
+  const periodQuery = `&from=${periodFrom}&to=${periodTo}`
 
   // Donut geometry per the design: r=54, stroke 17, 3px gaps, from 12 o'clock.
   const circumference = 2 * Math.PI * 54
@@ -58,19 +75,56 @@ export default function AnalyticsPage() {
   }
 
   const maxTrend = Math.max(...trend.data.map((p) => p.spentMinor), 1)
-  const prev = trend.data[trend.data.length - 2]
-  const cur = trend.data[trend.data.length - 1]
-  // Per-day pace, since the running month is partial.
-  const curPace = cur.spentMinor / Number(today.slice(8, 10))
-  const prevPace = prev ? prev.spentMinor / daysInMonth(prev.month) : 0
+  // Highlight whichever bar the switcher above is showing — falls out of the
+  // 6-bar window (selectedIdx -1) once you page back far enough, and nothing
+  // highlights: the trend strip just stops tracking the switcher.
+  const selectedIdx = trend.data.findIndex((p) => p.month === month)
+  const selected = selectedIdx >= 0 ? trend.data[selectedIdx] : undefined
+  const prevBar = selectedIdx > 0 ? trend.data[selectedIdx - 1] : undefined
+  // The running period is partial, so compare per-day PACE; a closed period's
+  // total is already final and compares directly against the bar before it.
+  const selectedPace = selected
+    ? isCurrentPeriod
+      ? selected.spentMinor / Number(today.slice(8, 10))
+      : selected.spentMinor
+    : 0
+  const prevPace = prevBar
+    ? isCurrentPeriod
+      ? prevBar.spentMinor / daysInMonth(prevBar.month)
+      : prevBar.spentMinor
+    : 0
   const trendDeltaPct =
-    prevPace > 0 ? ((curPace - prevPace) / prevPace) * 100 : null
+    selected && prevPace > 0 ? ((selectedPace - prevPace) / prevPace) * 100 : null
 
   return (
     <div className="anim-fade flex flex-col gap-4">
-      <h1 className="px-0.5 text-[22px] font-bold tracking-[-0.02em]">
-        {t("title")}
-      </h1>
+      <div className="flex items-center justify-between px-0.5">
+        <h1 className="text-[22px] font-bold tracking-[-0.02em]">
+          {t("title")}
+        </h1>
+        <div className="flex items-center gap-1">
+          <button
+            type="button"
+            aria-label={t("prevPeriod")}
+            onClick={() => setMonthsBack((m) => m + 1)}
+            className="border-border bg-secondary text-foreground flex size-7 shrink-0 items-center justify-center rounded-full border"
+          >
+            <ChevronLeftIcon size={14} />
+          </button>
+          <span className="whitespace-nowrap px-0.5 text-center font-mono text-[11.5px] font-semibold">
+            {monthTitle(month, locale)}
+          </span>
+          <button
+            type="button"
+            aria-label={t("nextPeriod")}
+            disabled={isCurrentPeriod}
+            onClick={() => setMonthsBack((m) => Math.max(m - 1, 0))}
+            className="border-border bg-secondary text-foreground flex size-7 shrink-0 items-center justify-center rounded-full border disabled:opacity-30"
+          >
+            <ChevronRightIcon size={14} />
+          </button>
+        </div>
+      </div>
 
       {/* donut */}
       <section className={`${card} px-5 py-[22px]`}>
@@ -122,7 +176,7 @@ export default function AnalyticsPage() {
               return (
                 <Link
                   key={row.categoryId}
-                  href={`/transactions?category=${row.categoryId}`}
+                  href={`/transactions?category=${row.categoryId}${periodQuery}`}
                   prefetch={false}
                   className="hover:bg-secondary/50 active:bg-secondary -mx-1 flex items-center gap-[9px] rounded-md px-1 py-0.5 transition-colors"
                 >
@@ -157,7 +211,7 @@ export default function AnalyticsPage() {
         </div>
         <div className="mt-5 flex h-[118px] items-end gap-2.5">
           {trend.data.map((p, i) => {
-            const current = i === trend.data.length - 1
+            const isSelected = i === selectedIdx
             return (
               <div
                 key={p.month}
@@ -167,13 +221,13 @@ export default function AnalyticsPage() {
                   className="w-full rounded-t-[7px] rounded-b-[4px] transition-[height] duration-400"
                   style={{
                     height: `${Math.round((p.spentMinor / maxTrend) * 100)}%`,
-                    background: current ? "var(--primary)" : "var(--primary-wash)",
+                    background: isSelected ? "var(--primary)" : "var(--primary-wash)",
                   }}
                 />
                 <span
                   className="font-mono text-[10px] font-medium"
                   style={{
-                    color: current ? "var(--foreground)" : "var(--faint)",
+                    color: isSelected ? "var(--foreground)" : "var(--faint)",
                   }}
                 >
                   {monthShort(p.month, locale)}
@@ -198,7 +252,7 @@ export default function AnalyticsPage() {
             return (
               <Link
                 key={row.categoryId}
-                href={`/transactions?category=${row.categoryId}`}
+                href={`/transactions?category=${row.categoryId}${periodQuery}`}
                 prefetch={false}
                 className="hover:bg-secondary/40 active:bg-secondary/60 flex items-center gap-[13px] px-4 py-3.5 transition-colors"
               >

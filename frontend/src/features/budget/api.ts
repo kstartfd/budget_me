@@ -4,9 +4,11 @@ import { readToken } from "@/features/auth"
 import { readMonthStartDay, readToday } from "@/features/settings"
 import {
   currentMonthKey,
+  periodBoundsISO,
   periodEndISO,
   periodOpenKey,
   periodStartISO,
+  shiftMonth,
 } from "@/lib/month"
 import {
   browserTimezone,
@@ -112,12 +114,8 @@ async function call<T>(
 
 /**
  * The [from, to] calendar range of a month's billing period as wall-clock dates
- * (`YYYY-MM-DD`, both inclusive), honouring the user's `monthStartDay` setting
- * (default 1 → the plain calendar month, so the default behaviour is unchanged).
- * The running period is capped at today; past periods run to their full end. The
- * current period is the one CONTAINING today (via periodOpenKey), so a start day
- * later than today's date maps to the period that opened last month — keeping
- * from <= to (an inverted range makes the backend 400).
+ * (`YYYY-MM-DD`, both inclusive) — periodBoundsISO with this user's settings
+ * filled in. See there for the running-vs-closed-period rules.
  *
  * These stay DATES, not instants: every caller sends them through
  * dayStartInstant/dayEndInstant itself. Handing instants out here once meant
@@ -125,16 +123,26 @@ async function call<T>(
  * converted string and left the dashboard with no rows at all.
  */
 function periodRange(month: string): { from: string; to: string } {
+  return periodBoundsISO(month, readToday(), readMonthStartDay())
+}
+
+/** Bounds of the billing period immediately BEFORE `month`'s — the base the
+ *  summary compares against (per-category spend delta, carried-in leftover
+ *  income). Same "which key does this month actually open in" step as
+ *  periodRange, one period further back; always a *closed* period, so it runs
+ *  start → end (never "→ today", unlike the current period). Same shift the
+ *  transactions screen already uses for its "previous period" preset. */
+function prevPeriodRange(month: string): { from: string; to: string } {
   const startDay = readMonthStartDay()
   const today = readToday()
-  // "Current month" means the billing period CONTAINING today: with a start day
-  // later than today's date that period opened last month.
-  const [from, to] =
-    month === currentMonthKey(today)
-      ? [periodStartISO(periodOpenKey(today, startDay), startDay), today]
-      : [periodStartISO(month, startDay), periodEndISO(month, startDay)]
+  const openKey =
+    month === currentMonthKey(today) ? periodOpenKey(today, startDay) : month
+  const prevKey = shiftMonth(openKey, -1)
 
-  return { from, to }
+  return {
+    from: periodStartISO(prevKey, startDay),
+    to: periodEndISO(prevKey, startDay),
+  }
 }
 
 export async function fetchCategories(): Promise<Category[]> {
@@ -205,26 +213,31 @@ export function fetchBudgets(month: string): Promise<Budget[]> {
   )
 }
 
-/** Month summary — spent total, income total and per-category spend breakdown
- *  come live from the backend in one call (GET /transactions/summary; the
- *  income vs spend split is computed server-side). `byCategory` is sorted desc
- *  by spend client-side (the overview takes the top rows) and deltaPct is a
- *  placeholder until prev-month comparison is wired. */
+/** Month summary — spent total, income total, unspent income carried in from
+ *  the previous period and per-category spend breakdown (with its delta vs
+ *  that same previous period) come live from the backend in one call (GET
+ *  /transactions/summary). prevFrom/prevTo tell the backend which period to
+ *  compare against; `byCategory` is sorted desc by spend client-side (the
+ *  overview takes the top rows). */
 export async function fetchMonthSummary(month: string): Promise<MonthSummary> {
   const { from, to } = periodRange(month)
+  const prev = prevPeriodRange(month)
 
   const summary = await call(
-    `/transactions/summary?from=${dayStartInstant(from)}&to=${dayEndInstant(to)}`,
+    `/transactions/summary?from=${dayStartInstant(from)}&to=${dayEndInstant(to)}` +
+      `&prevFrom=${dayStartInstant(prev.from)}&prevTo=${dayEndInstant(prev.to)}`,
     { method: "GET" },
     (d) =>
       z
         .object({
           spentMinor: z.number().int().min(0),
           incomeMinor: z.number().int().min(0),
+          carriedInMinor: z.number().int().min(0),
           byCategory: z.array(
             z.object({
               categoryId: z.string(),
               spentMinor: z.number().int().min(0),
+              deltaPct: z.number().nullable(),
             }),
           ),
         })
@@ -235,9 +248,10 @@ export async function fetchMonthSummary(month: string): Promise<MonthSummary> {
     month,
     spentMinor: summary.spentMinor,
     incomeMinor: summary.incomeMinor,
-    byCategory: [...summary.byCategory]
-      .sort((a, b) => b.spentMinor - a.spentMinor)
-      .map((c) => ({ ...c, deltaPct: null })),
+    carriedInMinor: summary.carriedInMinor,
+    byCategory: [...summary.byCategory].sort(
+      (a, b) => b.spentMinor - a.spentMinor,
+    ),
   }
 }
 

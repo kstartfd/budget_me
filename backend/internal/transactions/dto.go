@@ -39,11 +39,14 @@ type transactionResponse struct {
 }
 
 // summaryResponse — JSON-форма ответа /transactions/summary. Совпадает с
-// фронтовым MonthSummary (без deltaPct — это follow-up).
+// фронтовым MonthSummary; byCategory несёт deltaPct (сравнение с прошлым
+// периодом), CarriedInMinor — неизрасходованный приход, перешедший из прошлого
+// периода (0, если prevFrom/prevTo не присланы или сравнивать не с чем).
 type summaryResponse struct {
-	SpentMinor  int64                   `json:"spentMinor"`
-	IncomeMinor int64                   `json:"incomeMinor"`
-	ByCategory  []categorySpendResponse `json:"byCategory"`
+	SpentMinor     int64                     `json:"spentMinor"`
+	IncomeMinor    int64                     `json:"incomeMinor"`
+	CarriedInMinor int64                     `json:"carriedInMinor"`
+	ByCategory     []summaryCategoryResponse `json:"byCategory"`
 }
 
 // spentResponse — форма ответа «сколько потрачено за период». Совпадает с
@@ -52,11 +55,21 @@ type spentResponse struct {
 	SpentMinor int64 `json:"spentMinor"`
 }
 
-// categorySpendResponse — одна строка разбивки расхода по категории в JSON.
-// camelCase-теги совпадают с фронтовым MonthSummary.byCategory.
+// categorySpendResponse — одна строка разбивки расхода по категории в JSON
+// (эндпоинт /by-category). camelCase-теги совпадают с фронтом.
 type categorySpendResponse struct {
 	CategoryID string `json:"categoryId"` // uuid категории как строка
 	SpentMinor int64  `json:"spentMinor"` // сумма трат в копейках Br
+}
+
+// summaryCategoryResponse — строка разбивки в ответе сводки: к categoryId+spentMinor
+// добавлен deltaPct (% изменения расхода против прошлого периода). Отдельный тип от
+// categorySpendResponse, которому дельта не нужна. Указатель + тег БЕЗ omitempty:
+// фронтовый MonthSummary ждёт ключ ВСЕГДА (number | null), nil маршалится в JSON null.
+type summaryCategoryResponse struct {
+	CategoryID string `json:"categoryId"` // uuid категории как строка
+	SpentMinor int64  `json:"spentMinor"` // сумма трат в копейках Br
+	DeltaPct   *int32 `json:"deltaPct"`   // % против прошлого периода; nil → null
 }
 
 // trendPointResponse — один столбик графика на экране «Графики». Совпадает с
@@ -113,16 +126,21 @@ func toTrendPointResponse(p queries.TrendPoint) trendPointResponse {
 
 // toSummaryResponse собирает JSON-ответ сводки из доменного SummaryResult. ByCategory
 // строим через make(len) — на пустом входе даст [] (не null): res.ByCategory всегда
-// не nil (см. toCategorySpends).
+// не nil (см. Handle). DeltaPct пробрасываем как есть — nil даст JSON null.
 func toSummaryResponse(res queries.SummaryResult) summaryResponse {
-	byCategory := make([]categorySpendResponse, len(res.ByCategory))
+	byCategory := make([]summaryCategoryResponse, len(res.ByCategory))
 	for i, cs := range res.ByCategory {
-		byCategory[i] = toCategorySpendResponse(cs)
+		byCategory[i] = summaryCategoryResponse{
+			CategoryID: cs.CategoryID.String(),
+			SpentMinor: cs.SpentMinor,
+			DeltaPct:   cs.DeltaPct,
+		}
 	}
 
 	return summaryResponse{
-		SpentMinor:  res.SpentMinor,
-		IncomeMinor: res.IncomeMinor,
-		ByCategory:  byCategory,
+		SpentMinor:     res.SpentMinor,
+		IncomeMinor:    res.IncomeMinor,
+		CarriedInMinor: res.CarriedInMinor,
+		ByCategory:     byCategory,
 	}
 }

@@ -121,6 +121,7 @@
   "overview": {
     "spentKicker": "Spent · this month",
     "fromIncome": "of {amount} income",
+    "carriedIn": "Carried in from last period: {amount}",
     "noIncomeHint": "Add income to see what's left",
     "left": "Free",
     "infoAria": "What these amounts mean",
@@ -218,6 +219,8 @@
   },
   "analytics": {
     "title": "Analytics",
+    "prevPeriod": "Previous period",
+    "nextPeriod": "Next period",
     "total": "Total",
     "trendTitle": "Trend · 6 mo",
     "vsPrev": "vs last mo",

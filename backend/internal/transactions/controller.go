@@ -213,15 +213,21 @@ func (c *Controller) updateTransaction(ctx echo.Context) error {
 	return httpx.OK(ctx, toTransactionResponse(tx))
 }
 
-// getTransactionSummary — GET /transactions/summary?from=&to=: расход, приход и разбивка
-// расхода по категориям одним запросом. NULL-бакет уже отфильтрован в queries.
+// getTransactionSummary — GET /transactions/summary?from=&to=&prevFrom=&prevTo=:
+// расход, приход и разбивка расхода по категориям одним запросом. NULL-бакет уже
+// отфильтрован в queries. prevFrom/prevTo — окно прошлого периода: используется и
+// для дельты по категориям, и для carriedInMinor (неизрасходованный приход
+// прошлого периода); необязательны, кривые/пустые просто отключают обе добавки
+// (deltaPct null, carriedInMinor 0).
 func (c *Controller) getTransactionSummary(ctx echo.Context) error {
 	userID := httpx.UserIDFromContext(ctx.Request().Context())
 
 	res, err := c.summary.Handle(ctx.Request().Context(), queries.TransactionSummary{
-		UserID: userID,
-		From:   ctx.QueryParam("from"),
-		To:     ctx.QueryParam("to"),
+		UserID:   userID,
+		From:     ctx.QueryParam("from"),
+		To:       ctx.QueryParam("to"),
+		PrevFrom: ctx.QueryParam("prevFrom"),
+		PrevTo:   ctx.QueryParam("prevTo"),
 	})
 	if err != nil {
 		return err

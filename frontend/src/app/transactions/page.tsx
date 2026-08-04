@@ -38,11 +38,19 @@ function TransactionsView() {
   const today = useToday()
   const startDay = readMonthStartDay()
 
-  const [filters, setFilters] = useState<TxFilters>(() => ({
-    ...defaultRange(today, startDay),
-    direction: "all",
-    category: searchParams.get("category") ?? "all",
-  }))
+  const [filters, setFilters] = useState<TxFilters>(() => {
+    // A category link from Analytics carries the period it was looking at
+    // (from/to) alongside the category — landing here on "current period"
+    // instead would silently swap out what you just tapped through to see.
+    const from = searchParams.get("from")
+    const to = searchParams.get("to")
+
+    return {
+      ...(from && to ? { from, to } : defaultRange(today, startDay)),
+      direction: "all",
+      category: searchParams.get("category") ?? "all",
+    }
+  })
   const [filtersOpen, setFiltersOpen] = useState(false)
 
   const transactions = useTransactionsRange(filters.from, filters.to)

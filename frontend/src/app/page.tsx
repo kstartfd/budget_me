@@ -58,7 +58,7 @@ export default function OverviewPage() {
     )
   }
 
-  const { spentMinor, incomeMinor, byCategory } = summary.data
+  const { spentMinor, incomeMinor, carriedInMinor, byCategory } = summary.data
   // The real dictionary carries both directions, so income rows resolve their
   // category name straight from it; the expense-only "by category" is unaffected.
   const catById = new Map(categories.data.map((c) => [c.id, c]))
@@ -178,6 +178,14 @@ export default function OverviewPage() {
               </>
             )}
           </div>
+        )}
+        {carriedInMinor > 0 && (
+          <p
+            className="mt-1 font-mono text-[12px] font-medium"
+            style={{ color: "var(--success)" }}
+          >
+            {t("carriedIn", { amount: `+${formatBr(carriedInMinor)} Br` })}
+          </p>
         )}
         <div className="bg-secondary mt-4 h-2 overflow-hidden rounded-full">
           <div
