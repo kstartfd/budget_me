@@ -30,28 +30,39 @@ export const CURRENCIES: ReadonlyArray<{ code: Currency; symbol: string }> = [
  * "current month / period / days-left" from it instead of the untrusted device
  * clock. It is server-derived and read-only: never persisted, never sent on a
  * PUT (see `updateSettingsInputSchema`).
+ *
+ * `historyResetAt` is null until the user has moved `monthStartDay` and accepted
+ * the reset; from then on it is the instant (RFC3339 UTC) the running totals
+ * restart from. Everything before it stays readable in history and analytics but
+ * no longer carries forward. Server-derived and read-only, like `today`.
  */
 export const settingsSchema = z.object({
   monthStartDay: z.number().int().min(1).max(28),
   currency: currencySchema,
   today: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  historyResetAt: z.string().nullable(),
 })
 export type Settings = z.infer<typeof settingsSchema>
 
 /**
  * PUT /settings accepts any subset of the editable fields (never the
- * server-derived `today`).
+ * server-derived `today` / `historyResetAt`).
+ *
+ * `resetHistory` is not a preference but an answer: the server refuses a changed
+ * `monthStartDay` with 409 until it arrives, and ignores it otherwise — so a
+ * currency-only save can never cost the user their running totals.
  */
 export const updateSettingsInputSchema = settingsSchema
-  .omit({ today: true })
+  .omit({ today: true, historyResetAt: true })
   .partial()
+  .extend({ resetHistory: z.boolean().optional() })
 export type UpdateSettingsInput = z.infer<typeof updateSettingsInputSchema>
 
 /**
  * Fallback constants for the synchronous readers before the first fetch
  * resolves (calendar month, Belarusian ruble).
  */
-export const DEFAULT_SETTINGS: Omit<Settings, "today"> = {
+export const DEFAULT_SETTINGS: Omit<Settings, "today" | "historyResetAt"> = {
   monthStartDay: 1,
   currency: "BYN",
 }

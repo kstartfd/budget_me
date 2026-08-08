@@ -223,6 +223,19 @@ func (h SummaryHandler) carriedIn(ctx context.Context, userID uuid.UUID, fromStr
 	}
 
 	userPg := ids.ToPg(userID)
+
+	// Сброс истории (смена первого дня периода) обрезает окно: то, что было до
+	// отсечения, считалось по СТАРЫМ границам периода и вперёд не переносится.
+	resetAt, err := h.q.GetHistoryResetAt(ctx, userPg)
+	if err != nil {
+		return 0, err
+	}
+
+	from, ok = carryWindowFrom(from, to, db.TimePtr(resetAt))
+	if !ok {
+		return 0, nil
+	}
+
 	fromPg := db.Time(from)
 	toPg := db.Time(to)
 
@@ -245,6 +258,34 @@ func (h SummaryHandler) carriedIn(ctx context.Context, userID uuid.UUID, fromStr
 	}
 
 	return carriedInMinor(income, spent), nil
+}
+
+// carryWindowFrom обрезает окно прошлого периода [from, to) по точке отсечения
+// истории и говорит, осталось ли от него хоть что-то.
+//
+// Аналогия из PHP: это как `max($from, $cutoff)` — только с ответом «а не пусто
+// ли теперь окно вообще».
+//
+// Отсечения нет (cutoff == nil) → окно как есть. Окно целиком ДО отсечения
+// (to <= cutoff) → переносить нечего, ok=false: тот период жил по старым
+// границам месяца, и его остаток к новым отношения не имеет. Окно частично
+// задевает отсечение → начало подтягивается к нему, хвост после отсечения
+// считается как обычно. Граница `to` — исключающая (SQL берёт spent_at < to),
+// поэтому to == cutoff это ещё «целиком до».
+func carryWindowFrom(from, to time.Time, cutoff *time.Time) (time.Time, bool) {
+	if cutoff == nil {
+		return from, true
+	}
+
+	if !to.After(*cutoff) {
+		return time.Time{}, false
+	}
+
+	if from.Before(*cutoff) {
+		return *cutoff, true
+	}
+
+	return from, true
 }
 
 // carriedInMinor — арифметика переноса: max(приход − расход, 0) за прошлый

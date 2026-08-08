@@ -11,36 +11,74 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteBudget = `-- name: DeleteBudget :exec
+const deleteBudgetsFrom = `-- name: DeleteBudgetsFrom :exec
 DELETE FROM budgets
-WHERE user_id = $1
+WHERE user_id     = $1
   AND category_id = $2
-  AND month = $3
+  AND valid_from >= $3
 `
 
-type DeleteBudgetParams struct {
+type DeleteBudgetsFromParams struct {
 	UserID     pgtype.UUID
 	CategoryID pgtype.UUID
 	Month      string
 }
 
-func (q *Queries) DeleteBudget(ctx context.Context, arg DeleteBudgetParams) error {
-	_, err := q.db.Exec(ctx, deleteBudget, arg.UserID, arg.CategoryID, arg.Month)
+// Erases this month's row and anything later — used only when no earlier run
+// exists, where a tombstone would preserve nothing.
+func (q *Queries) DeleteBudgetsFrom(ctx context.Context, arg DeleteBudgetsFromParams) error {
+	_, err := q.db.Exec(ctx, deleteBudgetsFrom, arg.UserID, arg.CategoryID, arg.Month)
 	return err
 }
 
-const listBudgetsForMonth = `-- name: ListBudgetsForMonth :many
-SELECT id, user_id, category_id, month, limit_minor, created_at, updated_at FROM budgets
-WHERE user_id = $1 AND month = $2
+const hasBudgetBefore = `-- name: HasBudgetBefore :one
+SELECT EXISTS (
+    SELECT 1 FROM budgets
+    WHERE user_id     = $1
+      AND category_id = $2
+      AND valid_from  < $3
+)
 `
 
-type ListBudgetsForMonthParams struct {
+type HasBudgetBeforeParams struct {
+	UserID     pgtype.UUID
+	CategoryID pgtype.UUID
+	Month      string
+}
+
+// Is there an older run to inherit from? Decides how a removal is recorded: with
+// history behind it the limit needs a tombstone, without it the rows can simply
+// go (see DeleteBudgetsFrom).
+func (q *Queries) HasBudgetBefore(ctx context.Context, arg HasBudgetBeforeParams) (bool, error) {
+	row := q.db.QueryRow(ctx, hasBudgetBefore, arg.UserID, arg.CategoryID, arg.Month)
+	var exists bool
+	err := row.Scan(&exists)
+	return exists, err
+}
+
+const listBudgetsEffectiveIn = `-- name: ListBudgetsEffectiveIn :many
+SELECT DISTINCT ON (category_id) id, user_id, category_id, valid_from, limit_minor, created_at, updated_at
+FROM budgets
+WHERE user_id = $1
+  AND valid_from <= $2
+ORDER BY category_id, valid_from DESC
+`
+
+type ListBudgetsEffectiveInParams struct {
 	UserID pgtype.UUID
 	Month  string
 }
 
-func (q *Queries) ListBudgetsForMonth(ctx context.Context, arg ListBudgetsForMonthParams) ([]Budget, error) {
-	rows, err := q.db.Query(ctx, listBudgetsForMonth, arg.UserID, arg.Month)
+// The limit in force for `month`, one row per category: the newest run that has
+// already started (valid_from <= month). DISTINCT ON keeps the first row of each
+// category group, and the ORDER BY makes that the latest start — so a limit set
+// in March is still the answer in July unless something newer replaced it.
+//
+// Tombstones (NULL limit_minor) come back too. They are the difference between
+// "never had a limit" and "the limit was removed", and only the caller can say
+// which of the two it wants; the handler drops them.
+func (q *Queries) ListBudgetsEffectiveIn(ctx context.Context, arg ListBudgetsEffectiveInParams) ([]Budget, error) {
+	rows, err := q.db.Query(ctx, listBudgetsEffectiveIn, arg.UserID, arg.Month)
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +90,7 @@ func (q *Queries) ListBudgetsForMonth(ctx context.Context, arg ListBudgetsForMon
 			&i.ID,
 			&i.UserID,
 			&i.CategoryID,
-			&i.Month,
+			&i.ValidFrom,
 			&i.LimitMinor,
 			&i.CreatedAt,
 			&i.UpdatedAt,
@@ -132,31 +170,34 @@ func (q *Queries) SumSpentByPeriodAndCategory(ctx context.Context, arg SumSpentB
 
 const upsertBudget = `-- name: UpsertBudget :one
 INSERT INTO budgets (
-    id, user_id, category_id, month, limit_minor, created_at, updated_at
+    id, user_id, category_id, valid_from, limit_minor, created_at, updated_at
 ) VALUES (
     $1, $2, $3,
     $4, $5, $6, $6
 )
-ON CONFLICT (user_id, category_id, month)
+ON CONFLICT (user_id, category_id, valid_from)
 DO UPDATE SET limit_minor = EXCLUDED.limit_minor, updated_at = EXCLUDED.updated_at
-RETURNING id, user_id, category_id, month, limit_minor, created_at, updated_at
+RETURNING id, user_id, category_id, valid_from, limit_minor, created_at, updated_at
 `
 
 type UpsertBudgetParams struct {
 	ID         pgtype.UUID
 	UserID     pgtype.UUID
 	CategoryID pgtype.UUID
-	Month      string
-	LimitMinor int64
+	ValidFrom  string
+	LimitMinor pgtype.Int8
 	Now        pgtype.Timestamptz
 }
 
+// Writes the run that starts at `valid_from`. A second save in the same month
+// corrects that run rather than opening another (the UNIQUE key backs it), so
+// editing today's limit twice does not leave a stray row behind.
 func (q *Queries) UpsertBudget(ctx context.Context, arg UpsertBudgetParams) (Budget, error) {
 	row := q.db.QueryRow(ctx, upsertBudget,
 		arg.ID,
 		arg.UserID,
 		arg.CategoryID,
-		arg.Month,
+		arg.ValidFrom,
 		arg.LimitMinor,
 		arg.Now,
 	)
@@ -165,7 +206,7 @@ func (q *Queries) UpsertBudget(ctx context.Context, arg UpsertBudgetParams) (Bud
 		&i.ID,
 		&i.UserID,
 		&i.CategoryID,
-		&i.Month,
+		&i.ValidFrom,
 		&i.LimitMinor,
 		&i.CreatedAt,
 		&i.UpdatedAt,

@@ -17,7 +17,9 @@ type Querier interface {
 	CategoryNameTakenByOther(ctx context.Context, arg CategoryNameTakenByOtherParams) (bool, error)
 	CategoryVisibleToUser(ctx context.Context, arg CategoryVisibleToUserParams) (bool, error)
 	ConfirmPlan(ctx context.Context, arg ConfirmPlanParams) (Plan, error)
-	DeleteBudget(ctx context.Context, arg DeleteBudgetParams) error
+	// Erases this month's row and anything later — used only when no earlier run
+	// exists, where a tombstone would preserve nothing.
+	DeleteBudgetsFrom(ctx context.Context, arg DeleteBudgetsFromParams) error
 	DeleteCategory(ctx context.Context, arg DeleteCategoryParams) (int64, error)
 	DeletePlan(ctx context.Context, arg DeletePlanParams) error
 	DeleteTransaction(ctx context.Context, arg DeleteTransactionParams) (int64, error)
@@ -27,14 +29,29 @@ type Querier interface {
 	DeleteUsersPastDeadline(ctx context.Context, cutoff pgtype.Timestamptz) ([]DeleteUsersPastDeadlineRow, error)
 	GetAdvice(ctx context.Context, arg GetAdviceParams) (AiAdvice, error)
 	GetCategoryByID(ctx context.Context, id pgtype.UUID) (Category, error)
+	// Just the cutoff. The dashboard asks on every load and needs nothing else off
+	// the user row, so this stays narrower than GetUserByID.
+	GetHistoryResetAt(ctx context.Context, id pgtype.UUID) (pgtype.Timestamptz, error)
 	GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
+	// Is there an older run to inherit from? Decides how a removal is recorded: with
+	// history behind it the limit needs a tombstone, without it the rows can simply
+	// go (see DeleteBudgetsFrom).
+	HasBudgetBefore(ctx context.Context, arg HasBudgetBeforeParams) (bool, error)
 	InsertCategory(ctx context.Context, arg InsertCategoryParams) (Category, error)
 	InsertPlan(ctx context.Context, arg InsertPlanParams) (Plan, error)
 	InsertTransaction(ctx context.Context, arg InsertTransactionParams) (Transaction, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
-	ListBudgetsForMonth(ctx context.Context, arg ListBudgetsForMonthParams) ([]Budget, error)
+	// The limit in force for `month`, one row per category: the newest run that has
+	// already started (valid_from <= month). DISTINCT ON keeps the first row of each
+	// category group, and the ORDER BY makes that the latest start — so a limit set
+	// in March is still the answer in July unless something newer replaced it.
+	//
+	// Tombstones (NULL limit_minor) come back too. They are the difference between
+	// "never had a limit" and "the limit was removed", and only the caller can say
+	// which of the two it wants; the handler drops them.
+	ListBudgetsEffectiveIn(ctx context.Context, arg ListBudgetsEffectiveInParams) ([]Budget, error)
 	ListCategoriesForUser(ctx context.Context, userID pgtype.UUID) ([]Category, error)
 	ListPlanSuggestionsForMonth(ctx context.Context, arg ListPlanSuggestionsForMonthParams) ([]ListPlanSuggestionsForMonthRow, error)
 	ListPlansForMonth(ctx context.Context, arg ListPlansForMonthParams) ([]Plan, error)
@@ -81,8 +98,23 @@ type Querier interface {
 	// ownership в самом WHERE
 	UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error)
 	UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) (UpdateUserSettingsRow, error)
+	// The same update, plus the line the running totals restart from. Moving the day
+	// a period opens re-cuts every period ever shown, so a carry-over computed under
+	// the old boundaries would be carried into periods that no longer match it.
+	//
+	// The balance anchor goes with it: "right now I have X" was stated against the
+	// old cut, and NULL is already the app's "never stated" — so it asks again
+	// instead of showing a figure the user never confirmed. Transactions are left
+	// alone; only what reads them forward changes.
+	//
+	// One statement rather than an update followed by a reset: the two must not be
+	// separable, and this keeps it atomic without reaching for a transaction.
+	UpdateUserSettingsAndResetHistory(ctx context.Context, arg UpdateUserSettingsAndResetHistoryParams) (UpdateUserSettingsAndResetHistoryRow, error)
 	UpdateUserTelegramProfile(ctx context.Context, arg UpdateUserTelegramProfileParams) (User, error)
 	UpsertAdvice(ctx context.Context, arg UpsertAdviceParams) error
+	// Writes the run that starts at `valid_from`. A second save in the same month
+	// corrects that run rather than opening another (the UNIQUE key backs it), so
+	// editing today's limit twice does not leave a stray row behind.
 	UpsertBudget(ctx context.Context, arg UpsertBudgetParams) (Budget, error)
 }
 

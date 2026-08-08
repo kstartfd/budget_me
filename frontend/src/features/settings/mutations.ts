@@ -22,13 +22,17 @@ export function useUpdateSettings() {
     mutationFn: updateSettings,
     onMutate: async (patch) => {
       await queryClient.cancelQueries({ queryKey: settingsKeys.detail() })
-      const previous = queryClient.getQueryData<Settings>(
-        settingsKeys.detail(),
-      )
+      const previous = queryClient.getQueryData<Settings>(settingsKeys.detail())
       if (previous) {
+        // `resetHistory` is a confirmation for the server, not a setting — it
+        // has no place in the cached Settings, and only the server's echo can
+        // say what the reset actually did (`historyResetAt`).
+        const settingsPatch = { ...patch }
+        delete settingsPatch.resetHistory
+
         queryClient.setQueryData<Settings>(settingsKeys.detail(), {
           ...previous,
-          ...patch,
+          ...settingsPatch,
         })
       }
       return { previous }

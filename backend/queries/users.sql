@@ -32,6 +32,33 @@ SET month_start_day = sqlc.arg(month_start_day),
 WHERE id = sqlc.arg(id)
 RETURNING month_start_day, currency;
 
+-- name: UpdateUserSettingsAndResetHistory :one
+-- The same update, plus the line the running totals restart from. Moving the day
+-- a period opens re-cuts every period ever shown, so a carry-over computed under
+-- the old boundaries would be carried into periods that no longer match it.
+--
+-- The balance anchor goes with it: "right now I have X" was stated against the
+-- old cut, and NULL is already the app's "never stated" — so it asks again
+-- instead of showing a figure the user never confirmed. Transactions are left
+-- alone; only what reads them forward changes.
+--
+-- One statement rather than an update followed by a reset: the two must not be
+-- separable, and this keeps it atomic without reaching for a transaction.
+UPDATE users
+SET month_start_day      = sqlc.arg(month_start_day),
+    currency             = sqlc.arg(currency),
+    history_reset_at     = sqlc.arg(now),
+    balance_anchor_minor = NULL,
+    balance_anchor_at    = NULL,
+    updated_at           = sqlc.arg(now)
+WHERE id = sqlc.arg(id)
+RETURNING month_start_day, currency;
+
+-- name: GetHistoryResetAt :one
+-- Just the cutoff. The dashboard asks on every load and needs nothing else off
+-- the user row, so this stays narrower than GetUserByID.
+SELECT history_reset_at FROM users WHERE id = sqlc.arg(id);
+
 -- name: RememberTimezone :exec
 -- The zone the client last reported. Only background work reads it (cmd/worker);
 -- requests carry their own zone with them.

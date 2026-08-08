@@ -52,6 +52,18 @@ func Time(t time.Time) pgtype.Timestamptz {
 	return pgtype.Timestamptz{Time: t, Valid: true}
 }
 
+// TimePtr unwraps a nullable pg timestamptz to an optional time, normalised to
+// UTC (the zone the whole backend speaks).
+func TimePtr(t pgtype.Timestamptz) *time.Time {
+	if !t.Valid {
+		return nil
+	}
+
+	utc := t.Time.UTC()
+
+	return &utc
+}
+
 // ParseDirection maps a wire string ("income"/"expense") to a TxDirection. The
 // bool is false for any other value, so HTTP handlers can reject an unknown
 // direction at the edge. Kept next to the generated code so every feature maps

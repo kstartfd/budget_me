@@ -26,7 +26,7 @@ type Controller struct {
 func NewController(q *db.Queries, clk clock.Clock) *Controller {
 	return &Controller{
 		save:            commands.NewSaveHandler(q, clk),
-		remove:          commands.NewDeleteHandler(q),
+		remove:          commands.NewDeleteHandler(q, clk),
 		list:            queries.NewListHandler(q),
 		recommendations: queries.NewRecommendationsHandler(q, clk),
 	}
@@ -95,14 +95,14 @@ func (c *Controller) saveBudget(ctx echo.Context) error {
 	budget, err := c.save.Handle(ctx.Request().Context(), commands.SaveBudget{
 		UserID:     userID,
 		CategoryID: categoryID,
-		Month:      req.Month,
+		ValidFrom:  req.Month,
 		LimitMinor: req.LimitMinor,
 	})
 	if err != nil {
 		return err
 	}
 
-	return httpx.OK(ctx, toBudgetResponse(budget))
+	return httpx.OK(ctx, savedBudgetResponse(budget))
 }
 
 func (c *Controller) deleteBudget(ctx echo.Context) error {

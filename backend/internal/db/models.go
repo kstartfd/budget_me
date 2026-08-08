@@ -109,8 +109,8 @@ type Budget struct {
 	ID         pgtype.UUID
 	UserID     pgtype.UUID
 	CategoryID pgtype.UUID
-	Month      string
-	LimitMinor int64
+	ValidFrom  string
+	LimitMinor pgtype.Int8
 	CreatedAt  pgtype.Timestamptz
 	UpdatedAt  pgtype.Timestamptz
 }
@@ -164,4 +164,5 @@ type User struct {
 	BalanceAnchorMinor  pgtype.Int8
 	BalanceAnchorAt     pgtype.Timestamptz
 	Timezone            string
+	HistoryResetAt      pgtype.Timestamptz
 }

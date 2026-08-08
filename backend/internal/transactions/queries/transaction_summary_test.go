@@ -1,6 +1,9 @@
 package queries
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 // deltaPct — единственная арифметика, которую сводка добавляет к сырым суммам:
 // процент изменения расхода категории против прошлого периода. Ноль-база обязана
@@ -59,6 +62,43 @@ func TestCarriedInMinor(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := carriedInMinor(tt.income, tt.spent); got != tt.want {
 				t.Errorf("carriedInMinor(%d, %d) = %d, want %d", tt.income, tt.spent, got, tt.want)
+			}
+		})
+	}
+}
+
+// carryWindowFrom — обрезка окна прошлого периода по точке сброса истории.
+// Всё, что до отсечения, считалось по СТАРЫМ границам месяца, поэтому вперёд не
+// переносится; граница `to` исключающая (SQL берёт spent_at < to).
+func TestCarryWindowFrom(t *testing.T) {
+	at := func(d int) time.Time { return time.Date(2026, 8, d, 0, 0, 0, 0, time.UTC) }
+	cutoff := at(10)
+
+	tests := []struct {
+		name     string
+		from, to time.Time
+		cutoff   *time.Time
+		wantFrom time.Time
+		wantOK   bool
+	}{
+		{"сброса не было — окно как есть", at(1), at(5), nil, at(1), true},
+		{"окно целиком до отсечения", at(1), at(5), &cutoff, time.Time{}, false},
+		{"окно упирается в отсечение — граница исключающая", at(1), at(10), &cutoff, time.Time{}, false},
+		{"окно задевает отсечение — начало подтягивается", at(5), at(15), &cutoff, cutoff, true},
+		{"окно целиком после отсечения", at(12), at(20), &cutoff, at(12), true},
+		{"окно начинается ровно в отсечение", at(10), at(20), &cutoff, at(10), true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotFrom, gotOK := carryWindowFrom(tt.from, tt.to, tt.cutoff)
+
+			if gotOK != tt.wantOK {
+				t.Fatalf("ok = %v, want %v", gotOK, tt.wantOK)
+			}
+
+			if tt.wantOK && !gotFrom.Equal(tt.wantFrom) {
+				t.Errorf("from = %v, want %v", gotFrom, tt.wantFrom)
 			}
 		})
 	}

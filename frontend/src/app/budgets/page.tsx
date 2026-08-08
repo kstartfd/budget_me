@@ -1,7 +1,7 @@
 "use client"
 
 import Link from "next/link"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 
 import {
   ChevronLeftIcon,
@@ -20,7 +20,7 @@ import {
 } from "@/features/budget"
 import { useToday } from "@/features/settings"
 import { formatBr } from "@/lib/money"
-import { currentMonthKey } from "@/lib/month"
+import { currentMonthKey, monthShort } from "@/lib/month"
 import { LimitsSkeleton } from "./skeleton"
 
 const statusColor = {
@@ -31,6 +31,7 @@ const statusColor = {
 
 export default function LimitsPage() {
   const t = useTranslations("limits")
+  const locale = useLocale()
   const label = useCategoryLabel()
   const tCommon = useTranslations("common")
   const { openLimit, showToast } = useBudgetUI()
@@ -47,7 +48,10 @@ export default function LimitsPage() {
   }
   if (categories.isError || budgets.isError || summary.isError) {
     return (
-      <p role="alert" className="text-muted-foreground py-10 text-center text-sm">
+      <p
+        role="alert"
+        className="text-muted-foreground py-10 text-center text-sm"
+      >
         {tCommon("loadError")}
       </p>
     )
@@ -60,6 +64,12 @@ export default function LimitsPage() {
 
   const limitByCategory = new Map(
     budgets.data.map((b) => [b.categoryId, b.limitMinor]),
+  )
+  // The month each limit started applying from. Anything other than the month on
+  // screen means it was inherited rather than set here — worth saying out loud,
+  // since the whole point is that limits no longer need re-entering.
+  const validFromByCategory = new Map(
+    budgets.data.map((b) => [b.categoryId, b.validFrom]),
   )
   const spentByCategory = new Map(
     summary.data.byCategory.map((c) => [c.categoryId, c.spentMinor]),
@@ -119,6 +129,10 @@ export default function LimitsPage() {
         <PlusIcon size={16} strokeWidth={2.2} />
         {t("newLimit")}
       </button>
+
+      <p className="text-faint -mt-1 px-0.5 text-[11.5px] font-medium">
+        {t("carriedHint")}
+      </p>
 
       <div className="flex flex-col gap-3">
         {expenseCategories.map((category) => {
@@ -201,6 +215,15 @@ export default function LimitsPage() {
                   {formatBr(Math.abs(remaining))} Br
                 </span>
               </div>
+              {(() => {
+                const from = validFromByCategory.get(category.id)
+
+                return from && from !== month ? (
+                  <div className="text-faint mt-[7px] font-mono text-[11px] font-medium">
+                    {t("carriedSince", { month: monthShort(from, locale) })}
+                  </div>
+                ) : null
+              })()}
               <div className="border-rowline mt-[13px] flex gap-[9px] border-t pt-3">
                 <button
                   type="button"
@@ -243,7 +266,9 @@ function CardHead({
         className="size-[11px] shrink-0 rounded-full"
         style={{ background: color }}
       />
-      <span className="flex-1 truncate text-[14.5px] font-semibold">{name}</span>
+      <span className="flex-1 truncate text-[14.5px] font-semibold">
+        {name}
+      </span>
       {children}
     </div>
   )

@@ -40,6 +40,7 @@ import type {
   Plan,
   PlanSuggestion,
   RateSource,
+  SaveBudgetInput,
   Transaction,
   TrendPoint,
   UpdateCategoryInput,
@@ -206,10 +207,8 @@ export function setBalance(balanceMinor: number): Promise<Balance> {
 }
 
 export function fetchBudgets(month: string): Promise<Budget[]> {
-  return call(
-    `/budgets?month=${month}`,
-    { method: "GET" },
-    (d) => z.array(budgetSchema).parse(d),
+  return call(`/budgets?month=${month}`, { method: "GET" }, (d) =>
+    z.array(budgetSchema).parse(d),
   )
 }
 
@@ -405,18 +404,30 @@ export function deleteCategory(input: DeleteCategoryInput): Promise<void> {
 export function deleteTransaction(id: string): Promise<void> {
   // Mirrors deleteCategory: the envelope carries `{ id }`; we ignore it and let
   // the ["budget"] refetch reflect the removal.
-  return call<void>(`/transactions/${id}`, { method: "DELETE" }, () => undefined)
+  return call<void>(
+    `/transactions/${id}`,
+    { method: "DELETE" },
+    () => undefined,
+  )
 }
 
-/** Upsert a category's monthly limit (POST upserts by user+category+month). */
-export function saveBudget(budget: Budget): Promise<Budget> {
+/**
+ * Set a category's limit from `month` onward — and every month after it, until
+ * it is changed again. Re-saving in the same month corrects that run rather than
+ * opening a new one.
+ */
+export function saveBudget(input: SaveBudgetInput): Promise<Budget> {
   return call(
     "/budgets",
-    { method: "POST", body: JSON.stringify(budget) },
+    { method: "POST", body: JSON.stringify(input) },
     (d) => budgetSchema.parse(d),
   )
 }
 
+/**
+ * Remove a category's limit from `month` onward. Earlier months keep theirs —
+ * dropping a limit today says nothing about what it was in March.
+ */
 export function deleteBudget(categoryId: string, month: string): Promise<void> {
   return call<void>(
     `/budgets/${categoryId}?month=${month}`,
@@ -426,19 +437,15 @@ export function deleteBudget(categoryId: string, month: string): Promise<void> {
 }
 
 export function fetchPlans(month: string): Promise<Plan[]> {
-  return call(
-    `/plans?month=${month}`,
-    { method: "GET" },
-    (d) => z.array(planSchema).parse(d),
+  return call(`/plans?month=${month}`, { method: "GET" }, (d) =>
+    z.array(planSchema).parse(d),
   )
 }
 
 /** Plans the backend suggests for the month, from what was confirmed before. */
 export function fetchPlanSuggestions(month: string): Promise<PlanSuggestion[]> {
-  return call(
-    `/plans/suggestions?month=${month}`,
-    { method: "GET" },
-    (d) => z.array(planSuggestionSchema).parse(d),
+  return call(`/plans/suggestions?month=${month}`, { method: "GET" }, (d) =>
+    z.array(planSuggestionSchema).parse(d),
   )
 }
 
@@ -448,10 +455,8 @@ export function createPlan(input: {
   title: string
   amountMinor: number
 }): Promise<Plan> {
-  return call(
-    "/plans",
-    { method: "POST", body: JSON.stringify(input) },
-    (d) => planSchema.parse(d),
+  return call("/plans", { method: "POST", body: JSON.stringify(input) }, (d) =>
+    planSchema.parse(d),
   )
 }
 
@@ -471,14 +476,11 @@ export function updatePlan(input: {
 
 /** Mark a plan confirmed; the transaction is created separately via the add flow. */
 export function confirmPlan(id: string): Promise<Plan> {
-  return call(
-    `/plans/${id}/confirm`,
-    { method: "POST" },
-    (d) => planSchema.parse(d),
+  return call(`/plans/${id}/confirm`, { method: "POST" }, (d) =>
+    planSchema.parse(d),
   )
 }
 
 export function deletePlan(id: string): Promise<void> {
   return call<void>(`/plans/${id}`, { method: "DELETE" }, () => undefined)
 }
-

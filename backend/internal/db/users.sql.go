@@ -15,7 +15,7 @@ const cancelUserDeletion = `-- name: CancelUserDeletion :one
 UPDATE users
 SET deletion_requested_at = NULL, updated_at = $1
 WHERE id = $2
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
 `
 
 type CancelUserDeletionParams struct {
@@ -42,6 +42,7 @@ func (q *Queries) CancelUserDeletion(ctx context.Context, arg CancelUserDeletion
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }
@@ -82,8 +83,21 @@ func (q *Queries) DeleteUsersPastDeadline(ctx context.Context, cutoff pgtype.Tim
 	return items, nil
 }
 
+const getHistoryResetAt = `-- name: GetHistoryResetAt :one
+SELECT history_reset_at FROM users WHERE id = $1
+`
+
+// Just the cutoff. The dashboard asks on every load and needs nothing else off
+// the user row, so this stays narrower than GetUserByID.
+func (q *Queries) GetHistoryResetAt(ctx context.Context, id pgtype.UUID) (pgtype.Timestamptz, error) {
+	row := q.db.QueryRow(ctx, getHistoryResetAt, id)
+	var history_reset_at pgtype.Timestamptz
+	err := row.Scan(&history_reset_at)
+	return history_reset_at, err
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone FROM users WHERE email = $1
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at FROM users WHERE email = $1
 `
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error) {
@@ -105,12 +119,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, 
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone FROM users WHERE id = $1
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
@@ -132,12 +147,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }
 
 const getUserByTelegramID = `-- name: GetUserByTelegramID :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone FROM users WHERE telegram_id = $1
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at FROM users WHERE telegram_id = $1
 `
 
 func (q *Queries) GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error) {
@@ -159,6 +175,7 @@ func (q *Queries) GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }
@@ -172,7 +189,7 @@ INSERT INTO users (
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
 )
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
 `
 
 type InsertUserParams struct {
@@ -222,6 +239,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }
@@ -280,7 +298,7 @@ UPDATE users
 SET deletion_requested_at = COALESCE(deletion_requested_at, $1),
     updated_at = $1
 WHERE id = $2
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
 `
 
 type RequestUserDeletionParams struct {
@@ -309,6 +327,7 @@ func (q *Queries) RequestUserDeletion(ctx context.Context, arg RequestUserDeleti
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }
@@ -319,7 +338,7 @@ SET balance_anchor_minor = $1,
     balance_anchor_at    = $2,
     updated_at           = $2
 WHERE id = $3
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
 `
 
 type SetBalanceAnchorParams struct {
@@ -349,6 +368,7 @@ func (q *Queries) SetBalanceAnchor(ctx context.Context, arg SetBalanceAnchorPara
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }
@@ -357,7 +377,7 @@ const setUserWebIdentity = `-- name: SetUserWebIdentity :one
 UPDATE users
 SET email = $2, password_hash = $3, updated_at = $4
 WHERE id = $1
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
 `
 
 type SetUserWebIdentityParams struct {
@@ -391,6 +411,7 @@ func (q *Queries) SetUserWebIdentity(ctx context.Context, arg SetUserWebIdentity
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }
@@ -428,11 +449,58 @@ func (q *Queries) UpdateUserSettings(ctx context.Context, arg UpdateUserSettings
 	return i, err
 }
 
+const updateUserSettingsAndResetHistory = `-- name: UpdateUserSettingsAndResetHistory :one
+UPDATE users
+SET month_start_day      = $1,
+    currency             = $2,
+    history_reset_at     = $3,
+    balance_anchor_minor = NULL,
+    balance_anchor_at    = NULL,
+    updated_at           = $3
+WHERE id = $4
+RETURNING month_start_day, currency
+`
+
+type UpdateUserSettingsAndResetHistoryParams struct {
+	MonthStartDay int16
+	Currency      CurrencyCode
+	Now           pgtype.Timestamptz
+	ID            pgtype.UUID
+}
+
+type UpdateUserSettingsAndResetHistoryRow struct {
+	MonthStartDay int16
+	Currency      CurrencyCode
+}
+
+// The same update, plus the line the running totals restart from. Moving the day
+// a period opens re-cuts every period ever shown, so a carry-over computed under
+// the old boundaries would be carried into periods that no longer match it.
+//
+// The balance anchor goes with it: "right now I have X" was stated against the
+// old cut, and NULL is already the app's "never stated" — so it asks again
+// instead of showing a figure the user never confirmed. Transactions are left
+// alone; only what reads them forward changes.
+//
+// One statement rather than an update followed by a reset: the two must not be
+// separable, and this keeps it atomic without reaching for a transaction.
+func (q *Queries) UpdateUserSettingsAndResetHistory(ctx context.Context, arg UpdateUserSettingsAndResetHistoryParams) (UpdateUserSettingsAndResetHistoryRow, error) {
+	row := q.db.QueryRow(ctx, updateUserSettingsAndResetHistory,
+		arg.MonthStartDay,
+		arg.Currency,
+		arg.Now,
+		arg.ID,
+	)
+	var i UpdateUserSettingsAndResetHistoryRow
+	err := row.Scan(&i.MonthStartDay, &i.Currency)
+	return i, err
+}
+
 const updateUserTelegramProfile = `-- name: UpdateUserTelegramProfile :one
 UPDATE users
 SET first_name = $2, username = $3, language_code = $4, updated_at = $5
 WHERE id = $1
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
 `
 
 type UpdateUserTelegramProfileParams struct {
@@ -468,6 +536,7 @@ func (q *Queries) UpdateUserTelegramProfile(ctx context.Context, arg UpdateUserT
 		&i.BalanceAnchorMinor,
 		&i.BalanceAnchorAt,
 		&i.Timezone,
+		&i.HistoryResetAt,
 	)
 	return i, err
 }

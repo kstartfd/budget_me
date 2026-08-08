@@ -10,10 +10,12 @@ import (
 	"budget_me/backend/internal/ids"
 )
 
+// SaveBudget sets the limit from ValidFrom onward — the month being edited, and
+// every month after it until the user changes it again.
 type SaveBudget struct {
 	UserID     uuid.UUID
 	CategoryID uuid.UUID
-	Month      string
+	ValidFrom  string
 	LimitMinor int64
 }
 
@@ -57,8 +59,8 @@ func (h SaveHandler) Handle(ctx context.Context, cmd SaveBudget) (db.Budget, err
 		ID:         ids.ToPg(ids.New()),
 		UserID:     ids.ToPg(cmd.UserID),
 		CategoryID: ids.ToPg(cmd.CategoryID),
-		Month:      cmd.Month,
-		LimitMinor: cmd.LimitMinor,
+		ValidFrom:  cmd.ValidFrom,
+		LimitMinor: db.Int8(&cmd.LimitMinor),
 		Now:        db.Time(h.clock.Now()),
 	})
 }

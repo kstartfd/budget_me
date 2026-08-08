@@ -17,4 +17,4 @@ export { settingsKeys, useSettings, useToday } from "./queries"
 
 export { useUpdateSettings } from "./mutations"
 
-export { readMonthStartDay, readToday } from "./api"
+export { isHistoryResetRequired, readMonthStartDay, readToday } from "./api"

@@ -35,9 +35,10 @@ func (c *Controller) getSettings(ctx echo.Context) error {
 	}
 
 	return httpx.OK(ctx, settingsResponse{
-		MonthStartDay: s.MonthStartDay,
-		Currency:      s.Currency,
-		Today:         s.Today,
+		MonthStartDay:  s.MonthStartDay,
+		Currency:       s.Currency,
+		Today:          s.Today,
+		HistoryResetAt: resetAtString(s.HistoryResetAt),
 	})
 }
 
@@ -53,14 +54,16 @@ func (c *Controller) updateSettings(ctx echo.Context) error {
 		UserID:        userID,
 		MonthStartDay: req.MonthStartDay,
 		Currency:      req.Currency,
+		ResetHistory:  req.ResetHistory,
 	})
 	if err != nil {
 		return err
 	}
 
 	return httpx.OK(ctx, settingsResponse{
-		MonthStartDay: s.MonthStartDay,
-		Currency:      s.Currency,
-		Today:         s.Today,
+		MonthStartDay:  s.MonthStartDay,
+		Currency:       s.Currency,
+		Today:          s.Today,
+		HistoryResetAt: resetAtString(s.HistoryResetAt),
 	})
 }

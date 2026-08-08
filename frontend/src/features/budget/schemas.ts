@@ -94,12 +94,32 @@ export const transactionSchema = z
   .transform((t) => ({ ...t, ...fromInstant(t.spentAt) }))
 export type Transaction = z.infer<typeof transactionSchema>
 
+/**
+ * A limit in force for the month that was asked about.
+ *
+ * `validFrom` is the month it STARTED applying from, which is usually earlier
+ * than the month asked about: a limit set once carries forward until it is
+ * changed, so July's answer can be a row written in March. The screen uses it to
+ * say "carried over since March" instead of implying it was set again.
+ */
 export const budgetSchema = z.object({
+  categoryId: z.string(),
+  validFrom: monthKeySchema,
+  limitMinor: z.number().int().positive(),
+})
+export type Budget = z.infer<typeof budgetSchema>
+
+/**
+ * POST /budgets — `month` is the month being edited, and the limit applies from
+ * it onward. Distinct from `budgetSchema`: what goes in is a start, what comes
+ * back is a resolved answer.
+ */
+export const saveBudgetInputSchema = z.object({
   categoryId: z.string(),
   month: monthKeySchema,
   limitMinor: z.number().int().positive(),
 })
-export type Budget = z.infer<typeof budgetSchema>
+export type SaveBudgetInput = z.infer<typeof saveBudgetInputSchema>
 
 /** A planned expense for a month — confirmed once the spend actually happens. */
 export const planSchema = z.object({

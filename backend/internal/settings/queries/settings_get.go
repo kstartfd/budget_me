@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -21,6 +22,10 @@ type Settings struct {
 	MonthStartDay int
 	Currency      string
 	Today         string
+	// HistoryResetAt — момент, с которого считаются текущие итоги (nil, если
+	// сброса не было). Всё, что раньше, остаётся в истории и аналитике, но
+	// вперёд не переносится.
+	HistoryResetAt *time.Time
 }
 
 type GetHandler struct {
@@ -49,8 +54,9 @@ func (h GetHandler) Handle(ctx context.Context, query SettingsGet) (Settings, er
 	}
 
 	return Settings{
-		MonthStartDay: int(u.MonthStartDay),
-		Currency:      string(u.Currency),
-		Today:         h.clock.Now().UTC().Format("2006-01-02"),
+		MonthStartDay:  int(u.MonthStartDay),
+		Currency:       string(u.Currency),
+		Today:          h.clock.Now().UTC().Format("2006-01-02"),
+		HistoryResetAt: db.TimePtr(u.HistoryResetAt),
 	}, nil
 }

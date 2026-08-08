@@ -63,7 +63,13 @@
     "plansSub": "Planned expenses for the month",
     "yourId": "Your ID",
     "copyId": "Copy ID",
-    "idCopied": "ID copied"
+    "idCopied": "ID copied",
+    "resetTitle": "Start the period on the {day}?",
+    "resetHint": "This re-cuts every period you have already seen. Nothing is deleted — history and analytics stay — but the running totals start over: carried-over income resets and you will be asked for your balance again.",
+    "resetCancel": "Keep as is",
+    "resetConfirm": "Start over",
+    "resetDoneToast": "Period changed, totals start over",
+    "resetSince": "Totals count from {date}. Everything before is history"
   },
   "account": {
     "kicker": "Account",
@@ -278,7 +284,9 @@
     "toastEnterAmount": "Enter a limit amount",
     "toastOverAlready": "{name}: already spent {spent} Br — over the new limit",
     "toastSet": "{amount} Br limit on {name} set · we'll warn you at 80%",
-    "toastRemoved": "Limit on {name} removed"
+    "toastRemoved": "Limit on {name} removed",
+    "carriedSince": "since {month}",
+    "carriedHint": "A limit keeps applying — no need to set it again each month"
   },
   "add": {
     "fab": "Add",

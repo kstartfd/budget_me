@@ -251,7 +251,7 @@ func (h FactsHandler) Handle(
 		return Facts{}, err
 	}
 
-	budgets, err := h.q.ListBudgetsForMonth(ctx, db.ListBudgetsForMonthParams{
+	budgets, err := h.q.ListBudgetsEffectiveIn(ctx, db.ListBudgetsEffectiveInParams{
 		UserID: pgUser,
 		Month:  month,
 	})
@@ -264,9 +264,16 @@ func (h FactsHandler) Handle(
 		spentByID[ids.FromPg(r.CategoryID)] = r.SpentMinor
 	}
 
+	// Пропускаем надгробия (NULL): лимит сняли с этого месяца, и советовать по
+	// нему нечего — иначе ИИ сравнил бы трату с лимитом, которого уже нет.
 	limitByID := make(map[uuid.UUID]int64, len(budgets))
+
 	for _, b := range budgets {
-		limitByID[ids.FromPg(b.CategoryID)] = b.LimitMinor
+		if !b.LimitMinor.Valid {
+			continue
+		}
+
+		limitByID[ids.FromPg(b.CategoryID)] = b.LimitMinor.Int64
 	}
 
 	facts := Facts{

@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useQueryClient } from "@tanstack/react-query"
-import { useLocale, useTranslations } from "next-intl"
+import { useFormatter, useLocale, useTranslations } from "next-intl"
 
 import {
   ChevronRightIcon,
@@ -19,7 +19,11 @@ import { useBudgetUI } from "@/features/budget/components/ui-context"
 import { CurrencySelect } from "@/features/settings/components/currency-select"
 import { DayGrid } from "@/features/settings/components/day-grid"
 import { DayWheel } from "@/features/settings/components/day-wheel"
-import { useSettings, useUpdateSettings } from "@/features/settings"
+import {
+  isHistoryResetRequired,
+  useSettings,
+  useUpdateSettings,
+} from "@/features/settings"
 import type { Currency } from "@/features/settings"
 import { periodLabel } from "@/lib/month"
 import { SettingsSkeleton } from "./skeleton"
@@ -34,6 +38,7 @@ export default function SettingsPage() {
   const t = useTranslations("settings")
   const tCommon = useTranslations("common")
   const locale = useLocale()
+  const format = useFormatter()
   const queryClient = useQueryClient()
   const { user } = useAuth()
   const { showToast } = useBudgetUI()
@@ -41,35 +46,62 @@ export default function SettingsPage() {
   const settings = useSettings()
   const update = useUpdateSettings()
   const [draftDay, setDraftDay] = useState<number | null>(null)
+  // Set once the server has refused the change pending confirmation, which is
+  // also the only thing that can raise it — the screen never guesses that a
+  // reset is due, it waits to be told.
+  const [confirmingReset, setConfirmingReset] = useState(false)
 
   if (settings.isPending) return <SettingsSkeleton />
   if (settings.isError) {
     return (
-      <p role="alert" className="text-muted-foreground py-10 text-center text-sm">
+      <p
+        role="alert"
+        className="text-muted-foreground py-10 text-center text-sm"
+      >
         {tCommon("loadError")}
       </p>
     )
   }
 
-  const { monthStartDay, currency, today } = settings.data
+  const { monthStartDay, currency, today, historyResetAt } = settings.data
   // The picker edits a draft; the button below commits it. Defaults to the
   // saved day (1 for a fresh account), so the wheel opens on the 1st.
   const day = draftDay ?? monthStartDay
   const dirty = draftDay !== null && draftDay !== monthStartDay
 
-  function commitDay() {
+  // Moving the day re-cuts every period the app has shown, so the server refuses
+  // it (409) until the user agrees the running totals restart. The first attempt
+  // therefore raises the confirmation rather than saving; the second carries it.
+  function commitDay(resetHistory = false) {
     if (!dirty) return
 
     update.mutate(
-      { monthStartDay: day },
+      { monthStartDay: day, ...(resetHistory ? { resetHistory } : {}) },
       {
-        // Shifting the period changes every budget read's date range.
+        // Shifting the period changes every budget read's date range — and a
+        // reset also drops the balance anchor, which lives under the same key.
         onSuccess: () => {
           queryClient.invalidateQueries({ queryKey: budgetKeys.all })
           setDraftDay(null)
+          setConfirmingReset(false)
+
+          if (resetHistory) showToast("info", t("resetDoneToast"))
+        },
+        onError: (error) => {
+          if (isHistoryResetRequired(error)) {
+            setConfirmingReset(true)
+            return
+          }
+
+          showToast("danger", tCommon("loadError"))
         },
       },
     )
+  }
+
+  function cancelReset() {
+    setConfirmingReset(false)
+    setDraftDay(null)
   }
 
   function setCurrency(next: Currency) {
@@ -169,13 +201,52 @@ export default function SettingsPage() {
             </span>
           </div>
 
-          <Button
-            onClick={commitDay}
-            disabled={!dirty || update.isPending}
-            className="mt-3 h-10 w-full rounded-xl"
-          >
-            {update.isPending ? t("setStartSaving") : t("setStart")}
-          </Button>
+          {confirmingReset ? (
+            <div className="border-[color:var(--destructive-line,var(--border))] mt-3 rounded-xl border p-3">
+              <div className="text-destructive text-[13px] font-semibold">
+                {t("resetTitle", { day })}
+              </div>
+              <p className="text-muted-foreground mt-[3px] text-[11.5px]">
+                {t("resetHint")}
+              </p>
+              <div className="mt-3 flex gap-2">
+                <button
+                  type="button"
+                  onClick={cancelReset}
+                  className="border-border bg-secondary text-foreground flex-1 rounded-xl p-2.5 text-[13px] font-semibold"
+                >
+                  {t("resetCancel")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => commitDay(true)}
+                  disabled={update.isPending}
+                  className="bg-destructive text-destructive-foreground flex-1 rounded-xl p-2.5 text-[13px] font-bold disabled:opacity-60"
+                >
+                  {update.isPending ? t("setStartSaving") : t("resetConfirm")}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              onClick={() => commitDay()}
+              disabled={!dirty || update.isPending}
+              className="mt-3 h-10 w-full rounded-xl"
+            >
+              {update.isPending ? t("setStartSaving") : t("setStart")}
+            </Button>
+          )}
+
+          {historyResetAt ? (
+            <p className="text-faint mt-2.5 text-center text-[11px] font-medium">
+              {t("resetSince", {
+                date: format.dateTime(new Date(historyResetAt), {
+                  day: "numeric",
+                  month: "long",
+                }),
+              })}
+            </p>
+          ) : null}
         </div>
       </section>
 

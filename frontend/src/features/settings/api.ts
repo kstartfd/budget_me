@@ -26,6 +26,19 @@ export class ApiError extends Error {
   }
 }
 
+/** Business code for a conflict (httpx.ConflictCode) — stable across releases. */
+const CONFLICT_CODE = 40001
+
+/**
+ * Did the server refuse a month-start-day change because the user has not agreed
+ * to the reset yet? Matched on the business code, not the message: messages are
+ * translated server-side, and `PUT /settings` raises no other conflict — an
+ * out-of-range day or unknown currency answers 400 instead.
+ */
+export function isHistoryResetRequired(error: unknown): boolean {
+  return error instanceof ApiError && error.code === CONFLICT_CODE
+}
+
 /**
  * Last settings the server confirmed (fetch or update). Seeds the synchronous
  * readers below so `periodRange` in the budget api can build its date range
