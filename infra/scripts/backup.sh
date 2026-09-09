@@ -20,6 +20,10 @@
 #   ./scripts/backup.sh --local    dump + encrypt only (the deploy runs this
 #                                  right before migrations — a bad migration is
 #                                  then one gunzip away from being undone)
+#
+# BACKUP_LOCAL_ONLY=1 in the env file forces --local for every run — for a box
+# that cannot reach api.telegram.org (e.g. hosted in RU). The local copies then
+# ARE the backup, so the keep window still applies and they are still encrypted.
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
@@ -55,6 +59,10 @@ set +a
 [ -n "$env_pass" ] && BACKUP_PASSPHRASE="$env_pass"
 [ -n "$env_chat" ] && BACKUP_CHAT_ID="$env_chat"
 [ -n "$env_token" ] && TELEGRAM_BOT_TOKEN="$env_token"
+
+# A box that can't reach Telegram opts out of the upload for good via the env
+# file; the flag on the command line still wins on top of that.
+case "${BACKUP_LOCAL_ONLY:-}" in ""|0|false|no) ;; *) LOCAL_ONLY=1 ;; esac
 
 compose() {
   docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" "$@"
@@ -110,8 +118,18 @@ chmod 600 "$dump"
 size="$(du -h "$dump" | cut -f1)"
 [ -s "$dump" ] || fail "дамп пустой"
 
+prune_local() {
+  # Newest first, drop everything past the keep window. `|| true`: pipefail
+  # would let a hiccup in the cleanup mark a backup that already ran as failed.
+  ls -1t "$BACKUP_DIR"/budget_me-*.sql.gz.gpg 2>/dev/null \
+    | tail -n +$((KEEP_LOCAL + 1)) \
+    | xargs -r rm -f \
+    || true
+}
+
 if [ -n "$LOCAL_ONLY" ]; then
-  echo "backup: $dump ($size), локально (--local)"
+  prune_local
+  echo "backup: $dump ($size), локально ($KEEP_LOCAL шт., без Telegram)"
 
   exit 0
 fi
@@ -131,11 +149,6 @@ case "$response" in
   *) fail "Telegram отклонил дамп: $(printf '%s' "$response" | head -c 200)" ;;
 esac
 
-# Newest first, drop everything past the keep window. `|| true`: pipefail would
-# let a hiccup in the cleanup mark a backup that already shipped as failed.
-ls -1t "$BACKUP_DIR"/budget_me-*.sql.gz.gpg 2>/dev/null \
-  | tail -n +$((KEEP_LOCAL + 1)) \
-  | xargs -r rm -f \
-  || true
+prune_local
 
 echo "backup: $dump ($size) отправлен в Telegram, локально храним $KEEP_LOCAL шт."
