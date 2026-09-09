@@ -6,8 +6,8 @@
 > the hand-driven fallback (bring the stack up yourself from a checkout). Either
 > way the images are **pulled from the registry** — nothing is built on the VPS.
 
-Target: one small VPS (Ubuntu 24.04, Docker + Compose v2, ~1 GB RAM, ~5 GB free
-disk). Everything runs from `infra/compose/prod.yml`:
+Target: one small VPS (Ubuntu 26.04, Docker + Compose v2, 2 GB RAM, ~24 GB
+disk — `deploy@78.140.240.60`). Everything runs from `infra/compose/prod.yml`:
 
 - **caddy** — the only internet-facing service (ports 80/443), automatic HTTPS
   via Let's Encrypt, path-routes `/api/*` → backend and everything else → frontend.

@@ -15,6 +15,11 @@ Thumbs.db
 .env
 .env.local
 
+# Secrets / operator-local files (never commit)
+*.pem
+*.key
+/backups/
+
 # Backend artifacts
 backend/tmp/
 backend/bin/
