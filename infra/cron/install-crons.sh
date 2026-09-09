@@ -12,16 +12,22 @@
 # The worker job (03:17) predates this script and is left exactly as it is.
 set -euo pipefail
 
+# A fresh box has no crontab yet: `crontab -l` then exits 1 with "no crontab for
+# <user>". Capture it ONCE, here, with `|| true` — never inside a `( … )` where
+# `set -e` would abort the subshell before the new lines are appended (that bug
+# failed the first deploy to every rebuilt box).
+current="$(crontab -l 2>/dev/null || true)"
+
 ensure() {
   local match="$1" comment="$2" line="$3"
 
-  if crontab -l 2>/dev/null | grep -q "$match"; then
+  if printf '%s\n' "$current" | grep -qF "$match"; then
     echo "cron: $match уже установлен"
 
     return 0
   fi
 
-  (crontab -l 2>/dev/null; echo "$comment"; echo "$line") | crontab -
+  current="$(printf '%s\n' "$current" "$comment" "$line")"
 
   echo "cron: $match установлен"
 }
@@ -33,3 +39,6 @@ ensure 'scripts/backup.sh' \
 ensure 'scripts/healthcheck.sh' \
   '# budget_me: health-чек (диск/память/нагрузка/контейнеры/healthz/свежесть бэкапа)' \
   '*/5 * * * * cd ~/budget_me && ./scripts/healthcheck.sh >> ~/budget_me/healthcheck.log 2>&1'
+
+# One write, at the end — a partial crontab is never installed.
+printf '%s\n' "$current" | crontab -
