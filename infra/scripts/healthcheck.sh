@@ -207,8 +207,14 @@ fi
 # ── the app, end to end ──────────────────────────────────────────────────────
 # Through Caddy and TLS, not the internal network: this is the path a user takes,
 # and /healthz answers 503 when the DB is gone — "process up" is not the question.
+#
+# curl's `-w '%{http_code}'` already prints 000 when it never got a response
+# (DNS, TCP, TLS, timeout), so a `|| echo 000` here appended a SECOND 000 and the
+# alert read "отвечает 000000". `|| true` only swallows the non-zero exit that
+# set -e would abort on; the `:=` covers the paranoid case of an empty capture.
 health_code="$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 \
-  "https://${DOMAIN:-budgetme.xyz}/healthz" || echo 000)"
+  "https://${DOMAIN:-budgetme.xyz}/healthz" || true)"
+: "${health_code:=000}"
 
 if [ "$health_code" != "200" ]; then
   report health bad "/healthz отвечает ${health_code} (ждём 200)"
