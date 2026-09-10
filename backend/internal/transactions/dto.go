@@ -49,10 +49,12 @@ type summaryResponse struct {
 	ByCategory     []summaryCategoryResponse `json:"byCategory"`
 }
 
-// spentResponse — форма ответа «сколько потрачено за период». Совпадает с
-// фронтовым MonthSummary.spentMinor.
-type spentResponse struct {
-	SpentMinor int64 `json:"spentMinor"`
+// totalsResponse — форма ответа /transactions/totals: суммарный расход и приход
+// за период под текущим фильтром экрана «Транзакции». Совпадает с фронтовым
+// TxTotals.
+type totalsResponse struct {
+	SpentMinor  int64 `json:"spentMinor"`
+	IncomeMinor int64 `json:"incomeMinor"`
 }
 
 // categorySpendResponse — одна строка разбивки расхода по категории в JSON

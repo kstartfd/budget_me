@@ -185,6 +185,19 @@ export const trendPointSchema = z.object({
 })
 export type TrendPoint = z.infer<typeof trendPointSchema>
 
+/**
+ * Spend + income totals for the current Transactions-screen filter (date range
+ * + optional category). Computed by the backend (GET /transactions/totals) so
+ * the header shows an exact figure regardless of how the row list is fetched or
+ * paged. `direction` is applied client-side — the header just picks which half
+ * to show.
+ */
+export const txTotalsSchema = z.object({
+  spentMinor: z.number().int().min(0),
+  incomeMinor: z.number().int().min(0),
+})
+export type TxTotals = z.infer<typeof txTotalsSchema>
+
 /** A currency-rate source for the ≈USD conversion pill. */
 export const rateSourceSchema = z.object({
   /** Slug for messages under `rates.<slug>`. */

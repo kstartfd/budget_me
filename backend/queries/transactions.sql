@@ -29,6 +29,19 @@ WHERE user_id  =  sqlc.arg(user_id)
   AND spent_at <  sqlc.arg(to_at)
   AND direction = 'income';
 
+-- name: SumTotalsInRange :one
+-- Расход и приход за период ОДНОЙ строкой, с необязательным сужением по категории
+-- (category_id NULL → без фильтра). Питает шапку экрана «Транзакции»: сумма под
+-- текущим фильтром считается на бэке, а не складывается на клиенте из выданного списка.
+SELECT
+    COALESCE(SUM(amount_minor) FILTER (WHERE direction = 'expense'), 0)::bigint AS spent_minor,
+    COALESCE(SUM(amount_minor) FILTER (WHERE direction = 'income'),  0)::bigint AS income_minor
+FROM transactions
+WHERE user_id  =  sqlc.arg(user_id)
+  AND spent_at >= sqlc.arg(from_at)
+  AND spent_at <  sqlc.arg(to_at)
+  AND (sqlc.narg(category_id)::uuid IS NULL OR category_id = sqlc.narg(category_id));
+
 -- name: SumSpentByCategoryInRange :many
 SELECT
     category_id,

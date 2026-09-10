@@ -14,6 +14,7 @@ import {
   fetchRates,
   fetchTransactions,
   fetchTransactionsRange,
+  fetchTransactionTotals,
   fetchTrend,
 } from "./api"
 
@@ -32,6 +33,8 @@ export const budgetKeys = {
     [...budgetKeys.all, "transactions", month] as const,
   transactionsRange: (from: string, to: string) =>
     [...budgetKeys.all, "transactions", "range", from, to] as const,
+  transactionTotals: (from: string, to: string, category: string) =>
+    [...budgetKeys.all, "transactions", "totals", from, to, category] as const,
   budgets: (month: string) => [...budgetKeys.all, "budgets", month] as const,
   plans: (month: string) => [...budgetKeys.all, "plans", month] as const,
   planSuggestions: (month: string) =>
@@ -71,6 +74,20 @@ export function useTransactionsRange(from: string, to: string) {
   return useQuery({
     queryKey: budgetKeys.transactionsRange(from, to),
     queryFn: () => fetchTransactionsRange(from, to),
+  })
+}
+
+/** Backend-computed spend/income totals for the Transactions header. Keyed on
+ *  range + category (the parts the backend filters on); the direction filter is
+ *  applied when rendering, so switching it never refetches. */
+export function useTransactionTotals(
+  from: string,
+  to: string,
+  category: string,
+) {
+  return useQuery({
+    queryKey: budgetKeys.transactionTotals(from, to, category),
+    queryFn: () => fetchTransactionTotals(from, to, category),
   })
 }
 

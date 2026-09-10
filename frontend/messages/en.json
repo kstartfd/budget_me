@@ -212,6 +212,7 @@
   "transactions": {
     "title": "Transactions",
     "count": "{count, plural, one {# item} other {# items}}",
+    "total": "Filtered total",
     "filterAll": "All",
     "filters": "Filters",
     "empty": "No spending yet — add the first one with the “Add” button.",

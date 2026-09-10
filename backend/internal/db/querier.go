@@ -93,6 +93,10 @@ type Querier interface {
 	// (month_start_day - 1) days, then truncate to a month.
 	SumSpentByPeriodAndCategory(ctx context.Context, arg SumSpentByPeriodAndCategoryParams) ([]SumSpentByPeriodAndCategoryRow, error)
 	SumSpentInRange(ctx context.Context, arg SumSpentInRangeParams) (int64, error)
+	// Расход и приход за период ОДНОЙ строкой, с необязательным сужением по категории
+	// (category_id NULL → без фильтра). Питает шапку экрана «Транзакции»: сумма под
+	// текущим фильтром считается на бэке, а не складывается на клиенте из выданного списка.
+	SumTotalsInRange(ctx context.Context, arg SumTotalsInRangeParams) (SumTotalsInRangeRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
 	UpdatePlan(ctx context.Context, arg UpdatePlanParams) (Plan, error)
 	// ownership в самом WHERE

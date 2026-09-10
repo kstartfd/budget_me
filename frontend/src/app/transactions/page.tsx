@@ -13,6 +13,7 @@ import { TxRow } from "@/features/budget/components/tx-row"
 import {
   useCategories,
   useTransactionsRange,
+  useTransactionTotals,
   type Transaction,
 } from "@/features/budget"
 import { readMonthStartDay, useToday } from "@/features/settings"
@@ -55,6 +56,10 @@ function TransactionsView() {
 
   const transactions = useTransactionsRange(filters.from, filters.to)
   const categories = useCategories()
+  // Spend/income under the current range + category, summed by the backend. Not
+  // gated in the loading check below — it's supplementary, and the header falls
+  // back to summing the rows it already has until this lands.
+  const totals = useTransactionTotals(filters.from, filters.to, filters.category)
 
   if (transactions.isPending || categories.isPending) return <ListSkeleton />
   if (transactions.isError || categories.isError) {
@@ -75,6 +80,23 @@ function TransactionsView() {
       (filters.category === "all" || tx.categoryId === filters.category),
   )
 
+  // Header total. The backend figure (range + category, both directions) is the
+  // source of truth; until it lands we sum the rows on screen — the list isn't
+  // paged, so the two agree — which keeps the number from flashing in. The
+  // direction filter decides which half shows, so it never needs a refetch.
+  const rowSpent = filtered.reduce(
+    (sum, tx) => (tx.direction === "income" ? sum : sum + tx.amountMinor),
+    0,
+  )
+  const rowIncome = filtered.reduce(
+    (sum, tx) => (tx.direction === "income" ? sum + tx.amountMinor : sum),
+    0,
+  )
+  const spentTotal = totals.data?.spentMinor ?? rowSpent
+  const incomeTotal = totals.data?.incomeMinor ?? rowIncome
+  const showSpent = filters.direction !== "income"
+  const showIncome = filters.direction !== "expense" && incomeTotal > 0
+
   const groups: { date: string; items: Transaction[] }[] = []
   for (const tx of filtered) {
     const last = groups[groups.length - 1]
@@ -91,11 +113,30 @@ function TransactionsView() {
 
   return (
     <div className="anim-fade flex flex-col gap-4">
-      <div className="flex items-baseline justify-between px-0.5">
+      <div className="flex items-baseline justify-between gap-3 px-0.5">
         <h1 className="text-[22px] font-bold tracking-[-0.02em]">{t("title")}</h1>
-        <span className="text-faint font-mono text-[12.5px] font-medium">
-          {t("count", { count: filtered.length })}
-        </span>
+        <div className="flex flex-col items-end gap-0.5 text-right">
+          {(showSpent || showIncome) && (
+            <span
+              aria-label={t("total")}
+              className="font-mono text-[15px] font-bold tracking-[-0.01em] tabular-nums"
+            >
+              {showSpent && (
+                <span className="text-foreground">
+                  −{formatBr(spentTotal)}&nbsp;Br
+                </span>
+              )}
+              {showIncome && (
+                <span className={cn("text-success", showSpent && "ml-2")}>
+                  +{formatBr(incomeTotal)}&nbsp;Br
+                </span>
+              )}
+            </span>
+          )}
+          <span className="text-faint font-mono text-[11.5px] font-medium">
+            {t("count", { count: filtered.length })}
+          </span>
+        </div>
       </div>
 
       <div className="flex items-center gap-2.5 px-0.5">

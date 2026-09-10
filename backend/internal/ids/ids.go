@@ -17,6 +17,17 @@ func ToPg(u uuid.UUID) pgtype.UUID {
 	return pgtype.UUID{Bytes: u, Valid: true}
 }
 
+// ToPgOpt wraps an OPTIONAL uuid: uuid.Nil becomes SQL NULL, anything else a
+// present value. Mirror of FromPg, which already maps null → uuid.Nil — use it
+// for nullable columns / sqlc.narg params.
+func ToPgOpt(u uuid.UUID) pgtype.UUID {
+	if u == uuid.Nil {
+		return pgtype.UUID{}
+	}
+
+	return ToPg(u)
+}
+
 // FromPg unwraps a pgtype UUID, returning uuid.Nil when it is null.
 func FromPg(p pgtype.UUID) uuid.UUID {
 	if !p.Valid {

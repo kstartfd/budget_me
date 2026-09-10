@@ -359,6 +359,44 @@ func (q *Queries) SumSpentInRange(ctx context.Context, arg SumSpentInRangeParams
 	return spent_minor, err
 }
 
+const sumTotalsInRange = `-- name: SumTotalsInRange :one
+SELECT
+    COALESCE(SUM(amount_minor) FILTER (WHERE direction = 'expense'), 0)::bigint AS spent_minor,
+    COALESCE(SUM(amount_minor) FILTER (WHERE direction = 'income'),  0)::bigint AS income_minor
+FROM transactions
+WHERE user_id  =  $1
+  AND spent_at >= $2
+  AND spent_at <  $3
+  AND ($4::uuid IS NULL OR category_id = $4)
+`
+
+type SumTotalsInRangeParams struct {
+	UserID     pgtype.UUID
+	FromAt     pgtype.Timestamptz
+	ToAt       pgtype.Timestamptz
+	CategoryID pgtype.UUID
+}
+
+type SumTotalsInRangeRow struct {
+	SpentMinor  int64
+	IncomeMinor int64
+}
+
+// Расход и приход за период ОДНОЙ строкой, с необязательным сужением по категории
+// (category_id NULL → без фильтра). Питает шапку экрана «Транзакции»: сумма под
+// текущим фильтром считается на бэке, а не складывается на клиенте из выданного списка.
+func (q *Queries) SumTotalsInRange(ctx context.Context, arg SumTotalsInRangeParams) (SumTotalsInRangeRow, error) {
+	row := q.db.QueryRow(ctx, sumTotalsInRange,
+		arg.UserID,
+		arg.FromAt,
+		arg.ToAt,
+		arg.CategoryID,
+	)
+	var i SumTotalsInRangeRow
+	err := row.Scan(&i.SpentMinor, &i.IncomeMinor)
+	return i, err
+}
+
 const updateTransaction = `-- name: UpdateTransaction :one
 
 UPDATE transactions

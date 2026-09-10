@@ -11,7 +11,7 @@ func (c *Controller) Routes(_, protected *echo.Group) {
 	protected.PUT("/transactions/:id", c.updateTransaction)                 // изменить трату
 	protected.DELETE("/transactions/:id", c.deleteTransaction)              // удалить трату
 	protected.GET("/transactions/summary", c.getTransactionSummary)         // расход+приход+разбивка
-	protected.GET("/transactions/spent", c.getTransactionSpent)             // сумма расхода за период
+	protected.GET("/transactions/totals", c.getTransactionTotals)           // расход+приход под фильтром
 	protected.GET("/transactions/recent", c.getRecentTransactions)          // последние N
 	protected.GET("/transactions/by-category", c.getTransactionsByCategory) // разбивка по категориям
 	protected.GET("/transactions/trend", c.getTransactionTrend)             // расход по последним N периодам

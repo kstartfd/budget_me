@@ -27,6 +27,7 @@ import {
   rateSourceSchema,
   transactionSchema,
   trendPointSchema,
+  txTotalsSchema,
 } from "./schemas"
 import type {
   AddTransactionInput,
@@ -43,6 +44,7 @@ import type {
   SaveBudgetInput,
   Transaction,
   TrendPoint,
+  TxTotals,
   UpdateCategoryInput,
 } from "./schemas"
 
@@ -186,6 +188,30 @@ export async function fetchTransactionsRange(
 export function fetchTransactions(month: string): Promise<Transaction[]> {
   const { from, to } = periodRange(month)
   return fetchTransactionsRange(from, to)
+}
+
+/**
+ * Spend + income totals for a [from, to] date range (both YYYY-MM-DD inclusive),
+ * optionally narrowed to one category — the figure the Transactions header
+ * shows. The backend sums it in SQL so it stays exact no matter how the row
+ * list itself is fetched/paged. `category` is "all" (no filter) or a category
+ * id; the direction filter is applied by the caller, not here.
+ */
+export async function fetchTransactionTotals(
+  from: string,
+  to: string,
+  category: string,
+): Promise<TxTotals> {
+  const categoryParam =
+    category && category !== "all"
+      ? `&category=${encodeURIComponent(category)}`
+      : ""
+
+  return call(
+    `/transactions/totals?from=${dayStartInstant(from)}&to=${dayEndInstant(to)}${categoryParam}`,
+    { method: "GET" },
+    (d) => txTotalsSchema.parse(d),
+  )
 }
 
 /** Money on hand: the stated anchor plus every entry made since it. */

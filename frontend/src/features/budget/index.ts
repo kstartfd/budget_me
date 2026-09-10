@@ -20,6 +20,7 @@ export {
   type RateSource,
   type Transaction,
   type TrendPoint,
+  type TxTotals,
   type UpdateCategoryInput,
 } from "./schemas"
 
@@ -36,6 +37,7 @@ export {
   useRates,
   useTransactions,
   useTransactionsRange,
+  useTransactionTotals,
   useTrend,
 } from "./queries"
 

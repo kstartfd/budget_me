@@ -42,7 +42,7 @@ type Controller struct {
 	update     commands.UpdateHandler
 	list       queries.ListHandler
 	summary    queries.SummaryHandler
-	spent      queries.SpentHandler
+	totals     queries.TotalsHandler
 	recent     queries.RecentHandler
 	byCategory queries.ByCategoryHandler
 	trend      queries.TrendHandler
@@ -57,7 +57,7 @@ func NewController(q *db.Queries, clk clock.Clock) *Controller {
 		update:     commands.NewUpdateHandler(q),
 		list:       queries.NewListHandler(q, clk),
 		summary:    queries.NewSummaryHandler(q, clk),
-		spent:      queries.NewSpentHandler(q, clk),
+		totals:     queries.NewTotalsHandler(q, clk),
 		recent:     queries.NewRecentHandler(q),
 		byCategory: queries.NewByCategoryHandler(q, clk),
 		trend:      queries.NewTrendHandler(q, clk),
@@ -236,20 +236,38 @@ func (c *Controller) getTransactionSummary(ctx echo.Context) error {
 	return httpx.OK(ctx, toSummaryResponse(res))
 }
 
-// getTransactionSpent — GET /transactions/spent?from=&to=: сумма расхода за период.
-func (c *Controller) getTransactionSpent(ctx echo.Context) error {
+// getTransactionTotals — GET /transactions/totals?from=&to=&category=: суммарный
+// расход и приход за период под текущим фильтром экрана «Транзакции». category
+// опционален: пусто → по всем категориям; непустое обязано быть валидным uuid
+// (это ссылка из UI, не свободный ввод юзера — кривой uuid → 400).
+func (c *Controller) getTransactionTotals(ctx echo.Context) error {
 	userID := httpx.UserIDFromContext(ctx.Request().Context())
 
-	n, err := c.spent.Handle(ctx.Request().Context(), queries.TransactionSpent{
-		UserID: userID,
-		From:   ctx.QueryParam("from"),
-		To:     ctx.QueryParam("to"),
+	var category uuid.UUID
+
+	if raw := ctx.QueryParam("category"); raw != "" {
+		id, err := uuid.Parse(raw)
+		if err != nil {
+			return apperr.NewInvalid("category must be a valid uuid")
+		}
+
+		category = id
+	}
+
+	res, err := c.totals.Handle(ctx.Request().Context(), queries.TransactionTotals{
+		UserID:   userID,
+		From:     ctx.QueryParam("from"),
+		To:       ctx.QueryParam("to"),
+		Category: category,
 	})
 	if err != nil {
 		return err
 	}
 
-	return httpx.OK(ctx, spentResponse{SpentMinor: n})
+	return httpx.OK(ctx, totalsResponse{
+		SpentMinor:  res.SpentMinor,
+		IncomeMinor: res.IncomeMinor,
+	})
 }
 
 // getRecentTransactions — GET /transactions/recent?limit=N: последние N трат. limit
