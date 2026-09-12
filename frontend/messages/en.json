@@ -396,7 +396,12 @@
     "addTitle": "New task",
     "titlePlaceholder": "What needs doing",
     "notePlaceholder": "Note (optional)",
-    "addSubmit": "Add"
+    "addSubmit": "Add",
+    "editAria": "Edit “{name}”",
+    "editTitle": "Edit task",
+    "editSubmit": "Save",
+    "cancel": "Cancel",
+    "confirmDelete": "Delete"
   },
   "soon": {
     "badge": "in progress"

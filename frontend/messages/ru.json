@@ -396,7 +396,12 @@
     "addTitle": "Новая задача",
     "titlePlaceholder": "Что нужно сделать",
     "notePlaceholder": "Заметка (необязательно)",
-    "addSubmit": "Добавить"
+    "addSubmit": "Добавить",
+    "editAria": "Редактировать «{name}»",
+    "editTitle": "Редактировать задачу",
+    "editSubmit": "Сохранить",
+    "cancel": "Отмена",
+    "confirmDelete": "Удалить"
   },
   "soon": {
     "badge": "в работе"

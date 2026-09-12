@@ -1,25 +1,31 @@
 "use client"
 
+import { useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 
-import { ArrowRightIcon, CheckIcon, TrashIcon } from "@/components/app-icons"
+import { ArrowRightIcon, CheckIcon, PencilIcon, TrashIcon } from "@/components/app-icons"
 import { cn } from "@/lib/utils"
 
 import type { Task } from "../schemas"
 
 /**
- * One task row: a big round checkbox, the title (+ note), and the two actions
- * an open task ever needs — push to tomorrow, delete.
+ * One task row: a big round checkbox, the title (+ note), and the actions —
+ * edit, push to tomorrow (open tasks only), delete.
  *
  * The actions are plain buttons rather than a swipe: this Mini App is used in
  * a browser as often as on a phone, and a mouse can neither swipe nor discover
  * that it should (the chip rows in globals.css carry the scar from exactly
  * that). The checkbox is the 44px target; the actions sit at the row's usual 30.
+ *
+ * Delete asks first — it swaps the icon row for an explicit Отмена/Удалить
+ * pair rather than firing on the first tap, so a mistap in a scrolling list
+ * never silently removes a task.
  */
 export function TaskRow({
   task,
   carriedSince,
   onToggle,
+  onEdit,
   onPostpone,
   onDelete,
 }: {
@@ -27,12 +33,14 @@ export function TaskRow({
   /** Set when the task was planned before the day being viewed. */
   carriedSince: string | null
   onToggle: () => void
+  onEdit: () => void
   onPostpone: () => void
   onDelete: () => void
 }) {
   const t = useTranslations("day")
   const locale = useLocale()
   const done = task.doneOn !== null
+  const [confirmingDelete, setConfirmingDelete] = useState(false)
 
   return (
     <div className="flex items-center gap-1 px-2 py-0.5">
@@ -79,21 +87,49 @@ export function TaskRow({
         </div>
       </div>
 
-      {!done && (
+      {confirmingDelete ? (
         <div className="flex shrink-0 items-center gap-1.5 pr-1">
           <button
             type="button"
-            aria-label={t("postponeAria", { name: task.title })}
-            title={t("postpone")}
-            onClick={onPostpone}
-            className="border-border bg-secondary text-muted-foreground hover:text-foreground flex size-[30px] items-center justify-center rounded-full border transition-colors"
+            onClick={() => setConfirmingDelete(false)}
+            className="border-border bg-secondary text-foreground rounded-full border px-2.5 py-[7px] text-[11.5px] font-semibold"
           >
-            <ArrowRightIcon />
+            {t("cancel")}
           </button>
           <button
             type="button"
-            aria-label={t("deleteAria", { name: task.title })}
+            autoFocus
             onClick={onDelete}
+            className="bg-destructive rounded-full px-2.5 py-[7px] text-[11.5px] font-semibold text-white"
+          >
+            {t("confirmDelete")}
+          </button>
+        </div>
+      ) : (
+        <div className="flex shrink-0 items-center gap-1.5 pr-1">
+          <button
+            type="button"
+            aria-label={t("editAria", { name: task.title })}
+            onClick={onEdit}
+            className="border-border bg-secondary text-muted-foreground hover:text-foreground flex size-[30px] items-center justify-center rounded-full border transition-colors"
+          >
+            <PencilIcon />
+          </button>
+          {!done && (
+            <button
+              type="button"
+              aria-label={t("postponeAria", { name: task.title })}
+              title={t("postpone")}
+              onClick={onPostpone}
+              className="border-border bg-secondary text-muted-foreground hover:text-foreground flex size-[30px] items-center justify-center rounded-full border transition-colors"
+            >
+              <ArrowRightIcon />
+            </button>
+          )}
+          <button
+            type="button"
+            aria-label={t("deleteAria", { name: task.title })}
+            onClick={() => setConfirmingDelete(true)}
             className="border-border bg-secondary text-muted-foreground hover:text-destructive flex size-[30px] items-center justify-center rounded-full border transition-colors"
           >
             <TrashIcon />

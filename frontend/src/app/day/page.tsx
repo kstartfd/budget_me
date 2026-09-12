@@ -16,6 +16,7 @@ import {
   useDeleteTask,
   usePostponeTask,
   useToggleTask,
+  type Task,
 } from "@/features/tasks"
 import { useToday } from "@/features/settings"
 import { dateTitle, shiftDate } from "@/lib/month"
@@ -41,11 +42,13 @@ export default function DayPage() {
   const today = useToday()
 
   const [date, setDate] = useState(today)
-  const [addOpen, setAddOpen] = useState(false)
+  // Add and edit share one sheet — null closed, "add" for a new task, a Task
+  // to edit that one (prefilled).
+  const [sheet, setSheet] = useState<Task | "add" | null>(null)
   const [showDone, setShowDone] = useState(false)
 
   // The nav's center ＋ belongs to this screen while it is open.
-  useProvideAddAction(useCallback(() => setAddOpen(true), []))
+  useProvideAddAction(useCallback(() => setSheet("add"), []))
 
   const tasks = useDayTasks(date)
   const toggle = useToggleTask(date)
@@ -141,6 +144,7 @@ export default function DayPage() {
               task={task}
               carriedSince={task.plannedFor < date ? task.plannedFor : null}
               onToggle={() => toggle.mutate({ id: task.id, done: true })}
+              onEdit={() => setSheet(task)}
               onPostpone={() =>
                 postpone.mutate({ id: task.id, to: shiftDate(date, 1) })
               }
@@ -180,6 +184,7 @@ export default function DayPage() {
                   task={task}
                   carriedSince={null}
                   onToggle={() => toggle.mutate({ id: task.id, done: false })}
+                  onEdit={() => setSheet(task)}
                   onPostpone={() => undefined}
                   onDelete={() => remove.mutate(task.id)}
                 />
@@ -189,11 +194,12 @@ export default function DayPage() {
         </div>
       )}
 
-      {addOpen && (
+      {sheet && (
         <AddTaskSheet
           date={date}
           today={today}
-          onClose={() => setAddOpen(false)}
+          task={sheet === "add" ? undefined : sheet}
+          onClose={() => setSheet(null)}
         />
       )}
     </div>

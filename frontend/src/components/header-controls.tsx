@@ -40,7 +40,13 @@ export function HeaderControls() {
   }
 
   return (
-    <div className="flex items-center gap-2">
+    // flex-wrap: the desktop sidebar (components/desktop-nav.tsx) is only
+    // ~196px wide where this renders — the locale pill + gear + theme + (for
+    // a web account) logout can come right up against that width, and a
+    // strict one-row flex would rather clip the last button than shrink it.
+    // Wrapping to a second row keeps every control reachable; the mobile
+    // header has plenty of room and never needs the second row.
+    <div className="flex flex-wrap items-center justify-center gap-2">
       <div className="border-border bg-secondary flex h-[30px] items-center rounded-full border px-1 font-mono">
         {(["ru", "en"] as const).map((l) => (
           <button
