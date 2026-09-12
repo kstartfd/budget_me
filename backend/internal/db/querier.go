@@ -21,6 +21,8 @@ type Querier interface {
 	// exists, where a tombstone would preserve nothing.
 	DeleteBudgetsFrom(ctx context.Context, arg DeleteBudgetsFromParams) error
 	DeleteCategory(ctx context.Context, arg DeleteCategoryParams) (int64, error)
+	DeleteItem(ctx context.Context, arg DeleteItemParams) (int64, error)
+	DeleteList(ctx context.Context, arg DeleteListParams) (int64, error)
 	DeletePlan(ctx context.Context, arg DeletePlanParams) error
 	DeleteTask(ctx context.Context, arg DeleteTaskParams) (int64, error)
 	DeleteTransaction(ctx context.Context, arg DeleteTransactionParams) (int64, error)
@@ -42,6 +44,8 @@ type Querier interface {
 	// go (see DeleteBudgetsFrom).
 	HasBudgetBefore(ctx context.Context, arg HasBudgetBeforeParams) (bool, error)
 	InsertCategory(ctx context.Context, arg InsertCategoryParams) (Category, error)
+	InsertItem(ctx context.Context, arg InsertItemParams) (Item, error)
+	InsertList(ctx context.Context, arg InsertListParams) (ItemList, error)
 	InsertPlan(ctx context.Context, arg InsertPlanParams) (Plan, error)
 	InsertTask(ctx context.Context, arg InsertTaskParams) (Task, error)
 	InsertTransaction(ctx context.Context, arg InsertTransactionParams) (Transaction, error)
@@ -56,6 +60,8 @@ type Querier interface {
 	// which of the two it wants; the handler drops them.
 	ListBudgetsEffectiveIn(ctx context.Context, arg ListBudgetsEffectiveInParams) ([]Budget, error)
 	ListCategoriesForUser(ctx context.Context, userID pgtype.UUID) ([]Category, error)
+	ListItemsForList(ctx context.Context, arg ListItemsForListParams) ([]Item, error)
+	ListListsForUser(ctx context.Context, userID pgtype.UUID) ([]ItemList, error)
 	ListPlanSuggestionsForMonth(ctx context.Context, arg ListPlanSuggestionsForMonthParams) ([]ListPlanSuggestionsForMonthRow, error)
 	ListPlansForMonth(ctx context.Context, arg ListPlansForMonthParams) ([]Plan, error)
 	ListRecentTransactions(ctx context.Context, arg ListRecentTransactionsParams) ([]Transaction, error)
@@ -66,6 +72,7 @@ type Querier interface {
 	// Everyone the nightly advice pass should look at; their zone decides which
 	// instants make up "their" month.
 	ListUsersForAdvice(ctx context.Context) ([]ListUsersForAdviceRow, error)
+	ListVisibleToUser(ctx context.Context, arg ListVisibleToUserParams) (bool, error)
 	// The zone the client last reported. Only background work reads it (cmd/worker);
 	// requests carry their own zone with them.
 	RememberTimezone(ctx context.Context, arg RememberTimezoneParams) error
@@ -105,6 +112,7 @@ type Querier interface {
 	// текущим фильтром считается на бэке, а не складывается на клиенте из выданного списка.
 	SumTotalsInRange(ctx context.Context, arg SumTotalsInRangeParams) (SumTotalsInRangeRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
+	UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, error)
 	UpdatePlan(ctx context.Context, arg UpdatePlanParams) (Plan, error)
 	// Full replace of the editable fields (title/note/planned_for) — this is also
 	// what an explicit "отложить на завтра" is: a plain planned_for change, distinct

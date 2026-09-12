@@ -53,6 +53,27 @@ func Int8Ptr(v pgtype.Int8) *int64 {
 	return &v.Int64
 }
 
+// Int2 wraps an optional int (e.g. a 1..10 rating) as a nullable pg int2. The
+// caller validates the range — this is a pure width conversion.
+func Int2(v *int) pgtype.Int2 {
+	if v == nil {
+		return pgtype.Int2{}
+	}
+
+	return pgtype.Int2{Int16: int16(*v), Valid: true}
+}
+
+// Int2Ptr unwraps a nullable pg int2 to an optional int.
+func Int2Ptr(v pgtype.Int2) *int {
+	if !v.Valid {
+		return nil
+	}
+
+	n := int(v.Int16)
+
+	return &n
+}
+
 // Time wraps a time as a non-null pg timestamptz.
 func Time(t time.Time) pgtype.Timestamptz {
 	return pgtype.Timestamptz{Time: t, Valid: true}
@@ -120,6 +141,16 @@ func ParseDirection(s string) (TxDirection, bool) {
 	switch TxDirection(s) {
 	case TxDirectionExpense, TxDirectionIncome:
 		return TxDirection(s), true
+	default:
+		return "", false
+	}
+}
+
+// ParseVerdict maps a wire string to an ItemVerdict. Mirrors ParseDirection.
+func ParseVerdict(s string) (ItemVerdict, bool) {
+	switch ItemVerdict(s) {
+	case ItemVerdictWorks, ItemVerdictMeh, ItemVerdictNo, ItemVerdictUnknown:
+		return ItemVerdict(s), true
 	default:
 		return "", false
 	}

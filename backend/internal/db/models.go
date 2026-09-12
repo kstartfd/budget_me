@@ -55,6 +55,50 @@ func (ns NullCurrencyCode) Value() (driver.Value, error) {
 	return string(ns.CurrencyCode), nil
 }
 
+type ItemVerdict string
+
+const (
+	ItemVerdictWorks   ItemVerdict = "works"
+	ItemVerdictMeh     ItemVerdict = "meh"
+	ItemVerdictNo      ItemVerdict = "no"
+	ItemVerdictUnknown ItemVerdict = "unknown"
+)
+
+func (e *ItemVerdict) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = ItemVerdict(s)
+	case string:
+		*e = ItemVerdict(s)
+	default:
+		return fmt.Errorf("unsupported scan type for ItemVerdict: %T", src)
+	}
+	return nil
+}
+
+type NullItemVerdict struct {
+	ItemVerdict ItemVerdict
+	Valid       bool // Valid is true if ItemVerdict is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullItemVerdict) Scan(value interface{}) error {
+	if value == nil {
+		ns.ItemVerdict, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.ItemVerdict.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullItemVerdict) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.ItemVerdict), nil
+}
+
 type TxDirection string
 
 const (
@@ -123,6 +167,28 @@ type Category struct {
 	Color     string
 	CreatedAt pgtype.Timestamptz
 	Direction TxDirection
+}
+
+type Item struct {
+	ID        pgtype.UUID
+	ListID    pgtype.UUID
+	UserID    pgtype.UUID
+	Title     string
+	Purpose   pgtype.Text
+	Verdict   ItemVerdict
+	Rating    pgtype.Int2
+	Note      pgtype.Text
+	CreatedAt pgtype.Timestamptz
+	UpdatedAt pgtype.Timestamptz
+}
+
+type ItemList struct {
+	ID        pgtype.UUID
+	UserID    pgtype.UUID
+	Slug      pgtype.Text
+	Name      pgtype.Text
+	Color     string
+	CreatedAt pgtype.Timestamptz
 }
 
 type Plan struct {
