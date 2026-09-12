@@ -146,7 +146,12 @@ export default function DayPage() {
               onToggle={() => toggle.mutate({ id: task.id, done: true })}
               onEdit={() => setSheet(task)}
               onPostpone={() =>
-                postpone.mutate({ id: task.id, to: shiftDate(date, 1) })
+                postpone.mutate({
+                  id: task.id,
+                  title: task.title,
+                  note: task.note,
+                  to: shiftDate(date, 1),
+                })
               }
               onDelete={() => remove.mutate(task.id)}
             />

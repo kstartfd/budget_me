@@ -29,11 +29,16 @@ export const createTaskInputSchema = z.object({
 
 export type CreateTaskInput = z.infer<typeof createTaskInputSchema>
 
+/**
+ * `PUT /tasks/:id` replaces title/note/plannedFor wholesale (no PATCH) — so
+ * every field here is required, not optional. A postpone is just this same
+ * shape with only plannedFor actually changing (see api.ts's postponeTask).
+ */
 export const updateTaskInputSchema = z.object({
   id: z.string(),
-  title: z.string().trim().min(1).max(200).optional(),
-  note: z.string().trim().max(500).nullable().optional(),
-  plannedFor: isoDate.optional(),
+  title: z.string().trim().min(1).max(200),
+  note: z.string().trim().max(500).nullable(),
+  plannedFor: isoDate,
 })
 
 export type UpdateTaskInput = z.infer<typeof updateTaskInputSchema>

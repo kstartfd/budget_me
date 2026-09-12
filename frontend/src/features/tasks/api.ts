@@ -1,4 +1,5 @@
-import { mockTasks } from "./mock-db"
+import { readToken } from "@/features/auth"
+
 import {
   createTaskInputSchema,
   taskSchema,
@@ -7,48 +8,73 @@ import {
 import type { CreateTaskInput, Task, UpdateTaskInput } from "./schemas"
 
 /**
- * Tasks API — the typed fetcher surface the query/mutation hooks call. Runs on
- * the mock store for now; the shapes below are exactly what `GET/POST/PATCH/
- * DELETE /api/v1/tasks` will answer, so connecting the backend is a change to
- * this file alone.
+ * Tasks API — the typed fetcher surface the query/mutation hooks call, live
+ * against the Go backend (same-origin /api/v1, proxied by Next rewrites).
+ * Own small call()/ApiError, mirroring features/settings/api.ts — every
+ * feature keeps its own rather than sharing one, so nothing here risks an
+ * import cycle with a sibling feature.
  *
  * THE ONE RULE WORTH KNOWING: a day's list is not stored, it is derived —
  * `plannedFor <= date AND doneOn IS NULL` plus whatever was ticked ON that
  * date. Undone work therefore carries itself forward with no nightly job and
  * no rows being rewritten at midnight, and "«Сдать анализы» висит 3-й день"
- * falls straight out of `date - plannedFor`.
+ * falls straight out of `date - plannedFor` (see backend/internal/tasks).
  */
 
-const latencyMs = 180
+class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly code: number,
+    readonly status: number,
+  ) {
+    super(message)
+  }
+}
 
-function settle<T>(value: T): Promise<T> {
-  return new Promise((resolve) => setTimeout(() => resolve(value), latencyMs))
+async function call<T>(
+  path: string,
+  init: RequestInit,
+  parse: (data: unknown) => T,
+): Promise<T> {
+  const token = readToken()
+  const res = await fetch(`/api/v1${path}`, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      ...init.headers,
+    },
+  })
+  const body = (await res.json().catch(() => null)) as {
+    code?: number
+    message?: string
+    data?: unknown
+  } | null
+  if (!body || body.code !== 0) {
+    throw new ApiError(
+      body?.message ?? res.statusText,
+      body?.code ?? -1,
+      res.status,
+    )
+  }
+  return parse(body.data)
 }
 
 /** Everything that belongs on `date`: still-open work, plus that day's done. */
 export async function fetchDayTasks(date: string): Promise<Task[]> {
-  const rows = mockTasks
-    .all()
-    .filter((t) => (t.doneOn === null ? t.plannedFor <= date : t.doneOn === date))
-    .sort((a, b) => a.plannedFor.localeCompare(b.plannedFor) || a.createdAt.localeCompare(b.createdAt))
-
-  return settle(rows.map((t) => taskSchema.parse(t)))
+  return call(`/tasks?date=${date}`, { method: "GET" }, (d) =>
+    taskSchema.array().parse(d),
+  )
 }
 
 export async function createTask(input: CreateTaskInput): Promise<Task> {
   const parsed = createTaskInputSchema.parse(input)
-  const task: Task = {
-    id: `t-${Date.now().toString(36)}`,
-    title: parsed.title,
-    note: parsed.note && parsed.note.length > 0 ? parsed.note : null,
-    plannedFor: parsed.plannedFor,
-    doneOn: null,
-    createdAt: new Date().toISOString(),
-  }
 
-  mockTasks.save([...mockTasks.all(), task])
-
-  return settle(task)
+  return call(
+    "/tasks",
+    { method: "POST", body: JSON.stringify(parsed) },
+    (d) => taskSchema.parse(d),
+  )
 }
 
 /**
@@ -61,45 +87,50 @@ export async function setTaskDone(input: {
   done: boolean
   date: string
 }): Promise<Task> {
-  return settle(
-    mutate(input.id, (t) => ({ ...t, doneOn: input.done ? input.date : null })),
+  return call(
+    `/tasks/${input.id}/done`,
+    { method: "PUT", body: JSON.stringify({ doneOn: input.done ? input.date : null }) },
+    (d) => taskSchema.parse(d),
   )
 }
 
-/** Move an open task to another day — the explicit «отложить», not the carry-over. */
+/**
+ * Move an open task to another day — the explicit «отложить», not the
+ * carry-over. `PUT /tasks/:id` replaces title/note/plannedFor wholesale, so a
+ * postpone still has to carry the task's current title/note through
+ * unchanged — it is that same endpoint with only plannedFor actually moving.
+ */
 export async function postponeTask(input: {
   id: string
+  title: string
+  note: string | null
   to: string
 }): Promise<Task> {
-  return settle(mutate(input.id, (t) => ({ ...t, plannedFor: input.to })))
+  return updateTask({
+    id: input.id,
+    title: input.title,
+    note: input.note,
+    plannedFor: input.to,
+  })
 }
 
 export async function updateTask(input: UpdateTaskInput): Promise<Task> {
   const parsed = updateTaskInputSchema.parse(input)
 
-  return settle(
-    mutate(parsed.id, (t) => ({
-      ...t,
-      title: parsed.title ?? t.title,
-      note: parsed.note === undefined ? t.note : parsed.note,
-      plannedFor: parsed.plannedFor ?? t.plannedFor,
-    })),
+  return call(
+    `/tasks/${parsed.id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({
+        title: parsed.title,
+        note: parsed.note,
+        plannedFor: parsed.plannedFor,
+      }),
+    },
+    (d) => taskSchema.parse(d),
   )
 }
 
 export async function deleteTask(id: string): Promise<{ id: string }> {
-  mockTasks.save(mockTasks.all().filter((t) => t.id !== id))
-
-  return settle({ id })
-}
-
-function mutate(id: string, patch: (task: Task) => Task): Task {
-  const rows = mockTasks.all()
-  const found = rows.find((t) => t.id === id)
-  if (!found) throw new Error("task not found")
-
-  const next = taskSchema.parse(patch(found))
-  mockTasks.save(rows.map((t) => (t.id === id ? next : t)))
-
-  return next
+  return call(`/tasks/${id}`, { method: "DELETE" }, (d) => d as { id: string })
 }
