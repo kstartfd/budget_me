@@ -137,6 +137,17 @@ type Plan struct {
 	UpdatedAt   pgtype.Timestamptz
 }
 
+type Task struct {
+	ID         pgtype.UUID
+	UserID     pgtype.UUID
+	Title      string
+	Note       pgtype.Text
+	PlannedFor pgtype.Date
+	DoneOn     pgtype.Date
+	CreatedAt  pgtype.Timestamptz
+	UpdatedAt  pgtype.Timestamptz
+}
+
 type Transaction struct {
 	ID          pgtype.UUID
 	UserID      pgtype.UUID

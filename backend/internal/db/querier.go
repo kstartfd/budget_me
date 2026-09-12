@@ -22,6 +22,7 @@ type Querier interface {
 	DeleteBudgetsFrom(ctx context.Context, arg DeleteBudgetsFromParams) error
 	DeleteCategory(ctx context.Context, arg DeleteCategoryParams) (int64, error)
 	DeletePlan(ctx context.Context, arg DeletePlanParams) error
+	DeleteTask(ctx context.Context, arg DeleteTaskParams) (int64, error)
 	DeleteTransaction(ctx context.Context, arg DeleteTransactionParams) (int64, error)
 	// The worker's sweep: everything requested before the cutoff goes for good.
 	// Returns the ids it removed so the run can be logged. All owned rows follow
@@ -32,6 +33,7 @@ type Querier interface {
 	// Just the cutoff. The dashboard asks on every load and needs nothing else off
 	// the user row, so this stays narrower than GetUserByID.
 	GetHistoryResetAt(ctx context.Context, id pgtype.UUID) (pgtype.Timestamptz, error)
+	GetTaskByID(ctx context.Context, arg GetTaskByIDParams) (Task, error)
 	GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
@@ -41,6 +43,7 @@ type Querier interface {
 	HasBudgetBefore(ctx context.Context, arg HasBudgetBeforeParams) (bool, error)
 	InsertCategory(ctx context.Context, arg InsertCategoryParams) (Category, error)
 	InsertPlan(ctx context.Context, arg InsertPlanParams) (Plan, error)
+	InsertTask(ctx context.Context, arg InsertTaskParams) (Task, error)
 	InsertTransaction(ctx context.Context, arg InsertTransactionParams) (Transaction, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
 	// The limit in force for `month`, one row per category: the newest run that has
@@ -56,6 +59,9 @@ type Querier interface {
 	ListPlanSuggestionsForMonth(ctx context.Context, arg ListPlanSuggestionsForMonthParams) ([]ListPlanSuggestionsForMonthRow, error)
 	ListPlansForMonth(ctx context.Context, arg ListPlansForMonthParams) ([]Plan, error)
 	ListRecentTransactions(ctx context.Context, arg ListRecentTransactionsParams) ([]Transaction, error)
+	// Everything that belongs on `day`: still-open work planned on or before it
+	// (regardless of how old), plus whatever was ticked done ON that exact day.
+	ListTasksForDay(ctx context.Context, arg ListTasksForDayParams) ([]Task, error)
 	ListTransactionsInRange(ctx context.Context, arg ListTransactionsInRangeParams) ([]Transaction, error)
 	// Everyone the nightly advice pass should look at; their zone decides which
 	// instants make up "their" month.
@@ -69,6 +75,7 @@ type Querier interface {
 	// Re-stating the balance moves the anchor to `now`: transactions before it stop
 	// counting, which is exactly what "my balance is actually X" should mean.
 	SetBalanceAnchor(ctx context.Context, arg SetBalanceAnchorParams) (User, error)
+	SetTaskDone(ctx context.Context, arg SetTaskDoneParams) (Task, error)
 	SetUserWebIdentity(ctx context.Context, arg SetUserWebIdentityParams) (User, error)
 	SumIncomeInRange(ctx context.Context, arg SumIncomeInRangeParams) (int64, error)
 	// Net movement since the balance anchor: income adds, expense subtracts. Feeds
@@ -99,6 +106,10 @@ type Querier interface {
 	SumTotalsInRange(ctx context.Context, arg SumTotalsInRangeParams) (SumTotalsInRangeRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
 	UpdatePlan(ctx context.Context, arg UpdatePlanParams) (Plan, error)
+	// Full replace of the editable fields (title/note/planned_for) — this is also
+	// what an explicit "отложить на завтра" is: a plain planned_for change, distinct
+	// from the carry-over above, which never touches a row.
+	UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error)
 	// ownership в самом WHERE
 	UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error)
 	UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) (UpdateUserSettingsRow, error)

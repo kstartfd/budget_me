@@ -29,6 +29,7 @@ import (
 	"budget_me/backend/internal/rates"
 	"budget_me/backend/internal/rates/provider"
 	"budget_me/backend/internal/settings"
+	"budget_me/backend/internal/tasks"
 	"budget_me/backend/internal/token"
 	"budget_me/backend/internal/transactions"
 )
@@ -117,6 +118,9 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 		Routes(public, protected)
 
 	settings.NewController(queries, clk).
+		Routes(public, protected)
+
+	tasks.NewController(queries, clk).
 		Routes(public, protected)
 
 	return e

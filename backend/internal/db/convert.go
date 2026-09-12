@@ -1,10 +1,16 @@
 package db
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
+
+// dateLayout is the wire format for a plain calendar date everywhere in this
+// API ("2026-09-12", no time, no zone) — the client's local day, same
+// convention as settings' `today`.
+const dateLayout = "2006-01-02"
 
 // Conversion helpers between Go pointers and the pgtype values sqlc uses for
 // nullable columns. Kept next to the generated code so every feature package
@@ -62,6 +68,48 @@ func TimePtr(t pgtype.Timestamptz) *time.Time {
 	utc := t.Time.UTC()
 
 	return &utc
+}
+
+// ParseDate parses a wire date ("2026-09-12") into a non-null pg date. Callers
+// at an HTTP edge should shape-check with a regexp first (matching the
+// project's convention for other wire strings) — this still returns an error
+// so a calendar-invalid date like "2026-02-30" is caught too.
+func ParseDate(s string) (pgtype.Date, error) {
+	t, err := time.Parse(dateLayout, s)
+	if err != nil {
+		return pgtype.Date{}, fmt.Errorf("invalid date %q: %w", s, err)
+	}
+
+	return pgtype.Date{Time: t, Valid: true}, nil
+}
+
+// ParseDateOpt is ParseDate for an OPTIONAL date: nil stays SQL NULL.
+func ParseDateOpt(s *string) (pgtype.Date, error) {
+	if s == nil {
+		return pgtype.Date{}, nil
+	}
+
+	return ParseDate(*s)
+}
+
+// DateStr formats a pg date back to the wire format, "" when null.
+func DateStr(d pgtype.Date) string {
+	if !d.Valid {
+		return ""
+	}
+
+	return d.Time.Format(dateLayout)
+}
+
+// DateStrPtr is DateStr for an optional column — nil when null.
+func DateStrPtr(d pgtype.Date) *string {
+	if !d.Valid {
+		return nil
+	}
+
+	s := d.Time.Format(dateLayout)
+
+	return &s
 }
 
 // ParseDirection maps a wire string ("income"/"expense") to a TxDirection. The
