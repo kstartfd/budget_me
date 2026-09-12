@@ -408,7 +408,38 @@
   },
   "lists": {
     "title": "Списки",
-    "soon": "Здесь будут аптечка и косметика: что за средство, от чего, помогает ли и оценка по десятибалльной шкале."
+    "desc": "Аптечка, косметика и что угодно ещё — с оценкой и заметкой, помогло ли.",
+    "loadError": "Не получилось загрузить данные. Попробуйте ещё раз чуть позже.",
+    "newList": "Создать список",
+    "newListTitle": "Новый список",
+    "listNamePlaceholder": "Название списка",
+    "listColorLabel": "Цвет списка",
+    "createList": "Создать",
+    "preset": {
+      "medications": "Аптечка",
+      "cosmetics": "Косметика"
+    },
+    "emptyItems": "В этом списке пока пусто.",
+    "addItemTitle": "Новая вещь",
+    "editItemTitle": "Редактировать вещь",
+    "titlePlaceholder": "Название",
+    "purposePlaceholder": "От чего / для чего",
+    "notePlaceholder": "Заметка (необязательно)",
+    "verdictLabel": "Помогает?",
+    "verdict": {
+      "works": "Помогает",
+      "meh": "Так себе",
+      "no": "Не помогает",
+      "unknown": "Неизвестно"
+    },
+    "ratingLabel": "Оценка",
+    "clearRating": "Сбросить",
+    "addItemSubmit": "Добавить",
+    "editItemSubmit": "Сохранить",
+    "editAria": "Редактировать «{name}»",
+    "deleteAria": "Удалить «{name}»",
+    "cancel": "Отмена",
+    "confirmDelete": "Удалить"
   },
   "english": {
     "title": "English",

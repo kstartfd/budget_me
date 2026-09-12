@@ -408,7 +408,38 @@
   },
   "lists": {
     "title": "Lists",
-    "soon": "The medicine cabinet and cosmetics will live here: what it is, what for, whether it helps, and a rating out of ten."
+    "desc": "Medicine cabinet, cosmetics, anything else — rated, with a note on whether it helped.",
+    "loadError": "Couldn't load the data. Please try again in a moment.",
+    "newList": "Create list",
+    "newListTitle": "New list",
+    "listNamePlaceholder": "List name",
+    "listColorLabel": "List colour",
+    "createList": "Create",
+    "preset": {
+      "medications": "Medicine cabinet",
+      "cosmetics": "Cosmetics"
+    },
+    "emptyItems": "Nothing in this list yet.",
+    "addItemTitle": "New item",
+    "editItemTitle": "Edit item",
+    "titlePlaceholder": "Name",
+    "purposePlaceholder": "What it's for",
+    "notePlaceholder": "Note (optional)",
+    "verdictLabel": "Does it help?",
+    "verdict": {
+      "works": "Works",
+      "meh": "So-so",
+      "no": "Doesn't help",
+      "unknown": "Unknown"
+    },
+    "ratingLabel": "Rating",
+    "clearRating": "Clear",
+    "addItemSubmit": "Add",
+    "editItemSubmit": "Save",
+    "editAria": "Edit “{name}”",
+    "deleteAria": "Delete “{name}”",
+    "cancel": "Cancel",
+    "confirmDelete": "Delete"
   },
   "english": {
     "title": "English",

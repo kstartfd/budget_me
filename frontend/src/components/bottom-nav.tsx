@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl"
 
 import { useAddAction } from "@/components/add-action"
 import { PlusIcon } from "@/components/app-icons"
-import { useSpace } from "@/components/spaces"
+import { tabMatches, useSpace } from "@/components/spaces"
 import { useBudgetUI } from "@/features/budget/components/ui-context"
 import { cn } from "@/lib/utils"
 
@@ -34,7 +34,7 @@ export function BottomNav() {
 
   const money = space.id === "money"
   const addLabel = tAdd(
-    space.tabs.find((tab) => tab.href === pathname)?.addKey ?? space.addKey,
+    space.tabs.find((tab) => tabMatches(tab, pathname))?.addKey ?? space.addKey,
   )
   const addEnabled = money || enabled
 
@@ -55,7 +55,7 @@ export function BottomNav() {
             href={tab.href}
             icon={tab.icon}
             label={t(tab.labelKey)}
-            active={pathname === tab.href}
+            active={tabMatches(tab, pathname)}
           />
         ))}
 
@@ -80,7 +80,7 @@ export function BottomNav() {
             href={tab.href}
             icon={tab.icon}
             label={t(tab.labelKey)}
-            active={pathname === tab.href}
+            active={tabMatches(tab, pathname)}
           />
         ))}
       </div>

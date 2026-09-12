@@ -76,12 +76,21 @@ export const SPACES: Space[] = [
 ]
 
 /**
+ * Whether `pathname` belongs to `tab` — the tab's own route, or one nested
+ * under it (`/lists` also claims `/lists/abc123`). A prefix match, not
+ * `startsWith`, so `/lists` never claims a sibling like `/lists-export`.
+ */
+export function tabMatches(tab: NavTab, pathname: string): boolean {
+  return pathname === tab.href || pathname.startsWith(`${tab.href}/`)
+}
+
+/**
  * Which space a route belongs to — null for the shared screens (settings,
  * categories), which belong to neither and must not yank the bar around.
  */
 export function spaceOfPath(pathname: string): SpaceId | null {
   for (const space of SPACES) {
-    if (space.tabs.some((tab) => !tab.bottomOnly && tab.href === pathname)) {
+    if (space.tabs.some((tab) => !tab.bottomOnly && tabMatches(tab, pathname))) {
       return space.id
     }
   }

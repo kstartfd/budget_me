@@ -7,7 +7,7 @@ import { useTranslations } from "next-intl"
 import { useAddAction } from "@/components/add-action"
 import { PlusIcon, WalletLogoIcon } from "@/components/app-icons"
 import { HeaderControls } from "@/components/header-controls"
-import { SPACES, useSpace } from "@/components/spaces"
+import { SPACES, tabMatches, useSpace } from "@/components/spaces"
 import { useAuth } from "@/features/auth"
 import { useBudgetUI } from "@/features/budget/components/ui-context"
 import { cn } from "@/lib/utils"
@@ -35,7 +35,7 @@ export function DesktopNav() {
 
   const money = space.id === "money"
   const addLabel = tAdd(
-    space.tabs.find((tab) => tab.href === pathname)?.addKey ?? space.addKey,
+    space.tabs.find((tab) => tabMatches(tab, pathname))?.addKey ?? space.addKey,
   )
   const addEnabled = money || enabled
 
@@ -82,8 +82,9 @@ export function DesktopNav() {
             <div className="flex flex-col gap-1.5">
               {group.tabs
                 .filter((tab) => !tab.bottomOnly)
-                .map(({ href, icon: Icon, labelKey }) => {
-                  const active = pathname === href
+                .map((tab) => {
+                  const { href, icon: Icon, labelKey } = tab
+                  const active = tabMatches(tab, pathname)
                   return (
                     <Link
                       key={href}
