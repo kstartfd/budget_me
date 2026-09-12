@@ -183,3 +183,32 @@ export function dayLabel(
     new Date(yy, mm - 1, dd),
   )
 }
+
+/** `iso` shifted by whole days, still `YYYY-MM-DD` (month/year roll over). */
+export function shiftDate(iso: string, delta: number): string {
+  const [y, m, d] = iso.split("-").map(Number)
+  const at = new Date(y, m - 1, d + delta)
+  return `${monthKeyOf(at)}-${String(at.getDate()).padStart(2, "0")}`
+}
+
+/** Whole days from `from` to `to` (negative when `to` is earlier). */
+export function daysBetween(from: string, to: string): number {
+  const [fy, fm, fd] = from.split("-").map(Number)
+  const [ty, tm, td] = to.split("-").map(Number)
+  return Math.round(
+    (new Date(ty, tm - 1, td).getTime() - new Date(fy, fm - 1, fd).getTime()) /
+      86400000,
+  )
+}
+
+/** "12 сентября, сб" / "12 September, Sat" — one day as a screen subtitle. */
+export function dateTitle(iso: string, locale: string): string {
+  const [y, m, d] = iso.split("-").map(Number)
+  return new Intl.DateTimeFormat(locale, {
+    day: "numeric",
+    month: "long",
+    weekday: "short",
+  })
+    .format(new Date(y, m - 1, d))
+    .replace(/\.$/, "")
+}

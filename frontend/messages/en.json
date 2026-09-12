@@ -39,7 +39,11 @@
     "analytics": "Charts",
     "ai": "AI",
     "budgets": "Limits",
-    "settings": "Settings"
+    "settings": "Settings",
+    "day": "Day",
+    "lists": "Lists",
+    "english": "English",
+    "more": "More"
   },
   "settings": {
     "title": "Settings",
@@ -314,7 +318,10 @@
     "newCategory": "New category",
     "categoryName": "e.g. Pets",
     "create": "Create",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "task": "Task",
+    "item": "Thing",
+    "phrase": "Phrase"
   },
   "categories": {
     "coffee": "Coffee",
@@ -366,5 +373,40 @@
       "periwinkle": "Periwinkle",
       "gray": "Gray"
     }
+  },
+  "spaces": {
+    "aria": "App section",
+    "money": "Money",
+    "life": "Life"
+  },
+  "day": {
+    "kicker": "Day",
+    "prevDay": "Previous day",
+    "nextDay": "Next day",
+    "backToToday": "Back to today",
+    "progress": "{done} of {total}",
+    "empty": "Nothing planned for this day.",
+    "allDone": "All done.",
+    "doneSection": "Done · {count}",
+    "since": "since {date}",
+    "tomorrow": "Tomorrow",
+    "postpone": "Move to the next day",
+    "postponeAria": "Move “{name}” to the next day",
+    "deleteAria": "Delete “{name}”",
+    "addTitle": "New task",
+    "titlePlaceholder": "What needs doing",
+    "notePlaceholder": "Note (optional)",
+    "addSubmit": "Add"
+  },
+  "soon": {
+    "badge": "in progress"
+  },
+  "lists": {
+    "title": "Lists",
+    "soon": "The medicine cabinet and cosmetics will live here: what it is, what for, whether it helps, and a rating out of ten."
+  },
+  "english": {
+    "title": "English",
+    "soon": "Phrases with transcription, translation, a real-usage example and the rule behind it — plus the token for the Chrome extension."
   }
 }

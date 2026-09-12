@@ -4,40 +4,40 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 
-import {
-  HomeIcon,
-  ListIcon,
-  PieIcon,
-  PlusIcon,
-  SparklesIcon,
-  WalletLogoIcon,
-} from "@/components/app-icons"
+import { useAddAction } from "@/components/add-action"
+import { PlusIcon, WalletLogoIcon } from "@/components/app-icons"
 import { HeaderControls } from "@/components/header-controls"
+import { SPACES, useSpace } from "@/components/spaces"
 import { useAuth } from "@/features/auth"
 import { useBudgetUI } from "@/features/budget/components/ui-context"
 import { cn } from "@/lib/utils"
 
 /**
  * Desktop left sidebar (design WEB FRAME 1): brand, the signed-in user, the
- * vertical nav, a prominent "add expense" button, and the shared locale/theme
- * controls pinned to the bottom. Shown only on wide viewports (lg+) — phone and
- * Telegram keep the AppHeader + BottomNav (its center is the add button). The
- * gear lives in HeaderControls, so the sidebar never repeats it. Limits live in
- * Settings (reached from the gear), so the sidebar no longer lists them.
+ * nav, a prominent add button, and the shared locale/theme controls pinned to
+ * the bottom. Shown only on wide viewports (lg+).
+ *
+ * Unlike the phone there is no space switcher here: the sidebar has the room
+ * to show both groups — ДЕНЬГИ and ЖИЗНЬ — at once, which is faster than a
+ * toggle. The add button still follows the open screen, exactly as the phone's
+ * center ＋ does. The gear lives in HeaderControls, so «Ещё» (a bottom-bar-only
+ * tab) is left out here.
  */
 export function DesktopNav() {
   const pathname = usePathname()
   const t = useTranslations("nav")
+  const tSpaces = useTranslations("spaces")
   const tAdd = useTranslations("add")
   const { openAdd } = useBudgetUI()
+  const { trigger, enabled } = useAddAction()
   const { user } = useAuth()
+  const space = useSpace()
 
-  const tabs = [
-    { href: "/", icon: HomeIcon, label: t("overview") },
-    { href: "/transactions", icon: ListIcon, label: t("transactions") },
-    { href: "/analytics", icon: PieIcon, label: t("analytics") },
-    { href: "/ai", icon: SparklesIcon, label: t("ai") },
-  ]
+  const money = space.id === "money"
+  const addLabel = tAdd(
+    space.tabs.find((tab) => tab.href === pathname)?.addKey ?? space.addKey,
+  )
+  const addEnabled = money || enabled
 
   const displayName = user?.first_name || user?.username || ""
   const handle = user?.username ? `@${user.username}` : null
@@ -73,35 +73,47 @@ export function DesktopNav() {
         </div>
       )}
 
-      <nav aria-label={t("main")} className="flex flex-col gap-1.5">
-        {tabs.map(({ href, icon: Icon, label }) => {
-          const active = pathname === href
-          return (
-            <Link
-              key={href}
-              href={href}
-              aria-current={active ? "page" : undefined}
-              className={cn(
-                "focus-visible:ring-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] outline-none focus-visible:ring-2",
-                active
-                  ? "bg-[color:var(--primary-wash)] text-primary font-semibold"
-                  : "text-muted-foreground hover:text-foreground hover:bg-secondary/60 font-medium",
-              )}
-            >
-              <Icon size={18} />
-              {label}
-            </Link>
-          )
-        })}
-      </nav>
+      <div className="flex flex-col gap-3.5">
+        {SPACES.map((group) => (
+          <nav key={group.id} aria-label={tSpaces(group.labelKey)}>
+            <div className="text-faint px-3 pb-1.5 font-mono text-[10px] font-bold tracking-[0.09em] uppercase">
+              {tSpaces(group.labelKey)}
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {group.tabs
+                .filter((tab) => !tab.bottomOnly)
+                .map(({ href, icon: Icon, labelKey }) => {
+                  const active = pathname === href
+                  return (
+                    <Link
+                      key={href}
+                      href={href}
+                      aria-current={active ? "page" : undefined}
+                      className={cn(
+                        "focus-visible:ring-ring flex items-center gap-3 rounded-xl px-3 py-2.5 text-[13.5px] outline-none focus-visible:ring-2",
+                        active
+                          ? "bg-[color:var(--primary-wash)] text-primary font-semibold"
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary/60 font-medium",
+                      )}
+                    >
+                      <Icon size={18} />
+                      {t(labelKey)}
+                    </Link>
+                  )
+                })}
+            </div>
+          </nav>
+        ))}
+      </div>
 
       <button
         type="button"
-        onClick={openAdd}
-        className="bg-primary text-primary-foreground focus-visible:ring-ring mt-4 flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-bold shadow-[0_10px_22px_-8px_var(--primary-glow)] outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
+        onClick={money ? openAdd : trigger}
+        disabled={!addEnabled}
+        className="bg-primary text-primary-foreground focus-visible:ring-ring mt-4 flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-bold shadow-[0_10px_22px_-8px_var(--primary-glow)] outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:opacity-40"
       >
         <PlusIcon size={18} />
-        {tAdd("fab")}
+        {addLabel}
       </button>
 
       <div className="mt-auto flex justify-center pt-4">

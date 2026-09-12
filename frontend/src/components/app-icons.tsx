@@ -190,3 +190,59 @@ export function CheckIcon({ size = 13, strokeWidth = 2.4 }: IconProps) {
     </svg>
   )
 }
+
+export function CheckListIcon({ size = 22, strokeWidth = 1.9 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 7.2l1.7 1.7L8.5 5.6" />
+      <path d="M3.5 16.2l1.7 1.7 3.3-3.3" />
+      <path d="M12 7.4h8.5M12 16.4h8.5" />
+    </svg>
+  )
+}
+
+export function StackIcon({ size = 22, strokeWidth = 1.9 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 3.5l8.5 4.2-8.5 4.2-8.5-4.2z" />
+      <path d="M3.5 12.2l8.5 4.2 8.5-4.2" />
+      <path d="M3.5 16.6l8.5 4.2 8.5-4.2" />
+    </svg>
+  )
+}
+
+export function LanguageIcon({ size = 22, strokeWidth = 1.9 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3.5 6.2h8.4M7.7 4.2v2" />
+      <path d="M10.3 6.2c0 3.6-2.6 6.6-6.8 7.8" />
+      <path d="M5.6 10.4c1.3 1.9 3.2 3.1 5.5 3.6" />
+      <path d="M12.6 20l4-9.6 4 9.6" />
+      <path d="M14 16.8h5.2" />
+    </svg>
+  )
+}
+
+export function DotsIcon({ size = 22, strokeWidth = 2.2 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 12h.01M12 12h.01M19 12h.01" />
+    </svg>
+  )
+}
+
+export function ArrowRightIcon({ size = 14, strokeWidth = 2 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4 12h15M13.5 6.5L20 12l-6.5 5.5" />
+    </svg>
+  )
+}
+
+export function ChevronDownIcon({ size = 16, strokeWidth = 2.2 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 9.5l6 6 6-6" />
+    </svg>
+  )
+}
