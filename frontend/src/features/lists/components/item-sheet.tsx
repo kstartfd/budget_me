@@ -4,7 +4,10 @@ import { useEffect, useRef, useState, type ChangeEvent } from "react"
 import { useTranslations } from "next-intl"
 import { IconPhoto, IconPhotoPlus, IconTrash } from "@tabler/icons-react"
 
+import { Button } from "@/components/ui/button"
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog"
 import { BottomSheet } from "@/features/budget/components/bottom-sheet"
+import { useIsDesktop } from "@/hooks/use-is-desktop"
 import { cn } from "@/lib/utils"
 
 import {
@@ -33,6 +36,7 @@ export function ItemSheet({
   onClose: () => void
 }) {
   const t = useTranslations("lists")
+  const isDesktop = useIsDesktop()
   const create = useCreateItem(listId)
   const update = useUpdateItem(listId)
   const uploadPhoto = useUploadItemPhoto(listId)
@@ -145,205 +149,229 @@ export function ItemSheet({
     )
   }
 
-  return (
-    <BottomSheet
-      title={activeItem ? t("editItemTitle") : t("addItemTitle")}
-      onClose={() => (viewingPhoto ? setViewingPhoto(false) : onClose())}
-    >
-      <div className="flex max-h-[calc(100dvh-7rem)] flex-col gap-3 overflow-y-auto pt-4">
-        <input
-          autoFocus
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder={t("titlePlaceholder")}
-          maxLength={200}
-          className="border-primary bg-secondary text-foreground placeholder:text-faint w-full rounded-2xl border px-4 py-3.5 text-[15px] outline-none"
-        />
-        <input
-          value={purpose}
-          onChange={(e) => setPurpose(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder={t("purposePlaceholder")}
-          maxLength={200}
-          className="border-border bg-secondary text-foreground placeholder:text-faint w-full rounded-2xl border px-4 py-3 text-[14px] outline-none"
-        />
-        <input
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          onKeyDown={(e) => e.key === "Enter" && submit()}
-          placeholder={t("notePlaceholder")}
-          maxLength={500}
-          className="border-border bg-secondary text-foreground placeholder:text-faint w-full rounded-2xl border px-4 py-3 text-[14px] outline-none"
-        />
+  const form = (
+    <div className="flex max-h-[calc(100dvh-7rem)] flex-col gap-3 overflow-y-auto pt-4">
+      <input
+        autoFocus
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && submit()}
+        placeholder={t("titlePlaceholder")}
+        maxLength={200}
+        className="border-primary bg-secondary text-foreground placeholder:text-faint w-full rounded-2xl border px-4 py-3.5 text-[15px] outline-none"
+      />
+      <input
+        value={purpose}
+        onChange={(e) => setPurpose(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && submit()}
+        placeholder={t("purposePlaceholder")}
+        maxLength={200}
+        className="border-border bg-secondary text-foreground placeholder:text-faint w-full rounded-2xl border px-4 py-3 text-[14px] outline-none"
+      />
+      <input
+        value={note}
+        onChange={(e) => setNote(e.target.value)}
+        onKeyDown={(e) => e.key === "Enter" && submit()}
+        placeholder={t("notePlaceholder")}
+        maxLength={500}
+        className="border-border bg-secondary text-foreground placeholder:text-faint w-full rounded-2xl border px-4 py-3 text-[14px] outline-none"
+      />
 
-        <div>
-          <div className="text-faint mb-1.5 px-0.5 font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
-            {t("photoLabel")}
-          </div>
-          {visiblePhoto ? (
-            <button
-              type="button"
-              onClick={() => setViewingPhoto(true)}
-              aria-label={t("viewPhoto")}
-              className="border-border bg-secondary focus-visible:ring-primary flex w-full flex-col overflow-hidden rounded-2xl border outline-none focus-visible:ring-2"
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={visiblePhoto}
-                alt=""
-                className="h-40 w-full object-contain"
-              />
-              <span className="text-muted-foreground border-border w-full border-t px-3 py-2 text-left text-xs font-medium">
-                {t("viewPhoto")}
-              </span>
-            </button>
-          ) : (
-            <div className="border-border bg-secondary text-muted-foreground flex h-36 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed text-xs">
-              <IconPhoto size={24} stroke={1.6} />
-              {t("noPhoto")}
-            </div>
-          )}
-          <input
-            ref={fileInput}
-            type="file"
-            accept="image/*"
-            onChange={handlePhotoChange}
-            disabled={photoPending}
-            className="sr-only"
-            tabIndex={-1}
-          />
-          <div className="mt-2 flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() => fileInput.current?.click()}
-              disabled={photoPending}
-              className="border-border bg-secondary text-foreground focus-visible:ring-primary flex min-h-10 flex-1 items-center justify-center gap-2 rounded-xl border px-3 text-xs font-semibold outline-none focus-visible:ring-2 disabled:opacity-40"
-            >
-              <IconPhotoPlus size={17} stroke={1.8} />
-              {visiblePhoto ? t("changePhoto") : t("addPhoto")}
-            </button>
-            {visiblePhoto && (
-              <button
-                type="button"
-                onClick={() => setConfirmingPhotoDelete(true)}
-                disabled={photoPending}
-                className="border-border text-destructive focus-visible:ring-destructive flex min-h-10 items-center justify-center gap-2 rounded-xl border px-3 text-xs font-semibold outline-none focus-visible:ring-2 disabled:opacity-40"
-              >
-                <IconTrash size={16} stroke={1.8} />
-                {t("removePhoto")}
-              </button>
-            )}
-          </div>
-          {selectedPhoto && (
-            <p className="text-muted-foreground mt-1 truncate text-xs">
-              {selectedPhoto.name}
-            </p>
-          )}
-          {confirmingPhotoDelete && (
-            <div className="border-border bg-secondary mt-2 rounded-xl border p-3">
-              <p className="text-xs font-medium">{t("confirmRemovePhoto")}</p>
-              <div className="mt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setConfirmingPhotoDelete(false)}
-                  className="border-border bg-card flex-1 rounded-lg border px-3 py-2 text-xs font-semibold"
-                >
-                  {t("cancel")}
-                </button>
-                <button
-                  type="button"
-                  disabled={photoPending}
-                  onClick={() => {
-                    if (selectedPhoto) {
-                      setSelectedPhoto(null)
-                      setPreviewUrl(null)
-                      setConfirmingPhotoDelete(false)
-                    } else if (activeItem) {
-                      removePhoto.mutate(activeItem.id, {
-                        onSuccess: () => {
-                          setPhotoUrl(null)
-                          setConfirmingPhotoDelete(false)
-                        },
-                      })
-                    }
-                  }}
-                  className="bg-destructive flex-1 rounded-lg px-3 py-2 text-xs font-semibold text-white disabled:opacity-40"
-                >
-                  {t("confirmDelete")}
-                </button>
-              </div>
-            </div>
-          )}
-          {(uploadPhoto.isError || removePhoto.isError) && (
-            <p role="alert" className="text-destructive mt-2 text-xs">
-              {t("photoError")}
-            </p>
-          )}
+      <div>
+        <div className="text-faint mb-1.5 px-0.5 font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
+          {t("photoLabel")}
         </div>
-
-        <div>
-          <div className="text-faint mb-1.5 px-0.5 font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
-            {t("verdictLabel")}
-          </div>
-          <div className="bg-secondary flex gap-1 rounded-2xl p-1">
-            {verdicts.map((v) => {
-              const on = v === verdict
-              return (
-                <button
-                  key={v}
-                  type="button"
-                  aria-pressed={on}
-                  onClick={() => setVerdict(v)}
-                  className={cn(
-                    "flex-1 rounded-[13px] py-[9px] text-[12.5px] font-semibold transition-colors",
-                    on
-                      ? "bg-card text-foreground shadow-[var(--shadow-card)]"
-                      : "text-faint",
-                  )}
-                >
-                  {t(`verdict.${v}`)}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between px-0.5">
-          <span className="text-faint font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
-            {t("ratingLabel")}
-          </span>
-          <div className="flex items-center gap-2">
-            <StarRating rating={rating} size={26} onChange={setRating} />
-            <span className="text-muted-foreground w-[38px] font-mono text-[12px]">
-              {rating ? `${rating}/10` : "—/10"}
+        {visiblePhoto ? (
+          <button
+            type="button"
+            onClick={() => setViewingPhoto(true)}
+            aria-label={t("viewPhoto")}
+            className="border-border bg-secondary focus-visible:ring-primary flex w-full flex-col overflow-hidden rounded-2xl border outline-none focus-visible:ring-2"
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={visiblePhoto}
+              alt=""
+              className="h-40 w-full object-contain"
+            />
+            <span className="text-muted-foreground border-border w-full border-t px-3 py-2 text-left text-xs font-medium">
+              {t("viewPhoto")}
             </span>
-            {rating != null && (
-              <button
-                type="button"
-                onClick={() => setRating(null)}
-                className="text-faint text-[11px] font-semibold"
-              >
-                {t("clearRating")}
-              </button>
-            )}
+          </button>
+        ) : (
+          <div className="border-border bg-secondary text-muted-foreground flex h-36 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed text-xs">
+            <IconPhoto size={24} stroke={1.6} />
+            {t("noPhoto")}
           </div>
+        )}
+        <input
+          ref={fileInput}
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoChange}
+          disabled={photoPending}
+          className="sr-only"
+          tabIndex={-1}
+        />
+        <div className="mt-2 flex items-center gap-2">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => fileInput.current?.click()}
+            disabled={photoPending}
+            className="h-11 min-w-0 flex-1 gap-2 rounded-xl px-3 text-xs font-semibold"
+          >
+            <IconPhotoPlus size={17} stroke={1.8} />
+            {visiblePhoto ? t("changePhoto") : t("addPhoto")}
+          </Button>
+          {visiblePhoto && (
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => setConfirmingPhotoDelete(true)}
+              disabled={photoPending}
+              className="h-11 gap-2 rounded-xl px-3 text-xs font-semibold"
+            >
+              <IconTrash size={16} stroke={1.8} />
+              {t("removePhoto")}
+            </Button>
+          )}
         </div>
-
-        <button
-          type="button"
-          onClick={submit}
-          disabled={!canSubmit}
-          className="bg-primary text-primary-foreground mt-1 w-full rounded-[18px] p-[15px] text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)] disabled:opacity-40"
-        >
-          {activeItem ? t("editItemSubmit") : t("addItemSubmit")}
-        </button>
+        {selectedPhoto && (
+          <p className="text-muted-foreground mt-1 truncate text-xs">
+            {selectedPhoto.name}
+          </p>
+        )}
+        {confirmingPhotoDelete && (
+          <div className="border-border bg-secondary mt-2 rounded-xl border p-3">
+            <p className="text-xs font-medium">{t("confirmRemovePhoto")}</p>
+            <div className="mt-2 flex gap-2">
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setConfirmingPhotoDelete(false)}
+                className="h-10 flex-1 rounded-lg text-xs font-semibold"
+              >
+                {t("cancel")}
+              </Button>
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={photoPending}
+                onClick={() => {
+                  if (selectedPhoto) {
+                    setSelectedPhoto(null)
+                    setPreviewUrl(null)
+                    setConfirmingPhotoDelete(false)
+                  } else if (activeItem) {
+                    removePhoto.mutate(activeItem.id, {
+                      onSuccess: () => {
+                        setPhotoUrl(null)
+                        setConfirmingPhotoDelete(false)
+                      },
+                    })
+                  }
+                }}
+                className="h-10 flex-1 rounded-lg text-xs font-semibold"
+              >
+                {t("confirmDelete")}
+              </Button>
+            </div>
+          </div>
+        )}
+        {(uploadPhoto.isError || removePhoto.isError) && (
+          <p role="alert" className="text-destructive mt-2 text-xs">
+            {t("photoError")}
+          </p>
+        )}
       </div>
+
+      <div>
+        <div className="text-faint mb-1.5 px-0.5 font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
+          {t("verdictLabel")}
+        </div>
+        <div className="bg-secondary flex gap-1 rounded-2xl p-1">
+          {verdicts.map((v) => {
+            const on = v === verdict
+            return (
+              <button
+                key={v}
+                type="button"
+                aria-pressed={on}
+                onClick={() => setVerdict(v)}
+                className={cn(
+                  "flex-1 rounded-[13px] py-[9px] text-[12.5px] font-semibold transition-colors",
+                  on
+                    ? "bg-card text-foreground shadow-[var(--shadow-card)]"
+                    : "text-faint",
+                )}
+              >
+                {t(`verdict.${v}`)}
+              </button>
+            )
+          })}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between px-0.5">
+        <span className="text-faint font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
+          {t("ratingLabel")}
+        </span>
+        <div className="flex items-center gap-2">
+          <StarRating rating={rating} size={26} onChange={setRating} />
+          <span className="text-muted-foreground w-[38px] font-mono text-[12px]">
+            {rating ? `${rating}/10` : "—/10"}
+          </span>
+          {rating != null && (
+            <button
+              type="button"
+              onClick={() => setRating(null)}
+              className="text-faint text-[11px] font-semibold"
+            >
+              {t("clearRating")}
+            </button>
+          )}
+        </div>
+      </div>
+
+      <Button
+        type="button"
+        onClick={submit}
+        disabled={!canSubmit}
+        className="mt-1 h-12 w-full rounded-[18px] text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
+      >
+        {activeItem ? t("editItemSubmit") : t("addItemSubmit")}
+      </Button>
+    </div>
+  )
+
+  const sheetTitle = activeItem ? t("editItemTitle") : t("addItemTitle")
+  const close = () => (viewingPhoto ? setViewingPhoto(false) : onClose())
+
+  return (
+    <>
+      {isDesktop ? (
+        <Dialog open onOpenChange={(open) => !open && close()}>
+          <DialogContent
+            aria-describedby={undefined}
+            className="bg-card border-border gap-0 rounded-[26px] p-6 sm:max-w-[480px]"
+          >
+            <DialogTitle className="text-lg font-bold">
+              {sheetTitle}
+            </DialogTitle>
+            {form}
+          </DialogContent>
+        </Dialog>
+      ) : (
+        <BottomSheet title={sheetTitle} onClose={close}>
+          {form}
+        </BottomSheet>
+      )}
       <ItemPhotoViewer
         src={viewingPhoto ? visiblePhoto : null}
         title={title || t("photoLabel")}
         onClose={() => setViewingPhoto(false)}
       />
-    </BottomSheet>
+    </>
   )
 }

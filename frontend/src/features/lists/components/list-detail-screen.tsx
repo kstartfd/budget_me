@@ -8,10 +8,10 @@ import { useProvideAddAction } from "@/components/add-action"
 import { ChevronLeftIcon } from "@/components/app-icons"
 import { Skeleton } from "@/components/ui/skeleton"
 
-import { useDeleteItem } from "../mutations"
 import { useListItems, useLists } from "../queries"
 import { useListLabel } from "../list-label"
 import { ItemRow } from "./item-row"
+import { ItemDetailSheet } from "./item-detail-sheet"
 import { ItemSheet } from "./item-sheet"
 import type { Item } from "../schemas"
 
@@ -28,11 +28,10 @@ export function ListDetailScreen({ listId }: { listId: string }) {
 
   const lists = useLists()
   const items = useListItems(listId)
-  const remove = useDeleteItem(listId)
+  const [editing, setEditing] = useState<Item | "add" | null>(null)
+  const [selected, setSelected] = useState<Item | null>(null)
 
-  const [sheet, setSheet] = useState<Item | "add" | null>(null)
-
-  useProvideAddAction(useCallback(() => setSheet("add"), []))
+  useProvideAddAction(useCallback(() => setEditing("add"), []))
 
   const list = useMemo(
     () => lists.data?.find((l) => l.id === listId),
@@ -43,7 +42,10 @@ export function ListDetailScreen({ listId }: { listId: string }) {
 
   if (items.isError || lists.isError) {
     return (
-      <p role="alert" className="text-muted-foreground py-10 text-center text-sm">
+      <p
+        role="alert"
+        className="text-muted-foreground py-10 text-center text-sm"
+      >
         {t("loadError")}
       </p>
     )
@@ -90,18 +92,29 @@ export function ListDetailScreen({ listId }: { listId: string }) {
             <ItemRow
               key={item.id}
               item={item}
-              onEdit={() => setSheet(item)}
-              onDelete={() => remove.mutate(item.id)}
+              onOpen={() => setSelected(item)}
             />
           ))}
         </div>
       )}
 
-      {sheet && (
+      {selected && (
+        <ItemDetailSheet
+          item={selected}
+          listId={listId}
+          onClose={() => setSelected(null)}
+          onEdit={() => {
+            setSelected(null)
+            setEditing(selected)
+          }}
+        />
+      )}
+
+      {editing && (
         <ItemSheet
           listId={listId}
-          item={sheet === "add" ? undefined : sheet}
-          onClose={() => setSheet(null)}
+          item={editing === "add" ? undefined : editing}
+          onClose={() => setEditing(null)}
         />
       )}
     </div>
