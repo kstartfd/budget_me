@@ -180,6 +180,7 @@ type Item struct {
 	Note      pgtype.Text
 	CreatedAt pgtype.Timestamptz
 	UpdatedAt pgtype.Timestamptz
+	PhotoPath pgtype.Text
 }
 
 type ItemList struct {

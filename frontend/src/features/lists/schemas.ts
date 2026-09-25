@@ -30,6 +30,7 @@ export const itemSchema = z.object({
   verdict: verdictSchema,
   rating: z.number().min(1).max(10).nullable(),
   note: z.string().nullable(),
+  photoUrl: z.string().nullable(),
   createdAt: z.string(),
 })
 export type Item = z.infer<typeof itemSchema>
@@ -39,6 +40,14 @@ export const createListInputSchema = z.object({
   color: z.string().regex(/^#[0-9a-f]{6}$/i),
 })
 export type CreateListInput = z.infer<typeof createListInputSchema>
+
+/** `PUT /lists/:id` — personal lists only; a preset 404s (see the backend). */
+export const updateListInputSchema = z.object({
+  id: z.string(),
+  name: z.string().trim().min(1).max(60),
+  color: z.string().regex(/^#[0-9a-f]{6}$/i),
+})
+export type UpdateListInput = z.infer<typeof updateListInputSchema>
 
 export const createItemInputSchema = z.object({
   listId: z.string(),

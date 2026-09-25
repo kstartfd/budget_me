@@ -27,6 +27,7 @@ import (
 	"budget_me/backend/internal/insights"
 	"budget_me/backend/internal/items"
 	"budget_me/backend/internal/lists"
+	"budget_me/backend/internal/photostore"
 	"budget_me/backend/internal/plans"
 	"budget_me/backend/internal/rates"
 	"budget_me/backend/internal/rates/provider"
@@ -125,11 +126,16 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 	tasks.NewController(queries, clk).
 		Routes(public, protected)
 
-	lists.NewController(queries, clk).
+	lists.NewController(queries, pool, clk, photostore.New(cfg.UploadsDir)).
 		Routes(public, protected)
 
-	items.NewController(queries, clk).
+	items.NewController(queries, clk, photostore.New(cfg.UploadsDir)).
 		Routes(public, protected)
+
+	// Item photos (see internal/photostore) — served straight off disk under
+	// the same /api/v1 prefix Caddy already proxies to this service, so no
+	// extra reverse-proxy route is needed for prod.
+	public.Static("/uploads", cfg.UploadsDir)
 
 	return e
 }

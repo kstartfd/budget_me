@@ -17,7 +17,13 @@ const starPath =
 
 function StarGlyph({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor">
+    <svg
+      className="shrink-0"
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+    >
       <path d={starPath} />
     </svg>
   )
@@ -42,7 +48,7 @@ export function StarRating({
     <span
       className="relative inline-flex shrink-0"
       style={{ width: size * 5, height: size }}
-      onMouseLeave={() => setHover(null)}
+      onPointerLeave={() => setHover(null)}
     >
       <span className="text-faint absolute inset-0 flex">
         {Array.from({ length: 5 }, (_, i) => (
@@ -68,8 +74,11 @@ export function StarRating({
                 key={half}
                 type="button"
                 aria-label={`${half}/10`}
-                onMouseEnter={() => setHover(half)}
+                onPointerEnter={(event) => {
+                  if (event.pointerType === "mouse") setHover(half)
+                }}
                 onClick={() => onChange(half)}
+                aria-pressed={rating === half}
                 style={{ width: size / 2 }}
               />
             )

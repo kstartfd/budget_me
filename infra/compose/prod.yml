@@ -72,6 +72,12 @@ services:
       # config.Load, so one chat can serve both until the noise justifies two.
       ALERT_CHAT_ID: ${ALERT_CHAT_ID:-}
       BACKUP_CHAT_ID: ${BACKUP_CHAT_ID:-}
+      # Item photos (internal/photostore) — local disk, not S3; won't be many,
+      # and each is already resized/recompressed down to a small JPEG on
+      # upload. Named volume so they survive an image redeploy.
+      UPLOADS_DIR: /data/uploads
+    volumes:
+      - uploads_data:/data/uploads
     depends_on:
       postgres:
         condition: service_healthy
@@ -153,3 +159,4 @@ volumes:
   pg_data:
   caddy_data:
   caddy_config:
+  uploads_data:

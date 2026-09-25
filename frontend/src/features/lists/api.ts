@@ -6,6 +6,7 @@ import {
   itemListSchema,
   itemSchema,
   updateItemInputSchema,
+  updateListInputSchema,
 } from "./schemas"
 import type {
   CreateItemInput,
@@ -13,6 +14,7 @@ import type {
   Item,
   ItemList,
   UpdateItemInput,
+  UpdateListInput,
 } from "./schemas"
 
 /**
@@ -60,6 +62,38 @@ async function call<T>(
   return parse(body.data)
 }
 
+/**
+ * Same envelope as call(), but for a multipart body (a photo upload) — the
+ * browser has to set its own Content-Type (with the multipart boundary), so
+ * this one must NOT set one, unlike call()'s hardcoded application/json.
+ */
+async function callMultipart<T>(
+  path: string,
+  method: string,
+  body: FormData,
+  parse: (data: unknown) => T,
+): Promise<T> {
+  const token = readToken()
+  const res = await fetch(`/api/v1${path}`, {
+    method,
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body,
+  })
+  const data = (await res.json().catch(() => null)) as {
+    code?: number
+    message?: string
+    data?: unknown
+  } | null
+  if (!data || data.code !== 0) {
+    throw new ApiError(
+      data?.message ?? res.statusText,
+      data?.code ?? -1,
+      res.status,
+    )
+  }
+  return parse(data.data)
+}
+
 export async function fetchLists(): Promise<ItemList[]> {
   return call("/lists", { method: "GET" }, (d) => itemListSchema.array().parse(d))
 }
@@ -70,6 +104,19 @@ export async function createList(input: CreateListInput): Promise<ItemList> {
   return call(
     "/lists",
     { method: "POST", body: JSON.stringify(parsed) },
+    (d) => itemListSchema.parse(d),
+  )
+}
+
+export async function updateList(input: UpdateListInput): Promise<ItemList> {
+  const parsed = updateListInputSchema.parse(input)
+
+  return call(
+    `/lists/${parsed.id}`,
+    {
+      method: "PUT",
+      body: JSON.stringify({ name: parsed.name, color: parsed.color }),
+    },
     (d) => itemListSchema.parse(d),
   )
 }
@@ -115,4 +162,19 @@ export async function updateItem(input: UpdateItemInput): Promise<Item> {
 
 export async function deleteItem(id: string): Promise<{ id: string }> {
   return call(`/items/${id}`, { method: "DELETE" }, (d) => d as { id: string })
+}
+
+export async function uploadItemPhoto(id: string, photo: File): Promise<Item> {
+  const form = new FormData()
+  form.append("photo", photo)
+
+  return callMultipart(`/items/${id}/photo`, "POST", form, (d) =>
+    itemSchema.parse(d),
+  )
+}
+
+export async function deleteItemPhoto(id: string): Promise<Item> {
+  return call(`/items/${id}/photo`, { method: "DELETE" }, (d) =>
+    itemSchema.parse(d),
+  )
 }

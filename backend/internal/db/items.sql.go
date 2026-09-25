@@ -11,9 +11,10 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const deleteItem = `-- name: DeleteItem :execrows
+const deleteItem = `-- name: DeleteItem :one
 DELETE FROM items
 WHERE id = $1 AND user_id = $2
+RETURNING id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at, photo_path
 `
 
 type DeleteItemParams struct {
@@ -21,12 +22,54 @@ type DeleteItemParams struct {
 	UserID pgtype.UUID
 }
 
-func (q *Queries) DeleteItem(ctx context.Context, arg DeleteItemParams) (int64, error) {
-	result, err := q.db.Exec(ctx, deleteItem, arg.ID, arg.UserID)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+// RETURNING so the caller can also clean up a photo file on disk — see
+// items/commands.DeleteHandler.
+func (q *Queries) DeleteItem(ctx context.Context, arg DeleteItemParams) (Item, error) {
+	row := q.db.QueryRow(ctx, deleteItem, arg.ID, arg.UserID)
+	var i Item
+	err := row.Scan(
+		&i.ID,
+		&i.ListID,
+		&i.UserID,
+		&i.Title,
+		&i.Purpose,
+		&i.Verdict,
+		&i.Rating,
+		&i.Note,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PhotoPath,
+	)
+	return i, err
+}
+
+const getItemForUser = `-- name: GetItemForUser :one
+SELECT id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at, photo_path FROM items
+WHERE id = $1 AND user_id = $2
+`
+
+type GetItemForUserParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetItemForUser(ctx context.Context, arg GetItemForUserParams) (Item, error) {
+	row := q.db.QueryRow(ctx, getItemForUser, arg.ID, arg.UserID)
+	var i Item
+	err := row.Scan(
+		&i.ID,
+		&i.ListID,
+		&i.UserID,
+		&i.Title,
+		&i.Purpose,
+		&i.Verdict,
+		&i.Rating,
+		&i.Note,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PhotoPath,
+	)
+	return i, err
 }
 
 const insertItem = `-- name: InsertItem :one
@@ -35,7 +78,7 @@ INSERT INTO items (
 ) VALUES (
     $1, $2, $3, $4, $5, $6, $7, $8, $9, $9
 )
-RETURNING id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at
+RETURNING id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at, photo_path
 `
 
 type InsertItemParams struct {
@@ -74,12 +117,13 @@ func (q *Queries) InsertItem(ctx context.Context, arg InsertItemParams) (Item, e
 		&i.Note,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PhotoPath,
 	)
 	return i, err
 }
 
 const listItemsForList = `-- name: ListItemsForList :many
-SELECT id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at FROM items
+SELECT id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at, photo_path FROM items
 WHERE list_id = $1 AND user_id = $2
 ORDER BY created_at
 `
@@ -109,6 +153,7 @@ func (q *Queries) ListItemsForList(ctx context.Context, arg ListItemsForListPara
 			&i.Note,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.PhotoPath,
 		); err != nil {
 			return nil, err
 		}
@@ -149,7 +194,7 @@ SET title = $1,
     note = $5,
     updated_at = $6
 WHERE id = $7 AND user_id = $8
-RETURNING id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at
+RETURNING id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at, photo_path
 `
 
 type UpdateItemParams struct {
@@ -186,6 +231,46 @@ func (q *Queries) UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, e
 		&i.Note,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.PhotoPath,
+	)
+	return i, err
+}
+
+const updateItemPhoto = `-- name: UpdateItemPhoto :one
+UPDATE items
+SET photo_path = $1,
+    updated_at = $2
+WHERE id = $3 AND user_id = $4
+RETURNING id, list_id, user_id, title, purpose, verdict, rating, note, created_at, updated_at, photo_path
+`
+
+type UpdateItemPhotoParams struct {
+	PhotoPath pgtype.Text
+	UpdatedAt pgtype.Timestamptz
+	ID        pgtype.UUID
+	UserID    pgtype.UUID
+}
+
+func (q *Queries) UpdateItemPhoto(ctx context.Context, arg UpdateItemPhotoParams) (Item, error) {
+	row := q.db.QueryRow(ctx, updateItemPhoto,
+		arg.PhotoPath,
+		arg.UpdatedAt,
+		arg.ID,
+		arg.UserID,
+	)
+	var i Item
+	err := row.Scan(
+		&i.ID,
+		&i.ListID,
+		&i.UserID,
+		&i.Title,
+		&i.Purpose,
+		&i.Verdict,
+		&i.Rating,
+		&i.Note,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.PhotoPath,
 	)
 	return i, err
 }

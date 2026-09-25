@@ -1,12 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useState, type ChangeEvent } from "react"
 import { useTranslations } from "next-intl"
 
 import { BottomSheet } from "@/features/budget/components/bottom-sheet"
 import { cn } from "@/lib/utils"
 
-import { useCreateItem, useUpdateItem } from "../mutations"
+import {
+  useCreateItem,
+  useDeleteItemPhoto,
+  useUpdateItem,
+  useUploadItemPhoto,
+} from "../mutations"
 import type { Item, Verdict } from "../schemas"
 import { StarRating } from "./star-rating"
 
@@ -28,14 +33,20 @@ export function ItemSheet({
   const t = useTranslations("lists")
   const create = useCreateItem(listId)
   const update = useUpdateItem(listId)
+  const uploadPhoto = useUploadItemPhoto(listId)
+  const removePhoto = useDeleteItemPhoto(listId)
 
   const [title, setTitle] = useState(item?.title ?? "")
   const [purpose, setPurpose] = useState(item?.purpose ?? "")
   const [verdict, setVerdict] = useState<Verdict>(item?.verdict ?? "unknown")
   const [rating, setRating] = useState<number | null>(item?.rating ?? null)
   const [note, setNote] = useState(item?.note ?? "")
+  const [photoUrl, setPhotoUrl] = useState(item?.photoUrl ?? null)
+  const [createdItem, setCreatedItem] = useState<Item | null>(null)
+  const [selectedPhoto, setSelectedPhoto] = useState<File | null>(null)
+  const activeItem = createdItem ?? item
 
-  const pending = create.isPending || update.isPending
+  const pending = create.isPending || update.isPending || uploadPhoto.isPending
   const canSubmit = title.trim().length > 0 && !pending
 
   function submit() {
@@ -49,17 +60,59 @@ export function ItemSheet({
       note: note.trim() || null,
     }
 
-    if (item) {
-      update.mutate({ id: item.id, ...shared }, { onSuccess: onClose })
+    if (activeItem) {
+      update.mutate({ id: activeItem.id, ...shared }, { onSuccess: onClose })
 
       return
     }
 
-    create.mutate({ listId, ...shared }, { onSuccess: onClose })
+    create.mutate(
+      { listId, ...shared },
+      {
+        onSuccess: (created) => {
+          setCreatedItem(created)
+          if (!selectedPhoto) {
+            onClose()
+            return
+          }
+          uploadPhoto.mutate(
+            { id: created.id, photo: selectedPhoto },
+            {
+              onSuccess: onClose,
+            },
+          )
+        },
+      },
+    )
+  }
+
+  const photoPending = uploadPhoto.isPending || removePhoto.isPending
+
+  function handlePhotoChange(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+
+    e.target.value = ""
+
+    if (!file) return
+
+    if (!activeItem) {
+      setSelectedPhoto(file)
+      return
+    }
+
+    uploadPhoto.mutate(
+      { id: activeItem.id, photo: file },
+      {
+        onSuccess: (updated) => setPhotoUrl(updated.photoUrl),
+      },
+    )
   }
 
   return (
-    <BottomSheet title={item ? t("editItemTitle") : t("addItemTitle")} onClose={onClose}>
+    <BottomSheet
+      title={activeItem ? t("editItemTitle") : t("addItemTitle")}
+      onClose={onClose}
+    >
       <div className="flex flex-col gap-3 pt-4">
         <input
           autoFocus
@@ -89,6 +142,66 @@ export function ItemSheet({
 
         <div>
           <div className="text-faint mb-1.5 px-0.5 font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
+            {t("photoLabel")}
+          </div>
+          <div className="flex items-center gap-3">
+            {photoUrl ? (
+              // Uploaded photos are same-origin, already resized/compressed
+              // server-side (see backend/internal/photostore) — a plain
+              // <img> is simpler here than wiring next/image for a fixed
+              // 64px thumbnail it would gain nothing from re-optimising.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={photoUrl}
+                alt=""
+                className="border-border size-16 shrink-0 rounded-2xl border object-cover"
+              />
+            ) : (
+              <div className="border-border bg-secondary text-faint flex size-16 shrink-0 items-center justify-center rounded-2xl border text-[10.5px]">
+                {t("noPhoto")}
+              </div>
+            )}
+            <div className="flex flex-col items-start gap-1.5">
+              <label className="border-border bg-secondary text-foreground cursor-pointer rounded-full border px-3 py-[7px] text-[12px] font-semibold">
+                {photoUrl ? t("changePhoto") : t("addPhoto")}
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handlePhotoChange}
+                  disabled={photoPending}
+                  className="hidden"
+                />
+              </label>
+              {selectedPhoto && !activeItem && (
+                <span className="text-muted-foreground max-w-40 truncate text-xs">
+                  {selectedPhoto.name}
+                </span>
+              )}
+              {photoUrl && activeItem && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    removePhoto.mutate(activeItem.id, {
+                      onSuccess: () => setPhotoUrl(null),
+                    })
+                  }
+                  disabled={photoPending}
+                  className="text-faint text-[11px] font-semibold disabled:opacity-40"
+                >
+                  {t("removePhoto")}
+                </button>
+              )}
+              {(uploadPhoto.isError || removePhoto.isError) && (
+                <span role="alert" className="text-destructive text-xs">
+                  {t("photoError")}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div className="text-faint mb-1.5 px-0.5 font-mono text-[10.5px] font-semibold tracking-[0.09em] uppercase">
             {t("verdictLabel")}
           </div>
           <div className="bg-secondary flex gap-1 rounded-2xl p-1">
@@ -102,7 +215,9 @@ export function ItemSheet({
                   onClick={() => setVerdict(v)}
                   className={cn(
                     "flex-1 rounded-[13px] py-[9px] text-[12.5px] font-semibold transition-colors",
-                    on ? "bg-card text-foreground shadow-[var(--shadow-card)]" : "text-faint",
+                    on
+                      ? "bg-card text-foreground shadow-[var(--shadow-card)]"
+                      : "text-faint",
                   )}
                 >
                   {t(`verdict.${v}`)}
@@ -139,7 +254,7 @@ export function ItemSheet({
           disabled={!canSubmit}
           className="bg-primary text-primary-foreground mt-1 w-full rounded-[18px] p-[15px] text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)] disabled:opacity-40"
         >
-          {item ? t("editItemSubmit") : t("addItemSubmit")}
+          {activeItem ? t("editItemSubmit") : t("addItemSubmit")}
         </button>
       </div>
     </BottomSheet>

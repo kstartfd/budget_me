@@ -1,6 +1,8 @@
 package items
 
 import (
+	"io"
+
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 
@@ -10,21 +12,31 @@ import (
 	"budget_me/backend/internal/httpx"
 	"budget_me/backend/internal/items/commands"
 	"budget_me/backend/internal/items/queries"
+	"budget_me/backend/internal/photostore"
 )
 
+// maxPhotoUpload caps the raw upload before it is even decoded — photostore
+// compresses whatever gets past this down to a few hundred KB, but a phone
+// photo can arrive at 10-20 MB, so the cap has to sit above that, not below it.
+const maxPhotoUpload = 20 << 20 // 20 MB
+
 type Controller struct {
-	create commands.CreateHandler
-	update commands.UpdateHandler
-	remove commands.DeleteHandler
-	list   queries.ListHandler
+	create      commands.CreateHandler
+	update      commands.UpdateHandler
+	remove      commands.DeleteHandler
+	uploadPhoto commands.UploadPhotoHandler
+	removePhoto commands.RemovePhotoHandler
+	list        queries.ListHandler
 }
 
-func NewController(q *db.Queries, clk clock.Clock) *Controller {
+func NewController(q *db.Queries, clk clock.Clock, store photostore.Store) *Controller {
 	return &Controller{
-		create: commands.NewCreateHandler(q, clk),
-		update: commands.NewUpdateHandler(q, clk),
-		remove: commands.NewDeleteHandler(q),
-		list:   queries.NewListHandler(q),
+		create:      commands.NewCreateHandler(q, clk),
+		update:      commands.NewUpdateHandler(q, clk),
+		remove:      commands.NewDeleteHandler(q, store),
+		uploadPhoto: commands.NewUploadPhotoHandler(q, clk, store),
+		removePhoto: commands.NewRemovePhotoHandler(q, clk, store),
+		list:        queries.NewListHandler(q),
 	}
 }
 
@@ -124,6 +136,66 @@ func (c *Controller) updateItem(ctx echo.Context) error {
 		Verdict: verdict,
 		Rating:  req.Rating,
 		Note:    req.Note,
+	})
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, toItemResponse(item))
+}
+
+func (c *Controller) uploadItemPhoto(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid item id")
+	}
+
+	fh, err := ctx.FormFile("photo")
+	if err != nil {
+		return apperr.NewInvalid("photo file is required")
+	}
+
+	f, err := fh.Open()
+	if err != nil {
+		return apperr.NewInvalid("could not read photo")
+	}
+
+	defer func() { _ = f.Close() }()
+
+	data, err := io.ReadAll(io.LimitReader(f, maxPhotoUpload+1))
+	if err != nil {
+		return apperr.NewInvalid("could not read photo")
+	}
+
+	if len(data) > maxPhotoUpload {
+		return apperr.NewInvalid("photo is too large")
+	}
+
+	userID := httpx.UserIDFromContext(ctx.Request().Context())
+
+	item, err := c.uploadPhoto.Handle(ctx.Request().Context(), commands.UploadItemPhoto{
+		UserID: userID,
+		ID:     id,
+		Data:   data,
+	})
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, toItemResponse(item))
+}
+
+func (c *Controller) deleteItemPhoto(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid item id")
+	}
+
+	userID := httpx.UserIDFromContext(ctx.Request().Context())
+
+	item, err := c.removePhoto.Handle(ctx.Request().Context(), commands.RemoveItemPhoto{
+		UserID: userID,
+		ID:     id,
 	})
 	if err != nil {
 		return err

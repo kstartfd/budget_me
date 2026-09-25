@@ -1,10 +1,13 @@
 export { useLists, useListItems, listKeys } from "./queries"
 export {
   useCreateList,
+  useUpdateList,
   useDeleteList,
   useCreateItem,
   useUpdateItem,
   useDeleteItem,
+  useUploadItemPhoto,
+  useDeleteItemPhoto,
 } from "./mutations"
 export { useListLabel } from "./list-label"
 export {
@@ -18,6 +21,7 @@ export type {
   Item,
   ItemList,
   UpdateItemInput,
+  UpdateListInput,
   Verdict,
 } from "./schemas"
 export { ListsScreen } from "./components/lists-screen"

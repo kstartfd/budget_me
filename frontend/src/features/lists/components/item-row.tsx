@@ -28,6 +28,15 @@ export function ItemRow({
 
   return (
     <div className="flex items-center gap-3 px-[15px] py-[13px]">
+      {item.photoUrl && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={item.photoUrl}
+          alt=""
+          className="border-border size-10 shrink-0 rounded-xl border object-cover"
+        />
+      )}
+
       <div className="min-w-0 flex-1">
         <div className="truncate text-[14.5px] font-medium">{item.title}</div>
         <div className="mt-1 flex items-center gap-2">

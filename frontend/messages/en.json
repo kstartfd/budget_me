@@ -412,9 +412,14 @@
     "loadError": "Couldn't load the data. Please try again in a moment.",
     "newList": "Create list",
     "newListTitle": "New list",
+    "editListTitle": "Edit list",
     "listNamePlaceholder": "List name",
     "listColorLabel": "List colour",
     "createList": "Create",
+    "editListSubmit": "Save",
+    "deleteList": "Delete list",
+    "deleteListWarning": "Delete this list and all its items? This can't be undone.",
+    "deleteListError": "Couldn't delete the list. Please try again.",
     "preset": {
       "medications": "Medicine cabinet",
       "cosmetics": "Cosmetics"
@@ -439,7 +444,14 @@
     "editAria": "Edit “{name}”",
     "deleteAria": "Delete “{name}”",
     "cancel": "Cancel",
-    "confirmDelete": "Delete"
+    "confirmDelete": "Delete",
+    "editListAria": "Edit “{name}”",
+    "photoLabel": "Photo",
+    "noPhoto": "No photo",
+    "addPhoto": "Add photo",
+    "changePhoto": "Replace",
+    "removePhoto": "Remove photo",
+    "photoError": "Couldn't update the photo. Please try again."
   },
   "english": {
     "title": "English",

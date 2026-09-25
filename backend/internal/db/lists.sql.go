@@ -99,3 +99,38 @@ func (q *Queries) ListListsForUser(ctx context.Context, userID pgtype.UUID) ([]I
 	}
 	return items, nil
 }
+
+const updateList = `-- name: UpdateList :one
+UPDATE item_lists
+SET name = $1, color = $2
+WHERE id = $3 AND user_id = $4
+RETURNING id, user_id, slug, name, color, created_at
+`
+
+type UpdateListParams struct {
+	Name   pgtype.Text
+	Color  string
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+// Same guard as DeleteList: WHERE user_id = @user_id can never match a preset
+// row (user_id IS NULL there), so a preset can't be renamed this way either.
+func (q *Queries) UpdateList(ctx context.Context, arg UpdateListParams) (ItemList, error) {
+	row := q.db.QueryRow(ctx, updateList,
+		arg.Name,
+		arg.Color,
+		arg.ID,
+		arg.UserID,
+	)
+	var i ItemList
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Slug,
+		&i.Name,
+		&i.Color,
+		&i.CreatedAt,
+	)
+	return i, err
+}

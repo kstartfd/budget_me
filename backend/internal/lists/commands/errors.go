@@ -2,4 +2,7 @@ package commands
 
 import "budget_me/backend/internal/apperr"
 
-var ErrEmptyName = apperr.NewInvalid("name must not be empty")
+var (
+	ErrEmptyName = apperr.NewInvalid("name must not be empty")
+	ErrNotFound  = apperr.NewNotFound("list not found")
+)

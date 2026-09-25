@@ -17,6 +17,11 @@ type createListRequest struct {
 	Color string `json:"color"`
 }
 
+type updateListRequest struct {
+	Name  string `json:"name"`
+	Color string `json:"color"`
+}
+
 func toListResponse(l db.ItemList) listResponse {
 	return listResponse{
 		ID:    ids.FromPg(l.ID).String(),

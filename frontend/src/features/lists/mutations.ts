@@ -6,8 +6,11 @@ import {
   createItem,
   createList,
   deleteItem,
+  deleteItemPhoto,
   deleteList,
   updateItem,
+  updateList,
+  uploadItemPhoto,
 } from "./api"
 import { listKeys } from "./queries"
 
@@ -21,13 +24,25 @@ export function useCreateList() {
   })
 }
 
+export function useUpdateList() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: updateList,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: listKeys.dictionary() }),
+  })
+}
+
 export function useDeleteList() {
   const queryClient = useQueryClient()
 
   return useMutation({
     mutationFn: deleteList,
-    onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: listKeys.dictionary() }),
+    onSuccess: (_data, id) => {
+      queryClient.removeQueries({ queryKey: listKeys.items(id) })
+      queryClient.invalidateQueries({ queryKey: listKeys.dictionary() })
+    },
   })
 }
 
@@ -56,6 +71,27 @@ export function useDeleteItem(listId: string) {
 
   return useMutation({
     mutationFn: deleteItem,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: listKeys.items(listId) }),
+  })
+}
+
+export function useUploadItemPhoto(listId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, photo }: { id: string; photo: File }) =>
+      uploadItemPhoto(id, photo),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: listKeys.items(listId) }),
+  })
+}
+
+export function useDeleteItemPhoto(listId: string) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: deleteItemPhoto,
     onSuccess: () =>
       queryClient.invalidateQueries({ queryKey: listKeys.items(listId) }),
   })

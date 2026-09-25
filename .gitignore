@@ -24,6 +24,7 @@ Thumbs.db
 backend/tmp/
 backend/bin/
 backend/build-errors.log
+backend/data/
 
 # Frontend
 frontend/node_modules/

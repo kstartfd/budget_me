@@ -29,6 +29,20 @@ SET title = sqlc.arg(title),
 WHERE id = sqlc.arg(id) AND user_id = sqlc.arg(user_id)
 RETURNING *;
 
--- name: DeleteItem :execrows
-DELETE FROM items
+-- name: GetItemForUser :one
+SELECT * FROM items
 WHERE id = sqlc.arg(id) AND user_id = sqlc.arg(user_id);
+
+-- name: UpdateItemPhoto :one
+UPDATE items
+SET photo_path = sqlc.narg(photo_path),
+    updated_at = sqlc.arg(updated_at)
+WHERE id = sqlc.arg(id) AND user_id = sqlc.arg(user_id)
+RETURNING *;
+
+-- name: DeleteItem :one
+-- RETURNING so the caller can also clean up a photo file on disk — see
+-- items/commands.DeleteHandler.
+DELETE FROM items
+WHERE id = sqlc.arg(id) AND user_id = sqlc.arg(user_id)
+RETURNING *;

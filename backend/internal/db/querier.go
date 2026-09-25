@@ -21,7 +21,9 @@ type Querier interface {
 	// exists, where a tombstone would preserve nothing.
 	DeleteBudgetsFrom(ctx context.Context, arg DeleteBudgetsFromParams) error
 	DeleteCategory(ctx context.Context, arg DeleteCategoryParams) (int64, error)
-	DeleteItem(ctx context.Context, arg DeleteItemParams) (int64, error)
+	// RETURNING so the caller can also clean up a photo file on disk — see
+	// items/commands.DeleteHandler.
+	DeleteItem(ctx context.Context, arg DeleteItemParams) (Item, error)
 	DeleteList(ctx context.Context, arg DeleteListParams) (int64, error)
 	DeletePlan(ctx context.Context, arg DeletePlanParams) error
 	DeleteTask(ctx context.Context, arg DeleteTaskParams) (int64, error)
@@ -35,6 +37,7 @@ type Querier interface {
 	// Just the cutoff. The dashboard asks on every load and needs nothing else off
 	// the user row, so this stays narrower than GetUserByID.
 	GetHistoryResetAt(ctx context.Context, id pgtype.UUID) (pgtype.Timestamptz, error)
+	GetItemForUser(ctx context.Context, arg GetItemForUserParams) (Item, error)
 	GetTaskByID(ctx context.Context, arg GetTaskByIDParams) (Task, error)
 	GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
@@ -113,6 +116,10 @@ type Querier interface {
 	SumTotalsInRange(ctx context.Context, arg SumTotalsInRangeParams) (SumTotalsInRangeRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
 	UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, error)
+	UpdateItemPhoto(ctx context.Context, arg UpdateItemPhotoParams) (Item, error)
+	// Same guard as DeleteList: WHERE user_id = @user_id can never match a preset
+	// row (user_id IS NULL there), so a preset can't be renamed this way either.
+	UpdateList(ctx context.Context, arg UpdateListParams) (ItemList, error)
 	UpdatePlan(ctx context.Context, arg UpdatePlanParams) (Plan, error)
 	// Full replace of the editable fields (title/note/planned_for) — this is also
 	// what an explicit "отложить на завтра" is: a plain planned_for change, distinct

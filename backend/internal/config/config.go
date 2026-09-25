@@ -55,6 +55,12 @@ type Config struct {
 	// in and cancelling still saves the account. Both the API (which reports
 	// the deadline) and the worker (which enforces it) read this one value.
 	AccountDeletionGrace time.Duration
+
+	// UploadsDir is where item photos are saved (see internal/photostore) and
+	// served from (public.Static in server.go). Relative in dev — the backend
+	// container's CWD is the bind-mounted backend/ — absolute in prod, on a
+	// named volume so photos survive redeploys.
+	UploadsDir string
 }
 
 // Load reads the configuration from the environment, returning an error when a
@@ -82,6 +88,8 @@ func Load() (Config, error) {
 			"ACCOUNT_DELETION_GRACE",
 			defaultDeletionGrace,
 		),
+
+		UploadsDir: orDefault("UPLOADS_DIR", "data/uploads"),
 	}
 
 	if cfg.DatabaseURL == "" {

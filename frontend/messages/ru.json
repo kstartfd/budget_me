@@ -412,9 +412,14 @@
     "loadError": "Не получилось загрузить данные. Попробуйте ещё раз чуть позже.",
     "newList": "Создать список",
     "newListTitle": "Новый список",
+    "editListTitle": "Редактировать список",
     "listNamePlaceholder": "Название списка",
     "listColorLabel": "Цвет списка",
     "createList": "Создать",
+    "editListSubmit": "Сохранить",
+    "deleteList": "Удалить список",
+    "deleteListWarning": "Удалить список и все вещи в нём? Это действие нельзя отменить.",
+    "deleteListError": "Не удалось удалить список. Попробуйте ещё раз.",
     "preset": {
       "medications": "Аптечка",
       "cosmetics": "Косметика"
@@ -439,7 +444,14 @@
     "editAria": "Редактировать «{name}»",
     "deleteAria": "Удалить «{name}»",
     "cancel": "Отмена",
-    "confirmDelete": "Удалить"
+    "confirmDelete": "Удалить",
+    "editListAria": "Редактировать «{name}»",
+    "photoLabel": "Фото",
+    "noPhoto": "Нет фото",
+    "addPhoto": "Добавить фото",
+    "changePhoto": "Заменить",
+    "removePhoto": "Удалить фото",
+    "photoError": "Не удалось обработать фото. Попробуйте ещё раз."
   },
   "english": {
     "title": "English",
