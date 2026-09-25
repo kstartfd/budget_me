@@ -9,7 +9,8 @@
 #   backup      03:40 daily — pg_dump → gpg → Telegram (infra/scripts/backup.sh)
 #   healthcheck every 5 min — disk/memory/load/containers/healthz/backup age
 #
-# The worker job (03:17) predates this script and is left exactly as it is.
+# The account/advice worker job (03:17 and 15:17) predates this script and is
+# left exactly as it is. Day email uses its own short sweep every 15 minutes.
 set -euo pipefail
 
 # A fresh box has no crontab yet: `crontab -l` then exits 1 with "no crontab for
@@ -39,6 +40,10 @@ ensure 'scripts/backup.sh' \
 ensure 'scripts/healthcheck.sh' \
   '# budget_me: health-чек (диск/память/нагрузка/контейнеры/healthz/свежесть бэкапа)' \
   '*/5 * * * * cd ~/budget_me && ./scripts/healthcheck.sh >> ~/budget_me/healthcheck.log 2>&1'
+
+ensure 'worker day-email' \
+  '# budget_me: локальные утренние и вечерние письма о задачах' \
+  '*/15 * * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env -f prod.yml --profile tools run --rm -T worker day-email </dev/null >> ~/budget_me/day-email.log 2>&1'
 
 # One write, at the end — a partial crontab is never installed.
 printf '%s\n' "$current" | crontab -

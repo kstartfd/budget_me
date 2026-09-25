@@ -55,6 +55,90 @@ func (ns NullCurrencyCode) Value() (driver.Value, error) {
 	return string(ns.CurrencyCode), nil
 }
 
+type DayEmailFrequency string
+
+const (
+	DayEmailFrequencyDaily DayEmailFrequency = "daily"
+	DayEmailFrequencyTwice DayEmailFrequency = "twice"
+)
+
+func (e *DayEmailFrequency) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DayEmailFrequency(s)
+	case string:
+		*e = DayEmailFrequency(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DayEmailFrequency: %T", src)
+	}
+	return nil
+}
+
+type NullDayEmailFrequency struct {
+	DayEmailFrequency DayEmailFrequency
+	Valid             bool // Valid is true if DayEmailFrequency is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDayEmailFrequency) Scan(value interface{}) error {
+	if value == nil {
+		ns.DayEmailFrequency, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DayEmailFrequency.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDayEmailFrequency) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DayEmailFrequency), nil
+}
+
+type DayEmailSlot string
+
+const (
+	DayEmailSlotMorning DayEmailSlot = "morning"
+	DayEmailSlotEvening DayEmailSlot = "evening"
+)
+
+func (e *DayEmailSlot) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DayEmailSlot(s)
+	case string:
+		*e = DayEmailSlot(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DayEmailSlot: %T", src)
+	}
+	return nil
+}
+
+type NullDayEmailSlot struct {
+	DayEmailSlot DayEmailSlot
+	Valid        bool // Valid is true if DayEmailSlot is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDayEmailSlot) Scan(value interface{}) error {
+	if value == nil {
+		ns.DayEmailSlot, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DayEmailSlot.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDayEmailSlot) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DayEmailSlot), nil
+}
+
 type ItemVerdict string
 
 const (
@@ -167,6 +251,29 @@ type Category struct {
 	Color     string
 	CreatedAt pgtype.Timestamptz
 	Direction TxDirection
+}
+
+type DayEmailDelivery struct {
+	UserID    pgtype.UUID
+	LocalDay  pgtype.Date
+	Slot      DayEmailSlot
+	Email     string
+	Subject   string
+	Body      string
+	ResendID  pgtype.Text
+	SentAt    pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
+}
+
+type DayEmailSubscription struct {
+	UserID                pgtype.UUID
+	Email                 string
+	Frequency             DayEmailFrequency
+	ConfirmedAt           pgtype.Timestamptz
+	ConfirmationHash      pgtype.Text
+	ConfirmationExpiresAt pgtype.Timestamptz
+	CreatedAt             pgtype.Timestamptz
+	UpdatedAt             pgtype.Timestamptz
 }
 
 type Item struct {

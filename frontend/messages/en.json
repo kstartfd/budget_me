@@ -75,6 +75,27 @@
     "resetDoneToast": "Period changed, totals start over",
     "resetSince": "Totals count from {date}. Everything before is history"
   },
+  "dayEmail": {
+    "kicker": "Notifications · Day",
+    "title": "Task emails",
+    "hint": "Only open tasks are sent, at 09:00 and optionally 18:00 in your time zone.",
+    "frequency": {
+      "0": "Off",
+      "1": "Once a day",
+      "2": "Twice a day"
+    },
+    "linkEmail": "Add an email in the Account section below first.",
+    "unavailable": "Email delivery is not configured yet.",
+    "pending": "Check your inbox and confirm the address before the first email.",
+    "active": "Notifications are on. You'll get an email when there are open tasks.",
+    "resend": "Resend confirmation",
+    "confirmHint": "Confirm your subscription to task emails.",
+    "confirm": "Confirm address",
+    "confirmError": "This link expired or belongs to another account.",
+    "loading": "Loading preferences…",
+    "loadError": "Couldn't load notification preferences.",
+    "saveError": "Couldn't save or send the email. Please try again."
+  },
   "account": {
     "kicker": "Account",
     "sectionHint": "One account, two ways in. Link the second so you never lose access.",

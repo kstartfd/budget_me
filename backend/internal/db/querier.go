@@ -16,11 +16,13 @@ type Querier interface {
 	CategoryNameExists(ctx context.Context, arg CategoryNameExistsParams) (bool, error)
 	CategoryNameTakenByOther(ctx context.Context, arg CategoryNameTakenByOtherParams) (bool, error)
 	CategoryVisibleToUser(ctx context.Context, arg CategoryVisibleToUserParams) (bool, error)
+	ConfirmDayEmailSubscription(ctx context.Context, arg ConfirmDayEmailSubscriptionParams) (DayEmailSubscription, error)
 	ConfirmPlan(ctx context.Context, arg ConfirmPlanParams) (Plan, error)
 	// Erases this month's row and anything later — used only when no earlier run
 	// exists, where a tombstone would preserve nothing.
 	DeleteBudgetsFrom(ctx context.Context, arg DeleteBudgetsFromParams) error
 	DeleteCategory(ctx context.Context, arg DeleteCategoryParams) (int64, error)
+	DeleteDayEmailSubscription(ctx context.Context, userID pgtype.UUID) error
 	// RETURNING so the caller can also clean up a photo file on disk — see
 	// items/commands.DeleteHandler.
 	DeleteItem(ctx context.Context, arg DeleteItemParams) (Item, error)
@@ -34,6 +36,8 @@ type Querier interface {
 	DeleteUsersPastDeadline(ctx context.Context, cutoff pgtype.Timestamptz) ([]DeleteUsersPastDeadlineRow, error)
 	GetAdvice(ctx context.Context, arg GetAdviceParams) (AiAdvice, error)
 	GetCategoryByID(ctx context.Context, id pgtype.UUID) (Category, error)
+	GetDayEmailDelivery(ctx context.Context, arg GetDayEmailDeliveryParams) (DayEmailDelivery, error)
+	GetDayEmailSubscription(ctx context.Context, userID pgtype.UUID) (DayEmailSubscription, error)
 	// Just the cutoff. The dashboard asks on every load and needs nothing else off
 	// the user row, so this stays narrower than GetUserByID.
 	GetHistoryResetAt(ctx context.Context, id pgtype.UUID) (pgtype.Timestamptz, error)
@@ -47,12 +51,14 @@ type Querier interface {
 	// go (see DeleteBudgetsFrom).
 	HasBudgetBefore(ctx context.Context, arg HasBudgetBeforeParams) (bool, error)
 	InsertCategory(ctx context.Context, arg InsertCategoryParams) (Category, error)
+	InsertDayEmailDelivery(ctx context.Context, arg InsertDayEmailDeliveryParams) (int64, error)
 	InsertItem(ctx context.Context, arg InsertItemParams) (Item, error)
 	InsertList(ctx context.Context, arg InsertListParams) (ItemList, error)
 	InsertPlan(ctx context.Context, arg InsertPlanParams) (Plan, error)
 	InsertTask(ctx context.Context, arg InsertTaskParams) (Task, error)
 	InsertTransaction(ctx context.Context, arg InsertTransactionParams) (Transaction, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
+	ListActiveDayEmailSubscriptions(ctx context.Context) ([]ListActiveDayEmailSubscriptionsRow, error)
 	// The limit in force for `month`, one row per category: the newest run that has
 	// already started (valid_from <= month). DISTINCT ON keeps the first row of each
 	// category group, and the ORDER BY makes that the latest start — so a limit set
@@ -65,6 +71,7 @@ type Querier interface {
 	ListCategoriesForUser(ctx context.Context, userID pgtype.UUID) ([]Category, error)
 	ListItemsForList(ctx context.Context, arg ListItemsForListParams) ([]Item, error)
 	ListListsForUser(ctx context.Context, userID pgtype.UUID) ([]ItemList, error)
+	ListOpenTasksForDigest(ctx context.Context, arg ListOpenTasksForDigestParams) ([]ListOpenTasksForDigestRow, error)
 	ListPlanSuggestionsForMonth(ctx context.Context, arg ListPlanSuggestionsForMonthParams) ([]ListPlanSuggestionsForMonthRow, error)
 	ListPlansForMonth(ctx context.Context, arg ListPlansForMonthParams) ([]Plan, error)
 	ListRecentTransactions(ctx context.Context, arg ListRecentTransactionsParams) ([]Transaction, error)
@@ -76,6 +83,7 @@ type Querier interface {
 	// instants make up "their" month.
 	ListUsersForAdvice(ctx context.Context) ([]ListUsersForAdviceRow, error)
 	ListVisibleToUser(ctx context.Context, arg ListVisibleToUserParams) (bool, error)
+	MarkDayEmailDeliverySent(ctx context.Context, arg MarkDayEmailDeliverySentParams) error
 	// The zone the client last reported. Only background work reads it (cmd/worker);
 	// requests carry their own zone with them.
 	RememberTimezone(ctx context.Context, arg RememberTimezoneParams) error
@@ -115,6 +123,7 @@ type Querier interface {
 	// текущим фильтром считается на бэке, а не складывается на клиенте из выданного списка.
 	SumTotalsInRange(ctx context.Context, arg SumTotalsInRangeParams) (SumTotalsInRangeRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
+	UpdateConfirmedDayEmailFrequency(ctx context.Context, arg UpdateConfirmedDayEmailFrequencyParams) (DayEmailSubscription, error)
 	UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, error)
 	UpdateItemPhoto(ctx context.Context, arg UpdateItemPhotoParams) (Item, error)
 	// Same guard as DeleteList: WHERE user_id = @user_id can never match a preset
@@ -146,6 +155,7 @@ type Querier interface {
 	// corrects that run rather than opening another (the UNIQUE key backs it), so
 	// editing today's limit twice does not leave a stray row behind.
 	UpsertBudget(ctx context.Context, arg UpsertBudgetParams) (Budget, error)
+	UpsertPendingDayEmailSubscription(ctx context.Context, arg UpsertPendingDayEmailSubscriptionParams) (DayEmailSubscription, error)
 }
 
 var _ Querier = (*Queries)(nil)

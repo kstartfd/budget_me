@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
 import { useQueryClient } from "@tanstack/react-query"
 import { useFormatter, useLocale, useTranslations } from "next-intl"
@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { AccountSection, DeleteAccountSection } from "@/features/account"
 import { useAuth } from "@/features/auth"
+import { DayEmailSection } from "@/features/day-email/day-email-section"
 import { budgetKeys } from "@/features/budget"
 import { useBudgetUI } from "@/features/budget/components/ui-context"
 import { CurrencySelect } from "@/features/settings/components/currency-select"
@@ -346,6 +347,10 @@ export default function SettingsPage() {
 
       {/* Account — link Telegram ↔ email so one account has both login paths */}
       <AccountSection />
+
+      <Suspense fallback={null}>
+        <DayEmailSection />
+      </Suspense>
 
       {/* Danger zone — deferred account deletion (30-day grace, cancellable) */}
       <DeleteAccountSection />

@@ -61,6 +61,11 @@ type Config struct {
 	// container's CWD is the bind-mounted backend/ — absolute in prod, on a
 	// named volume so photos survive redeploys.
 	UploadsDir string
+
+	// Empty credentials disable Day email notifications without affecting the
+	// API or the existing worker jobs.
+	ResendAPIKey    string
+	ResendFromEmail string
 }
 
 // Load reads the configuration from the environment, returning an error when a
@@ -89,7 +94,9 @@ func Load() (Config, error) {
 			defaultDeletionGrace,
 		),
 
-		UploadsDir: orDefault("UPLOADS_DIR", "data/uploads"),
+		UploadsDir:      orDefault("UPLOADS_DIR", "data/uploads"),
+		ResendAPIKey:    os.Getenv("RESEND_API_KEY"),
+		ResendFromEmail: os.Getenv("RESEND_FROM_EMAIL"),
 	}
 
 	if cfg.DatabaseURL == "" {

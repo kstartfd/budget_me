@@ -22,6 +22,7 @@ import (
 	"budget_me/backend/internal/categories"
 	"budget_me/backend/internal/clock"
 	"budget_me/backend/internal/config"
+	"budget_me/backend/internal/dayemail"
 	"budget_me/backend/internal/db"
 	"budget_me/backend/internal/httpx"
 	"budget_me/backend/internal/insights"
@@ -31,6 +32,7 @@ import (
 	"budget_me/backend/internal/plans"
 	"budget_me/backend/internal/rates"
 	"budget_me/backend/internal/rates/provider"
+	"budget_me/backend/internal/resend"
 	"budget_me/backend/internal/settings"
 	"budget_me/backend/internal/tasks"
 	"budget_me/backend/internal/token"
@@ -121,6 +123,9 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 		Routes(public, protected)
 
 	settings.NewController(queries, clk).
+		Routes(public, protected)
+
+	dayemail.NewController(queries, clk, resend.New(cfg.ResendAPIKey, cfg.ResendFromEmail), cfg.TelegramMiniAppURL).
 		Routes(public, protected)
 
 	tasks.NewController(queries, clk).
