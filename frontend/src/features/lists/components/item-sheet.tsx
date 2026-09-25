@@ -186,17 +186,14 @@ export function ItemSheet({
             type="button"
             onClick={() => setViewingPhoto(true)}
             aria-label={t("viewPhoto")}
-            className="border-border bg-secondary focus-visible:ring-primary flex w-full flex-col overflow-hidden rounded-2xl border outline-none focus-visible:ring-2"
+            className="border-border bg-secondary focus-visible:ring-primary block w-full cursor-zoom-in overflow-hidden rounded-2xl border p-2 outline-none transition-colors hover:border-primary/40 focus-visible:ring-2"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={visiblePhoto}
               alt=""
-              className="h-40 w-full object-contain"
+              className="h-40 w-full rounded-xl object-contain"
             />
-            <span className="text-muted-foreground border-border w-full border-t px-3 py-2 text-left text-xs font-medium">
-              {t("viewPhoto")}
-            </span>
           </button>
         ) : (
           <div className="border-border bg-secondary text-muted-foreground flex h-36 flex-col items-center justify-center gap-2 rounded-2xl border border-dashed text-xs">

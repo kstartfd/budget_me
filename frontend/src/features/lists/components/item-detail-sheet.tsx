@@ -77,17 +77,14 @@ export function ItemDetailSheet({
             type="button"
             onClick={() => setViewingPhoto(true)}
             aria-label={t("viewPhotoOf", { name: item.title })}
-            className="border-border bg-secondary focus-visible:ring-primary flex w-full flex-col overflow-hidden rounded-2xl border text-left outline-none focus-visible:ring-2"
+            className="border-border bg-secondary focus-visible:ring-primary block w-full cursor-zoom-in overflow-hidden rounded-2xl border p-2 outline-none transition-colors hover:border-primary/40 focus-visible:ring-2"
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={item.photoUrl}
               alt=""
-              className="h-48 w-full object-contain"
+              className="h-48 w-full rounded-xl object-contain"
             />
-            <span className="text-muted-foreground border-border w-full border-t px-3 py-2 text-xs font-medium">
-              {t("viewPhoto")}
-            </span>
           </button>
         </div>
       )}
