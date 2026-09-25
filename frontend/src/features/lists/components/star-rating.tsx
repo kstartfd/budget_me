@@ -2,23 +2,14 @@
 
 import { useState } from "react"
 
-/**
- * 5 stars with half-steps standing in for a 1..10 rating (rating = stars×2) —
- * 10 stars in a row don't read on a 390px screen, 5 with halves keep the
- * familiar shape and the full range. Two flat SVG layers (empty behind,
- * filled in front, clipped to a % width) rather than per-star fill math — the
- * filled layer's width alone draws every half-star position.
- *
- * Interactive when `onChange` is given: 10 invisible half-star hit targets
- * overlay the same row, so a tap always lands on a whole half-step.
- */
+/** Five stars represent a 1..10 rating in half-star steps. */
 const starPath =
   "M12 2.5l2.9 6.06 6.6.7-4.9 4.55 1.28 6.6L12 16.9l-5.88 3.5 1.28-6.6-4.9-4.55 6.6-.7z"
 
 function StarGlyph({ size }: { size: number }) {
   return (
     <svg
-      className="shrink-0"
+      className="block"
       width={size}
       height={size}
       viewBox="0 0 24 24"
@@ -34,57 +25,63 @@ export function StarRating({
   size = 17,
   onChange,
 }: {
-  /** 1..10, or null when not rated yet — renders as 0 filled stars. */
   rating: number | null
   size?: number
-  /** Present → interactive (the add/edit sheet); absent → read-only display. */
   onChange?: (rating: number) => void
 }) {
   const [hover, setHover] = useState<number | null>(null)
   const value = hover ?? rating ?? 0
-  const pct = (value / 10) * 100
 
   return (
     <span
-      className="relative inline-flex shrink-0"
+      className="inline-flex shrink-0"
       style={{ width: size * 5, height: size }}
       onPointerLeave={() => setHover(null)}
     >
-      <span className="text-faint absolute inset-0 flex">
-        {Array.from({ length: 5 }, (_, i) => (
-          <StarGlyph key={i} size={size} />
-        ))}
-      </span>
-      <span
-        aria-hidden
-        className="text-warn absolute inset-0 flex overflow-hidden"
-        style={{ width: `${pct}%` }}
-      >
-        {Array.from({ length: 5 }, (_, i) => (
-          <StarGlyph key={i} size={size} />
-        ))}
-      </span>
-      {onChange && (
-        <span className="absolute inset-0 flex">
-          {Array.from({ length: 10 }, (_, i) => {
-            const half = i + 1
+      {Array.from({ length: 5 }, (_, index) => {
+        // Clip each star on its own so its fill stays aligned at any rating.
+        const fill = Math.max(0, Math.min(2, value - index * 2)) * 50
 
-            return (
-              <button
-                key={half}
-                type="button"
-                aria-label={`${half}/10`}
-                onPointerEnter={(event) => {
-                  if (event.pointerType === "mouse") setHover(half)
-                }}
-                onClick={() => onChange(half)}
-                aria-pressed={rating === half}
-                style={{ width: size / 2 }}
-              />
-            )
-          })}
-        </span>
-      )}
+        return (
+          <span
+            key={index}
+            className="relative block shrink-0 text-faint"
+            style={{ width: size, height: size }}
+          >
+            <StarGlyph size={size} />
+            <span
+              aria-hidden
+              className="text-warn absolute inset-y-0 left-0 overflow-hidden"
+              style={{ width: `${fill}%` }}
+            >
+              <span className="block" style={{ width: size }}>
+                <StarGlyph size={size} />
+              </span>
+            </span>
+            {onChange && (
+              <span className="absolute inset-0 flex">
+                {[0, 1].map((half) => {
+                  const score = index * 2 + half + 1
+
+                  return (
+                    <button
+                      key={score}
+                      type="button"
+                      className="h-full w-1/2 focus-visible:relative focus-visible:outline-2 focus-visible:outline-primary"
+                      aria-label={`${score}/10`}
+                      aria-pressed={rating === score}
+                      onPointerEnter={(event) => {
+                        if (event.pointerType === "mouse") setHover(score)
+                      }}
+                      onClick={() => onChange(score)}
+                    />
+                  )
+                })}
+              </span>
+            )}
+          </span>
+        )
+      })}
     </span>
   )
 }
