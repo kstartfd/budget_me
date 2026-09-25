@@ -468,10 +468,14 @@
     "confirmDelete": "Удалить",
     "editListAria": "Редактировать «{name}»",
     "photoLabel": "Фото",
+    "photoOf": "Фото: {name}",
+    "viewPhoto": "Открыть фото",
+    "viewPhotoOf": "Открыть фото «{name}»",
     "noPhoto": "Нет фото",
     "addPhoto": "Добавить фото",
     "changePhoto": "Заменить",
     "removePhoto": "Удалить фото",
+    "confirmRemovePhoto": "Удалить это фото?",
     "photoError": "Не удалось обработать фото. Попробуйте ещё раз."
   },
   "english": {

@@ -468,10 +468,14 @@
     "confirmDelete": "Delete",
     "editListAria": "Edit “{name}”",
     "photoLabel": "Photo",
+    "photoOf": "Photo: {name}",
+    "viewPhoto": "Open photo",
+    "viewPhotoOf": "Open photo of “{name}”",
     "noPhoto": "No photo",
     "addPhoto": "Add photo",
     "changePhoto": "Replace",
     "removePhoto": "Remove photo",
+    "confirmRemovePhoto": "Remove this photo?",
     "photoError": "Couldn't update the photo. Please try again."
   },
   "english": {
