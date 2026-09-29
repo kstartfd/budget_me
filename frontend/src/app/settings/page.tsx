@@ -14,6 +14,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { AccountSection, DeleteAccountSection } from "@/features/account"
 import { useAuth } from "@/features/auth"
+import { IconKey } from "@tabler/icons-react"
 import { DayEmailSection } from "@/features/day-email/day-email-section"
 import { budgetKeys } from "@/features/budget"
 import { useBudgetUI } from "@/features/budget/components/ui-context"
@@ -344,6 +345,20 @@ export default function SettingsPage() {
           </span>
         </Link>
       </section>
+
+      <Link
+        href="/learning/tokens"
+        className="bg-card border-border flex items-center gap-3 rounded-[18px] border p-[14px] shadow-[var(--shadow-card)]"
+      >
+        <span className="bg-[color:var(--primary-wash)] text-primary flex size-[38px] shrink-0 items-center justify-center rounded-xl">
+          <IconKey size={20} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-sm font-semibold">{t("learningTokens")}</div>
+          <p className="text-faint mt-1 text-xs">{t("learningTokensHint")}</p>
+        </div>
+        <span className="text-faint"><ChevronRightIcon /></span>
+      </Link>
 
       {/* Account — link Telegram ↔ email so one account has both login paths */}
       <AccountSection />

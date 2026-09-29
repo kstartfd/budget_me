@@ -60,7 +60,7 @@ services:
       AUTH_SECRET: ${AUTH_SECRET}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       TELEGRAM_MINIAPP_URL: https://${DOMAIN}
-      CORS_ORIGINS: https://${DOMAIN}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
       # Same value the worker sweeps by — the API only reports the deadline.
       ACCOUNT_DELETION_GRACE: ${ACCOUNT_DELETION_GRACE:-720h}
       # Advice writer. An empty key just disables the prose — the AI screen still

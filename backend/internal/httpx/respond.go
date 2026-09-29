@@ -30,6 +30,8 @@ func OK(c echo.Context, data any) error { return success(c, http.StatusOK, data)
 // Created writes a 201 response wrapping data in the standard envelope.
 func Created(c echo.Context, data any) error { return success(c, http.StatusCreated, data) }
 
+func Accepted(c echo.Context, data any) error { return success(c, http.StatusAccepted, data) }
+
 // Reporter is told about every 5xx that leaves the API. Implemented by
 // alert.Reporter; nil in tests and on a box with no alert chat configured, which
 // is why every call site tolerates a nil.

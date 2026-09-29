@@ -2,8 +2,10 @@ FROM golang:1.25-alpine
 
 RUN apk add --no-cache git
 
-# Hot reload tool
-RUN go install github.com/air-verse/air@latest
+# Hot reload tool. Pinned, not @latest (see CLAUDE.md / project convention) —
+# air v1.67.4 bumped its go.mod to `go 1.26`, which this image's Go 1.25
+# can't build; v1.67.1 is the newest release still on go1.25.
+RUN go install github.com/air-verse/air@v1.67.1
 
 WORKDIR /app
 

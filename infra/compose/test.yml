@@ -32,6 +32,7 @@ services:
       ENV: test
       PORT: "8080"
       DATABASE_URL: postgres://budget_me:budget_me@postgres:5432/budget_me_test?sslmode=disable
+      AUTH_SECRET: learning-integration-test-secret-long-enough
       CORS_ORIGINS: http://localhost:3001
     ports:
       - "8181:8080"

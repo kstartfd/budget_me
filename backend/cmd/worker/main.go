@@ -27,6 +27,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -41,6 +43,7 @@ import (
 	"budget_me/backend/internal/ids"
 	"budget_me/backend/internal/insights/commands"
 	"budget_me/backend/internal/insights/queries"
+	learningcommands "budget_me/backend/internal/learning/commands"
 	"budget_me/backend/internal/resend"
 )
 
@@ -57,7 +60,8 @@ func main() {
 		fail(err.Error())
 	}
 
-	ctx := context.Background()
+	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
+	defer cancel()
 
 	pool, err := pgxpool.New(ctx, cfg.DatabaseURL)
 	if err != nil {
@@ -67,17 +71,26 @@ func main() {
 	defer pool.Close()
 
 	queries := db.New(pool)
+
 	clk := clock.New()
+	if len(os.Args) > 1 && os.Args[1] == "learning-captures" {
+		learningcommands.NewProcessHandler(pool, clk).Run(ctx)
+		return
+	}
+
 	if len(os.Args) > 1 && os.Args[1] == "day-email" {
 		result, err := dayemail.Sweep(ctx, queries, clk.Now(),
 			resend.New(cfg.ResendAPIKey, cfg.ResendFromEmail), cfg.TelegramMiniAppURL)
 		if err != nil {
 			fail("day-email: " + err.Error())
 		}
+
 		fmt.Printf("day-email: sent=%d failed=%d\n", result.Sent, result.Failed)
+
 		if result.Failed > 0 {
 			os.Exit(1)
 		}
+
 		return
 	}
 

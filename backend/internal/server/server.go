@@ -27,6 +27,9 @@ import (
 	"budget_me/backend/internal/httpx"
 	"budget_me/backend/internal/insights"
 	"budget_me/backend/internal/items"
+	"budget_me/backend/internal/learning"
+	"budget_me/backend/internal/learningtokens"
+	learningtokenqueries "budget_me/backend/internal/learningtokens/queries"
 	"budget_me/backend/internal/lists"
 	"budget_me/backend/internal/photostore"
 	"budget_me/backend/internal/plans"
@@ -58,7 +61,7 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 		AllowOrigins:     cfg.CORSOrigins,
 		AllowCredentials: true,
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
-		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderAuthorization, echo.HeaderContentType},
+		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderAuthorization, echo.HeaderContentType, "Idempotency-Key"},
 		MaxAge:           43200, // 12h preflight cache (seconds)
 	}))
 
@@ -136,6 +139,11 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 
 	items.NewController(queries, clk, photostore.New(cfg.UploadsDir)).
 		Routes(public, protected)
+
+	learningAuth := learningtokenqueries.NewTokenHandler(queries, clk)
+	learningGroup := e.Group("/api/v1/learning", httpx.RequireLearningAuth(codec, learningAuth.Authenticate), echomw.BodyLimit("64K"))
+	learning.NewController(queries, clk).Routes(learningGroup)
+	learningtokens.NewController(queries, clk).Routes(protected)
 
 	// Item photos (see internal/photostore) — served straight off disk under
 	// the same /api/v1 prefix Caddy already proxies to this service, so no

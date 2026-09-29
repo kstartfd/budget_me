@@ -69,7 +69,7 @@ export const SPACES: Space[] = [
     tabs: [
       { href: "/day", icon: CheckListIcon, labelKey: "day", addKey: "task" },
       { href: "/lists", icon: StackIcon, labelKey: "lists", addKey: "item" },
-      { href: "/english", icon: LanguageIcon, labelKey: "english", addKey: "phrase" },
+      { href: "/learning", icon: LanguageIcon, labelKey: "learning", addKey: "learning" },
       { href: "/settings", icon: DotsIcon, labelKey: "more", bottomOnly: true },
     ],
   },

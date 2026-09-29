@@ -30,6 +30,9 @@ export default defineConfig({
     screenshot: "only-on-failure",
     video: "retain-on-failure",
     locale: "en-US",
+    launchOptions: {
+      executablePath: process.env.E2E_CHROMIUM_PATH,
+    },
     extraHTTPHeaders: {
       "Accept-Language": "en-US,en;q=0.9",
     },
@@ -54,7 +57,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    // Frontend reads NEXT_PUBLIC_API_URL at dev time, so we set it here to
+    // Frontend reads BACKEND_URL for its API proxy, so we set it here to
     // route every API call at the isolated test backend on :8181. PORT
     // keeps the dev server out of the way of any human-driven `pnpm dev`
     // running on :3000.
@@ -64,7 +67,7 @@ export default defineConfig({
     // stale process, which would otherwise wedge every subsequent
     // invocation. Turbopack hot-reloads when source changes, so reusing
     // an already-running dev server is safe between code edits too.
-    command: `PORT=${FRONTEND_PORT} NEXT_PUBLIC_API_URL=${BACKEND_URL} pnpm dev`,
+    command: `PORT=${FRONTEND_PORT} BACKEND_URL=${BACKEND_URL} pnpm dev`,
     url: BASE_URL,
     reuseExistingServer: true,
     timeout: 180 * 1000,
