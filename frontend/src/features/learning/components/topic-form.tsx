@@ -96,7 +96,7 @@ export function TopicForm({
             {...register("name")}
           />
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid gap-3 sm:grid-cols-2">
           {(["language", "translationLanguage"] as const).map((name) => (
             <div key={name} className="space-y-2 text-sm font-medium">
               <label htmlFor={`topic-${name}`}>{t(name)}</label>

@@ -117,7 +117,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
             <Button
               variant="secondary"
               size="icon"
-              className="rounded-full"
+              className="border-border rounded-full"
               aria-label={t("editTopic")}
               onClick={() => setTopicForm(topic)}
             >
@@ -126,7 +126,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
           ) : (
             <Link
               href="/learning/tokens"
-              className="bg-secondary text-muted-foreground flex size-9 items-center justify-center rounded-full"
+              className="bg-secondary border-border text-muted-foreground flex size-9 items-center justify-center rounded-full border"
               aria-label={t("tokens")}
             >
               <IconKey size={18} />
@@ -137,26 +137,29 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
 
       {!topic ? (
         <>
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-3 lg:grid-cols-2 xl:grid-cols-3">
             {topics.data?.map((item) => (
               <Link
                 key={item.id}
                 href={`/learning/${item.id}`}
-                className="bg-card border-border hover:border-primary/30 flex min-w-0 items-center gap-3 rounded-[22px] border p-5 shadow-[var(--shadow-card)] transition-colors"
+                className="bg-card border-border hover:border-primary/30 flex min-w-0 items-start gap-3 rounded-[22px] border p-5 shadow-[var(--shadow-card)] transition-colors"
               >
                 <span className="bg-[color:var(--primary-wash)] text-primary flex size-11 shrink-0 items-center justify-center rounded-2xl">
                   <IconLanguage size={24} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <h2 className="truncate text-base font-semibold">
+                  <h2 className="line-clamp-2 text-base leading-snug font-semibold break-words">
                     {item.name}
                   </h2>
-                  <p className="text-faint mt-1 text-xs">
+                  <p className="text-faint mt-1 text-xs leading-relaxed break-words">
                     {languageName(item.language)} →{" "}
                     {languageName(item.translationLanguage)}
                   </p>
                 </div>
-                <IconChevronRight size={17} className="text-faint shrink-0" />
+                <IconChevronRight
+                  size={17}
+                  className="text-faint mt-3 shrink-0"
+                />
               </Link>
             ))}
             <Button
@@ -185,7 +188,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
       ) : (
         <>
           <div
-            className="flex flex-wrap gap-2"
+            className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap"
             role="group"
             aria-label={t("status")}
           >
@@ -197,18 +200,19 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                 aria-pressed={status === value}
                 onClick={() => setStatus(value)}
                 className={cn(
-                  "h-9 rounded-full px-4 text-xs",
-                  status === value &&
-                    "bg-primary/15 text-primary ring-primary/25 ring-1",
+                  "h-9 min-w-0 rounded-full px-2 text-xs sm:px-4",
+                  status === value
+                    ? "bg-primary/15 text-primary ring-primary/25 ring-1"
+                    : "border-border",
                 )}
               >
                 {t(value)}
               </Button>
             ))}
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="grid min-w-0 gap-3 lg:grid-cols-[auto_minmax(0,1fr)_auto] lg:items-center">
             <div
-              className="bg-secondary flex shrink-0 gap-1 rounded-xl p-1"
+              className="bg-secondary border-border flex min-w-0 gap-1 rounded-xl border p-1"
               role="group"
               aria-label={t("kind")}
             >
@@ -220,7 +224,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                   onClick={() => setKind(value)}
                   aria-pressed={kind === value}
                   className={cn(
-                    "h-8 rounded-lg px-3 text-xs",
+                    "h-8 min-w-0 flex-1 rounded-lg px-2 text-xs lg:flex-none lg:px-3",
                     kind === value && "bg-card text-foreground shadow-sm",
                   )}
                 >
@@ -234,7 +238,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                 </Button>
               ))}
             </div>
-            <div className="relative min-w-40 flex-1">
+            <div className="relative min-w-0">
               <IconSearch
                 size={16}
                 className="text-faint absolute top-3 left-3"
@@ -350,7 +354,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                 </div>
               )}
             </section>
-            <aside className="bg-card border-border sticky top-6 hidden min-w-0 rounded-[22px] border p-5 shadow-[var(--shadow-card)] lg:block">
+            <aside className="bg-card border-border sticky top-6 hidden min-w-0 max-h-[calc(100dvh-3rem)] overflow-y-auto rounded-[22px] border p-5 shadow-[var(--shadow-card)] lg:block">
               {desktop && selected ? (
                 <EntryDetail
                   key={selected.id}

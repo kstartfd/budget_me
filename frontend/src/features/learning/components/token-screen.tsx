@@ -23,7 +23,7 @@ import {
 } from "../schemas"
 import { LearningModal } from "./learning-modal"
 
-export function TokenScreen() {
+export function TokenScreen({ embedded = false }: { embedded?: boolean }) {
   const t = useTranslations("learning")
   const { tokens, create, revoke } = useLearningTokens()
   const [creating, setCreating] = useState(false)
@@ -59,20 +59,28 @@ export function TokenScreen() {
     create.reset()
   }
   return (
-    <div className="anim-fade max-w-2xl space-y-[18px]">
-      <header>
-        <Link
-          href="/learning"
-          className="text-muted-foreground mb-2 inline-flex items-center gap-1 text-xs"
-        >
-          <IconArrowLeft size={14} />
-          {t("title")}
-        </Link>
-        <h1 className="text-[22px] font-bold tracking-tight">{t("tokens")}</h1>
-        <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
-          {t("tokensHint")}
-        </p>
-      </header>
+    <div
+      className={
+        embedded ? "space-y-[18px]" : "anim-fade max-w-2xl space-y-[18px]"
+      }
+    >
+      {!embedded && (
+        <header>
+          <Link
+            href="/learning"
+            className="text-muted-foreground mb-2 inline-flex items-center gap-1 text-xs"
+          >
+            <IconArrowLeft size={14} />
+            {t("title")}
+          </Link>
+          <h1 className="text-[22px] font-bold tracking-tight">
+            {t("tokens")}
+          </h1>
+          <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
+            {t("tokensHint")}
+          </p>
+        </header>
+      )}
       <Button
         className="h-11 rounded-2xl"
         onClick={() => {

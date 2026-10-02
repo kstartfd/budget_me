@@ -157,7 +157,8 @@ test("extension token delivers a capture and revocation blocks further requests"
   request,
   topic,
 }) => {
-  await page.goto("/learning/tokens")
+  await page.goto("/settings")
+  await page.getByRole("button", { name: "Extension access" }).click()
   await page.getByRole("button", { name: "Create token", exact: true }).click()
   let dialog = page.getByRole("dialog")
   const name = `Chrome QA ${randomUUID()}`
