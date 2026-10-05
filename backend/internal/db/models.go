@@ -512,6 +512,7 @@ type LearningToken struct {
 	CreatedAt  pgtype.Timestamptz
 	LastUsedAt pgtype.Timestamptz
 	RevokedAt  pgtype.Timestamptz
+	TopicID    pgtype.UUID
 }
 
 type LearningTopic struct {

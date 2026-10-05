@@ -14,7 +14,7 @@ import (
 const authenticateLearningToken = `-- name: AuthenticateLearningToken :one
 UPDATE learning_tokens SET last_used_at = $1
 WHERE token_hash = $2 AND revoked_at IS NULL
-RETURNING id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at
+RETURNING id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id
 `
 
 type AuthenticateLearningTokenParams struct {
@@ -35,18 +35,20 @@ func (q *Queries) AuthenticateLearningToken(ctx context.Context, arg Authenticat
 		&i.CreatedAt,
 		&i.LastUsedAt,
 		&i.RevokedAt,
+		&i.TopicID,
 	)
 	return i, err
 }
 
 const insertLearningToken = `-- name: InsertLearningToken :one
-INSERT INTO learning_tokens (id, user_id, name, prefix, token_hash, scope, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at
+INSERT INTO learning_tokens (id, user_id, topic_id, name, prefix, token_hash, scope, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id
 `
 
 type InsertLearningTokenParams struct {
 	ID        pgtype.UUID
 	UserID    pgtype.UUID
+	TopicID   pgtype.UUID
 	Name      string
 	Prefix    string
 	TokenHash []byte
@@ -58,6 +60,7 @@ func (q *Queries) InsertLearningToken(ctx context.Context, arg InsertLearningTok
 	row := q.db.QueryRow(ctx, insertLearningToken,
 		arg.ID,
 		arg.UserID,
+		arg.TopicID,
 		arg.Name,
 		arg.Prefix,
 		arg.TokenHash,
@@ -75,12 +78,13 @@ func (q *Queries) InsertLearningToken(ctx context.Context, arg InsertLearningTok
 		&i.CreatedAt,
 		&i.LastUsedAt,
 		&i.RevokedAt,
+		&i.TopicID,
 	)
 	return i, err
 }
 
 const listLearningTokens = `-- name: ListLearningTokens :many
-SELECT id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at FROM learning_tokens WHERE user_id = $1 AND revoked_at IS NULL ORDER BY created_at DESC
+SELECT id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id FROM learning_tokens WHERE user_id = $1 AND revoked_at IS NULL ORDER BY created_at DESC
 `
 
 func (q *Queries) ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error) {
@@ -102,6 +106,7 @@ func (q *Queries) ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([
 			&i.CreatedAt,
 			&i.LastUsedAt,
 			&i.RevokedAt,
+			&i.TopicID,
 		); err != nil {
 			return nil, err
 		}

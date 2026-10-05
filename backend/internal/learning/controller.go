@@ -10,6 +10,7 @@ import (
 	"budget_me/backend/internal/clock"
 	"budget_me/backend/internal/db"
 	"budget_me/backend/internal/httpx"
+	"budget_me/backend/internal/ids"
 	"budget_me/backend/internal/learning/commands"
 	"budget_me/backend/internal/learning/queries"
 )
@@ -29,6 +30,18 @@ func (c *Controller) listTopics(ctx echo.Context) error {
 	rows, err := c.read.Topics(ctx.Request().Context(), httpx.UserIDFromContext(ctx.Request().Context()))
 	if err != nil {
 		return err
+	}
+
+	// A topic-scoped extension token only gets to see the topic it's bound
+	// to, not the account's whole topic list.
+	if boundTopic := httpx.LearningTopicFromContext(ctx.Request().Context()); boundTopic != uuid.Nil {
+		filtered := rows[:0]
+		for _, row := range rows {
+			if ids.FromPg(row.ID) == boundTopic {
+				filtered = append(filtered, row)
+			}
+		}
+		rows = filtered
 	}
 
 	out := make([]topicResponse, len(rows))
@@ -84,6 +97,10 @@ func (c *Controller) listEntries(ctx echo.Context) error {
 		return apperr.NewInvalid("invalid topicId")
 	}
 
+	if boundTopic := httpx.LearningTopicFromContext(ctx.Request().Context()); boundTopic != uuid.Nil && boundTopic != topicID {
+		return apperr.NewForbidden("token is scoped to a different topic")
+	}
+
 	limit, offset := 100, 0
 	if s := ctx.QueryParam("limit"); s != "" {
 		limit, err = strconv.Atoi(s)
@@ -135,12 +152,24 @@ func (c *Controller) getEntry(ctx echo.Context) error {
 		return err
 	}
 
+	if boundTopic := httpx.LearningTopicFromContext(ctx.Request().Context()); boundTopic != uuid.Nil && boundTopic != ids.FromPg(row.TopicID) {
+		return apperr.NewForbidden("token is scoped to a different topic")
+	}
+
 	return httpx.OK(ctx, entryDTO(row))
 }
 func (c *Controller) saveEntry(ctx echo.Context) error {
 	var fields commands.EntryFields
 	if err := ctx.Bind(&fields); err != nil {
 		return apperr.NewInvalid("invalid body")
+	}
+
+	if boundTopic := httpx.LearningTopicFromContext(ctx.Request().Context()); boundTopic != uuid.Nil {
+		if fields.TopicID != uuid.Nil && fields.TopicID != boundTopic {
+			return apperr.NewForbidden("token is scoped to a different topic")
+		}
+
+		fields.TopicID = boundTopic
 	}
 
 	id := uuid.Nil
@@ -171,7 +200,20 @@ func (c *Controller) deleteEntry(ctx echo.Context) error {
 		return apperr.NewInvalid("invalid entry id")
 	}
 
-	if err := c.entries.Delete(ctx.Request().Context(), httpx.UserIDFromContext(ctx.Request().Context()), id); err != nil {
+	userID := httpx.UserIDFromContext(ctx.Request().Context())
+
+	if boundTopic := httpx.LearningTopicFromContext(ctx.Request().Context()); boundTopic != uuid.Nil {
+		row, err := c.read.Entry(ctx.Request().Context(), userID, id)
+		if err != nil {
+			return err
+		}
+
+		if boundTopic != ids.FromPg(row.TopicID) {
+			return apperr.NewForbidden("token is scoped to a different topic")
+		}
+	}
+
+	if err := c.entries.Delete(ctx.Request().Context(), userID, id); err != nil {
 		return err
 	}
 
@@ -181,6 +223,17 @@ func (c *Controller) enqueue(ctx echo.Context) error {
 	var fields commands.EntryFields
 	if err := ctx.Bind(&fields); err != nil {
 		return apperr.NewInvalid("invalid body")
+	}
+
+	// A topic-scoped extension token never needs to send topicId at all — the
+	// endpoint it was handed already implies the topic. If it sends one
+	// anyway, it must agree with the token's topic.
+	if boundTopic := httpx.LearningTopicFromContext(ctx.Request().Context()); boundTopic != uuid.Nil {
+		if fields.TopicID != uuid.Nil && fields.TopicID != boundTopic {
+			return apperr.NewForbidden("token is scoped to a different topic")
+		}
+
+		fields.TopicID = boundTopic
 	}
 
 	row, err := c.captures.Handle(ctx.Request().Context(), commands.EnqueueCapture{UserID: httpx.UserIDFromContext(ctx.Request().Context()), RequestKey: ctx.Request().Header.Get("Idempotency-Key"), Fields: fields})

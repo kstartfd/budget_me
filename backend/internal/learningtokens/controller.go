@@ -27,6 +27,7 @@ type tokenResponse struct {
 	Name       string  `json:"name"`
 	Prefix     string  `json:"prefix"`
 	Scope      string  `json:"scope"`
+	TopicID    *string `json:"topicId"`
 	CreatedAt  string  `json:"createdAt"`
 	LastUsedAt *string `json:"lastUsedAt"`
 	Token      string  `json:"token,omitempty"`
@@ -37,6 +38,11 @@ func response(row db.LearningToken) tokenResponse {
 	if row.LastUsedAt.Valid {
 		s := row.LastUsedAt.Time.UTC().Format("2006-01-02T15:04:05Z")
 		r.LastUsedAt = &s
+	}
+
+	if row.TopicID.Valid {
+		id := ids.FromPg(row.TopicID).String()
+		r.TopicID = &id
 	}
 
 	return r
@@ -63,14 +69,20 @@ func (c *Controller) list(ctx echo.Context) error {
 }
 func (c *Controller) create(ctx echo.Context) error {
 	var req struct {
-		Name  string                `json:"name"`
-		Scope db.LearningTokenScope `json:"scope"`
+		Name    string                `json:"name"`
+		Scope   db.LearningTokenScope `json:"scope"`
+		TopicID string                `json:"topicId"`
 	}
 	if err := ctx.Bind(&req); err != nil {
 		return apperr.NewInvalid("invalid body")
 	}
 
-	row, raw, err := c.write.Handle(ctx.Request().Context(), commands.CreateToken{UserID: httpx.UserIDFromContext(ctx.Request().Context()), Name: req.Name, Scope: req.Scope})
+	topicID, err := uuid.Parse(req.TopicID)
+	if err != nil {
+		return apperr.NewInvalid("invalid topicId")
+	}
+
+	row, raw, err := c.write.Handle(ctx.Request().Context(), commands.CreateToken{UserID: httpx.UserIDFromContext(ctx.Request().Context()), Name: req.Name, Scope: req.Scope, TopicID: topicID})
 	if err != nil {
 		return err
 	}

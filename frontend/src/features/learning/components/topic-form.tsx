@@ -89,7 +89,7 @@ export function TopicForm({
           <span>{t("topicName")}</span>
           <Input
             autoFocus
-            className="bg-secondary h-12 rounded-2xl"
+            className="bg-secondary border-border focus-visible:border-primary h-auto rounded-2xl px-4 py-3.5 text-[15px] focus-visible:ring-0"
             placeholder={t("topicPlaceholder")}
             maxLength={80}
             aria-invalid={!!errors.name}
@@ -107,7 +107,7 @@ export function TopicForm({
                   <Select value={field.value} onValueChange={field.onChange}>
                     <SelectTrigger
                       id={`topic-${name}`}
-                      className="bg-secondary h-12 w-full rounded-2xl"
+                      className="bg-secondary border-border focus-visible:border-primary h-12 w-full rounded-2xl px-4 text-sm focus-visible:ring-0"
                       aria-invalid={!!errors[name]}
                     >
                       <SelectValue />
@@ -138,7 +138,7 @@ export function TopicForm({
         <Button
           type="submit"
           disabled={saveTopic.isPending}
-          className="h-12 w-full rounded-2xl text-sm font-bold"
+          className="text-primary-foreground h-auto w-full rounded-[18px] p-[15px] text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
         >
           {t(saveTopic.isPending ? "saving" : "save")}
         </Button>

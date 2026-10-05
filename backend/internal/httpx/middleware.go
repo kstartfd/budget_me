@@ -52,6 +52,16 @@ func UserIDFromContext(ctx context.Context) uuid.UUID {
 	return id
 }
 
+type learningTopicKey struct{}
+
+// LearningTopicFromContext returns the single topic a learning extension
+// token is scoped to, or uuid.Nil when the request isn't restricted to one
+// (session auth, or a token issued before topic scoping existed).
+func LearningTopicFromContext(ctx context.Context) uuid.UUID {
+	id, _ := ctx.Value(learningTopicKey{}).(uuid.UUID)
+	return id
+}
+
 /* -------------------------------- locale --------------------------------- */
 
 type localeCtxKey struct{}

@@ -13,7 +13,9 @@ import (
 	"budget_me/backend/internal/token"
 )
 
-type LearningTokenAuthenticator func(context.Context, string) (uuid.UUID, bool, error)
+// LearningTokenAuthenticator returns the token's owner, whether it is
+// capture-only, and the single topic it is bound to (uuid.Nil if unbound).
+type LearningTokenAuthenticator func(context.Context, string) (uuid.UUID, bool, uuid.UUID, error)
 
 func RequireLearningAuth(codec *token.Codec, authenticate LearningTokenAuthenticator) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -24,14 +26,15 @@ func RequireLearningAuth(codec *token.Codec, authenticate LearningTokenAuthentic
 			}
 
 			var (
-				userID uuid.UUID
-				err    error
+				userID  uuid.UUID
+				topicID uuid.UUID
+				err     error
 			)
 
 			if strings.HasPrefix(raw, "bml_") {
 				var captureOnly bool
 
-				userID, captureOnly, err = authenticate(c.Request().Context(), raw)
+				userID, captureOnly, topicID, err = authenticate(c.Request().Context(), raw)
 				if err != nil {
 					return err
 				}
@@ -52,7 +55,9 @@ func RequireLearningAuth(codec *token.Codec, authenticate LearningTokenAuthentic
 			}
 
 			req := c.Request()
-			c.SetRequest(req.WithContext(context.WithValue(req.Context(), userIDKey{}, userID)))
+			ctx := context.WithValue(req.Context(), userIDKey{}, userID)
+			ctx = context.WithValue(ctx, learningTopicKey{}, topicID)
+			c.SetRequest(req.WithContext(ctx))
 
 			return next(c)
 		}

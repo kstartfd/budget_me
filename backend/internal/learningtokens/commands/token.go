@@ -17,9 +17,10 @@ import (
 )
 
 type CreateToken struct {
-	UserID uuid.UUID
-	Name   string
-	Scope  db.LearningTokenScope
+	UserID  uuid.UUID
+	Name    string
+	Scope   db.LearningTokenScope
+	TopicID uuid.UUID
 }
 type TokenHandler struct {
 	q     *db.Queries
@@ -44,6 +45,18 @@ func (h TokenHandler) Handle(ctx context.Context, cmd CreateToken) (db.LearningT
 		return db.LearningToken{}, "", apperr.NewInvalid("invalid token scope")
 	}
 
+	if cmd.TopicID == uuid.Nil {
+		return db.LearningToken{}, "", apperr.NewInvalid("topicId is required")
+	}
+
+	if _, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: ids.ToPg(cmd.TopicID), UserID: ids.ToPg(cmd.UserID)}); err != nil {
+		if db.IsNotFound(err) {
+			return db.LearningToken{}, "", apperr.NewNotFound("topic not found")
+		}
+
+		return db.LearningToken{}, "", err
+	}
+
 	secret := make([]byte, 32)
 	if _, err := rand.Read(secret); err != nil {
 		return db.LearningToken{}, "", err
@@ -51,7 +64,7 @@ func (h TokenHandler) Handle(ctx context.Context, cmd CreateToken) (db.LearningT
 
 	raw := "bml_" + base64.RawURLEncoding.EncodeToString(secret)
 	hash := sha256.Sum256([]byte(raw))
-	row, err := h.q.InsertLearningToken(ctx, db.InsertLearningTokenParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(cmd.UserID), Name: name, Prefix: raw[:12], TokenHash: hash[:], Scope: cmd.Scope, CreatedAt: db.Time(h.clock.Now())})
+	row, err := h.q.InsertLearningToken(ctx, db.InsertLearningTokenParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(cmd.TopicID), Name: name, Prefix: raw[:12], TokenHash: hash[:], Scope: cmd.Scope, CreatedAt: db.Time(h.clock.Now())})
 
 	return row, raw, err
 }

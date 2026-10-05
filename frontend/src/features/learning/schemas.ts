@@ -31,12 +31,14 @@ export type EntryInput = z.infer<typeof entryInputSchema>
 export const tokenInputSchema = z.object({
   name: z.string().trim().min(1).max(80),
   scope: z.enum(["capture", "read_write"]),
+  topicId: z.string().uuid(),
 })
 export const tokenSchema = tokenInputSchema.extend({
   id: z.string().uuid(),
   prefix: z.string(),
   createdAt: z.string(),
   lastUsedAt: z.string().nullable(),
+  topicId: z.string().uuid().nullable(),
 })
 export const issuedTokenSchema = tokenSchema.extend({ token: z.string() })
 export type LearningToken = z.infer<typeof tokenSchema>

@@ -244,12 +244,12 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                 placeholder={t("search")}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="bg-card h-10 rounded-xl pl-9"
+                className="bg-card border-border focus-visible:border-primary h-10 rounded-xl pl-9 text-sm focus-visible:ring-0"
               />
             </div>
             <Button
               onClick={() => setEntryForm("new")}
-              className="hidden rounded-xl lg:inline-flex"
+              className="text-primary-foreground hidden h-10 rounded-xl px-4 text-sm font-semibold lg:inline-flex"
             >
               <IconPlus size={17} />
               {t("newEntry")}
@@ -288,7 +288,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                   {rows.length === 0 && (
                     <Button
                       variant="secondary"
-                      className="text-primary mt-4 rounded-xl"
+                      className="text-primary mt-4 h-10 rounded-xl px-4 text-sm font-semibold"
                       onClick={() => setEntryForm("new")}
                     >
                       <IconPlus size={16} />

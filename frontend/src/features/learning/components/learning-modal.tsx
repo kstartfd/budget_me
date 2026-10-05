@@ -6,7 +6,14 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { BottomSheet } from "@/features/budget/components/bottom-sheet"
+import { useIsDesktop } from "@/hooks/use-is-desktop"
 
+/**
+ * Centered dialog on desktop, real bottom sheet on mobile — same split as
+ * ItemSheet, so Learning's forms match the rest of the app instead of
+ * rendering as a generic centered shadcn dialog on every size.
+ */
 export function LearningModal({
   title,
   description,
@@ -18,24 +25,38 @@ export function LearningModal({
   children: React.ReactNode
   onClose: () => void
 }) {
+  const isDesktop = useIsDesktop()
+
+  if (isDesktop) {
+    return (
+      <Dialog open onOpenChange={(open) => !open && onClose()}>
+        <DialogContent className="bg-card border-border max-h-[85vh] gap-0 overflow-y-auto rounded-[26px] p-6 sm:max-w-lg">
+          <DialogTitle className="text-lg font-bold tracking-[-0.02em]">
+            {title}
+          </DialogTitle>
+          <DialogDescription
+            className={
+              description ? "text-muted-foreground mt-1 text-sm" : "sr-only"
+            }
+          >
+            {description ?? title}
+          </DialogDescription>
+          <div className="mt-4">{children}</div>
+        </DialogContent>
+      </Dialog>
+    )
+  }
+
   return (
-    <Dialog
-      open
-      onOpenChange={(open) => {
-        if (!open) onClose()
-      }}
-    >
-      <DialogContent className="top-auto bottom-0 max-h-[92dvh] w-full max-w-full translate-y-0 overflow-y-auto rounded-t-[28px] rounded-b-none bg-card p-5 pb-[max(env(safe-area-inset-bottom),1.25rem)] sm:top-1/2 sm:bottom-auto sm:max-w-lg sm:-translate-y-1/2 sm:rounded-[24px] sm:p-6">
-        <DialogTitle className="pr-7 text-lg font-bold tracking-tight">
-          {title}
-        </DialogTitle>
-        <DialogDescription
-          className={description ? "text-muted-foreground text-sm" : "sr-only"}
-        >
-          {description ?? title}
-        </DialogDescription>
+    <BottomSheet title={title} onClose={onClose}>
+      <div className="max-h-[calc(100dvh-7rem)] overflow-y-auto pt-4">
+        {description && (
+          <p className="text-muted-foreground -mt-1 mb-3 text-sm leading-relaxed">
+            {description}
+          </p>
+        )}
         {children}
-      </DialogContent>
-    </Dialog>
+      </div>
+    </BottomSheet>
   )
 }

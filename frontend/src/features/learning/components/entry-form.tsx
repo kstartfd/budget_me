@@ -75,7 +75,7 @@ export function EntryForm({
                   aria-pressed={field.value === k}
                   onClick={() => field.onChange(k)}
                   className={cn(
-                    "h-10 flex-1 rounded-xl",
+                    "h-10 flex-1 rounded-xl text-sm font-semibold",
                     field.value === k && "bg-card text-primary shadow-sm",
                   )}
                 >
@@ -89,7 +89,7 @@ export function EntryForm({
           <span>{t("text")}</span>
           <Textarea
             autoFocus
-            className="bg-secondary min-h-20 rounded-2xl text-base md:text-base"
+            className="bg-secondary border-border focus-visible:border-primary min-h-20 rounded-2xl text-base focus-visible:ring-0 md:text-base"
             maxLength={1000}
             placeholder={t("textPlaceholder")}
             aria-invalid={!!errors.text}
@@ -99,7 +99,7 @@ export function EntryForm({
         <label className="block space-y-2 text-sm font-medium">
           <span>{t("transcription")}</span>
           <Input
-            className="bg-secondary h-11 rounded-xl"
+            className="bg-secondary border-border focus-visible:border-primary h-auto rounded-xl px-3.5 py-3 text-sm focus-visible:ring-0"
             maxLength={4000}
             placeholder="/hɪt ðə rəʊd/"
             {...register("transcription")}
@@ -110,7 +110,7 @@ export function EntryForm({
             <label key={name} className="block space-y-2 text-sm font-medium">
               <span>{t(name)}</span>
               <Textarea
-                className="bg-secondary min-h-16 rounded-xl text-sm md:text-sm"
+                className="bg-secondary border-border focus-visible:border-primary min-h-16 rounded-xl text-sm focus-visible:ring-0 md:text-sm"
                 maxLength={4000}
                 placeholder={t(`${name}Placeholder`)}
                 {...register(name)}
@@ -135,7 +135,7 @@ export function EntryForm({
                   aria-pressed={field.value === status}
                   onClick={() => field.onChange(status)}
                   className={cn(
-                    "rounded-full text-xs",
+                    "h-9 rounded-full px-4 text-xs",
                     field.value === status &&
                       "bg-primary/15 text-primary ring-primary/30 ring-1",
                   )}
@@ -159,7 +159,7 @@ export function EntryForm({
         <Button
           type="submit"
           disabled={saveEntry.isPending}
-          className="h-12 w-full rounded-2xl font-bold"
+          className="text-primary-foreground h-auto w-full rounded-[18px] p-[15px] text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
         >
           {t(saveEntry.isPending ? "saving" : "save")}
         </Button>
