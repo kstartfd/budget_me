@@ -255,7 +255,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
               {t("newEntry")}
             </Button>
           </div>
-          <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.85fr)]">
+          <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,1fr)_minmax(280px,0.85fr)]">
             <section
               className="bg-card border-border min-w-0 overflow-hidden rounded-[22px] border shadow-[var(--shadow-card)]"
               aria-label={t("entries")}
@@ -350,7 +350,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                 </div>
               )}
             </section>
-            <aside className="bg-card border-border sticky top-6 hidden min-w-0 rounded-[22px] border p-5 shadow-[var(--shadow-card)] lg:block">
+            <aside className="bg-card border-border sticky top-6 hidden min-w-0 self-stretch rounded-[22px] border p-5 shadow-[var(--shadow-card)] lg:flex lg:flex-col">
               {desktop && selected ? (
                 <EntryDetail
                   key={selected.id}
@@ -367,7 +367,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                   <Skeleton className="h-40 w-full" />
                 )
               ) : (
-                <div className="text-muted-foreground py-12 text-center text-sm leading-relaxed">
+                <div className="text-muted-foreground m-auto max-w-[220px] py-12 text-center text-sm leading-relaxed">
                   <IconLanguage size={30} className="text-faint mx-auto mb-3" />
                   {t("selectEntry")}
                 </div>
