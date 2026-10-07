@@ -211,7 +211,7 @@ func (q *Queries) GetLearningCaptureByKey(ctx context.Context, arg GetLearningCa
 }
 
 const getLearningEntry = `-- name: GetLearningEntry :one
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at FROM learning_entries WHERE id = $1 AND user_id = $2
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source FROM learning_entries WHERE id = $1 AND user_id = $2
 `
 
 type GetLearningEntryParams struct {
@@ -236,6 +236,8 @@ func (q *Queries) GetLearningEntry(ctx context.Context, arg GetLearningEntryPara
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Explanation,
+		&i.Source,
 	)
 	return i, err
 }
@@ -264,10 +266,10 @@ func (q *Queries) GetLearningTopic(ctx context.Context, arg GetLearningTopicPara
 }
 
 const insertLearningEntry = `-- name: InsertLearningEntry :one
-INSERT INTO learning_entries (id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+INSERT INTO learning_entries (id, user_id, topic_id, kind, text, transcription, translation, explanation, native_usage, example, rule, source, status, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 ON CONFLICT (id) DO UPDATE SET id = learning_entries.id
-RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at
+RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source
 `
 
 type InsertLearningEntryParams struct {
@@ -278,9 +280,11 @@ type InsertLearningEntryParams struct {
 	Text          string
 	Transcription string
 	Translation   string
+	Explanation   string
 	NativeUsage   string
 	Example       string
 	Rule          string
+	Source        string
 	Status        LearningEntryStatus
 	CreatedAt     pgtype.Timestamptz
 	UpdatedAt     pgtype.Timestamptz
@@ -295,9 +299,11 @@ func (q *Queries) InsertLearningEntry(ctx context.Context, arg InsertLearningEnt
 		arg.Text,
 		arg.Transcription,
 		arg.Translation,
+		arg.Explanation,
 		arg.NativeUsage,
 		arg.Example,
 		arg.Rule,
+		arg.Source,
 		arg.Status,
 		arg.CreatedAt,
 		arg.UpdatedAt,
@@ -317,6 +323,8 @@ func (q *Queries) InsertLearningEntry(ctx context.Context, arg InsertLearningEnt
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Explanation,
+		&i.Source,
 	)
 	return i, err
 }
@@ -357,10 +365,10 @@ func (q *Queries) InsertLearningTopic(ctx context.Context, arg InsertLearningTop
 }
 
 const listLearningEntries = `-- name: ListLearningEntries :many
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at FROM learning_entries WHERE user_id = $1 AND topic_id = $2
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source FROM learning_entries WHERE user_id = $1 AND topic_id = $2
 AND ($3::text = '' OR kind::text = $3)
 AND ($4::text = '' OR status::text = $4)
-AND ($5::text = '' OR strpos(lower(text || ' ' || translation || ' ' || rule), lower($5)) > 0)
+AND ($5::text = '' OR strpos(lower(text || ' ' || translation || ' ' || explanation || ' ' || rule || ' ' || source), lower($5)) > 0)
 ORDER BY created_at DESC, id DESC LIMIT $7 OFFSET $6
 `
 
@@ -405,6 +413,8 @@ func (q *Queries) ListLearningEntries(ctx context.Context, arg ListLearningEntri
 			&i.Status,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.Explanation,
+			&i.Source,
 		); err != nil {
 			return nil, err
 		}
@@ -505,8 +515,8 @@ func (q *Queries) RetryLearningCapture(ctx context.Context, arg RetryLearningCap
 
 const updateLearningEntry = `-- name: UpdateLearningEntry :one
 UPDATE learning_entries SET topic_id = $3, kind = $4, text = $5, transcription = $6,
-translation = $7, native_usage = $8, example = $9, rule = $10, status = $11, updated_at = $12
-WHERE id = $1 AND user_id = $2 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at
+translation = $7, explanation = $8, native_usage = $9, example = $10, rule = $11, source = $12, status = $13, updated_at = $14
+WHERE id = $1 AND user_id = $2 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source
 `
 
 type UpdateLearningEntryParams struct {
@@ -517,9 +527,11 @@ type UpdateLearningEntryParams struct {
 	Text          string
 	Transcription string
 	Translation   string
+	Explanation   string
 	NativeUsage   string
 	Example       string
 	Rule          string
+	Source        string
 	Status        LearningEntryStatus
 	UpdatedAt     pgtype.Timestamptz
 }
@@ -533,9 +545,11 @@ func (q *Queries) UpdateLearningEntry(ctx context.Context, arg UpdateLearningEnt
 		arg.Text,
 		arg.Transcription,
 		arg.Translation,
+		arg.Explanation,
 		arg.NativeUsage,
 		arg.Example,
 		arg.Rule,
+		arg.Source,
 		arg.Status,
 		arg.UpdatedAt,
 	)
@@ -554,6 +568,8 @@ func (q *Queries) UpdateLearningEntry(ctx context.Context, arg UpdateLearningEnt
 		&i.Status,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Explanation,
+		&i.Source,
 	)
 	return i, err
 }

@@ -72,7 +72,7 @@ export function EntryDetail({
           {t("saveError")}
         </p>
       )}
-      {(["nativeUsage", "example", "rule"] as const).map(
+      {(["explanation", "rule", "nativeUsage", "example", "source"] as const).map(
         (field) =>
           entry[field] && (
             <section key={field} className="border-border border-t pt-4">
@@ -87,8 +87,10 @@ export function EntryDetail({
       )}
       {!entry.translation &&
         !entry.nativeUsage &&
+        !entry.explanation &&
         !entry.example &&
-        !entry.rule && (
+        !entry.rule &&
+        !entry.source && (
           <div className="bg-secondary rounded-2xl p-4">
             <p className="text-muted-foreground text-sm leading-relaxed">
               {t("unfilledHint")}

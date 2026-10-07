@@ -37,9 +37,11 @@ export function EntryForm({
       text: "",
       transcription: "",
       translation: "",
+      explanation: "",
       nativeUsage: "",
       example: "",
       rule: "",
+      source: "",
       status: "inbox",
     },
   })
@@ -105,7 +107,7 @@ export function EntryForm({
             {...register("transcription")}
           />
         </label>
-        {(["translation", "nativeUsage", "example", "rule"] as const).map(
+        {(["translation", "explanation", "rule", "nativeUsage", "example", "source"] as const).map(
           (name) => (
             <label key={name} className="block space-y-2 text-sm font-medium">
               <span>{t(name)}</span>

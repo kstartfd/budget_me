@@ -37,7 +37,7 @@ Authorization: Bearer <extension-token>
 Content-Type: application/json
 Idempotency-Key: <unique-id-for-this-selection>
 
-{"topicId":"<topic-uuid>","kind":"phrase","text":"hit the road"}
+{"topicId":"<topic-uuid>","kind":"phrase","text":"hit the road","translation":"отправиться в путь","explanation":"hit the road — отправиться; устойчивое выражение","rule":"Идиома: hit the road","nativeUsage":"Разговорное, обычно об отъезде","source":"Video 01:23"}
 ```
 
 Returns **202 Accepted**, with a `Location` header for the receipt:
@@ -54,13 +54,16 @@ to `inbox`. Optional fields default to empty strings:
 | `kind` | `word` or `phrase` |
 | `transcription` | Pronunciation |
 | `translation` | Translation |
+| `explanation` | Breakdown of words and expressions in the phrase |
 | `nativeUsage` | Natural wording, nuance, native usage |
 | `example` | Example sentence and usage situation |
 | `rule` | Grammar or construction explanation |
+| `source` | Origin of the phrase, such as a video title and timestamp |
 | `status` | `inbox`, `learning`, `known` |
 
-`text` is limited to 1,000 characters; each explanation field to 4,000.
-Request bodies are limited to 64 KiB. There is no source field.
+`text` is limited to 1,000 characters; each other text field to 4,000.
+Request bodies are limited to 64 KiB. The extension prepares the translation and
+explanations before queueing the capture; the API persists the supplied fields.
 
 Generate a new idempotency key for each intentional selection and **reuse it on
 network retries**. Keys are scoped to your account, not to one token.
@@ -90,11 +93,11 @@ Requires `read_write` or an app session:
 - `GET /entries?topicId=<uuid>&limit=100&offset=0`
 - `GET /entries/<uuid>`
 - `PUT /entries/<uuid>` — complete replacement; send `topicId`, `kind`, `text`,
-  all five explanation fields and `status`. Omitted explanations become empty.
+  all optional card fields and `status`. Omitted fields become empty.
 - `DELETE /entries/<uuid>`
 
 List supports `kind=word|phrase`, `status=inbox|learning|known`, and literal
-case-insensitive `search` across original text, translation and rule.
+case-insensitive `search` across original text, translation, breakdown, rule and source.
 `limit` is 1–200 (default 100); pagination and filters run on the server.
 
 `POST /entries` is the synchronous save used by the app session.

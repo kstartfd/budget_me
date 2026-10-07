@@ -99,7 +99,7 @@ func TestCaptureLifecycleScopesAndOwnership(t *testing.T) {
 	e, q, user, session, processor := setup(t)
 	topicID := topic(t, e, session)
 	tokenID, raw := apiToken(t, e, session, "capture")
-	fields := map[string]any{"topicId": topicID, "kind": "word", "text": "  serendipity  "}
+	fields := map[string]any{"topicId": topicID, "kind": "word", "text": "  serendipity  ", "translation": "счастливая случайность", "explanation": "breakdown", "nativeUsage": "a fortunate discovery", "rule": "noun", "source": "Video 01:23"}
 
 	code, body := request(t, e, "POST", "/api/v1/learning/captures", raw, fields, "capture-1")
 	if code != 202 || data(t, body)["status"] != "pending" {
@@ -151,7 +151,7 @@ func TestCaptureLifecycleScopesAndOwnership(t *testing.T) {
 	code, body = request(t, e, "GET", "/api/v1/learning/entries/"+entryID, session, nil, "")
 
 	entry := data(t, body)
-	if code != 200 || entry["text"] != "serendipity" || entry["status"] != "inbox" || entry["translation"] != "" {
+	if code != 200 || entry["text"] != "serendipity" || entry["status"] != "inbox" || entry["translation"] != "счастливая случайность" || entry["explanation"] != "breakdown" || entry["source"] != "Video 01:23" {
 		t.Fatalf("entry: %d %v", code, entry)
 	}
 
