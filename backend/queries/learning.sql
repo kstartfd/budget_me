@@ -19,21 +19,21 @@ DELETE FROM learning_topics WHERE id = $1 AND user_id = $2;
 SELECT * FROM learning_entries WHERE user_id = $1 AND topic_id = $2
 AND (sqlc.arg(kind_filter)::text = '' OR kind::text = sqlc.arg(kind_filter))
 AND (sqlc.arg(status_filter)::text = '' OR status::text = sqlc.arg(status_filter))
-AND (sqlc.arg(search)::text = '' OR strpos(lower(text || ' ' || translation || ' ' || rule), lower(sqlc.arg(search))) > 0)
+AND (sqlc.arg(search)::text = '' OR strpos(lower(text || ' ' || translation || ' ' || explanation || ' ' || rule || ' ' || source), lower(sqlc.arg(search))) > 0)
 ORDER BY created_at DESC, id DESC LIMIT sqlc.arg(page_limit) OFFSET sqlc.arg(page_offset);
 
 -- name: GetLearningEntry :one
 SELECT * FROM learning_entries WHERE id = $1 AND user_id = $2;
 
 -- name: InsertLearningEntry :one
-INSERT INTO learning_entries (id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)
+INSERT INTO learning_entries (id, user_id, topic_id, kind, text, transcription, translation, explanation, native_usage, example, rule, source, status, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
 ON CONFLICT (id) DO UPDATE SET id = learning_entries.id
 RETURNING *;
 
 -- name: UpdateLearningEntry :one
 UPDATE learning_entries SET topic_id = $3, kind = $4, text = $5, transcription = $6,
-translation = $7, native_usage = $8, example = $9, rule = $10, status = $11, updated_at = $12
+translation = $7, explanation = $8, native_usage = $9, example = $10, rule = $11, source = $12, status = $13, updated_at = $14
 WHERE id = $1 AND user_id = $2 RETURNING *;
 
 -- name: DeleteLearningEntry :execrows

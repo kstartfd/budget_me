@@ -19,9 +19,11 @@ type EntryFields struct {
 	Text          string                 `json:"text"`
 	Transcription string                 `json:"transcription"`
 	Translation   string                 `json:"translation"`
+	Explanation   string                 `json:"explanation"`
 	NativeUsage   string                 `json:"nativeUsage"`
 	Example       string                 `json:"example"`
 	Rule          string                 `json:"rule"`
+	Source        string                 `json:"source"`
 	Status        db.LearningEntryStatus `json:"status"`
 }
 
@@ -29,10 +31,12 @@ func (f EntryFields) Normalize() (EntryFields, error) {
 	f.Text = strings.TrimSpace(f.Text)
 	f.Transcription = strings.TrimSpace(f.Transcription)
 	f.Translation = strings.TrimSpace(f.Translation)
+	f.Explanation = strings.TrimSpace(f.Explanation)
 	f.NativeUsage = strings.TrimSpace(f.NativeUsage)
 	f.Example = strings.TrimSpace(f.Example)
 
 	f.Rule = strings.TrimSpace(f.Rule)
+	f.Source = strings.TrimSpace(f.Source)
 	if f.Kind == "" {
 		f.Kind = db.LearningEntryKindPhrase
 	}
@@ -53,10 +57,13 @@ func (f EntryFields) Normalize() (EntryFields, error) {
 		return f, apperr.NewInvalid("invalid entry status")
 	}
 
-	for _, s := range []string{f.Transcription, f.Translation, f.NativeUsage, f.Example, f.Rule} {
+	for _, s := range []string{f.Transcription, f.Translation, f.Explanation, f.NativeUsage, f.Example, f.Rule} {
 		if utf8.RuneCountInString(s) > 4000 {
 			return f, apperr.NewInvalid("entry field exceeds 4000 characters")
 		}
+	}
+	if utf8.RuneCountInString(f.Source) > 1000 {
+		return f, apperr.NewInvalid("source exceeds 1000 characters")
 	}
 
 	return f, nil
@@ -92,10 +99,10 @@ func (h EntryHandler) Handle(ctx context.Context, cmd SaveEntry) (db.LearningEnt
 
 	now := db.Time(h.clock.Now())
 	if cmd.ID == uuid.Nil {
-		return h.q.InsertLearningEntry(ctx, db.InsertLearningEntryParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(f.TopicID), Kind: f.Kind, Text: f.Text, Transcription: f.Transcription, Translation: f.Translation, NativeUsage: f.NativeUsage, Example: f.Example, Rule: f.Rule, Status: f.Status, CreatedAt: now, UpdatedAt: now})
+		return h.q.InsertLearningEntry(ctx, db.InsertLearningEntryParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(f.TopicID), Kind: f.Kind, Text: f.Text, Transcription: f.Transcription, Translation: f.Translation, Explanation: f.Explanation, NativeUsage: f.NativeUsage, Example: f.Example, Rule: f.Rule, Source: f.Source, Status: f.Status, CreatedAt: now, UpdatedAt: now})
 	}
 
-	row, err := h.q.UpdateLearningEntry(ctx, db.UpdateLearningEntryParams{ID: ids.ToPg(cmd.ID), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(f.TopicID), Kind: f.Kind, Text: f.Text, Transcription: f.Transcription, Translation: f.Translation, NativeUsage: f.NativeUsage, Example: f.Example, Rule: f.Rule, Status: f.Status, UpdatedAt: now})
+	row, err := h.q.UpdateLearningEntry(ctx, db.UpdateLearningEntryParams{ID: ids.ToPg(cmd.ID), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(f.TopicID), Kind: f.Kind, Text: f.Text, Transcription: f.Transcription, Translation: f.Translation, Explanation: f.Explanation, NativeUsage: f.NativeUsage, Example: f.Example, Rule: f.Rule, Source: f.Source, Status: f.Status, UpdatedAt: now})
 	if db.IsNotFound(err) {
 		return row, apperr.NewNotFound("entry not found")
 	}

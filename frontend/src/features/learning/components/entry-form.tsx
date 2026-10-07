@@ -37,9 +37,11 @@ export function EntryForm({
       text: "",
       transcription: "",
       translation: "",
+      explanation: "",
       nativeUsage: "",
       example: "",
       rule: "",
+      source: "",
       status: "inbox",
     },
   })
@@ -105,7 +107,7 @@ export function EntryForm({
             {...register("transcription")}
           />
         </label>
-        {(["translation", "nativeUsage", "example", "rule"] as const).map(
+        {(["translation", "explanation", "nativeUsage", "example", "rule"] as const).map(
           (name) => (
             <label key={name} className="block space-y-2 text-sm font-medium">
               <span>{t(name)}</span>
@@ -118,6 +120,15 @@ export function EntryForm({
             </label>
           ),
         )}
+        <label className="block space-y-2 text-sm font-medium">
+          <span>{t("source")}</span>
+          <Input
+            className="bg-secondary border-border focus-visible:border-primary h-auto rounded-xl px-3.5 py-3 text-sm focus-visible:ring-0"
+            maxLength={1000}
+            placeholder={t("sourcePlaceholder")}
+            {...register("source")}
+          />
+        </label>
         <Controller
           control={control}
           name="status"

@@ -328,6 +328,11 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
                         <span className="text-faint mt-2 block text-[10px]">
                           {t(entry.kind)} · {t(entry.status)}
                         </span>
+                        {entry.source && (
+                          <span className="text-faint mt-1 block truncate text-[10px]">
+                            {entry.source}
+                          </span>
+                        )}
                       </div>
                       <IconChevronRight
                         className="text-faint mt-1 shrink-0"

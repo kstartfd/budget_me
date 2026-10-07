@@ -82,10 +82,10 @@ func topic(t *testing.T, e *echo.Echo, raw string) string {
 
 	return data(t, body)["id"].(string)
 }
-func apiToken(t *testing.T, e *echo.Echo, raw, scope string) (string, string) {
+func apiToken(t *testing.T, e *echo.Echo, raw, scope, topicID string) (string, string) {
 	t.Helper()
 
-	code, body := request(t, e, "POST", "/api/v1/learning/tokens", raw, map[string]any{"name": "Chrome", "scope": scope}, "")
+	code, body := request(t, e, "POST", "/api/v1/learning/tokens", raw, map[string]any{"name": "Chrome", "scope": scope, "topicId": topicID}, "")
 	if code != 201 {
 		t.Fatalf("token: %d %v", code, body)
 	}
@@ -98,8 +98,8 @@ func apiToken(t *testing.T, e *echo.Echo, raw, scope string) (string, string) {
 func TestCaptureLifecycleScopesAndOwnership(t *testing.T) {
 	e, q, user, session, processor := setup(t)
 	topicID := topic(t, e, session)
-	tokenID, raw := apiToken(t, e, session, "capture")
-	fields := map[string]any{"topicId": topicID, "kind": "word", "text": "  serendipity  "}
+	tokenID, raw := apiToken(t, e, session, "capture", topicID)
+	fields := map[string]any{"topicId": topicID, "kind": "word", "text": "  serendipity  ", "source": "  Футурама · сезон 2 · Фрай  ", "explanation": "  Неожиданная удачная находка.  "}
 
 	code, body := request(t, e, "POST", "/api/v1/learning/captures", raw, fields, "capture-1")
 	if code != 202 || data(t, body)["status"] != "pending" {
@@ -112,6 +112,13 @@ func TestCaptureLifecycleScopesAndOwnership(t *testing.T) {
 	if code != 202 || data(t, again)["id"] != jobID {
 		t.Fatalf("not idempotent: %d %v", code, again)
 	}
+
+	fields["source"] = "Другой сериал"
+	code, _ = request(t, e, "POST", "/api/v1/learning/captures", raw, fields, "capture-1")
+	if code != 409 {
+		t.Fatalf("source must participate in idempotency: %d", code)
+	}
+	fields["source"] = "  Футурама · сезон 2 · Фрай  "
 
 	fields["text"] = "another word"
 
@@ -151,11 +158,16 @@ func TestCaptureLifecycleScopesAndOwnership(t *testing.T) {
 	code, body = request(t, e, "GET", "/api/v1/learning/entries/"+entryID, session, nil, "")
 
 	entry := data(t, body)
-	if code != 200 || entry["text"] != "serendipity" || entry["status"] != "inbox" || entry["translation"] != "" {
+	if code != 200 || entry["text"] != "serendipity" || entry["status"] != "inbox" || entry["translation"] != "" || entry["source"] != "Футурама · сезон 2 · Фрай" || entry["explanation"] != "Неожиданная удачная находка." {
 		t.Fatalf("entry: %d %v", code, entry)
 	}
 
-	_, rw := apiToken(t, e, session, "read_write")
+	code, body = request(t, e, "GET", "/api/v1/learning/entries?topicId="+topicID+"&search=Фрай", session, nil, "")
+	if code != 200 || len(body["data"].([]any)) != 1 {
+		t.Fatalf("search by source: %d %v", code, body)
+	}
+
+	_, rw := apiToken(t, e, session, "read_write", topicID)
 	entry["translation"] = "счастливая случайность"
 	entry["nativeUsage"] = "a happy accident"
 	entry["example"] = "Finding this place was pure serendipity."
@@ -163,7 +175,7 @@ func TestCaptureLifecycleScopesAndOwnership(t *testing.T) {
 	entry["status"] = "learning"
 
 	code, body = request(t, e, "PUT", "/api/v1/learning/entries/"+entryID, rw, entry, "")
-	if code != 200 || data(t, body)["status"] != "learning" {
+	if code != 200 || data(t, body)["status"] != "learning" || data(t, body)["source"] != "Футурама · сезон 2 · Фрай" || data(t, body)["explanation"] != "Неожиданная удачная находка." {
 		t.Fatalf("edit: %d %v", code, body)
 	}
 
@@ -225,7 +237,7 @@ func TestCaptureLifecycleScopesAndOwnership(t *testing.T) {
 func TestCaptureBurstAndConcurrentWorkers(t *testing.T) {
 	e, q, user, session, processor := setup(t)
 	topicID := topic(t, e, session)
-	_, raw := apiToken(t, e, session, "capture")
+	_, raw := apiToken(t, e, session, "capture", topicID)
 
 	var wg sync.WaitGroup
 	for i := range 40 {
@@ -353,7 +365,7 @@ func TestInvalidCaptureDoesNotEnterQueue(t *testing.T) {
 func TestCaptureReplayAfterTopicDeletion(t *testing.T) {
 	e, _, _, session, processor := setup(t)
 	topicID := topic(t, e, session)
-	_, raw := apiToken(t, e, session, "capture")
+	_, raw := apiToken(t, e, session, "capture", topicID)
 	fields := map[string]any{"topicId": topicID, "text": "  hello  "}
 
 	code, body := request(t, e, "POST", "/api/v1/learning/captures", raw, fields, "replay-deleted")
@@ -371,8 +383,9 @@ func TestCaptureReplayAfterTopicDeletion(t *testing.T) {
 		t.Fatalf("delete topic: %d", code)
 	}
 
-	// A new token for the same account can retry the normalized payload.
-	_, replacement := apiToken(t, e, session, "capture")
+	// Deleting the topic revokes its scoped token; the account session can still
+	// replay the original receipt without creating a new entry.
+	replacement := session
 	fields["text"] = "hello"
 
 	code, body = request(t, e, "POST", "/api/v1/learning/captures", replacement, fields, "replay-deleted")

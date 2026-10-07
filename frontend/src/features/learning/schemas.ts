@@ -15,9 +15,11 @@ export const entryInputSchema = z.object({
   text: z.string().trim().min(1).max(1000),
   transcription: z.string().trim().max(4000),
   translation: z.string().trim().max(4000),
+  explanation: z.string().trim().max(4000),
   nativeUsage: z.string().trim().max(4000),
   example: z.string().trim().max(4000),
   rule: z.string().trim().max(4000),
+  source: z.string().trim().max(1000),
   status: z.enum(["inbox", "learning", "known"]),
 })
 export const entrySchema = entryInputSchema.extend({

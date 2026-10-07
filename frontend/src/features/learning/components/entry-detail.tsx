@@ -47,6 +47,11 @@ export function EntryDetail({
             {entry.translation}
           </p>
         )}
+        {entry.source && (
+          <p className="text-muted-foreground mt-3 text-sm break-words">
+            {t("source")}: {entry.source}
+          </p>
+        )}
       </div>
       <div
         className="flex flex-wrap gap-2"
@@ -72,7 +77,7 @@ export function EntryDetail({
           {t("saveError")}
         </p>
       )}
-      {(["nativeUsage", "example", "rule"] as const).map(
+      {(["explanation", "nativeUsage", "example", "rule"] as const).map(
         (field) =>
           entry[field] && (
             <section key={field} className="border-border border-t pt-4">
@@ -86,6 +91,7 @@ export function EntryDetail({
           ),
       )}
       {!entry.translation &&
+        !entry.explanation &&
         !entry.nativeUsage &&
         !entry.example &&
         !entry.rule && (

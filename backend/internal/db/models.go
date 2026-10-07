@@ -500,6 +500,8 @@ type LearningEntry struct {
 	Status        LearningEntryStatus
 	CreatedAt     pgtype.Timestamptz
 	UpdatedAt     pgtype.Timestamptz
+	Source        string
+	Explanation   string
 }
 
 type LearningToken struct {

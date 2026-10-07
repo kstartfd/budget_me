@@ -32,7 +32,7 @@ type entryResponse struct {
 }
 
 func entryDTO(row db.LearningEntry) entryResponse {
-	return entryResponse{ID: ids.FromPg(row.ID).String(), EntryFields: commands.EntryFields{TopicID: ids.FromPg(row.TopicID), Kind: row.Kind, Text: row.Text, Transcription: row.Transcription, Translation: row.Translation, NativeUsage: row.NativeUsage, Example: row.Example, Rule: row.Rule, Status: row.Status}, CreatedAt: row.CreatedAt.Time.UTC().Format(time.RFC3339), UpdatedAt: row.UpdatedAt.Time.UTC().Format(time.RFC3339)}
+	return entryResponse{ID: ids.FromPg(row.ID).String(), EntryFields: commands.EntryFields{TopicID: ids.FromPg(row.TopicID), Kind: row.Kind, Text: row.Text, Transcription: row.Transcription, Translation: row.Translation, Explanation: row.Explanation, NativeUsage: row.NativeUsage, Example: row.Example, Rule: row.Rule, Source: row.Source, Status: row.Status}, CreatedAt: row.CreatedAt.Time.UTC().Format(time.RFC3339), UpdatedAt: row.UpdatedAt.Time.UTC().Format(time.RFC3339)}
 }
 
 type captureResponse struct {
