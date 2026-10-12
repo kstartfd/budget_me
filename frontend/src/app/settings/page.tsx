@@ -1,6 +1,6 @@
 "use client"
 
-import { Suspense, useState } from "react"
+import { useState } from "react"
 import Link from "next/link"
 import { useQueryClient } from "@tanstack/react-query"
 import { useFormatter, useLocale, useTranslations } from "next-intl"
@@ -14,9 +14,6 @@ import {
 import { Button } from "@/components/ui/button"
 import { AccountSection, DeleteAccountSection } from "@/features/account"
 import { useAuth } from "@/features/auth"
-import { IconKey } from "@tabler/icons-react"
-import { DayEmailSection } from "@/features/day-email/day-email-section"
-import { TokenScreen } from "@/features/learning/components/token-screen"
 import { budgetKeys } from "@/features/budget"
 import { useBudgetUI } from "@/features/budget/components/ui-context"
 import { CurrencySelect } from "@/features/settings/components/currency-select"
@@ -53,7 +50,6 @@ export default function SettingsPage() {
   // also the only thing that can raise it — the screen never guesses that a
   // reset is due, it waits to be told.
   const [confirmingReset, setConfirmingReset] = useState(false)
-  const [showLearningTokens, setShowLearningTokens] = useState(false)
 
   if (settings.isPending) return <SettingsSkeleton />
   if (settings.isError) {
@@ -348,35 +344,8 @@ export default function SettingsPage() {
         </Link>
       </section>
 
-      <section className="space-y-3">
-        <button
-          type="button"
-          aria-expanded={showLearningTokens}
-          onClick={() => setShowLearningTokens((shown) => !shown)}
-          className="bg-card border-border flex w-full items-center gap-3 rounded-[18px] border p-[14px] text-left shadow-[var(--shadow-card)]"
-        >
-          <span className="bg-[color:var(--primary-wash)] text-primary flex size-[38px] shrink-0 items-center justify-center rounded-xl">
-            <IconKey size={20} />
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold">{t("learningTokens")}</div>
-            <p className="text-faint mt-1 text-xs">{t("learningTokensHint")}</p>
-          </div>
-          <span
-            className={`text-faint transition-transform ${showLearningTokens ? "rotate-90" : ""}`}
-          >
-            <ChevronRightIcon />
-          </span>
-        </button>
-        {showLearningTokens && <TokenScreen embedded />}
-      </section>
-
       {/* Account — link Telegram ↔ email so one account has both login paths */}
       <AccountSection />
-
-      <Suspense fallback={null}>
-        <DayEmailSection />
-      </Suspense>
 
       {/* Danger zone — deferred account deletion (30-day grace, cancellable) */}
       <DeleteAccountSection />

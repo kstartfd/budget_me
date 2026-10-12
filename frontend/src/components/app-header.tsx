@@ -14,7 +14,7 @@ import { currentMonthKey, dateTitle, monthTitle } from "@/lib/month"
  * Hidden on desktop, where the left sidebar (DesktopNav) takes over.
  *
  * The subtitle follows the space: «Деньги» budget by the month, so it shows the
- * month; «Жизнь» is lived a day at a time, so it shows today's date.
+ * month; «Жизнь» shows today's date.
  */
 export function AppHeader() {
   const t = useTranslations("app")

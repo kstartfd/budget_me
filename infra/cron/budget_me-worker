@@ -14,8 +14,6 @@
 # person who logged spending in the morning gets a fresh take by the afternoon,
 # not only after the night pass. Both jobs are idempotent, so a second run costs
 # nothing when nothing changed (unchanged facts hash the same and skip the model).
-# Day email is a separate short sweep every 15 minutes so each user's local
-# morning/evening window is covered without rerunning the paid advice job.
 # -T + </dev/null keeps `compose run` from grabbing stdin (the same trap that once
 # ate the deploy script). Output goes to ~/budget_me/worker.log — the box has no
 # MTA to mail it to.
@@ -23,6 +21,3 @@
 # budget_me: зачистка аккаунтов + обновление AI-советов, дважды в сутки (cmd/worker)
 17 3 * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env -f prod.yml --profile tools run --rm -T worker </dev/null >> ~/budget_me/worker.log 2>&1
 17 15 * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env -f prod.yml --profile tools run --rm -T worker </dev/null >> ~/budget_me/worker.log 2>&1
-
-# Local-time Day email digests (09:00 and optionally 18:00 per user's zone).
-*/15 * * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env -f prod.yml --profile tools run --rm -T worker day-email </dev/null >> ~/budget_me/day-email.log 2>&1

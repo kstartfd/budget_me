@@ -10,7 +10,7 @@
 #   healthcheck every 5 min — disk/memory/load/containers/healthz/backup age
 #
 # The account/advice worker job (03:17 and 15:17) predates this script and is
-# left exactly as it is. Day email uses its own short sweep every 15 minutes.
+# left exactly as it is.
 set -euo pipefail
 
 # A fresh box has no crontab yet: `crontab -l` then exits 1 with "no crontab for
@@ -18,6 +18,8 @@ set -euo pipefail
 # `set -e` would abort the subshell before the new lines are appended (that bug
 # failed the first deploy to every rebuilt box).
 current="$(crontab -l 2>/dev/null || true)"
+# Remove the obsolete Day digest from hosts deployed before the split.
+current="$(printf '%s\n' "$current" | sed '/worker day-email/d')"
 
 ensure() {
   local match="$1" comment="$2" line="$3"
@@ -40,10 +42,6 @@ ensure 'scripts/backup.sh' \
 ensure 'scripts/healthcheck.sh' \
   '# budget_me: health-чек (диск/память/нагрузка/контейнеры/healthz/свежесть бэкапа)' \
   '*/5 * * * * cd ~/budget_me && ./scripts/healthcheck.sh >> ~/budget_me/healthcheck.log 2>&1'
-
-ensure 'worker day-email' \
-  '# budget_me: локальные утренние и вечерние письма о задачах' \
-  '*/15 * * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env -f prod.yml --profile tools run --rm -T worker day-email </dev/null >> ~/budget_me/day-email.log 2>&1'
 
 # One write, at the end — a partial crontab is never installed.
 printf '%s\n' "$current" | crontab -

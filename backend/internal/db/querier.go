@@ -11,48 +11,32 @@ import (
 )
 
 type Querier interface {
-	AuthenticateLearningToken(ctx context.Context, arg AuthenticateLearningTokenParams) (LearningToken, error)
 	CancelUserDeletion(ctx context.Context, arg CancelUserDeletionParams) (User, error)
 	CategoryDirection(ctx context.Context, id pgtype.UUID) (TxDirection, error)
 	CategoryNameExists(ctx context.Context, arg CategoryNameExistsParams) (bool, error)
 	CategoryNameTakenByOther(ctx context.Context, arg CategoryNameTakenByOtherParams) (bool, error)
 	CategoryVisibleToUser(ctx context.Context, arg CategoryVisibleToUserParams) (bool, error)
-	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
-	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
-	ConfirmDayEmailSubscription(ctx context.Context, arg ConfirmDayEmailSubscriptionParams) (DayEmailSubscription, error)
 	ConfirmPlan(ctx context.Context, arg ConfirmPlanParams) (Plan, error)
 	// Erases this month's row and anything later — used only when no earlier run
 	// exists, where a tombstone would preserve nothing.
 	DeleteBudgetsFrom(ctx context.Context, arg DeleteBudgetsFromParams) error
 	DeleteCategory(ctx context.Context, arg DeleteCategoryParams) (int64, error)
-	DeleteDayEmailSubscription(ctx context.Context, userID pgtype.UUID) error
 	// RETURNING so the caller can also clean up a photo file on disk — see
 	// items/commands.DeleteHandler.
 	DeleteItem(ctx context.Context, arg DeleteItemParams) (Item, error)
-	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
-	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
 	DeleteList(ctx context.Context, arg DeleteListParams) (int64, error)
 	DeletePlan(ctx context.Context, arg DeletePlanParams) error
-	DeleteTask(ctx context.Context, arg DeleteTaskParams) (int64, error)
 	DeleteTransaction(ctx context.Context, arg DeleteTransactionParams) (int64, error)
 	// The worker's sweep: everything requested before the cutoff goes for good.
 	// Returns the ids it removed so the run can be logged. All owned rows follow
 	// via ON DELETE CASCADE.
 	DeleteUsersPastDeadline(ctx context.Context, cutoff pgtype.Timestamptz) ([]DeleteUsersPastDeadlineRow, error)
-	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	GetAdvice(ctx context.Context, arg GetAdviceParams) (AiAdvice, error)
 	GetCategoryByID(ctx context.Context, id pgtype.UUID) (Category, error)
-	GetDayEmailDelivery(ctx context.Context, arg GetDayEmailDeliveryParams) (DayEmailDelivery, error)
-	GetDayEmailSubscription(ctx context.Context, userID pgtype.UUID) (DayEmailSubscription, error)
 	// Just the cutoff. The dashboard asks on every load and needs nothing else off
 	// the user row, so this stays narrower than GetUserByID.
 	GetHistoryResetAt(ctx context.Context, id pgtype.UUID) (pgtype.Timestamptz, error)
 	GetItemForUser(ctx context.Context, arg GetItemForUserParams) (Item, error)
-	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
-	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
-	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
-	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)
-	GetTaskByID(ctx context.Context, arg GetTaskByIDParams) (Task, error)
 	GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
@@ -61,17 +45,11 @@ type Querier interface {
 	// go (see DeleteBudgetsFrom).
 	HasBudgetBefore(ctx context.Context, arg HasBudgetBeforeParams) (bool, error)
 	InsertCategory(ctx context.Context, arg InsertCategoryParams) (Category, error)
-	InsertDayEmailDelivery(ctx context.Context, arg InsertDayEmailDeliveryParams) (int64, error)
 	InsertItem(ctx context.Context, arg InsertItemParams) (Item, error)
-	InsertLearningEntry(ctx context.Context, arg InsertLearningEntryParams) (LearningEntry, error)
-	InsertLearningToken(ctx context.Context, arg InsertLearningTokenParams) (LearningToken, error)
-	InsertLearningTopic(ctx context.Context, arg InsertLearningTopicParams) (LearningTopic, error)
 	InsertList(ctx context.Context, arg InsertListParams) (ItemList, error)
 	InsertPlan(ctx context.Context, arg InsertPlanParams) (Plan, error)
-	InsertTask(ctx context.Context, arg InsertTaskParams) (Task, error)
 	InsertTransaction(ctx context.Context, arg InsertTransactionParams) (Transaction, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
-	ListActiveDayEmailSubscriptions(ctx context.Context) ([]ListActiveDayEmailSubscriptionsRow, error)
 	// The limit in force for `month`, one row per category: the newest run that has
 	// already started (valid_from <= month). DISTINCT ON keeps the first row of each
 	// category group, and the ORDER BY makes that the latest start — so a limit set
@@ -83,36 +61,24 @@ type Querier interface {
 	ListBudgetsEffectiveIn(ctx context.Context, arg ListBudgetsEffectiveInParams) ([]Budget, error)
 	ListCategoriesForUser(ctx context.Context, userID pgtype.UUID) ([]Category, error)
 	ListItemsForList(ctx context.Context, arg ListItemsForListParams) ([]Item, error)
-	ListLearningEntries(ctx context.Context, arg ListLearningEntriesParams) ([]LearningEntry, error)
-	ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error)
-	ListLearningTopics(ctx context.Context, userID pgtype.UUID) ([]LearningTopic, error)
 	ListListsForUser(ctx context.Context, userID pgtype.UUID) ([]ItemList, error)
-	ListOpenTasksForDigest(ctx context.Context, arg ListOpenTasksForDigestParams) ([]ListOpenTasksForDigestRow, error)
 	ListPlanSuggestionsForMonth(ctx context.Context, arg ListPlanSuggestionsForMonthParams) ([]ListPlanSuggestionsForMonthRow, error)
 	ListPlansForMonth(ctx context.Context, arg ListPlansForMonthParams) ([]Plan, error)
 	ListRecentTransactions(ctx context.Context, arg ListRecentTransactionsParams) ([]Transaction, error)
-	// Everything that belongs on `day`: still-open work planned on or before it
-	// (regardless of how old), plus whatever was ticked done ON that exact day.
-	ListTasksForDay(ctx context.Context, arg ListTasksForDayParams) ([]Task, error)
 	ListTransactionsInRange(ctx context.Context, arg ListTransactionsInRangeParams) ([]Transaction, error)
 	// Everyone the nightly advice pass should look at; their zone decides which
 	// instants make up "their" month.
 	ListUsersForAdvice(ctx context.Context) ([]ListUsersForAdviceRow, error)
 	ListVisibleToUser(ctx context.Context, arg ListVisibleToUserParams) (bool, error)
-	LockLearningCaptureLease(ctx context.Context, arg LockLearningCaptureLeaseParams) (LearningCapture, error)
-	MarkDayEmailDeliverySent(ctx context.Context, arg MarkDayEmailDeliverySentParams) error
 	// The zone the client last reported. Only background work reads it (cmd/worker);
 	// requests carry their own zone with them.
 	RememberTimezone(ctx context.Context, arg RememberTimezoneParams) error
 	// Idempotent on purpose: asking twice keeps the ORIGINAL deadline (COALESCE),
 	// so a second tap cannot silently push the deletion further out.
 	RequestUserDeletion(ctx context.Context, arg RequestUserDeletionParams) (User, error)
-	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
-	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
 	// Re-stating the balance moves the anchor to `now`: transactions before it stop
 	// counting, which is exactly what "my balance is actually X" should mean.
 	SetBalanceAnchor(ctx context.Context, arg SetBalanceAnchorParams) (User, error)
-	SetTaskDone(ctx context.Context, arg SetTaskDoneParams) (Task, error)
 	SetUserWebIdentity(ctx context.Context, arg SetUserWebIdentityParams) (User, error)
 	SumIncomeInRange(ctx context.Context, arg SumIncomeInRangeParams) (int64, error)
 	// Net movement since the balance anchor: income adds, expense subtracts. Feeds
@@ -142,11 +108,8 @@ type Querier interface {
 	// текущим фильтром считается на бэке, а не складывается на клиенте из выданного списка.
 	SumTotalsInRange(ctx context.Context, arg SumTotalsInRangeParams) (SumTotalsInRangeRow, error)
 	UpdateCategory(ctx context.Context, arg UpdateCategoryParams) (Category, error)
-	UpdateConfirmedDayEmailFrequency(ctx context.Context, arg UpdateConfirmedDayEmailFrequencyParams) (DayEmailSubscription, error)
 	UpdateItem(ctx context.Context, arg UpdateItemParams) (Item, error)
 	UpdateItemPhoto(ctx context.Context, arg UpdateItemPhotoParams) (Item, error)
-	UpdateLearningEntry(ctx context.Context, arg UpdateLearningEntryParams) (LearningEntry, error)
-	UpdateLearningTopic(ctx context.Context, arg UpdateLearningTopicParams) (LearningTopic, error)
 	// Same guard as DeleteList: WHERE user_id = @user_id can never match a preset
 	// row (user_id IS NULL there), so a preset can't be renamed this way either.
 	UpdateList(ctx context.Context, arg UpdateListParams) (ItemList, error)
@@ -154,7 +117,6 @@ type Querier interface {
 	// Full replace of the editable fields (title/note/planned_for) — this is also
 	// what an explicit "отложить на завтра" is: a plain planned_for change, distinct
 	// from the carry-over above, which never touches a row.
-	UpdateTask(ctx context.Context, arg UpdateTaskParams) (Task, error)
 	// ownership в самом WHERE
 	UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error)
 	UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) (UpdateUserSettingsRow, error)
@@ -176,7 +138,6 @@ type Querier interface {
 	// corrects that run rather than opening another (the UNIQUE key backs it), so
 	// editing today's limit twice does not leave a stray row behind.
 	UpsertBudget(ctx context.Context, arg UpsertBudgetParams) (Budget, error)
-	UpsertPendingDayEmailSubscription(ctx context.Context, arg UpsertPendingDayEmailSubscriptionParams) (DayEmailSubscription, error)
 }
 
 var _ Querier = (*Queries)(nil)

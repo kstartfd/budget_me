@@ -25,7 +25,7 @@ func NewDeleteHandler(q *db.Queries, store photostore.Store) DeleteHandler {
 }
 
 // Handle is idempotent — deleting an absent item is a no-op, matching
-// categories/lists/tasks. DeleteItem returns the deleted row so a photo file
+// categories/lists. DeleteItem returns the deleted row so a photo file
 // left on disk gets cleaned up along with it.
 func (h DeleteHandler) Handle(ctx context.Context, cmd DeleteItem) error {
 	item, err := h.q.DeleteItem(ctx, db.DeleteItemParams{

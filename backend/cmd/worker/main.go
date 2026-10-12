@@ -18,8 +18,6 @@
 //	                 a user who has no advice at all yet (a new account should not
 //	                 wait until tomorrow).
 //
-//	day-email      — send due Day task digests. Invoked separately every 15
-//	                 minutes; the other two jobs remain on their daily schedule.
 package main
 
 import (
@@ -38,13 +36,10 @@ import (
 	"budget_me/backend/internal/ai"
 	"budget_me/backend/internal/clock"
 	"budget_me/backend/internal/config"
-	"budget_me/backend/internal/dayemail"
 	"budget_me/backend/internal/db"
 	"budget_me/backend/internal/ids"
 	"budget_me/backend/internal/insights/commands"
 	"budget_me/backend/internal/insights/queries"
-	learningcommands "budget_me/backend/internal/learning/commands"
-	"budget_me/backend/internal/resend"
 )
 
 // betweenCalls paces the advice pass. The provider rate-limits (429 came back
@@ -73,27 +68,6 @@ func main() {
 	queries := db.New(pool)
 
 	clk := clock.New()
-	if len(os.Args) > 1 && os.Args[1] == "learning-captures" {
-		learningcommands.NewProcessHandler(pool, clk).Run(ctx)
-		return
-	}
-
-	if len(os.Args) > 1 && os.Args[1] == "day-email" {
-		result, err := dayemail.Sweep(ctx, queries, clk.Now(),
-			resend.New(cfg.ResendAPIKey, cfg.ResendFromEmail), cfg.TelegramMiniAppURL)
-		if err != nil {
-			fail("day-email: " + err.Error())
-		}
-
-		fmt.Printf("day-email: sent=%d failed=%d\n", result.Sent, result.Failed)
-
-		if result.Failed > 0 {
-			os.Exit(1)
-		}
-
-		return
-	}
-
 	purgeAccounts(ctx, queries, clk, cfg.AccountDeletionGrace)
 	writeAdvice(ctx, queries, clk, ai.New(cfg.AIAPIKey, cfg.AIModel, cfg.AIBaseURL))
 }

@@ -77,8 +77,6 @@ services:
       # and each is already resized/recompressed down to a small JPEG on
       # upload. Named volume so they survive an image redeploy.
       UPLOADS_DIR: /data/uploads
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
     volumes:
       - uploads_data:/data/uploads
     depends_on:
@@ -132,7 +130,7 @@ services:
         condition: service_healthy
 
   # Deferred-job runner: one sweep, then exit. The deploy user's crontab calls
-  # it daily for account/advice jobs and every 15 minutes for Day emails
+  # it daily for account/advice jobs
   # (see infra/cron/budget_me-worker):
   #   docker compose -f prod.yml --profile tools run --rm worker
   worker:
@@ -155,8 +153,6 @@ services:
       # config.Load, so one chat can serve both until the noise justifies two.
       ALERT_CHAT_ID: ${ALERT_CHAT_ID:-}
       BACKUP_CHAT_ID: ${BACKUP_CHAT_ID:-}
-      RESEND_API_KEY: ${RESEND_API_KEY:-}
-      RESEND_FROM_EMAIL: ${RESEND_FROM_EMAIL:-}
     depends_on:
       postgres:
         condition: service_healthy

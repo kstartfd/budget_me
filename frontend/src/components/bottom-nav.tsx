@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 /**
  * Design bottom nav: four tabs around a raised center ＋. The four come from
  * the active space (see components/spaces.tsx) — «Деньги» keeps the original
- * Обзор / Траты / Графики / AI, «Жизнь» shows День / Списки / English / Ещё.
+ * Обзор / Траты / Графики / AI, «Жизнь» shows Списки / Ещё.
  *
  * The ＋ is contextual. In «Деньги» it is the add-expense sheet it has always
  * been; in «Жизнь» it belongs to the open screen, which claims it through
@@ -29,8 +29,9 @@ export function BottomNav() {
   const space = useSpace()
   const { trigger, enabled } = useAddAction()
 
-  const left = space.tabs.slice(0, 2)
-  const right = space.tabs.slice(2)
+  const midpoint = Math.ceil(space.tabs.length / 2)
+  const left = space.tabs.slice(0, midpoint)
+  const right = space.tabs.slice(midpoint)
 
   const money = space.id === "money"
   const addLabel = tAdd(

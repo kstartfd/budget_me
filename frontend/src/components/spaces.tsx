@@ -5,10 +5,8 @@ import { usePathname, useRouter } from "next/navigation"
 import { useTranslations } from "next-intl"
 
 import {
-  CheckListIcon,
   DotsIcon,
   HomeIcon,
-  LanguageIcon,
   ListIcon,
   PieIcon,
   SparklesIcon,
@@ -18,7 +16,7 @@ import { cn } from "@/lib/utils"
 
 /**
  * The app is split into two SPACES — «Деньги» (the original budget screens)
- * and «Жизнь» (day checklist, lists, English). One Mini App, one session, one
+ * and «Жизнь» (lists). One Mini App, one session, one
  * shell; the bottom bar simply swaps its four tabs, so the money screens keep
  * the navigation they have always had.
  *
@@ -65,11 +63,9 @@ export const SPACES: Space[] = [
   {
     id: "life",
     labelKey: "life",
-    addKey: "task",
+    addKey: "item",
     tabs: [
-      { href: "/day", icon: CheckListIcon, labelKey: "day", addKey: "task" },
       { href: "/lists", icon: StackIcon, labelKey: "lists", addKey: "item" },
-      { href: "/learning", icon: LanguageIcon, labelKey: "learning", addKey: "learning" },
       { href: "/settings", icon: DotsIcon, labelKey: "more", bottomOnly: true },
     ],
   },

@@ -12,10 +12,8 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"budget_me/backend/internal/clock"
 	"budget_me/backend/internal/config"
 	"budget_me/backend/internal/db"
-	learningcommands "budget_me/backend/internal/learning/commands"
 	"budget_me/backend/internal/log"
 	"budget_me/backend/internal/server"
 	"budget_me/backend/internal/tgbot"
@@ -43,12 +41,6 @@ func main() {
 	defer pool.Close()
 
 	e := server.New(cfg, pool)
-	learningWorker := learningcommands.NewProcessHandler(pool, clock.New())
-
-	workerDone := make(chan struct{})
-	go func() { defer close(workerDone); learningWorker.Run(rootCtx) }()
-
-	defer func() { cancel(); <-workerDone }()
 
 	// Greet /start with a "Launch" button (no-op without a bot token).
 	go tgbot.New(cfg.TelegramBotToken, cfg.TelegramMiniAppURL).Run(rootCtx)

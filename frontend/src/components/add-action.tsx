@@ -3,8 +3,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react"
 
 /**
- * The nav's center ＋ belongs to whichever «Жизнь» screen is open: on /day it
- * adds a task, on /lists a thing, on /learning a topic or entry. Screens claim it while
+ * The nav's center ＋ belongs to whichever «Жизнь» screen is open: on /lists it adds an item. Screens claim it while
  * they are mounted instead of the shell importing every feature's sheet.
  *
  * The handler itself lives in a ref, so a screen that passes an unmemoized

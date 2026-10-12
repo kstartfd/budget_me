@@ -125,31 +125,6 @@ sudo ufw enable
 
 Postgres is never published, so nothing else needs opening.
 
-## Day task emails through Resend
-
-1. In Resend, add the app's sending domain and publish the DNS records shown
-   there. Wait until the domain is verified, then create an API key with send
-   permission.
-2. For CI/CD deployments, put `RESEND_API_KEY` and `RESEND_FROM_EMAIL` in
-   GitLab CI/CD variables, or on the server in `~/budget_me/.env.local` (mode
-   `600`). The sender must be on the verified domain, for example
-   `RESEND_FROM_EMAIL=notifications@budgetme.xyz`. CI values take precedence
-   over `.env.local`. For manual deployments, set both in `infra/compose/.env`.
-3. Deploy the new images and run migration `0020` through the normal deploy
-   job. It also installs the 15-minute `worker day-email` cron. Existing
-   deployments need a new deploy after adding the variables so both the API
-   and worker containers receive them.
-
-In Settings, a user links an email, chooses **Off**, **once a day**, or **twice
-a day**, then confirms that inbox through an email link while signed in. Only
-open tasks due today or earlier are sent. The first digest is at 09:00, the
-optional second at 18:00 in the user's saved time zone. Empty digests are
-skipped. Without both Resend variables, the feature is shown as unavailable
-and the worker exits without sending. Delivery attempts are logged in
-`~/budget_me/day-email.log`.
-
----
-
 ## Backups (off-VPS, nightly)
 
 This box holds the only live copy of every user's finances, so the dump does not
