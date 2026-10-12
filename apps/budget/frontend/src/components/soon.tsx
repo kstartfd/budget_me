@@ -4,7 +4,7 @@ import type { ComponentType } from "react"
 import { useTranslations } from "next-intl"
 
 /**
- * Placeholder for a «Жизнь» section whose screens are not built yet. Deliberately
+ * Placeholder for a «Каталог» section whose screens are not built yet. Deliberately
  * plain: it states what the section will hold and nothing else, so it never
  * reads as a broken screen — and it claims no add action, which is what leaves
  * the nav's ＋ disabled here.

@@ -15,8 +15,8 @@ import {
 import { cn } from "@/lib/utils"
 
 /**
- * The app is split into two SPACES — «Деньги» (the original budget screens)
- * and «Жизнь» (lists). One Mini App, one session, one
+ * The app is split into two SPACES — «Бюджет» (the original budget screens)
+ * and «Каталог» (lists). One Mini App, one session, one
  * shell; the bottom bar simply swaps its four tabs, so the money screens keep
  * the navigation they have always had.
  *
@@ -100,7 +100,7 @@ export function SpaceProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const fromPath = spaceOfPath(pathname)
   // Shared routes keep whichever space the user came from, so opening Settings
-  // from «Жизнь» does not flip the bar back to «Деньги». The route wins when it
+  // from «Каталог» does not flip the bar back to «Бюджет». The route wins when it
   // names a space; the remembered value only covers the routes that name none.
   // Adjusted during render (React's "adjust state when props change") rather
   // than in an effect, so the bar never paints one frame with the old space.

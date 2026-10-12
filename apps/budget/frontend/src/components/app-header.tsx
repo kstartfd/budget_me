@@ -13,8 +13,8 @@ import { currentMonthKey, dateTitle, monthTitle } from "@/lib/month"
  * the shared locale/theme/sign-out controls, and the space switcher beneath.
  * Hidden on desktop, where the left sidebar (DesktopNav) takes over.
  *
- * The subtitle follows the space: «Деньги» budget by the month, so it shows the
- * month; «Жизнь» shows today's date.
+ * The subtitle follows the space: «Бюджет» by the month, so it shows the
+ * month; «Каталог» shows today's date.
  */
 export function AppHeader() {
   const t = useTranslations("app")

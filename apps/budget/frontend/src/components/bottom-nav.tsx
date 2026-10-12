@@ -13,11 +13,11 @@ import { cn } from "@/lib/utils"
 
 /**
  * Design bottom nav: four tabs around a raised center ＋. The four come from
- * the active space (see components/spaces.tsx) — «Деньги» keeps the original
- * Обзор / Траты / Графики / AI, «Жизнь» shows Списки / Ещё.
+ * the active space (see components/spaces.tsx) — «Бюджет» keeps the original
+ * Обзор / Траты / Графики / AI, «Каталог» shows Списки / Ещё.
  *
- * The ＋ is contextual. In «Деньги» it is the add-expense sheet it has always
- * been; in «Жизнь» it belongs to the open screen, which claims it through
+ * The ＋ is contextual. In «Бюджет» it is the add-expense sheet it has always
+ * been; in «Каталог» it belongs to the open screen, which claims it through
  * useProvideAddAction — so it stays disabled on screens that are still stubs
  * rather than opening someone else's sheet.
  */

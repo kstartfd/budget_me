@@ -21,7 +21,7 @@ import { BudgetUIProvider } from "@/features/budget/components/ui-context"
  * fixed BottomNav (whose center is the contextual "add" button). Both share the
  * sheets and toast overlays any screen can summon via useBudgetUI().
  *
- * SpaceProvider decides which set of tabs the nav shows («Деньги» / «Жизнь»),
+ * SpaceProvider decides which set of tabs the nav shows («Бюджет» / «Каталог»),
  * AddActionProvider lets the open screen own the center ＋ — see
  * components/spaces.tsx and components/add-action.tsx.
  *
