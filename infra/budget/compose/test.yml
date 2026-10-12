@@ -1,0 +1,47 @@
+name: budget_me-test
+
+# Isolated stack for Playwright E2E. Same services as dev.yml but on different
+# ports + named volumes so `make test.up` can't touch dev data. The whole stack
+# is meant to be reset between full test runs (`make test.reset`).
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: budget_me_test
+      POSTGRES_USER: budget_me
+      POSTGRES_PASSWORD: budget_me
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_test_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U budget_me -d budget_me_test"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ../../../apps/budget
+      dockerfile: ../../infra/budget/docker/backend.dev.Dockerfile
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      ENV: test
+      PORT: "8080"
+      DATABASE_URL: postgres://budget_me:budget_me@postgres:5432/budget_me_test?sslmode=disable
+      AUTH_SECRET: learning-integration-test-secret-long-enough
+      CORS_ORIGINS: http://localhost:3001
+    ports:
+      - "8181:8080"
+    volumes:
+      - ../../../apps/budget/backend:/app
+      - go_mod_test_cache:/go/pkg/mod
+      - go_build_test_cache:/root/.cache/go-build
+
+volumes:
+  postgres_test_data:
+  go_mod_test_cache:
+  go_build_test_cache:

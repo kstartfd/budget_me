@@ -1,0 +1,65 @@
+name: learning_app_dev
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: learning_app
+      POSTGRES_USER: learning_app
+      POSTGRES_PASSWORD: learning_app
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - learning_dev_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U learning_app -d learning_app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    build:
+      context: ../../../apps/learning
+      dockerfile: ../../infra/learning/docker/backend.Dockerfile
+    environment:
+      ENV: dev
+      PORT: "8080"
+      DATABASE_URL: postgres://learning_app:learning_app@postgres:5432/learning_app?sslmode=disable
+      AUTH_SECRET: ${AUTH_SECRET:-learning-dev-secret-change-me}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
+      TELEGRAM_MINIAPP_URL: http://localhost:3001
+      CORS_ORIGINS: http://localhost:3001
+    ports:
+      - "127.0.0.1:8081:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../../../apps/learning/frontend
+      dockerfile: ../../../infra/learning/docker/frontend.Dockerfile
+      args:
+        NEXT_PUBLIC_LEARNING_BOT_URL: ${LEARNING_BOT_URL:-https://t.me/your_learning_bot}
+    environment:
+      BACKEND_URL: http://backend:8080
+    ports:
+      - "127.0.0.1:3001:3000"
+    depends_on:
+      - backend
+
+  migrate:
+    build:
+      context: ../../../apps/learning
+      dockerfile: ../../infra/learning/docker/backend.Dockerfile
+    profiles: ["tools"]
+    entrypoint: ["/migrate"]
+    command: ["up"]
+    environment:
+      DATABASE_URL: postgres://learning_app:learning_app@postgres:5432/learning_app?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  learning_dev_pg_data:

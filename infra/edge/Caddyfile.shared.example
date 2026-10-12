@@ -1,0 +1,27 @@
+# Activate only after both apps run on one VPS and the budget stack joins apps_edge.
+# Keep infra/edge/Caddyfile budget-only until the server migration.
+{$DOMAIN} {
+    encode gzip
+    handle /api/* {
+        reverse_proxy budget-api:8080
+    }
+    handle /healthz {
+        reverse_proxy budget-api:8080
+    }
+    handle {
+        reverse_proxy budget-web:3000
+    }
+}
+
+{$LEARNING_DOMAIN} {
+    encode zstd gzip
+    handle /api/* {
+        reverse_proxy learning-api:8080
+    }
+    handle /healthz {
+        reverse_proxy learning-api:8080
+    }
+    handle {
+        reverse_proxy learning-web:3000
+    }
+}

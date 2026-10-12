@@ -1,0 +1,68 @@
+name: learning_app
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: learning_app
+      POSTGRES_USER: learning_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+    volumes:
+      - learning_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U learning_app -d learning_app"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  backend:
+    image: ${BACKEND_IMAGE:?set BACKEND_IMAGE}
+    restart: unless-stopped
+    environment:
+      ENV: prod
+      PORT: "8080"
+      DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
+      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?set TELEGRAM_BOT_TOKEN}
+      TELEGRAM_MINIAPP_URL: https://${DOMAIN:?set DOMAIN}
+      CORS_ORIGINS: https://${DOMAIN}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      default:
+      edge:
+        aliases: [learning-api]
+
+  frontend:
+    image: ${FRONTEND_IMAGE:?set FRONTEND_IMAGE}
+    restart: unless-stopped
+    environment:
+      BACKEND_URL: http://backend:8080
+    depends_on:
+      - backend
+    networks:
+      default:
+      edge:
+        aliases: [learning-web]
+
+  migrate:
+    image: ${BACKEND_IMAGE:?set BACKEND_IMAGE}
+    profiles: ["tools"]
+    restart: "no"
+    entrypoint: ["/migrate"]
+    command: ["up"]
+    environment:
+      DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  learning_pg_data:
+
+networks:
+  edge:
+    external: true
+    name: apps_edge

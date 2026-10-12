@@ -8,7 +8,7 @@
 # Registry (auto): registry.gitlab.com/kstartfd/budget_me
 #   $CI_REGISTRY_IMAGE/backend:<sha>   $CI_REGISTRY_IMAGE/frontend:<sha>
 #
-# Required CI/CD variables (Settings -> CI/CD -> Variables) — see infra/CI_CD.md:
+# Required CI/CD variables (Settings -> CI/CD -> Variables) — see infra/budget/CI_CD.md:
 #   SSH_PRIVATE_KEY (File, protected)  SSH_HOST  SSH_KNOWN_HOSTS
 #   DEPLOY_TOKEN_USER  DEPLOY_TOKEN_PASSWORD (masked)
 #   DOMAIN  POSTGRES_PASSWORD (masked)  AUTH_SECRET (masked)  TELEGRAM_BOT_TOKEN (masked)
@@ -23,16 +23,22 @@ stages:
 # Runs on main, tags and merge requests.
 .test-rules:
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_COMMIT_TAG'
     - if: '$CI_MERGE_REQUEST_IID'
+      changes: &budget_paths
+        - apps/budget/**/*
+        - infra/budget/**/*
+        - infra/edge/Caddyfile
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *budget_paths
 
 test:backend:
   extends: .test-rules
   stage: test
   image: golang:1.25-alpine
   script:
-    - cd backend
+    - cd apps/budget/backend
     - go vet ./...
     - go test ./...
 
@@ -43,7 +49,7 @@ test:frontend:
   before_script:
     - corepack enable
   script:
-    - cd frontend
+    - cd apps/budget/frontend
     # --ignore-scripts: pnpm 10 fails install in CI on unapproved dependency
     # build scripts (sharp/@swc/core/…); lint+typecheck don't need them built.
     - pnpm install --frozen-lockfile --ignore-scripts
@@ -52,9 +58,9 @@ test:frontend:
   cache:
     key:
       files:
-        - frontend/pnpm-lock.yaml
+        - apps/budget/frontend/pnpm-lock.yaml
     paths:
-      - frontend/node_modules
+      - apps/budget/frontend/node_modules
 
 # ── build ────────────────────────────────────────────────────────────────────
 # Shared Docker-in-Docker config. DOCKER_TLS_CERTDIR="/certs" turns on TLS; the
@@ -73,31 +79,33 @@ test:frontend:
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
   rules:
-    - if: '$CI_COMMIT_BRANCH == "main"'
     - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *budget_paths
 
 build:backend:
   extends: .build
+  needs: [test:backend]
   script:
-    # Context is the repo root; the Dockerfile COPYs backend/… from there.
+    # Context is apps/budget; the Dockerfile COPYs backend/… from there.
     - docker build
-        -f infra/docker/backend.Dockerfile
+        -f infra/budget/docker/backend.Dockerfile
         -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
         -t "$CI_REGISTRY_IMAGE/backend:latest"
-        .
+        apps/budget
     - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
     - docker push "$CI_REGISTRY_IMAGE/backend:latest"
 
 build:frontend:
   extends: .build
+  needs: [test:frontend]
   script:
-    # Context is frontend/ (repo-root .dockerignore excludes it, so a root
-    # context would ship no source).
+    # Context is apps/budget/frontend.
     - docker build
-        -f infra/docker/frontend.Dockerfile
+        -f infra/budget/docker/frontend.Dockerfile
         -t "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
         -t "$CI_REGISTRY_IMAGE/frontend:latest"
-        frontend
+        apps/budget/frontend
     - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
     - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
 
@@ -133,22 +141,22 @@ deploy:
     - printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
   script:
     # 1. Layout on the server: compose at ~/budget_me/prod.yml, Caddyfile at
-    #    ~/budget_me/infra/caddy/Caddyfile (matches the ./infra/caddy mount).
-    - ssh "deploy@$SSH_HOST" "mkdir -p ~/budget_me/infra/caddy ~/budget_me/scripts"
-    - scp infra/compose/prod.yml "deploy@$SSH_HOST:~/budget_me/prod.yml"
-    - scp infra/caddy/Caddyfile "deploy@$SSH_HOST:~/budget_me/infra/caddy/Caddyfile"
-    - scp infra/scripts/backup.sh infra/scripts/healthcheck.sh infra/scripts/merge-env.sh "deploy@$SSH_HOST:~/budget_me/scripts/"
+    #    ~/budget_me/infra/edge/Caddyfile (matches the ./infra/edge mount).
+    - ssh "deploy@$SSH_HOST" "mkdir -p ~/budget_me/infra/edge ~/budget_me/scripts"
+    - scp infra/budget/compose/prod.yml "deploy@$SSH_HOST:~/budget_me/prod.yml"
+    - scp infra/edge/Caddyfile "deploy@$SSH_HOST:~/budget_me/infra/edge/Caddyfile"
+    - scp infra/budget/scripts/backup.sh infra/budget/scripts/healthcheck.sh infra/budget/scripts/merge-env.sh "deploy@$SSH_HOST:~/budget_me/scripts/"
     - ssh "deploy@$SSH_HOST" "chmod +x ~/budget_me/scripts/*.sh"
     # The crons are owned by the repo, not by whoever last SSHed in: the deploy
     # plants a missing line and leaves an existing one alone.
     - |
-      ssh "deploy@$SSH_HOST" 'bash -s' < infra/cron/install-crons.sh
+      ssh "deploy@$SSH_HOST" 'bash -s' < infra/budget/cron/install-crons.sh
     # Backups are only as real as their config: say so here rather than let the
     # cron fail into a log nobody reads.
     - |
       if [ -z "$BACKUP_PASSPHRASE" ] || [ -z "$BACKUP_CHAT_ID" ]; then
         echo "NOTE: BACKUP_* not in CI — expecting them in ~/budget_me/.env.local"
-        echo "NOTE: on the server (see infra/DEPLOY.md). If they are in neither,"
+        echo "NOTE: on the server (see infra/budget/DEPLOY.md). If they are in neither,"
         echo "NOTE: the nightly backup fails and prod keeps its only copy on one disk."
       fi
     # 2. Stage the NEW env as .env.new (NOT the live .env) so a failed rollout
@@ -250,8 +258,81 @@ deploy:
       # Runs only here (health passed, no rollback), so nothing in use is hit —
       # the 4 running services keep their images; the registry stays the source
       # of truth for any future rollback. Never fail the deploy on cleanup.
-      docker image prune -af >/dev/null 2>&1 || true
+      docker image prune -f >/dev/null 2>&1 || true
       echo "deploy healthy on $CI_COMMIT_SHORT_SHA"
       EOF
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *budget_paths
+
+# Learning is prepared in the monorepo, but it is not deployed to the current
+# VPS. Its tests and images can be built independently; there is deliberately
+# no deploy:learning job until the server migration.
+.learning-test-rules:
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes: &learning_paths
+        - apps/learning/**/*
+        - infra/learning/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *learning_paths
+
+.learning-build-rules:
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *learning_paths
+
+test:learning-backend:
+  extends: .learning-test-rules
+  stage: test
+  image: golang:1.25-alpine
+  script:
+    - cd apps/learning/backend
+    - go vet ./...
+    - go test ./...
+
+test:learning-frontend:
+  extends: .learning-test-rules
+  stage: test
+  image: node:22-alpine
+  before_script:
+    - corepack enable
+  script:
+    - cd apps/learning/frontend
+    - pnpm install --frozen-lockfile --ignore-scripts
+    - pnpm lint
+    - pnpm typecheck
+  cache:
+    key:
+      files:
+        - apps/learning/frontend/pnpm-lock.yaml
+    paths:
+      - apps/learning/frontend/node_modules
+
+build:learning-backend:
+  extends:
+    - .build
+    - .learning-build-rules
+  needs: [test:learning-backend]
+  script:
+    - docker build
+        -f infra/learning/docker/backend.Dockerfile
+        -t "$CI_REGISTRY_IMAGE/learning-backend:$CI_COMMIT_SHORT_SHA"
+        apps/learning
+    - docker push "$CI_REGISTRY_IMAGE/learning-backend:$CI_COMMIT_SHORT_SHA"
+
+build:learning-frontend:
+  extends:
+    - .build
+    - .learning-build-rules
+  needs: [test:learning-frontend]
+  script:
+    - docker build
+        -f infra/learning/docker/frontend.Dockerfile
+        --build-arg "NEXT_PUBLIC_LEARNING_BOT_URL=${LEARNING_BOT_URL:-https://t.me/your_learning_bot}"
+        -t "$CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA"
+        apps/learning/frontend
+    - docker push "$CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA"

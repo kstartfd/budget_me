@@ -1,0 +1,164 @@
+name: budget_me
+
+# Production stack for a single small VPS.
+# Only Caddy is exposed to the internet (80/443); Postgres has no published
+# port and is reachable only over the internal compose network.
+#
+# Images are NOT built here — backend/frontend/migrate pull pre-built images
+# from the GitLab Container Registry (BACKEND_IMAGE / FRONTEND_IMAGE come from
+# the .env). CI builds and pushes them; the VPS (1 GB RAM) never builds.
+# See infra/budget/CI_CD.md for the pipeline and infra/budget/DEPLOY.md for the manual path.
+#
+#   # deployed by CI from ~/budget_me on the server:
+#   docker compose --env-file .env -f prod.yml pull
+#   docker compose --env-file .env -f prod.yml up -d
+#   docker compose --env-file .env -f prod.yml --profile tools run --rm migrate
+#
+# The Caddyfile bind-mount below (./infra/edge/Caddyfile) resolves against the
+# compose file's own directory. On the server the file sits at
+# ~/budget_me/prod.yml with the Caddyfile at ~/budget_me/infra/edge/Caddyfile,
+# so it just works. Run from the repo (Makefile fallback) it is invoked with
+# `--project-directory .` (repo root) so the same path resolves there too.
+#
+# Environment comes from an .env file (BACKEND_IMAGE, FRONTEND_IMAGE, DOMAIN,
+# POSTGRES_PASSWORD, AUTH_SECRET, TELEGRAM_BOT_TOKEN) — see .env.prod.example.
+
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./infra/edge/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - frontend
+      - backend
+
+  frontend:
+    image: ${FRONTEND_IMAGE}
+    restart: unless-stopped
+    expose:
+      - "3000"
+    depends_on:
+      - backend
+
+  backend:
+    image: ${BACKEND_IMAGE}
+    restart: unless-stopped
+    expose:
+      - "8080"
+    environment:
+      ENV: prod
+      PORT: "8080"
+      DATABASE_URL: postgres://budget_me:${POSTGRES_PASSWORD}@postgres:5432/budget_me?sslmode=disable
+      AUTH_SECRET: ${AUTH_SECRET}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_MINIAPP_URL: https://${DOMAIN}
+      CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
+      # Same value the worker sweeps by — the API only reports the deadline.
+      ACCOUNT_DELETION_GRACE: ${ACCOUNT_DELETION_GRACE:-720h}
+      # Advice writer. An empty key just disables the prose — the AI screen still
+      # shows its (computed) facts, so this is optional.
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-glm-4.5-flash}
+      AI_BASE_URL: ${AI_BASE_URL:-https://api.z.ai/api/paas/v4}
+      # Where 5xx alerts go (internal/alert). Empty → alerting off, which is what
+      # a box with no chat configured must do. Falls back to the backup chat in
+      # config.Load, so one chat can serve both until the noise justifies two.
+      ALERT_CHAT_ID: ${ALERT_CHAT_ID:-}
+      BACKUP_CHAT_ID: ${BACKUP_CHAT_ID:-}
+      # Item photos (internal/photostore) — local disk, not S3; won't be many,
+      # and each is already resized/recompressed down to a small JPEG on
+      # upload. Named volume so they survive an image redeploy.
+      UPLOADS_DIR: /data/uploads
+    volumes:
+      - uploads_data:/data/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: budget_me
+      POSTGRES_USER: budget_me
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U budget_me -d budget_me"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # One-off migration runner. Reuses the backend image but overrides the entry
+  # point to /migrate. Enabled only via the "tools" profile so it never starts
+  # with `up`:
+  #   docker compose -f prod.yml --profile tools run --rm migrate
+  migrate:
+    image: ${BACKEND_IMAGE}
+    profiles: ["tools"]
+    restart: "no"
+    entrypoint: ["/migrate"]
+    command: ["up"]
+    environment:
+      DATABASE_URL: postgres://budget_me:${POSTGRES_PASSWORD}@postgres:5432/budget_me?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # One-off operator CLI (account list / merge). Same tools-profile pattern as
+  # migrate — args are passed to `run`, so it never starts with `up`:
+  #   docker compose -f prod.yml --profile tools run --rm admin users
+  #   docker compose -f prod.yml --profile tools run --rm admin merge <survivor> <loser>
+  admin:
+    image: ${BACKEND_IMAGE}
+    profiles: ["tools"]
+    restart: "no"
+    entrypoint: ["/admin"]
+    environment:
+      DATABASE_URL: postgres://budget_me:${POSTGRES_PASSWORD}@postgres:5432/budget_me?sslmode=disable
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Deferred-job runner: one sweep, then exit. The deploy user's crontab calls
+  # it daily for account/advice jobs
+  # (see infra/budget/cron/budget_me-worker):
+  #   docker compose -f prod.yml --profile tools run --rm worker
+  worker:
+    image: ${BACKEND_IMAGE}
+    profiles: ["tools"]
+    restart: "no"
+    entrypoint: ["/worker"]
+    environment:
+      DATABASE_URL: postgres://budget_me:${POSTGRES_PASSWORD}@postgres:5432/budget_me?sslmode=disable
+      AUTH_SECRET: ${AUTH_SECRET}
+      TELEGRAM_MINIAPP_URL: https://${DOMAIN}
+      ACCOUNT_DELETION_GRACE: ${ACCOUNT_DELETION_GRACE:-720h}
+      # The nightly advice pass runs HERE, so the worker needs the key too —
+      # without it the job just prints "no AI key, skipped".
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-glm-4.5-flash}
+      AI_BASE_URL: ${AI_BASE_URL:-https://api.z.ai/api/paas/v4}
+      # Where 5xx alerts go (internal/alert). Empty → alerting off, which is what
+      # a box with no chat configured must do. Falls back to the backup chat in
+      # config.Load, so one chat can serve both until the noise justifies two.
+      ALERT_CHAT_ID: ${ALERT_CHAT_ID:-}
+      BACKUP_CHAT_ID: ${BACKUP_CHAT_ID:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pg_data:
+  caddy_data:
+  caddy_config:
+  uploads_data:

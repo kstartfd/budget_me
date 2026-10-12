@@ -1,0 +1,23 @@
+# budget_me deferred-job runner — the schedule that actually deletes accounts
+# whose 30-day grace period has run out (cmd/worker; see infra/budget/compose/prod.yml).
+#
+# INSTALLED AS THE `deploy` USER'S CRONTAB, not /etc/cron.d: the deploy user has
+# no passwordless sudo on the box, and it does not need any — it owns
+# ~/budget_me and is in the docker group. Reinstall with:
+#
+#   ssh deploy@<host> 'crontab -l' | grep -q 'rm -T worker' || \
+#     ssh deploy@<host> '(crontab -l 2>/dev/null; cat) | crontab -' < infra/cron/budget_me-worker
+#
+# The account/advice sweep runs twice a day (03:17 and 15:17). Two jobs share it: purging expired
+# deletion requests (once a day would be plenty for that alone), and refreshing
+# each user's AI advice — that one wants to happen at least twice daily so a
+# person who logged spending in the morning gets a fresh take by the afternoon,
+# not only after the night pass. Both jobs are idempotent, so a second run costs
+# nothing when nothing changed (unchanged facts hash the same and skip the model).
+# -T + </dev/null keeps `compose run` from grabbing stdin (the same trap that once
+# ate the deploy script). Output goes to ~/budget_me/worker.log — the box has no
+# MTA to mail it to.
+
+# budget_me: зачистка аккаунтов + обновление AI-советов, дважды в сутки (cmd/worker)
+17 3 * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env -f prod.yml --profile tools run --rm -T worker </dev/null >> ~/budget_me/worker.log 2>&1
+17 15 * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env -f prod.yml --profile tools run --rm -T worker </dev/null >> ~/budget_me/worker.log 2>&1
