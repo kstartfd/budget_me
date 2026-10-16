@@ -265,9 +265,8 @@ deploy:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *budget_paths
 
-# Learning is prepared in the monorepo, but it is not deployed to the current
-# VPS. Its tests and images can be built independently; there is deliberately
-# no deploy:learning job until the server migration.
+# Learning: its own test/build jobs below (independent of budget), deployed to the
+# same box by `deploy:learning` at the end of this file.
 .learning-test-rules:
   rules:
     - if: '$CI_COMMIT_TAG'
@@ -332,7 +331,118 @@ build:learning-frontend:
   script:
     - docker build
         -f infra/learning/docker/frontend.Dockerfile
-        --build-arg "NEXT_PUBLIC_LEARNING_BOT_URL=${LEARNING_BOT_URL:-https://t.me/your_learning_bot}"
+        --build-arg "NEXT_PUBLIC_LEARNING_BOT_URL=${LEARNING_BOT_URL:-https://t.me/nexyrium_bot}"
         -t "$CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA"
         apps/learning/frontend
     - docker push "$CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA"
+
+# ── deploy:learning ──────────────────────────────────────────────────────────
+# Same box, own Compose project in ~/learning (own postgres, own bot, own secrets).
+# Same fail-safe shape as `deploy`: the env is staged as .env.new, a backup and the
+# migrations run BEFORE the switch, the running containers must be the images just
+# shipped, /healthz gates, and an ERR trap restores the previous images.
+#
+# Secrets (POSTGRES_PASSWORD, AUTH_SECRET, DOMAIN, TELEGRAM_BOT_TOKEN, BACKUP_*)
+# live in ~/learning/.env.local on the box and are merged in by merge-env.sh. They
+# are deliberately NOT read from CI here: the CI variables of those names belong
+# to budget_me and would silently point learning at budget's database and bot.
+#
+# resource_group: production is shared with `deploy` on purpose — the crontab and
+# the Caddy fronting both apps are shared state. `needs: deploy (optional)` makes a
+# pipeline that changes both ship budget first (Caddy + the apps_edge network).
+deploy:learning:
+  stage: deploy
+  image: alpine:3.20
+  needs:
+    - build:learning-backend
+    - build:learning-frontend
+    - job: deploy
+      optional: true
+  resource_group: production
+  environment:
+    name: learning
+    url: https://learning.budgetme.xyz
+  before_script:
+    - apk add --no-cache openssh-client
+    - eval "$(ssh-agent -s)"
+    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
+    - (cat "$SSH_PRIVATE_KEY"; echo) > ~/.ssh/id_deploy && chmod 400 ~/.ssh/id_deploy
+    - ssh-add ~/.ssh/id_deploy
+    - printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+  script:
+    - ssh "deploy@$SSH_HOST" "mkdir -p ~/learning/scripts"
+    - scp infra/learning/compose/prod.yml "deploy@$SSH_HOST:~/learning/prod.yml"
+    # backup.sh and merge-env.sh are budget's scripts, shared: backup.sh takes the
+    # app and database names from the environment (see the crontab line).
+    - scp infra/budget/scripts/backup.sh infra/budget/scripts/merge-env.sh "deploy@$SSH_HOST:~/learning/scripts/"
+    - ssh "deploy@$SSH_HOST" "chmod +x ~/learning/scripts/*.sh"
+    - |
+      ssh "deploy@$SSH_HOST" 'bash -s' < infra/learning/cron/install-crons.sh
+    - |
+      ssh "deploy@$SSH_HOST" "cat > ~/learning/.env.new && chmod 600 ~/learning/.env.new" <<EOF
+      BACKEND_IMAGE=$CI_REGISTRY_IMAGE/learning-backend:$CI_COMMIT_SHORT_SHA
+      FRONTEND_IMAGE=$CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA
+      EOF
+    - ssh "deploy@$SSH_HOST" "cd ~/learning && ./scripts/merge-env.sh .env.new .env.local"
+    - |
+      ssh "deploy@$SSH_HOST" 'bash -s' <<EOF
+      set -e
+      cd ~/learning
+      docker login registry.gitlab.com -u '$DEPLOY_TOKEN_USER' -p '$DEPLOY_TOKEN_PASSWORD'
+
+      rollback() {
+        echo "learning deploy failed — rolling back to previous version"
+        if [ -f .env.prev ]; then
+          mv -f .env.prev .env
+          docker compose --env-file .env -f prod.yml up -d || true
+        fi
+        exit 1
+      }
+      trap rollback ERR
+
+      cp -f .env .env.prev 2>/dev/null || true
+      mv -f .env.new .env
+
+      docker compose --env-file .env -f prod.yml pull
+      docker compose --env-file .env -f prod.yml up -d postgres
+
+      # Local dump right before the migration; never fatal. </dev/null on every
+      # step that could read stdin: this heredoc IS the remote shell's stdin.
+      APP_NAME=learning DB_USER=learning_app DB_NAME=learning_app ./scripts/backup.sh --local </dev/null || echo "pre-migrate backup failed — continuing"
+      docker compose --env-file .env -f prod.yml --profile tools run --rm -T migrate </dev/null
+      docker compose --env-file .env -f prod.yml up -d
+
+      # The containers must actually BE the images we just shipped (a deploy that
+      # silently changes nothing and reports success is worse than a failed one).
+      want_backend="\$(grep '^BACKEND_IMAGE=' .env | cut -d= -f2-)"
+      got_backend="\$(docker inspect learning_app-backend-1 --format '{{.Config.Image}}')"
+      if [ "\$want_backend" != "\$got_backend" ]; then
+        echo "backend runs \$got_backend, expected \$want_backend — deploy did not take"
+        false
+      fi
+      want_frontend="\$(grep '^FRONTEND_IMAGE=' .env | cut -d= -f2-)"
+      got_frontend="\$(docker inspect learning_app-frontend-1 --format '{{.Config.Image}}')"
+      if [ "\$want_frontend" != "\$got_frontend" ]; then
+        echo "frontend runs \$got_frontend, expected \$want_frontend — deploy did not take"
+        false
+      fi
+
+      # Health gate: backend must report healthy within ~30s or we roll back.
+      ok=""
+      for i in \$(seq 1 10); do
+        if docker run --rm --network learning_app_default alpine:3.20 \
+             wget -qO- -T 3 http://backend:8080/healthz </dev/null >/dev/null 2>&1; then
+          ok=1; break
+        fi
+        sleep 3
+      done
+      [ -n "\$ok" ] || false
+
+      trap - ERR
+      rm -f .env.prev
+      docker image prune -f >/dev/null 2>&1 || true
+      echo "learning deploy healthy on $CI_COMMIT_SHORT_SHA"
+      EOF
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+      changes: *learning_paths

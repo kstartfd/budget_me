@@ -1,5 +1,8 @@
-# Reverse proxy + automatic HTTPS (Let's Encrypt) for budget_me.
-# {$DOMAIN} is injected from the environment (compose passes DOMAIN).
+# Reverse proxy + automatic HTTPS (Let's Encrypt) for budget_me AND learning —
+# the one Caddy on ports 80/443 of the box. It lives in the budget compose project
+# and reaches the learning containers over the external `apps_edge` network, by
+# the aliases infra/learning/compose/prod.yml gives them (learning-api, learning-web).
+# {$DOMAIN} and {$LEARNING_DOMAIN} are injected from the environment (compose passes them).
 #
 # The backend serves its routes under /api/v1/* (see backend/internal/server),
 # so we must forward the FULL path. `handle /api/*` matches and proxies while
@@ -23,5 +26,21 @@
 
 	handle {
 		reverse_proxy frontend:3000
+	}
+}
+
+{$LEARNING_DOMAIN} {
+	encode gzip
+
+	handle /api/* {
+		reverse_proxy learning-api:8080
+	}
+
+	handle /healthz {
+		reverse_proxy learning-api:8080
+	}
+
+	handle {
+		reverse_proxy learning-web:3000
 	}
 }

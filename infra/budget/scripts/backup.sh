@@ -34,6 +34,11 @@ BACKUP_DIR="${BACKUP_DIR:-backups}"
 # Local copies are a convenience for a fast restore, not the backup — keep a
 # week of them and let the off-box copies be the ones that matter.
 KEEP_LOCAL="${KEEP_LOCAL:-7}"
+# One script serves every app on the box: the defaults are budget_me's, another
+# app overrides them from its crontab line (infra/learning/cron/install-crons.sh).
+APP_NAME="${APP_NAME:-budget_me}"
+DB_USER="${DB_USER:-budget_me}"
+DB_NAME="${DB_NAME:-budget_me}"
 
 LOCAL_ONLY=""
 [ "${1:-}" = "--local" ] && LOCAL_ONLY=1
@@ -81,7 +86,7 @@ notify() {
 
 fail() {
   echo "backup: $1" >&2
-  notify "🔴 budget_me: бэкап НЕ сделан — $1"
+  notify "🔴 $APP_NAME: бэкап НЕ сделан — $1"
 
   exit 1
 }
@@ -97,7 +102,7 @@ mkdir -p "$BACKUP_DIR"
 chmod 700 "$BACKUP_DIR"
 
 stamp="$(date -u +%Y-%m-%d_%H%M)"
-dump="$BACKUP_DIR/budget_me-$stamp.sql.gz.gpg"
+dump="$BACKUP_DIR/$APP_NAME-$stamp.sql.gz.gpg"
 
 # -T: cron gives no tty. </dev/null: `compose exec` ATTACHES STDIN even with -T,
 # and this script is called from the deploy, whose whole body is piped into a
@@ -106,7 +111,7 @@ dump="$BACKUP_DIR/budget_me-$stamp.sql.gz.gpg"
 # changed nothing. The dump reads no input; say so.
 #
 # The plaintext never touches the disk: it streams straight through gzip and gpg.
-compose exec -T postgres pg_dump -U budget_me --clean --if-exists budget_me </dev/null \
+compose exec -T postgres pg_dump -U "$DB_USER" --clean --if-exists "$DB_NAME" </dev/null \
   | gzip -9 \
   | gpg --batch --yes --quiet \
         --symmetric --cipher-algo AES256 \
@@ -121,7 +126,7 @@ size="$(du -h "$dump" | cut -f1)"
 prune_local() {
   # Newest first, drop everything past the keep window. `|| true`: pipefail
   # would let a hiccup in the cleanup mark a backup that already ran as failed.
-  ls -1t "$BACKUP_DIR"/budget_me-*.sql.gz.gpg 2>/dev/null \
+  ls -1t "$BACKUP_DIR"/"$APP_NAME"-*.sql.gz.gpg 2>/dev/null \
     | tail -n +$((KEEP_LOCAL + 1)) \
     | xargs -r rm -f \
     || true
@@ -141,7 +146,7 @@ response="$(
     "https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument" \
     -F chat_id="$BACKUP_CHAT_ID" \
     -F document="@$dump" \
-    -F caption="budget_me · дамп БД · $stamp UTC · $size · gpg AES-256"
+    -F caption="$APP_NAME · дамп БД · $stamp UTC · $size · gpg AES-256"
 )" || fail "отправка в Telegram упала (сеть)"
 
 case "$response" in

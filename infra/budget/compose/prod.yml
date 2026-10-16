@@ -4,6 +4,10 @@ name: budget_me
 # Only Caddy is exposed to the internet (80/443); Postgres has no published
 # port and is reachable only over the internal compose network.
 #
+# Caddy is also the edge for the learning app: it joins the external `apps_edge`
+# network (docker network create apps_edge, once per box) and routes
+# LEARNING_DOMAIN to learning-api / learning-web — see infra/learning/README.md.
+#
 # Images are NOT built here — backend/frontend/migrate pull pre-built images
 # from the GitLab Container Registry (BACKEND_IMAGE / FRONTEND_IMAGE come from
 # the .env). CI builds and pushes them; the VPS (1 GB RAM) never builds.
@@ -32,6 +36,10 @@ services:
       - "443:443"
     environment:
       DOMAIN: ${DOMAIN}
+      LEARNING_DOMAIN: ${LEARNING_DOMAIN:-learning.invalid}
+    networks:
+      - default
+      - edge
     volumes:
       - ./infra/edge/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
@@ -162,3 +170,8 @@ volumes:
   caddy_data:
   caddy_config:
   uploads_data:
+
+networks:
+  edge:
+    external: true
+    name: apps_edge

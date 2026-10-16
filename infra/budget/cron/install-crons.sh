@@ -35,7 +35,7 @@ ensure() {
   echo "cron: $match установлен"
 }
 
-ensure 'scripts/backup.sh' \
+ensure 'budget_me && ./scripts/backup.sh' \
   '# budget_me: ночной бэкап БД off-VPS' \
   '40 3 * * * cd ~/budget_me && ./scripts/backup.sh >> ~/budget_me/backup.log 2>&1'
 

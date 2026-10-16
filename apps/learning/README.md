@@ -18,21 +18,17 @@ docker compose --env-file apps/learning/.env -f infra/learning/compose/dev.yml u
 Frontend: `http://localhost:3001`. The new bot's production Mini App URL will
 be `https://<learning-domain>` after the VPS move.
 
-## Production preparation
+## Production
 
-GitLab CI tests and builds `learning-backend` and `learning-frontend` images
-when `apps/learning/` or `infra/learning/` changes. No learning deploy job is
-enabled yet. `infra/learning/compose/prod.yml` is a draft for the future shared
-VPS. It expects the `apps_edge` Docker network and a single Caddy configured
-with `infra/edge/Caddyfile.shared.example`. Do not start it on the current VPS.
+GitLab CI tests, builds and deploys Learning to the shared VPS
+(`https://learning.budgetme.xyz`) when `apps/learning/` or `infra/learning/`
+changes. How it is wired — Compose project, edge Caddy, secrets on the box,
+backups, rebuilding — is in [`infra/learning/README.md`](../../infra/learning/README.md).
 
-After the new VPS is available, configure the new bot, domain, secrets and
-registry pull credentials, then copy the learning data before switching users
-to the new bot. The data transfer script is
-`apps/learning/scripts/copy-learning-data.sh`; it requires both database URLs
-and a migrated, empty target database. It preserves user IDs, password hashes,
-topics, entries, topic-scoped extension tokens and capture jobs. Stop writes to
-the old learning API during the copy and verify the row counts afterward.
+`apps/learning/scripts/copy-learning-data.sh` copies Learning accounts and content
+out of the old shared budget database into an empty, migrated Learning database
+(user IDs, password hashes, topics, entries, topic-scoped extension tokens and
+capture jobs). It was used once, on 2026-10-16, with the row counts verified.
 
 ## Local checks
 
