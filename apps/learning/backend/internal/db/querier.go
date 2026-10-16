@@ -20,6 +20,7 @@ type Querier interface {
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
+	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
 	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)
 	GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)

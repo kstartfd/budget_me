@@ -3,6 +3,7 @@ package queries
 import (
 	"context"
 	"crypto/sha256"
+	"log/slog"
 
 	"github.com/google/uuid"
 
@@ -10,19 +11,50 @@ import (
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
+	"learning_app/backend/internal/secretbox"
 )
 
 type TokenHandler struct {
 	q     *db.Queries
 	clock clock.Clock
+	vault secretbox.Box
 }
 
-func NewTokenHandler(q *db.Queries, clk clock.Clock) TokenHandler {
-	return TokenHandler{q: q, clock: clk}
+func NewTokenHandler(q *db.Queries, clk clock.Clock, vault secretbox.Box) TokenHandler {
+	return TokenHandler{q: q, clock: clk, vault: vault}
 }
 func (h TokenHandler) List(ctx context.Context, userID uuid.UUID) ([]db.LearningToken, error) {
 	return h.q.ListLearningTokens(ctx, ids.ToPg(userID))
 }
+
+// Reveal decrypts the stored copy of an active token for its owner. Tokens
+// issued before the encrypted copy existed have none, and a copy sealed under a
+// different AUTH_SECRET can no longer be opened; the hash keeps authenticating
+// both, they just cannot be shown again.
+func (h TokenHandler) Reveal(ctx context.Context, userID, id uuid.UUID) (string, error) {
+	row, err := h.q.GetLearningToken(ctx, db.GetLearningTokenParams{ID: ids.ToPg(id), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return "", apperr.NewNotFound("token not found")
+	}
+
+	if err != nil {
+		return "", err
+	}
+
+	if len(row.TokenCiphertext) == 0 {
+		return "", apperr.NewNotFound("token cannot be shown")
+	}
+
+	raw, err := h.vault.Open(row.TokenCiphertext, id[:])
+	if err != nil {
+		slog.Error("learning token cannot be decrypted", "token_id", id, "err", err)
+
+		return "", apperr.NewInternal("token cannot be decrypted")
+	}
+
+	return string(raw), nil
+}
+
 // Authenticate returns the token's owner, whether it is capture-only, and the
 // single topic it is bound to (uuid.Nil for a token issued before topic
 // scoping existed, which still has the run of the whole account).

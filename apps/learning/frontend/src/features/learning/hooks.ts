@@ -86,5 +86,13 @@ export function useLearningTokens() {
     mutationFn: api.revokeToken,
     onSuccess: refresh,
   })
-  return { tokens, create, revoke }
+  // A secret is fetched on demand and never kept: no cache entry outlives the call.
+  const reveal = (id: string) =>
+    client.fetchQuery({
+      queryKey: [...key, id, "secret"],
+      queryFn: () => api.fetchTokenSecret(id),
+      staleTime: 0,
+      gcTime: 0,
+    })
+  return { tokens, create, revoke, reveal }
 }

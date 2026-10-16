@@ -11,6 +11,7 @@ import (
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/learningtokens/commands"
 	"learning_app/backend/internal/learningtokens/queries"
+	"learning_app/backend/internal/secretbox"
 )
 
 type Controller struct {
@@ -18,8 +19,8 @@ type Controller struct {
 	read  queries.TokenHandler
 }
 
-func NewController(q *db.Queries, clk clock.Clock) *Controller {
-	return &Controller{write: commands.NewTokenHandler(q, clk), read: queries.NewTokenHandler(q, clk)}
+func NewController(q *db.Queries, clk clock.Clock, vault secretbox.Box) *Controller {
+	return &Controller{write: commands.NewTokenHandler(q, clk, vault), read: queries.NewTokenHandler(q, clk, vault)}
 }
 
 type tokenResponse struct {
@@ -30,11 +31,12 @@ type tokenResponse struct {
 	TopicID    *string `json:"topicId"`
 	CreatedAt  string  `json:"createdAt"`
 	LastUsedAt *string `json:"lastUsedAt"`
+	Revealable bool    `json:"revealable"`
 	Token      string  `json:"token,omitempty"`
 }
 
 func response(row db.LearningToken) tokenResponse {
-	r := tokenResponse{ID: ids.FromPg(row.ID).String(), Name: row.Name, Prefix: row.Prefix, Scope: string(row.Scope), CreatedAt: row.CreatedAt.Time.UTC().Format("2006-01-02T15:04:05Z")}
+	r := tokenResponse{ID: ids.FromPg(row.ID).String(), Name: row.Name, Prefix: row.Prefix, Scope: string(row.Scope), CreatedAt: row.CreatedAt.Time.UTC().Format("2006-01-02T15:04:05Z"), Revealable: len(row.TokenCiphertext) > 0}
 	if row.LastUsedAt.Valid {
 		s := row.LastUsedAt.Time.UTC().Format("2006-01-02T15:04:05Z")
 		r.LastUsedAt = &s
@@ -50,6 +52,7 @@ func response(row db.LearningToken) tokenResponse {
 func (c *Controller) Routes(protected *echo.Group) {
 	protected.GET("/learning/tokens", c.list)
 	protected.POST("/learning/tokens", c.create)
+	protected.GET("/learning/tokens/:id/secret", c.secret)
 	protected.DELETE("/learning/tokens/:id", c.revoke)
 }
 func (c *Controller) list(ctx echo.Context) error {
@@ -93,6 +96,21 @@ func (c *Controller) create(ctx echo.Context) error {
 	ctx.Response().Header().Set("Cache-Control", "no-store")
 
 	return httpx.Created(ctx, out)
+}
+func (c *Controller) secret(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid token id")
+	}
+
+	raw, err := c.read.Reveal(ctx.Request().Context(), httpx.UserIDFromContext(ctx.Request().Context()), id)
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, echo.Map{"token": raw})
 }
 func (c *Controller) revoke(ctx echo.Context) error {
 	id, err := uuid.Parse(ctx.Param("id"))

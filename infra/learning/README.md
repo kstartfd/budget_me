@@ -36,6 +36,11 @@ deliberately **not** CI variables: the CI variables named `POSTGRES_PASSWORD`,
 `AUTH_SECRET`, `DOMAIN` and `TELEGRAM_BOT_TOKEN` belong to budget and would point
 learning at budget's database and bot.
 
+`AUTH_SECRET` signs the sessions **and** keys the encrypted copy of every extension
+token that lets the app show a token again. Keep it stable and carry it along with
+any database restore: after a change everyone is signed out and issued tokens keep
+working but can no longer be shown (`GET /tokens/<id>/secret` answers 500).
+
 ## Backups
 
 Cron `03:45` (installed by the deploy, [`cron/install-crons.sh`](cron/install-crons.sh))

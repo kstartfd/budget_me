@@ -41,7 +41,9 @@ export const tokenSchema = tokenInputSchema.extend({
   createdAt: z.string(),
   lastUsedAt: z.string().nullable(),
   topicId: z.string().uuid().nullable(),
+  revealable: z.boolean().default(false),
 })
 export const issuedTokenSchema = tokenSchema.extend({ token: z.string() })
+export const tokenSecretSchema = z.object({ token: z.string() })
 export type LearningToken = z.infer<typeof tokenSchema>
 export type TokenInput = z.infer<typeof tokenInputSchema>

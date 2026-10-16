@@ -5,6 +5,7 @@ import {
   issuedTokenSchema,
   tokenInputSchema,
   tokenSchema,
+  tokenSecretSchema,
   topicInputSchema,
   topicSchema,
   type EntryInput,
@@ -75,5 +76,7 @@ export const createToken = (input: TokenInput) =>
     (d) => issuedTokenSchema.parse(d),
     tokenInputSchema.parse(input),
   )
+export const fetchTokenSecret = (id: string) =>
+  call(`/tokens/${id}/secret`, "GET", (d) => tokenSecretSchema.parse(d).token)
 export const revokeToken = (id: string) =>
   call(`/tokens/${id}`, "DELETE", () => undefined)

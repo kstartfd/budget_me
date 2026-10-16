@@ -14,7 +14,7 @@ import (
 const authenticateLearningToken = `-- name: AuthenticateLearningToken :one
 UPDATE learning_tokens SET last_used_at = $1
 WHERE token_hash = $2 AND revoked_at IS NULL
-RETURNING id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id
+RETURNING id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id, token_ciphertext
 `
 
 type AuthenticateLearningTokenParams struct {
@@ -36,24 +36,54 @@ func (q *Queries) AuthenticateLearningToken(ctx context.Context, arg Authenticat
 		&i.LastUsedAt,
 		&i.RevokedAt,
 		&i.TopicID,
+		&i.TokenCiphertext,
+	)
+	return i, err
+}
+
+const getLearningToken = `-- name: GetLearningToken :one
+SELECT id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id, token_ciphertext FROM learning_tokens WHERE id = $1 AND user_id = $2 AND revoked_at IS NULL
+`
+
+type GetLearningTokenParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error) {
+	row := q.db.QueryRow(ctx, getLearningToken, arg.ID, arg.UserID)
+	var i LearningToken
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Name,
+		&i.Prefix,
+		&i.TokenHash,
+		&i.Scope,
+		&i.CreatedAt,
+		&i.LastUsedAt,
+		&i.RevokedAt,
+		&i.TopicID,
+		&i.TokenCiphertext,
 	)
 	return i, err
 }
 
 const insertLearningToken = `-- name: InsertLearningToken :one
-INSERT INTO learning_tokens (id, user_id, topic_id, name, prefix, token_hash, scope, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id
+INSERT INTO learning_tokens (id, user_id, topic_id, name, prefix, token_hash, token_ciphertext, scope, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id, token_ciphertext
 `
 
 type InsertLearningTokenParams struct {
-	ID        pgtype.UUID
-	UserID    pgtype.UUID
-	TopicID   pgtype.UUID
-	Name      string
-	Prefix    string
-	TokenHash []byte
-	Scope     LearningTokenScope
-	CreatedAt pgtype.Timestamptz
+	ID              pgtype.UUID
+	UserID          pgtype.UUID
+	TopicID         pgtype.UUID
+	Name            string
+	Prefix          string
+	TokenHash       []byte
+	TokenCiphertext []byte
+	Scope           LearningTokenScope
+	CreatedAt       pgtype.Timestamptz
 }
 
 func (q *Queries) InsertLearningToken(ctx context.Context, arg InsertLearningTokenParams) (LearningToken, error) {
@@ -64,6 +94,7 @@ func (q *Queries) InsertLearningToken(ctx context.Context, arg InsertLearningTok
 		arg.Name,
 		arg.Prefix,
 		arg.TokenHash,
+		arg.TokenCiphertext,
 		arg.Scope,
 		arg.CreatedAt,
 	)
@@ -79,12 +110,13 @@ func (q *Queries) InsertLearningToken(ctx context.Context, arg InsertLearningTok
 		&i.LastUsedAt,
 		&i.RevokedAt,
 		&i.TopicID,
+		&i.TokenCiphertext,
 	)
 	return i, err
 }
 
 const listLearningTokens = `-- name: ListLearningTokens :many
-SELECT id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id FROM learning_tokens WHERE user_id = $1 AND revoked_at IS NULL ORDER BY created_at DESC
+SELECT id, user_id, name, prefix, token_hash, scope, created_at, last_used_at, revoked_at, topic_id, token_ciphertext FROM learning_tokens WHERE user_id = $1 AND revoked_at IS NULL ORDER BY created_at DESC
 `
 
 func (q *Queries) ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error) {
@@ -107,6 +139,7 @@ func (q *Queries) ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([
 			&i.LastUsedAt,
 			&i.RevokedAt,
 			&i.TopicID,
+			&i.TokenCiphertext,
 		); err != nil {
 			return nil, err
 		}

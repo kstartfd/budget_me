@@ -217,16 +217,17 @@ type LearningEntry struct {
 }
 
 type LearningToken struct {
-	ID         pgtype.UUID
-	UserID     pgtype.UUID
-	Name       string
-	Prefix     string
-	TokenHash  []byte
-	Scope      LearningTokenScope
-	CreatedAt  pgtype.Timestamptz
-	LastUsedAt pgtype.Timestamptz
-	RevokedAt  pgtype.Timestamptz
-	TopicID    pgtype.UUID
+	ID              pgtype.UUID
+	UserID          pgtype.UUID
+	Name            string
+	Prefix          string
+	TokenHash       []byte
+	Scope           LearningTokenScope
+	CreatedAt       pgtype.Timestamptz
+	LastUsedAt      pgtype.Timestamptz
+	RevokedAt       pgtype.Timestamptz
+	TopicID         pgtype.UUID
+	TokenCiphertext []byte
 }
 
 type LearningTopic struct {

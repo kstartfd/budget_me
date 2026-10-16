@@ -8,8 +8,10 @@ Base URL: `/api/v1/learning`. All responses use the existing envelope:
 
 Create a language topic in **Learning**, then create an extension token in
 **Learning → Extension access** and select the topic it can access.
-Tokens are shown once. The database stores only their SHA-256 hashes. Revocation
-blocks subsequent requests; captures already accepted remain queued.
+The database keeps a SHA-256 hash of every token to authenticate requests and an
+AES-256-GCM encrypted copy (key derived from `AUTH_SECRET`) so the app can show the
+token again. Revocation blocks subsequent requests; captures already accepted
+remain queued.
 
 Send `Authorization: Bearer <token>` on every request. Two token scopes:
 
@@ -109,9 +111,14 @@ bypass the queue.
 
 - `POST /topics`, `PUT /topics/<uuid>` — `name`, `language`, `translationLanguage`.
 - `DELETE /topics/<uuid>` — cascades to that topic's entries.
-- `GET /tokens` — metadata only, no secrets.
+- `GET /tokens` — metadata only, no secrets. `revealable` tells whether the token can
+  still be shown with `/secret`.
 - `POST /tokens` — `name`, `topicId`, `scope` (`capture` or `read_write`); includes the raw
-  token only in this response. Token responses use `Cache-Control: no-store`.
+  token in this response. Token responses use `Cache-Control: no-store`.
+- `GET /tokens/<uuid>/secret` — the raw token of an active token, `{"token":"bml_…"}`
+  (`Cache-Control: no-store`). **404** when the token is revoked, belongs to someone else, or
+  was issued before encrypted copies existed (`revealable: false`); those keep working but
+  cannot be shown. Rotating `AUTH_SECRET` makes stored copies unreadable (**500**) the same way.
 - `DELETE /tokens/<uuid>` — revoke.
 
 Missing/invalid/revoked token: **401**; insufficient scope: **403**;

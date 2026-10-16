@@ -17,6 +17,7 @@ import (
 	"learning_app/backend/internal/learning"
 	"learning_app/backend/internal/learningtokens"
 	learningtokenqueries "learning_app/backend/internal/learningtokens/queries"
+	"learning_app/backend/internal/secretbox"
 	"learning_app/backend/internal/token"
 )
 
@@ -48,13 +49,14 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 
 	clk := clock.New()
 	codec := token.NewCodec(cfg.AuthSecret)
+	vault := secretbox.New(cfg.AuthSecret)
 	queries := db.New(pool)
 	public := e.Group("/api/v1")
 	protected := e.Group("/api/v1", httpx.RequireAuth(codec))
 	auth.NewController(queries, clk, cfg.TelegramBotToken, codec).Routes(public, protected)
-	learningAuth := learningtokenqueries.NewTokenHandler(queries, clk)
+	learningAuth := learningtokenqueries.NewTokenHandler(queries, clk, vault)
 	group := e.Group("/api/v1/learning", httpx.RequireLearningAuth(codec, learningAuth.Authenticate), echomw.BodyLimit("64K"))
 	learning.NewController(queries, clk).Routes(group)
-	learningtokens.NewController(queries, clk).Routes(protected)
+	learningtokens.NewController(queries, clk, vault).Routes(protected)
 	return e
 }

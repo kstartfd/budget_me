@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import { copyToClipboard } from "@/lib/clipboard"
 import { useLearning, useLearningTokens } from "../hooks"
 import {
   tokenInputSchema,
@@ -22,6 +23,14 @@ import {
   type TokenInput,
 } from "../schemas"
 import { LearningModal } from "./learning-modal"
+import { SecretField } from "./secret-field"
+
+/** `bml_` + 43 base64url characters, as issued by the backend. */
+const TOKEN_LENGTH = 47
+
+function maskedToken(prefix: string, length = TOKEN_LENGTH) {
+  return prefix + "•".repeat(Math.max(length - prefix.length, 0))
+}
 
 /** `/api/v1/learning/captures` on this origin — the one endpoint every
  * extension token posts to; the token itself picks the topic server-side. */
@@ -33,12 +42,10 @@ function captureEndpoint() {
 export function TokenScreen() {
   const t = useTranslations("learning")
   const { topics } = useLearning()
-  const { tokens, create, revoke } = useLearningTokens()
+  const { tokens, create, revoke, reveal } = useLearningTokens()
   const [creating, setCreating] = useState(false)
   const [secret, setSecret] = useState<string | null>(null)
-  const [copiedField, setCopiedField] = useState<"secret" | "endpoint" | null>(
-    null,
-  )
+  const [endpointCopied, setEndpointCopied] = useState(false)
   const [copyError, setCopyError] = useState(false)
   const [revoking, setRevoking] = useState<LearningToken | null>(null)
   const {
@@ -57,18 +64,14 @@ export function TokenScreen() {
     return topics.data?.find((topic) => topic.id === topicId)?.name ?? topicId
   }
 
-  async function copy(text: string, field: "secret" | "endpoint") {
-    try {
-      await navigator.clipboard.writeText(text)
-      setCopiedField(field)
-      setCopyError(false)
-    } catch {
-      setCopyError(true)
-    }
+  async function copyEndpoint() {
+    const copied = await copyToClipboard(captureEndpoint())
+    setEndpointCopied(copied)
+    setCopyError(!copied)
   }
   function hideSecret() {
     setSecret(null)
-    setCopiedField(null)
+    setEndpointCopied(false)
     setCopyError(false)
     create.reset()
   }
@@ -102,13 +105,9 @@ export function TokenScreen() {
             size="icon"
             aria-label={t("copyEndpoint")}
             className="h-11 w-11 shrink-0 rounded-xl"
-            onClick={() => void copy(captureEndpoint(), "endpoint")}
+            onClick={() => void copyEndpoint()}
           >
-            {copiedField === "endpoint" ? (
-              <IconCheck size={17} />
-            ) : (
-              <IconCopy size={17} />
-            )}
+            {endpointCopied ? <IconCheck size={17} /> : <IconCopy size={17} />}
           </Button>
         </div>
         <p className="text-muted-foreground mt-2 text-xs leading-relaxed">
@@ -148,30 +147,47 @@ export function TokenScreen() {
           {tokens.data?.map((token) => (
             <div
               key={token.id}
-              className="bg-card border-border flex items-center gap-3 rounded-[22px] border p-4 shadow-[var(--shadow-card)]"
+              className="bg-card border-border space-y-3 rounded-[22px] border p-4 shadow-[var(--shadow-card)]"
             >
-              <span className="bg-secondary text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
-                <IconKey size={20} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <h2 className="truncate text-sm font-semibold">{token.name}</h2>
-                <p className="text-faint mt-1 font-mono text-xs">
-                  {token.prefix}…
-                </p>
-                <p className="text-muted-foreground mt-1 truncate text-xs">
-                  {t(token.scope)} · {topicName(token.topicId)}
-                </p>
+              <div className="flex items-center gap-3">
+                <span className="bg-secondary text-primary flex size-10 shrink-0 items-center justify-center rounded-xl">
+                  <IconKey size={20} />
+                </span>
+                <div className="min-w-0 flex-1">
+                  <h2 className="truncate text-sm font-semibold">
+                    {token.name}
+                  </h2>
+                  <p className="text-muted-foreground mt-1 truncate text-xs">
+                    {t(token.scope)} · {topicName(token.topicId)}
+                  </p>
+                </div>
+                <Button
+                  variant="ghost"
+                  className="text-destructive shrink-0 text-xs"
+                  onClick={() => {
+                    revoke.reset()
+                    setRevoking(token)
+                  }}
+                >
+                  {t("revoke")}
+                </Button>
               </div>
-              <Button
-                variant="ghost"
-                className="text-destructive shrink-0 text-xs"
-                onClick={() => {
-                  revoke.reset()
-                  setRevoking(token)
-                }}
-              >
-                {t("revoke")}
-              </Button>
+              {token.revealable ? (
+                <SecretField
+                  compact
+                  mask={maskedToken(token.prefix)}
+                  load={() => reveal(token.id)}
+                />
+              ) : (
+                <div>
+                  <p className="text-faint font-mono text-xs">
+                    {token.prefix}…
+                  </p>
+                  <p className="text-muted-foreground mt-1 text-xs leading-relaxed">
+                    {t("tokenLegacy")}
+                  </p>
+                </div>
+              )}
             </div>
           ))}
           {tokens.data?.length === 0 && (
@@ -312,29 +328,10 @@ export function TokenScreen() {
           <div className="space-y-4">
             <div className="space-y-2">
               <span className="text-sm font-medium">{t("tokenValue")}</span>
-              <div className="flex items-center gap-2">
-                <Input
-                  aria-label={t("tokenValue")}
-                  readOnly
-                  value={secret}
-                  onFocus={(e) => e.target.select()}
-                  className="bg-secondary border-border h-auto min-w-0 flex-1 rounded-2xl px-4 py-3.5 font-mono text-xs focus-visible:ring-0"
-                />
-                <Button
-                  type="button"
-                  variant="secondary"
-                  size="icon"
-                  aria-label={t("copyToken")}
-                  className="h-[52px] w-[52px] shrink-0 rounded-2xl"
-                  onClick={() => void copy(secret, "secret")}
-                >
-                  {copiedField === "secret" ? (
-                    <IconCheck size={18} />
-                  ) : (
-                    <IconCopy size={18} />
-                  )}
-                </Button>
-              </div>
+              <SecretField
+                mask={maskedToken(secret.slice(0, 12), secret.length)}
+                load={() => Promise.resolve(secret)}
+              />
             </div>
             <div className="space-y-2">
               <span className="text-sm font-medium">{t("tokenEndpoint")}</span>
@@ -348,9 +345,9 @@ export function TokenScreen() {
                   size="icon"
                   aria-label={t("copyEndpoint")}
                   className="h-[52px] w-[52px] shrink-0 rounded-2xl"
-                  onClick={() => void copy(captureEndpoint(), "endpoint")}
+                  onClick={() => void copyEndpoint()}
                 >
-                  {copiedField === "endpoint" ? (
+                  {endpointCopied ? (
                     <IconCheck size={18} />
                   ) : (
                     <IconCopy size={18} />

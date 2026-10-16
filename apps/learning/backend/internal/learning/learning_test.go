@@ -3,10 +3,12 @@ package learning_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -471,5 +473,167 @@ func TestEntryPaginationAndFilters(t *testing.T) {
 		if code != 400 {
 			t.Fatalf("invalid filter %s: %d", suffix, code)
 		}
+	}
+}
+
+func tokenItem(t *testing.T, e *echo.Echo, session, id string) map[string]any {
+	t.Helper()
+
+	code, body := request(t, e, "GET", "/api/v1/learning/tokens", session, nil, "")
+	if code != 200 {
+		t.Fatalf("list tokens: %d %v", code, body)
+	}
+
+	for _, item := range body["data"].([]any) {
+		if m := item.(map[string]any); m["id"] == id {
+			return m
+		}
+	}
+
+	t.Fatalf("token %s missing from the list: %v", id, body)
+
+	return nil
+}
+
+func TestTokenSecretCanBeShownAgain(t *testing.T) {
+	e, q, user, session, _ := setup(t)
+	topicID := topic(t, e, session)
+
+	code, body := request(t, e, "POST", "/api/v1/learning/tokens", session, map[string]any{"name": "Chrome", "scope": "capture", "topicId": topicID}, "")
+	if code != 201 {
+		t.Fatalf("create token: %d %v", code, body)
+	}
+
+	created := data(t, body)
+	id, raw := created["id"].(string), created["token"].(string)
+
+	if created["revealable"] != true {
+		t.Fatalf("new token must be revealable: %v", created)
+	}
+
+	item := tokenItem(t, e, session, id)
+	if item["revealable"] != true {
+		t.Fatalf("listed token must be revealable: %v", item)
+	}
+
+	if _, ok := item["token"]; ok {
+		t.Fatal("secret leaked in token list")
+	}
+
+	req := httptest.NewRequest("GET", "/api/v1/learning/tokens/"+id+"/secret", nil)
+	req.Header.Set("Authorization", "Bearer "+session)
+
+	rec := httptest.NewRecorder()
+	e.ServeHTTP(rec, req)
+
+	if rec.Code != 200 || rec.Header().Get("Cache-Control") != "no-store" {
+		t.Fatalf("secret: %d, cache-control %q, %s", rec.Code, rec.Header().Get("Cache-Control"), rec.Body.String())
+	}
+
+	var revealed map[string]any
+	if err := json.Unmarshal(rec.Body.Bytes(), &revealed); err != nil || data(t, revealed)["token"] != raw {
+		t.Fatalf("secret is not the issued token: %s", rec.Body.String())
+	}
+
+	code, _ = request(t, e, "GET", "/api/v1/learning/topics", raw, nil, "")
+	if code != 200 {
+		t.Fatalf("issued token stopped working: %d", code)
+	}
+
+	row, err := q.GetLearningToken(context.Background(), db.GetLearningTokenParams{ID: ids.ToPg(uuid.MustParse(id)), UserID: ids.ToPg(user)})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(row.TokenCiphertext) == 0 || bytes.Contains(row.TokenCiphertext, []byte(raw[4:])) {
+		t.Fatalf("token is not encrypted at rest: %x", row.TokenCiphertext)
+	}
+}
+
+func TestTokenSecretIsOwnerOnly(t *testing.T) {
+	e, _, _, session, _ := setup(t)
+	topicID := topic(t, e, session)
+	id, raw := apiToken(t, e, session, "read_write", topicID)
+	path := "/api/v1/learning/tokens/" + id + "/secret"
+	other := token.NewCodec(authSecret).Issue(ids.New(), time.Now().UTC(), time.Hour)
+
+	for name, c := range map[string]struct {
+		path   string
+		bearer string
+		want   int
+	}{
+		"extension token": {path, raw, 401},
+		"no credentials":  {path, "", 401},
+		"another user":    {path, other, 404},
+		"unknown token":   {"/api/v1/learning/tokens/" + uuid.NewString() + "/secret", session, 404},
+		"malformed id":    {"/api/v1/learning/tokens/nope/secret", session, 400},
+		"owner (control)": {path, session, 200},
+	} {
+		code, body := request(t, e, "GET", c.path, c.bearer, nil, "")
+		if code != c.want {
+			t.Fatalf("%s: got %d, want %d: %v", name, code, c.want, body)
+		}
+
+		if c.want != 200 && strings.Contains(fmt.Sprint(body), raw[4:]) {
+			t.Fatalf("%s: response carries the token: %v", name, body)
+		}
+	}
+
+	code, _ := request(t, e, "DELETE", "/api/v1/learning/tokens/"+id, session, nil, "")
+	if code != 200 {
+		t.Fatalf("revoke: %d", code)
+	}
+
+	code, _ = request(t, e, "GET", path, session, nil, "")
+	if code != 404 {
+		t.Fatalf("revoked token can still be shown: %d", code)
+	}
+}
+
+func TestTokenIssuedBeforeEncryptedCopiesCannotBeShown(t *testing.T) {
+	e, q, user, session, _ := setup(t)
+	topicID := topic(t, e, session)
+	raw := "bml_" + strings.Repeat("a", 43)
+	hash := sha256.Sum256([]byte(raw))
+	id := ids.New()
+
+	_, err := q.InsertLearningToken(context.Background(), db.InsertLearningTokenParams{ID: ids.ToPg(id), UserID: ids.ToPg(user), TopicID: ids.ToPg(uuid.MustParse(topicID)), Name: "Old", Prefix: raw[:12], TokenHash: hash[:], Scope: db.LearningTokenScopeCapture, CreatedAt: db.Time(time.Now().UTC())})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if item := tokenItem(t, e, session, id.String()); item["revealable"] != false {
+		t.Fatalf("token without a stored copy must not be revealable: %v", item)
+	}
+
+	code, _ := request(t, e, "GET", "/api/v1/learning/tokens/"+id.String()+"/secret", session, nil, "")
+	if code != 404 {
+		t.Fatalf("secret of an old token: %d", code)
+	}
+
+	code, _ = request(t, e, "GET", "/api/v1/learning/topics", raw, nil, "")
+	if code != 200 {
+		t.Fatalf("old token stopped working: %d", code)
+	}
+}
+
+func TestTokenSecretNeedsTheKeyItWasSealedWith(t *testing.T) {
+	e, _, user, session, _ := setup(t)
+	topicID := topic(t, e, session)
+	id, raw := apiToken(t, e, session, "capture", topicID)
+
+	pool, _ := testdb.Pool(t)
+	rotated := authSecret + "-rotated"
+	other := server.New(config.Config{AuthSecret: rotated}, pool)
+	otherSession := token.NewCodec(rotated).Issue(user, time.Now().UTC(), time.Hour)
+
+	code, body := request(t, other, "GET", "/api/v1/learning/tokens/"+id+"/secret", otherSession, nil, "")
+	if code != 500 || strings.Contains(fmt.Sprint(body), raw[4:]) {
+		t.Fatalf("secret after the key changed: %d %v", code, body)
+	}
+
+	code, _ = request(t, other, "GET", "/api/v1/learning/topics", raw, nil, "")
+	if code != 200 {
+		t.Fatalf("token stopped working after the key changed: %d", code)
 	}
 }

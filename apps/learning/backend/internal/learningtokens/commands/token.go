@@ -14,6 +14,7 @@ import (
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
+	"learning_app/backend/internal/secretbox"
 )
 
 type CreateToken struct {
@@ -25,10 +26,11 @@ type CreateToken struct {
 type TokenHandler struct {
 	q     *db.Queries
 	clock clock.Clock
+	vault secretbox.Box
 }
 
-func NewTokenHandler(q *db.Queries, clk clock.Clock) TokenHandler {
-	return TokenHandler{q: q, clock: clk}
+func NewTokenHandler(q *db.Queries, clk clock.Clock, vault secretbox.Box) TokenHandler {
+	return TokenHandler{q: q, clock: clk, vault: vault}
 }
 
 func (h TokenHandler) Handle(ctx context.Context, cmd CreateToken) (db.LearningToken, string, error) {
@@ -64,7 +66,14 @@ func (h TokenHandler) Handle(ctx context.Context, cmd CreateToken) (db.LearningT
 
 	raw := "bml_" + base64.RawURLEncoding.EncodeToString(secret)
 	hash := sha256.Sum256([]byte(raw))
-	row, err := h.q.InsertLearningToken(ctx, db.InsertLearningTokenParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(cmd.TopicID), Name: name, Prefix: raw[:12], TokenHash: hash[:], Scope: cmd.Scope, CreatedAt: db.Time(h.clock.Now())})
+	id := ids.New()
+
+	sealed, err := h.vault.Seal([]byte(raw), id[:])
+	if err != nil {
+		return db.LearningToken{}, "", err
+	}
+
+	row, err := h.q.InsertLearningToken(ctx, db.InsertLearningTokenParams{ID: ids.ToPg(id), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(cmd.TopicID), Name: name, Prefix: raw[:12], TokenHash: hash[:], TokenCiphertext: sealed, Scope: cmd.Scope, CreatedAt: db.Time(h.clock.Now())})
 
 	return row, raw, err
 }

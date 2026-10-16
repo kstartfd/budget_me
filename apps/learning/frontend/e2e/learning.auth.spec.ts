@@ -154,22 +154,26 @@ test("mobile details stay open after changing a filtered status and editing", as
 
 test("extension token delivers a capture and revocation blocks further requests", async ({
   page,
+  context,
   request,
   topic,
 }) => {
-  await page.goto("/settings")
-  await page.getByRole("button", { name: "Extension access" }).click()
+  await context.grantPermissions(["clipboard-read", "clipboard-write"])
+  await page.goto("/learning/tokens")
   await page.getByRole("button", { name: "Create token", exact: true }).click()
   let dialog = page.getByRole("dialog")
   const name = `Chrome QA ${randomUUID()}`
   await dialog.getByLabel("Name", { exact: true }).fill(name)
+  await dialog.getByRole("radio", { name: topic.name, exact: true }).click()
   await dialog
     .getByRole("button", { name: "Create token", exact: true })
     .click()
   await expect(
-    dialog.getByRole("heading", { name: "Token created", exact: true }),
+    page.getByRole("dialog", { name: "Token created", exact: true }),
   ).toBeVisible()
-  const token = await dialog.getByLabel("Token", { exact: true }).inputValue()
+  await expect(dialog.getByText(/^bml_[\w-]{8}•+$/)).toBeVisible()
+  await dialog.getByRole("button", { name: "Show token", exact: true }).click()
+  const token = (await dialog.getByText(/^bml_[\w-]{43}$/).textContent()) ?? ""
   expect(token).toMatch(/^bml_[\w-]{43}$/)
   await dialog.getByRole("button", { name: "Done", exact: true }).click()
   await expect(dialog).toBeHidden()
@@ -207,9 +211,20 @@ test("extension token delivers a capture and revocation blocks further requests"
       .locator("div")
       .filter({ has: page.getByRole("heading", { name, exact: true }) })
       .filter({
-        has: page.getByRole("button", { name: "Revoke token", exact: true }),
+        has: page.getByRole("button", { name: "Copy token", exact: true }),
       })
       .last()
+    await expect(card.getByText(/^bml_[\w-]{8}•+$/)).toBeVisible()
+    await expect(card.getByText(token, { exact: true })).toHaveCount(0)
+    await card.getByRole("button", { name: "Show token", exact: true }).click()
+    await expect(card.getByText(token, { exact: true })).toBeVisible()
+    await card.getByRole("button", { name: "Hide token", exact: true }).click()
+    await expect(card.getByText(token, { exact: true })).toHaveCount(0)
+    await card.getByRole("button", { name: "Copy token", exact: true }).click()
+    await expect(card.getByRole("status")).toHaveText("Copied")
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      token,
+    )
     await card
       .getByRole("button", { name: "Revoke token", exact: true })
       .click()
