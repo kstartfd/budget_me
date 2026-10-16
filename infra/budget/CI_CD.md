@@ -12,7 +12,7 @@ push main ─▶ build:backend ─┐            (Docker-in-Docker on the runner
             build:frontend ─┴─▶ push to registry.gitlab.com/kstartfd/budget_me
                                     │
                                     ▼
-                              deploy (auto): ssh deploy@78.140.240.60
+                              deploy (auto): ssh deploy@45.133.19.54
                                 render ~/budget_me/.env  ·  docker login
                                 compose pull → up -d → migrate → /healthz gate
 ```
@@ -20,8 +20,8 @@ push main ─▶ build:backend ─┐            (Docker-in-Docker on the runner
 - Project: `gitlab.com/kstartfd/budget_me`
 - Registry: `registry.gitlab.com/kstartfd/budget_me`
   (`…/backend:<sha>`, `…/frontend:<sha>`, plus a moving `:latest`)
-- Server: `deploy@78.140.240.60` (Ubuntu 26.04, Docker + Compose v2, 2 GB RAM,
-  Moscow). Root bootstrap → `deploy` user; see §2.
+- Server: `deploy@45.133.19.54` (Ubuntu 26.04, Docker + Compose v2, 4 GB RAM /
+  2 CPU / 50 GB, Toronto). Root bootstrap → `deploy` user; see §2.
 - Domain: `budgetme.xyz` — DNS at hoster.by, apex `A` record → the VPS IP.
 
 ---
@@ -51,7 +51,7 @@ ssh-keygen -t ed25519 -C budget_me-deploy -f ~/.ssh/budget_me_deploy -N ''
 
 Get the server host keys for `SSH_KNOWN_HOSTS`:
 ```bash
-ssh-keyscan 78.140.240.60
+ssh-keyscan 45.133.19.54
 ```
 Copy the whole output (all lines).
 
@@ -63,8 +63,8 @@ is a multi-line key, so it **cannot be masked** — set its **Type = File** inst
 | Variable                | Value                                          | Type     | Protected | Masked |
 |-------------------------|------------------------------------------------|----------|-----------|--------|
 | `SSH_PRIVATE_KEY`       | contents of `~/.ssh/budget_me_deploy`          | **File** | yes       | —      |
-| `SSH_HOST`              | `78.140.240.60`                                | Variable | yes       | no     |
-| `SSH_KNOWN_HOSTS`       | output of `ssh-keyscan 78.140.240.60`          | Variable | yes       | no     |
+| `SSH_HOST`              | `45.133.19.54`                                 | Variable | yes       | no     |
+| `SSH_KNOWN_HOSTS`       | output of `ssh-keyscan 45.133.19.54`           | Variable | yes       | no     |
 | `DEPLOY_TOKEN_USER`     | deploy-token username (from §1b)               | Variable | yes       | no     |
 | `DEPLOY_TOKEN_PASSWORD` | deploy-token secret (from §1b)                 | Variable | yes       | **yes**|
 | `DOMAIN`                | `budgetme.xyz`                                 | Variable | yes       | no     |
@@ -88,6 +88,12 @@ Caddyfile and a rendered `.env`. The provider hands you a root-only box, so the
 bootstrap creates the `deploy` user the pipeline logs in as:
 
 ```bash
+# Docker CE from Docker's apt repo (suite `resolute`), pinned to the versions
+# prod runs — never "latest": 29.8.0 / containerd 2.3.5 / buildx 0.37.0 / compose 5.5.1
+apt-get install -y docker-ce=5:29.8.0-1~ubuntu.26.04~resolute \
+  docker-ce-cli=5:29.8.0-1~ubuntu.26.04~resolute containerd.io=2.3.5-1~ubuntu.26.04~resolute \
+  docker-buildx-plugin=0.37.0-1~ubuntu.26.04~resolute docker-compose-plugin=5.5.1-1~ubuntu.26.04~resolute
+
 # deploy user + docker access
 useradd -m -s /bin/bash deploy
 usermod -aG docker deploy
@@ -127,7 +133,7 @@ no `www` record needed.
    `compose pull && up -d && migrate` behind a `/healthz` gate with rollback.
 4. Open `https://budgetme.xyz`. First hit may lag a few seconds while Caddy
    fetches the TLS cert — follow it with
-   `ssh deploy@78.140.240.60 'cd ~/budget_me && docker compose -f prod.yml logs -f caddy'`.
+   `ssh deploy@45.133.19.54 'cd ~/budget_me && docker compose -f prod.yml logs -f caddy'`.
 
 ### Where the deploy job puts files (and how compose reads them)
 The `./infra/edge/Caddyfile` bind-mount in `prod.yml` resolves against the

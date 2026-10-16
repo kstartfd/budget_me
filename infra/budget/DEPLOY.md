@@ -6,8 +6,8 @@
 > the hand-driven fallback (bring the stack up yourself from a checkout). Either
 > way the images are **pulled from the registry** — nothing is built on the VPS.
 
-Target: one small VPS (Ubuntu 26.04, Docker + Compose v2, 2 GB RAM, ~24 GB
-disk — `deploy@78.140.240.60`). Everything runs from `infra/budget/compose/prod.yml`:
+Target: one small VPS (Ubuntu 26.04, Docker + Compose v2, 4 GB RAM, 50 GB
+disk — `deploy@45.133.19.54`, Toronto). Everything runs from `infra/budget/compose/prod.yml`:
 
 - **caddy** — the only internet-facing service (ports 80/443), automatic HTTPS
   via Let's Encrypt, path-routes `/api/*` → backend and everything else → frontend.
@@ -145,7 +145,7 @@ hand over the data and the key to read it together.
 | Value | What |
 |---|---|
 | `BACKUP_PASSPHRASE` | gpg symmetric passphrase. Generate: `openssl rand -base64 32`. **Without it the dumps are noise** — keep a copy somewhere you will still have if the server is gone. |
-| `BACKUP_CHAT_ID` | Where the dumps go: your Telegram user id (the bot can DM you — you already started it) or a private channel with the bot as admin. |
+| `BACKUP_CHAT_ID` | Where the dumps go. budget_me uses a dedicated private channel with the bot as admin (id looks like `-100…`; a user id also works — the bot can DM you). Alerts stay on `ALERT_CHAT_ID` if it is set, so moving the dumps to a channel does not move the alerts. |
 
 Two places they can live, and the deploy handles both:
 
