@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
 import { IconBook2, IconKey, IconPlus, IconSettings } from "@tabler/icons-react"
 import { AddActionProvider, useAddAction } from "@/components/add-action"
+import { FullScreenProvider, useIsFullScreen } from "@/components/full-screen"
 import { HeaderControls } from "@/components/header-controls"
 import { DeletionBanner } from "@/features/account"
 import { AuthGate, AuthProvider } from "@/features/auth"
@@ -13,6 +14,7 @@ function Frame({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const t = useTranslations("learning")
   const { trigger, enabled } = useAddAction()
+  const fullScreen = useIsFullScreen()
   return (
     <div className="lg:flex">
       <aside className="border-border bg-background sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r px-3.5 py-5 lg:flex">
@@ -23,11 +25,14 @@ function Frame({ children }: { children: React.ReactNode }) {
         <div className="mt-auto flex justify-center"><HeaderControls /></div>
       </aside>
       <div className="min-w-0 flex-1">
-        <header className="bg-background border-border sticky top-0 z-20 border-b lg:hidden">
-          <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4"><Link href="/learning" className="text-[15px] font-semibold">learning</Link><HeaderControls /></div>
-        </header>
-        <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-[18px] pt-[18px] pb-44 lg:max-w-4xl lg:px-6 lg:pt-6 lg:pb-16"><DeletionBanner />{children}</main>
+        {!fullScreen && (
+          <header className="bg-background border-border sticky top-0 z-20 border-b lg:hidden">
+            <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4"><Link href="/learning" className="text-[15px] font-semibold">learning</Link><HeaderControls /></div>
+          </header>
+        )}
+        <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-[18px] pt-[18px] pb-44 lg:max-w-[1040px] lg:px-6 lg:pt-6 lg:pb-16"><DeletionBanner />{children}</main>
       </div>
+      {!fullScreen && (
       <nav aria-label={t("title")} className="border-border fixed inset-x-0 bottom-0 z-20 border-t bg-background lg:hidden">
         <div className="mx-auto flex max-w-md items-center justify-around px-4 py-4 pb-[max(env(safe-area-inset-bottom),1.375rem)]">
           <Link href="/learning" aria-current={pathname === "/learning" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconBook2 size={22} />{t("title")}</Link>
@@ -36,10 +41,11 @@ function Frame({ children }: { children: React.ReactNode }) {
           <Link href="/learning/settings" aria-current={pathname === "/learning/settings" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconSettings size={22} />{t("settings")}</Link>
         </div>
       </nav>
+      )}
     </div>
   )
 }
 
 export function AppShell({ children }: { children: React.ReactNode }) {
-  return <AuthProvider><AuthGate><AddActionProvider><Frame>{children}</Frame></AddActionProvider></AuthGate></AuthProvider>
+  return <AuthProvider><AuthGate><AddActionProvider><FullScreenProvider><Frame>{children}</Frame></FullScreenProvider></AddActionProvider></AuthGate></AuthProvider>
 }

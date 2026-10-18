@@ -132,7 +132,9 @@
     "tokenEndpoint": "Endpoint",
     "tokenEndpointHint": "Paste this URL into the extension together with the token. The topic is already baked into the token, so every token posts to the same endpoint.",
     "copyEndpoint": "Copy endpoint",
-    "settings": "Settings"
+    "settings": "Settings",
+    "markKnown": "Mark as known",
+    "markLearning": "Move back to Learning"
   },
   "account": {
     "kicker": "Account",

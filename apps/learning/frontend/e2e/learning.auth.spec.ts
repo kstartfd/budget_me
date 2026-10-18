@@ -138,18 +138,58 @@ test("mobile details stay open after changing a filtered status and editing", as
     .getByRole("button", { name: "Inbox", exact: true })
     .click()
   await page.getByRole("button", { name: /figure out/ }).click()
-  dialog = page.getByRole("dialog")
-  await dialog.getByRole("button", { name: "Learning", exact: true }).click()
+  const status = page.getByRole("group", {
+    name: "Learning status",
+    exact: true,
+  })
+  await status.getByRole("button", { name: "Learning", exact: true }).click()
   await expect(
-    dialog.getByRole("button", { name: "Learning", exact: true }),
+    status.getByRole("button", { name: "Learning", exact: true }),
   ).toHaveAttribute("aria-pressed", "true")
-  await dialog.getByRole("button", { name: "Edit entry", exact: true }).click()
+  await page.getByRole("button", { name: "Edit entry", exact: true }).click()
+  dialog = page.getByRole("dialog")
   await dialog.getByLabel("Translation", { exact: true }).fill("разобраться")
   await dialog.getByRole("button", { name: "Save", exact: true }).click()
-  await expect(dialog.getByText("разобраться", { exact: true })).toBeVisible()
-  await dialog.getByRole("button", { name: "Close", exact: true }).click()
   await expect(dialog).toBeHidden()
+  await expect(page.getByText("разобраться", { exact: true })).toBeVisible()
+  await page.getByRole("button", { name: topic.name, exact: true }).click()
   await expect(page.getByText("No matches", { exact: true })).toBeVisible()
+})
+
+test("mobile entry screen marks an entry known and deletes it", async ({
+  page,
+  topic,
+}) => {
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.goto(`/learning/${topic.id}`)
+  await page
+    .getByRole("button", { name: "Add entry", exact: true })
+    .last()
+    .click()
+  const dialog = page.getByRole("dialog")
+  await dialog.getByLabel("Word or phrase", { exact: true }).fill("catch up")
+  await dialog.getByRole("button", { name: "Save", exact: true }).click()
+  await expect(dialog).toBeHidden()
+  await page.getByRole("button", { name: /catch up/ }).click()
+  await expect(page.getByRole("navigation")).toHaveCount(0)
+  await page
+    .getByRole("button", { name: "Mark as known", exact: true })
+    .click()
+  await expect(
+    page
+      .getByRole("group", { name: "Learning status", exact: true })
+      .getByRole("button", { name: "Known", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true")
+  await expect(
+    page.getByRole("button", { name: "Move back to Learning", exact: true }),
+  ).toBeVisible()
+  await page.getByRole("button", { name: "Delete entry", exact: true }).click()
+  await page
+    .getByRole("dialog")
+    .getByRole("button", { name: "Delete", exact: true })
+    .click()
+  await expect(page.getByRole("button", { name: /catch up/ })).toHaveCount(0)
+  await expect(page.getByRole("heading", { name: topic.name })).toBeVisible()
 })
 
 test("extension token delivers a capture and revocation blocks further requests", async ({
