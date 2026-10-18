@@ -3,6 +3,7 @@ module budget_me/backend
 go 1.25
 
 require (
+	budget_me/account v0.0.0
 	github.com/google/uuid v1.6.0
 	github.com/jackc/pgx/v5 v5.7.1
 	github.com/joho/godotenv v1.5.1
@@ -29,3 +30,5 @@ require (
 	golang.org/x/text v0.32.0 // indirect
 	golang.org/x/time v0.8.0 // indirect
 )
+
+replace budget_me/account => ../../../libs/account

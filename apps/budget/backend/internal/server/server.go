@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	ident "budget_me/account"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	echomw "github.com/labstack/echo/v4/middleware"
@@ -37,7 +38,7 @@ import (
 )
 
 // New builds the fully wired Echo server from config + pool.
-func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
+func New(cfg config.Config, pool, accountPool *pgxpool.Pool) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
@@ -64,7 +65,7 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 
 		defer cancel()
 
-		if err := pool.Ping(hctx); err != nil {
+		if err := pool.Ping(hctx); err != nil || accountPool.Ping(hctx) != nil {
 			return c.JSON(http.StatusServiceUnavailable, echo.Map{"status": "db_down"})
 		}
 
@@ -86,10 +87,12 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 	protected := e.Group("/api/v1", httpx.RequireAuth(codec))
 
 	// Feature handlers — add new domains here.
-	auth.NewController(queries, clk, cfg.TelegramBotToken, codec, cfg.AccountDeletionGrace).
+	accounts := ident.New(accountPool)
+
+	auth.NewController(queries, accounts, clk, cfg.TelegramBotToken, codec, cfg.AccountDeletionGrace).
 		Routes(public, protected)
 
-	account.NewController(queries, clk, cfg.AccountDeletionGrace).
+	account.NewController(queries, accounts, clk, cfg.AccountDeletionGrace).
 		Routes(public, protected)
 
 	balance.NewController(queries, clk).

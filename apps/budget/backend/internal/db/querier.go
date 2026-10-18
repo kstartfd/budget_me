@@ -27,17 +27,16 @@ type Querier interface {
 	DeleteList(ctx context.Context, arg DeleteListParams) (int64, error)
 	DeletePlan(ctx context.Context, arg DeletePlanParams) error
 	DeleteTransaction(ctx context.Context, arg DeleteTransactionParams) (int64, error)
-	// The worker's sweep: everything requested before the cutoff goes for good.
-	// Returns the ids it removed so the run can be logged. All owned rows follow
+	// The worker's sweep for accounts whose deletion is due: all owned rows follow
 	// via ON DELETE CASCADE.
-	DeleteUsersPastDeadline(ctx context.Context, cutoff pgtype.Timestamptz) ([]DeleteUsersPastDeadlineRow, error)
+	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	GetAdvice(ctx context.Context, arg GetAdviceParams) (AiAdvice, error)
 	GetCategoryByID(ctx context.Context, id pgtype.UUID) (Category, error)
 	// Just the cutoff. The dashboard asks on every load and needs nothing else off
 	// the user row, so this stays narrower than GetUserByID.
 	GetHistoryResetAt(ctx context.Context, id pgtype.UUID) (pgtype.Timestamptz, error)
 	GetItemForUser(ctx context.Context, arg GetItemForUserParams) (Item, error)
-	GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error)
+	GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
 	// Is there an older run to inherit from? Decides how a removal is recorded: with
@@ -69,7 +68,10 @@ type Querier interface {
 	// Everyone the nightly advice pass should look at; their zone decides which
 	// instants make up "their" month.
 	ListUsersForAdvice(ctx context.Context) ([]ListUsersForAdviceRow, error)
+	ListUsersWithoutAccount(ctx context.Context) ([]User, error)
 	ListVisibleToUser(ctx context.Context, arg ListVisibleToUserParams) (bool, error)
+	// The account is the source of truth for identity; this row keeps a copy.
+	MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error)
 	// The zone the client last reported. Only background work reads it (cmd/worker);
 	// requests carry their own zone with them.
 	RememberTimezone(ctx context.Context, arg RememberTimezoneParams) error
@@ -79,7 +81,7 @@ type Querier interface {
 	// Re-stating the balance moves the anchor to `now`: transactions before it stop
 	// counting, which is exactly what "my balance is actually X" should mean.
 	SetBalanceAnchor(ctx context.Context, arg SetBalanceAnchorParams) (User, error)
-	SetUserWebIdentity(ctx context.Context, arg SetUserWebIdentityParams) (User, error)
+	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
 	SumIncomeInRange(ctx context.Context, arg SumIncomeInRangeParams) (int64, error)
 	// Net movement since the balance anchor: income adds, expense subtracts. Feeds
 	// the running balance (anchor + this).
@@ -114,9 +116,6 @@ type Querier interface {
 	// row (user_id IS NULL there), so a preset can't be renamed this way either.
 	UpdateList(ctx context.Context, arg UpdateListParams) (ItemList, error)
 	UpdatePlan(ctx context.Context, arg UpdatePlanParams) (Plan, error)
-	// Full replace of the editable fields (title/note/planned_for) — this is also
-	// what an explicit "отложить на завтра" is: a plain planned_for change, distinct
-	// from the carry-over above, which never touches a row.
 	// ownership в самом WHERE
 	UpdateTransaction(ctx context.Context, arg UpdateTransactionParams) (Transaction, error)
 	UpdateUserSettings(ctx context.Context, arg UpdateUserSettingsParams) (UpdateUserSettingsRow, error)
@@ -132,7 +131,6 @@ type Querier interface {
 	// One statement rather than an update followed by a reset: the two must not be
 	// separable, and this keeps it atomic without reaching for a transaction.
 	UpdateUserSettingsAndResetHistory(ctx context.Context, arg UpdateUserSettingsAndResetHistoryParams) (UpdateUserSettingsAndResetHistoryRow, error)
-	UpdateUserTelegramProfile(ctx context.Context, arg UpdateUserTelegramProfileParams) (User, error)
 	UpsertAdvice(ctx context.Context, arg UpsertAdviceParams) error
 	// Writes the run that starts at `valid_from`. A second save in the same month
 	// corrects that run rather than opening another (the UNIQUE key backs it), so

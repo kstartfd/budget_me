@@ -13,8 +13,10 @@ import (
 	"os"
 	"time"
 
+	ident "budget_me/account"
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 )
 
@@ -47,7 +49,19 @@ func main() {
 			fail("usage: admin merge <survivorID> <loserID>")
 		}
 
-		mergeUsers(ctx, conn, mustUUID(os.Args[2]), mustUUID(os.Args[3]))
+		accountURL := os.Getenv("ACCOUNT_DATABASE_URL")
+		if accountURL == "" {
+			fail("ACCOUNT_DATABASE_URL is required")
+		}
+
+		accountPool, err := pgxpool.New(ctx, accountURL)
+		if err != nil {
+			fail("connect account database: " + err.Error())
+		}
+
+		defer accountPool.Close()
+
+		mergeUsers(ctx, conn, ident.New(accountPool), mustUUID(os.Args[2]), mustUUID(os.Args[3]))
 	default:
 		usage()
 	}
@@ -103,7 +117,10 @@ ORDER BY u.created_at`)
 // deleted. Order matters: everything referencing the loser is moved BEFORE the
 // delete (FKs are ON DELETE CASCADE), and the loser is deleted BEFORE the
 // survivor claims its telegram_id/email (UNIQUE columns).
-func mergeUsers(ctx context.Context, conn *pgx.Conn, survivor, loser string) {
+//
+// The people behind the two users live in the shared account database; their
+// merge runs just before the commit, so a failure there rolls the user data back.
+func mergeUsers(ctx context.Context, conn *pgx.Conn, accounts *ident.Store, survivor, loser string) {
 	if survivor == loser {
 		fail("survivor and loser must differ")
 	}
@@ -135,6 +152,18 @@ func mergeUsers(ctx context.Context, conn *pgx.Conn, survivor, loser string) {
 	var survivorName string
 	if err := tx.QueryRow(ctx, `SELECT first_name FROM users WHERE id = $1`, survivor).Scan(&survivorName); err != nil {
 		fail("survivor not found: " + err.Error())
+	}
+
+	// Both users must already belong to an account (`migrate backfill-accounts`).
+	var survivorAccount, loserAccount *uuid.UUID
+
+	if err := tx.QueryRow(ctx, `SELECT s.account_id, l.account_id FROM users s, users l WHERE s.id = $1 AND l.id = $2`,
+		survivor, loser).Scan(&survivorAccount, &loserAccount); err != nil {
+		fail("account lookup: " + err.Error())
+	}
+
+	if survivorAccount == nil || loserAccount == nil {
+		fail("a user has no account yet — run `migrate backfill-accounts` first")
 	}
 
 	// 1. Remap transactions of loser categories whose name collides with a
@@ -186,6 +215,13 @@ UPDATE users SET
   updated_at    = $7
 WHERE id = $1`, survivor, lTg, lUser, lLang, lEmail, lPw, time.Now()); err != nil {
 		fail("attach identity: " + err.Error())
+	}
+
+	// 7. The same fold for the accounts behind them (one account, or two).
+	if *survivorAccount != *loserAccount {
+		if _, err := accounts.Merge(ctx, *survivorAccount, *loserAccount, time.Now()); err != nil {
+			fail("merge accounts: " + err.Error())
+		}
 	}
 
 	if err := tx.Commit(ctx); err != nil {

@@ -40,7 +40,14 @@ func main() {
 	}
 	defer pool.Close()
 
-	e := server.New(cfg, pool)
+	accountPool, err := db.NewPool(rootCtx, cfg.AccountDatabaseURL)
+	if err != nil {
+		slog.Error("account db connect", "err", err)
+		os.Exit(1)
+	}
+	defer accountPool.Close()
+
+	e := server.New(cfg, pool, accountPool)
 
 	// Greet /start with a "Launch" button (no-op without a bot token).
 	go tgbot.New(cfg.TelegramBotToken, cfg.TelegramMiniAppURL).Run(rootCtx)

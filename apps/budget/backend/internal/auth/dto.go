@@ -3,8 +3,8 @@ package auth
 import (
 	"time"
 
-	"budget_me/backend/internal/db"
-	"budget_me/backend/internal/ids"
+	ident "budget_me/account"
+	"github.com/google/uuid"
 )
 
 type telegramRequest struct {
@@ -28,8 +28,8 @@ type userResponse struct {
 	Email        *string `json:"email,omitempty"`
 	TelegramID   *int64  `json:"telegram_id,omitempty"`
 	LanguageCode *string `json:"language_code,omitempty"`
-	// DeleteAt is set only while a deletion is pending: the moment cmd/worker
-	// will remove this account. The app reads it on every load to show the
+	// DeleteAt is set only while a deletion is pending: the moment the account
+	// will be erased. The app reads it on every load to show the
 	// "your account is scheduled for deletion — cancel?" banner.
 	DeleteAt *string `json:"delete_at,omitempty"`
 }
@@ -39,18 +39,20 @@ type authResponse struct {
 	User  userResponse `json:"user"`
 }
 
-func toUserResponse(u db.User, deletionGrace time.Duration) userResponse {
+// toUserResponse describes an account to its owner. The id is the app's own
+// user id (the one the session token carries), not the account id.
+func toUserResponse(userID uuid.UUID, acc ident.Account, deletionGrace time.Duration) userResponse {
 	res := userResponse{
-		ID:           ids.FromPg(u.ID).String(),
-		FirstName:    u.FirstName,
-		Username:     db.TextPtr(u.Username),
-		Email:        db.TextPtr(u.Email),
-		TelegramID:   db.Int8Ptr(u.TelegramID),
-		LanguageCode: db.TextPtr(u.LanguageCode),
+		ID:           userID.String(),
+		FirstName:    acc.FirstName,
+		Username:     acc.Username,
+		Email:        acc.Email,
+		TelegramID:   acc.TelegramID,
+		LanguageCode: acc.LanguageCode,
 	}
 
-	if u.DeletionRequestedAt.Valid {
-		deleteAt := u.DeletionRequestedAt.Time.Add(deletionGrace).UTC().Format(time.RFC3339)
+	if at := acc.DeleteAt(deletionGrace); at != nil {
+		deleteAt := at.UTC().Format(time.RFC3339)
 		res.DeleteAt = &deleteAt
 	}
 

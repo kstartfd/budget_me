@@ -7,10 +7,15 @@ import (
 	"os"
 	"strconv"
 
+	ident "budget_me/account"
+	accountmigrations "budget_me/account/migrations"
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
 	"github.com/pressly/goose/v3"
 
+	"budget_me/backend/internal/accountlink"
+	"budget_me/backend/internal/clock"
+	"budget_me/backend/internal/db"
 	"budget_me/backend/migrations"
 )
 
@@ -50,6 +55,19 @@ func main() {
 	switch cmd {
 	case "up":
 		err = goose.UpContext(ctx, d, ".")
+		// The shared account schema is migrated by whichever app deploys first.
+		if url := os.Getenv("ACCOUNT_DATABASE_URL"); err == nil && url != "" {
+			err = accountmigrations.Up(ctx, url)
+		}
+	case "backfill-accounts":
+		// Links every user from before accounts existed to its account (creating
+		// it, or joining the one the other app already made). Idempotent.
+		var n int
+
+		n, err = backfillAccounts(ctx)
+		if err == nil {
+			fmt.Println("backfill-accounts: linked", n)
+		}
 	case "down":
 		err = goose.DownContext(ctx, d, ".")
 	case "down-to":
@@ -87,4 +105,27 @@ func main() {
 		fmt.Fprintln(os.Stderr, "migrate:", err)
 		os.Exit(1)
 	}
+}
+
+func backfillAccounts(ctx context.Context) (int, error) {
+	url := os.Getenv("ACCOUNT_DATABASE_URL")
+	if url == "" {
+		return 0, fmt.Errorf("ACCOUNT_DATABASE_URL is required")
+	}
+
+	appPool, err := db.NewPool(ctx, os.Getenv("DATABASE_URL"))
+	if err != nil {
+		return 0, err
+	}
+
+	defer appPool.Close()
+
+	accountPool, err := db.NewPool(ctx, url)
+	if err != nil {
+		return 0, err
+	}
+
+	defer accountPool.Close()
+
+	return accountlink.New(db.New(appPool), ident.New(accountPool), clock.New()).Backfill(ctx)
 }

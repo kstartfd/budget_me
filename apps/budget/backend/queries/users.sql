@@ -1,11 +1,11 @@
 -- name: InsertUser :one
 INSERT INTO users (
-    id, telegram_id, email, password_hash,
+    id, account_id, telegram_id, email, password_hash,
     first_name, username, language_code,
     month_start_day, currency, timezone,
     created_at, updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
 )
 RETURNING *;
 
@@ -15,14 +15,26 @@ SELECT * FROM users WHERE id = $1;
 -- name: GetUserByTelegramID :one
 SELECT * FROM users WHERE telegram_id = $1;
 
--- name: GetUserByEmail :one
-SELECT * FROM users WHERE email = $1;
+-- name: GetUserByAccountID :one
+SELECT * FROM users WHERE account_id = $1;
 
--- name: UpdateUserTelegramProfile :one
+-- name: SetUserAccount :one
+UPDATE users SET account_id = $2, updated_at = $3 WHERE id = $1 RETURNING *;
+
+-- name: MirrorAccountToUser :one
+-- The account is the source of truth for identity; this row keeps a copy.
 UPDATE users
-SET first_name = $2, username = $3, language_code = $4, updated_at = $5
-WHERE id = $1
-RETURNING *;
+SET telegram_id = $2, email = $3, password_hash = $4,
+    first_name = $5, username = $6, language_code = $7, updated_at = $8
+WHERE id = $1 RETURNING *;
+
+-- name: ListUsersWithoutAccount :many
+SELECT * FROM users WHERE account_id IS NULL ORDER BY created_at;
+
+-- name: DeleteUsersByAccount :exec
+-- The worker's sweep for accounts whose deletion is due: all owned rows follow
+-- via ON DELETE CASCADE.
+DELETE FROM users WHERE account_id = ANY(sqlc.arg(account_ids)::uuid[]);
 
 -- name: UpdateUserSettings :one
 UPDATE users
@@ -71,12 +83,6 @@ WHERE id = sqlc.arg(id) AND timezone <> sqlc.arg(timezone);
 SELECT id, timezone FROM users
 WHERE deletion_requested_at IS NULL;
 
--- name: SetUserWebIdentity :one
-UPDATE users
-SET email = $2, password_hash = $3, updated_at = $4
-WHERE id = $1
-RETURNING *;
-
 -- name: RequestUserDeletion :one
 -- Idempotent on purpose: asking twice keeps the ORIGINAL deadline (COALESCE),
 -- so a second tap cannot silently push the deletion further out.
@@ -91,16 +97,6 @@ UPDATE users
 SET deletion_requested_at = NULL, updated_at = sqlc.arg(now)
 WHERE id = sqlc.arg(id)
 RETURNING *;
-
--- name: DeleteUsersPastDeadline :many
--- The worker's sweep: everything requested before the cutoff goes for good.
--- Returns the ids it removed so the run can be logged. All owned rows follow
--- via ON DELETE CASCADE.
-DELETE FROM users
-WHERE deletion_requested_at IS NOT NULL
-  AND deletion_requested_at < sqlc.arg(cutoff)
-RETURNING id, telegram_id, email;
-
 
 -- name: SetBalanceAnchor :one
 -- Re-stating the balance moves the anchor to `now`: transactions before it stop

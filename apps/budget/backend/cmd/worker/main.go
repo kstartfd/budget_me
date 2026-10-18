@@ -6,18 +6,18 @@
 // It does one sweep and exits — no daemon, nothing resident in the 1 GB box.
 // Three jobs:
 //
-//	purge-accounts — delete users whose deletion request is older than
-//	                 ACCOUNT_DELETION_GRACE (default 30 days). Everything the
-//	                 user owns follows via ON DELETE CASCADE. Cancelling the
-//	                 request (NULLing the column) takes them out of the sweep,
-//	                 which is what makes the deletion undoable until the deadline.
+//	purge-accounts — erase this app's data of every account whose deletion
+//	                 request is older than ACCOUNT_DELETION_GRACE (default 30
+//	                 days). Everything the user owns follows via ON DELETE CASCADE;
+//	                 the account itself goes once no app holds data for it.
+//	                 Cancelling the request takes it out of the sweep, which is
+//	                 what makes the deletion undoable until the deadline.
 //
 //	write-advice   — refresh each user's AI advice for the current month. This is
 //	                 where the model is paid for: once per user per night, instead
 //	                 of once per screen open. The API only generates on demand for
 //	                 a user who has no advice at all yet (a new account should not
 //	                 wait until tomorrow).
-//
 package main
 
 import (
@@ -29,10 +29,12 @@ import (
 	"syscall"
 	"time"
 
+	ident "budget_me/account"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/joho/godotenv"
 
+	accountcommands "budget_me/backend/internal/account/commands"
 	"budget_me/backend/internal/ai"
 	"budget_me/backend/internal/clock"
 	"budget_me/backend/internal/config"
@@ -65,34 +67,39 @@ func main() {
 
 	defer pool.Close()
 
+	accountPool, err := pgxpool.New(ctx, cfg.AccountDatabaseURL)
+	if err != nil {
+		fail("connect account database: " + err.Error())
+	}
+
+	defer accountPool.Close()
+
 	queries := db.New(pool)
 
 	clk := clock.New()
-	purgeAccounts(ctx, queries, clk, cfg.AccountDeletionGrace)
+	purgeAccounts(ctx, queries, ident.New(accountPool), clk, cfg.AccountDeletionGrace)
 	writeAdvice(ctx, queries, clk, ai.New(cfg.AIAPIKey, cfg.AIModel, cfg.AIBaseURL))
 }
 
 func purgeAccounts(
 	ctx context.Context,
 	q *db.Queries,
+	accounts *ident.Store,
 	clk clock.Clock,
 	grace time.Duration,
 ) {
-	// Anything requested before this instant has served its grace period.
-	cutoff := clk.Now().Add(-grace)
-
-	purged, err := q.DeleteUsersPastDeadline(ctx, db.Time(cutoff))
+	purged, err := accountcommands.NewPurgeHandler(q, accounts, clk, grace).Handle(ctx)
 	if err != nil {
 		fail("purge-accounts: " + err.Error())
 	}
 
 	fmt.Printf(
-		"purge-accounts: grace=%s cutoff=%s deleted=%d\n",
-		grace, cutoff.UTC().Format("2006-01-02 15:04:05Z"), len(purged),
+		"purge-accounts: grace=%s deleted=%d\n",
+		grace, len(purged),
 	)
 
-	for _, u := range purged {
-		fmt.Printf("  deleted user %s\n", ids.FromPg(u.ID))
+	for _, id := range purged {
+		fmt.Printf("  deleted account %s\n", id)
 	}
 }
 

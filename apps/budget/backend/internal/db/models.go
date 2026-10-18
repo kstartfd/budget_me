@@ -55,6 +55,90 @@ func (ns NullCurrencyCode) Value() (driver.Value, error) {
 	return string(ns.CurrencyCode), nil
 }
 
+type DayEmailFrequency string
+
+const (
+	DayEmailFrequencyDaily DayEmailFrequency = "daily"
+	DayEmailFrequencyTwice DayEmailFrequency = "twice"
+)
+
+func (e *DayEmailFrequency) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DayEmailFrequency(s)
+	case string:
+		*e = DayEmailFrequency(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DayEmailFrequency: %T", src)
+	}
+	return nil
+}
+
+type NullDayEmailFrequency struct {
+	DayEmailFrequency DayEmailFrequency
+	Valid             bool // Valid is true if DayEmailFrequency is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDayEmailFrequency) Scan(value interface{}) error {
+	if value == nil {
+		ns.DayEmailFrequency, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DayEmailFrequency.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDayEmailFrequency) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DayEmailFrequency), nil
+}
+
+type DayEmailSlot string
+
+const (
+	DayEmailSlotMorning DayEmailSlot = "morning"
+	DayEmailSlotEvening DayEmailSlot = "evening"
+)
+
+func (e *DayEmailSlot) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = DayEmailSlot(s)
+	case string:
+		*e = DayEmailSlot(s)
+	default:
+		return fmt.Errorf("unsupported scan type for DayEmailSlot: %T", src)
+	}
+	return nil
+}
+
+type NullDayEmailSlot struct {
+	DayEmailSlot DayEmailSlot
+	Valid        bool // Valid is true if DayEmailSlot is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullDayEmailSlot) Scan(value interface{}) error {
+	if value == nil {
+		ns.DayEmailSlot, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.DayEmailSlot.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullDayEmailSlot) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.DayEmailSlot), nil
+}
+
 type ItemVerdict string
 
 const (
@@ -97,6 +181,177 @@ func (ns NullItemVerdict) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.ItemVerdict), nil
+}
+
+type LearningCaptureStatus string
+
+const (
+	LearningCaptureStatusPending    LearningCaptureStatus = "pending"
+	LearningCaptureStatusProcessing LearningCaptureStatus = "processing"
+	LearningCaptureStatusDone       LearningCaptureStatus = "done"
+	LearningCaptureStatusFailed     LearningCaptureStatus = "failed"
+)
+
+func (e *LearningCaptureStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningCaptureStatus(s)
+	case string:
+		*e = LearningCaptureStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningCaptureStatus: %T", src)
+	}
+	return nil
+}
+
+type NullLearningCaptureStatus struct {
+	LearningCaptureStatus LearningCaptureStatus
+	Valid                 bool // Valid is true if LearningCaptureStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningCaptureStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningCaptureStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningCaptureStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningCaptureStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningCaptureStatus), nil
+}
+
+type LearningEntryKind string
+
+const (
+	LearningEntryKindWord   LearningEntryKind = "word"
+	LearningEntryKindPhrase LearningEntryKind = "phrase"
+)
+
+func (e *LearningEntryKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningEntryKind(s)
+	case string:
+		*e = LearningEntryKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningEntryKind: %T", src)
+	}
+	return nil
+}
+
+type NullLearningEntryKind struct {
+	LearningEntryKind LearningEntryKind
+	Valid             bool // Valid is true if LearningEntryKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningEntryKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningEntryKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningEntryKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningEntryKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningEntryKind), nil
+}
+
+type LearningEntryStatus string
+
+const (
+	LearningEntryStatusInbox    LearningEntryStatus = "inbox"
+	LearningEntryStatusLearning LearningEntryStatus = "learning"
+	LearningEntryStatusKnown    LearningEntryStatus = "known"
+)
+
+func (e *LearningEntryStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningEntryStatus(s)
+	case string:
+		*e = LearningEntryStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningEntryStatus: %T", src)
+	}
+	return nil
+}
+
+type NullLearningEntryStatus struct {
+	LearningEntryStatus LearningEntryStatus
+	Valid               bool // Valid is true if LearningEntryStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningEntryStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningEntryStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningEntryStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningEntryStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningEntryStatus), nil
+}
+
+type LearningTokenScope string
+
+const (
+	LearningTokenScopeCapture   LearningTokenScope = "capture"
+	LearningTokenScopeReadWrite LearningTokenScope = "read_write"
+)
+
+func (e *LearningTokenScope) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningTokenScope(s)
+	case string:
+		*e = LearningTokenScope(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningTokenScope: %T", src)
+	}
+	return nil
+}
+
+type NullLearningTokenScope struct {
+	LearningTokenScope LearningTokenScope
+	Valid              bool // Valid is true if LearningTokenScope is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningTokenScope) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningTokenScope, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningTokenScope.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningTokenScope) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningTokenScope), nil
 }
 
 type TxDirection string
@@ -169,6 +424,29 @@ type Category struct {
 	Direction TxDirection
 }
 
+type DayEmailDelivery struct {
+	UserID    pgtype.UUID
+	LocalDay  pgtype.Date
+	Slot      DayEmailSlot
+	Email     string
+	Subject   string
+	Body      string
+	ResendID  pgtype.Text
+	SentAt    pgtype.Timestamptz
+	CreatedAt pgtype.Timestamptz
+}
+
+type DayEmailSubscription struct {
+	UserID                pgtype.UUID
+	Email                 string
+	Frequency             DayEmailFrequency
+	ConfirmedAt           pgtype.Timestamptz
+	ConfirmationHash      pgtype.Text
+	ConfirmationExpiresAt pgtype.Timestamptz
+	CreatedAt             pgtype.Timestamptz
+	UpdatedAt             pgtype.Timestamptz
+}
+
 type Item struct {
 	ID        pgtype.UUID
 	ListID    pgtype.UUID
@@ -192,6 +470,62 @@ type ItemList struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type LearningCapture struct {
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
+	RequestKey  string
+	Payload     []byte
+	Status      LearningCaptureStatus
+	Attempts    int32
+	AvailableAt pgtype.Timestamptz
+	LockedUntil pgtype.Timestamptz
+	LeaseID     pgtype.UUID
+	EntryID     pgtype.UUID
+	Error       string
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
+}
+
+type LearningEntry struct {
+	ID            pgtype.UUID
+	UserID        pgtype.UUID
+	TopicID       pgtype.UUID
+	Kind          LearningEntryKind
+	Text          string
+	Transcription string
+	Translation   string
+	NativeUsage   string
+	Example       string
+	Rule          string
+	Status        LearningEntryStatus
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+	Source        string
+	Explanation   string
+}
+
+type LearningToken struct {
+	ID         pgtype.UUID
+	UserID     pgtype.UUID
+	Name       string
+	Prefix     string
+	TokenHash  []byte
+	Scope      LearningTokenScope
+	CreatedAt  pgtype.Timestamptz
+	LastUsedAt pgtype.Timestamptz
+	RevokedAt  pgtype.Timestamptz
+	TopicID    pgtype.UUID
+}
+
+type LearningTopic struct {
+	ID                  pgtype.UUID
+	UserID              pgtype.UUID
+	Name                string
+	Language            string
+	TranslationLanguage string
+	CreatedAt           pgtype.Timestamptz
+}
+
 type Plan struct {
 	ID          pgtype.UUID
 	UserID      pgtype.UUID
@@ -202,6 +536,17 @@ type Plan struct {
 	ConfirmedAt pgtype.Timestamptz
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
+}
+
+type Task struct {
+	ID         pgtype.UUID
+	UserID     pgtype.UUID
+	Title      string
+	Note       pgtype.Text
+	PlannedFor pgtype.Date
+	DoneOn     pgtype.Date
+	CreatedAt  pgtype.Timestamptz
+	UpdatedAt  pgtype.Timestamptz
 }
 
 type Transaction struct {
@@ -232,4 +577,5 @@ type User struct {
 	BalanceAnchorAt     pgtype.Timestamptz
 	Timezone            string
 	HistoryResetAt      pgtype.Timestamptz
+	AccountID           pgtype.UUID
 }

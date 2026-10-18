@@ -15,7 +15,7 @@ const cancelUserDeletion = `-- name: CancelUserDeletion :one
 UPDATE users
 SET deletion_requested_at = NULL, updated_at = $1
 WHERE id = $2
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id
 `
 
 type CancelUserDeletionParams struct {
@@ -43,44 +43,20 @@ func (q *Queries) CancelUserDeletion(ctx context.Context, arg CancelUserDeletion
 		&i.BalanceAnchorAt,
 		&i.Timezone,
 		&i.HistoryResetAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
-const deleteUsersPastDeadline = `-- name: DeleteUsersPastDeadline :many
-DELETE FROM users
-WHERE deletion_requested_at IS NOT NULL
-  AND deletion_requested_at < $1
-RETURNING id, telegram_id, email
+const deleteUsersByAccount = `-- name: DeleteUsersByAccount :exec
+DELETE FROM users WHERE account_id = ANY($1::uuid[])
 `
 
-type DeleteUsersPastDeadlineRow struct {
-	ID         pgtype.UUID
-	TelegramID pgtype.Int8
-	Email      pgtype.Text
-}
-
-// The worker's sweep: everything requested before the cutoff goes for good.
-// Returns the ids it removed so the run can be logged. All owned rows follow
+// The worker's sweep for accounts whose deletion is due: all owned rows follow
 // via ON DELETE CASCADE.
-func (q *Queries) DeleteUsersPastDeadline(ctx context.Context, cutoff pgtype.Timestamptz) ([]DeleteUsersPastDeadlineRow, error) {
-	rows, err := q.db.Query(ctx, deleteUsersPastDeadline, cutoff)
-	if err != nil {
-		return nil, err
-	}
-	defer rows.Close()
-	items := []DeleteUsersPastDeadlineRow{}
-	for rows.Next() {
-		var i DeleteUsersPastDeadlineRow
-		if err := rows.Scan(&i.ID, &i.TelegramID, &i.Email); err != nil {
-			return nil, err
-		}
-		items = append(items, i)
-	}
-	if err := rows.Err(); err != nil {
-		return nil, err
-	}
-	return items, nil
+func (q *Queries) DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUsersByAccount, accountIds)
+	return err
 }
 
 const getHistoryResetAt = `-- name: GetHistoryResetAt :one
@@ -96,12 +72,12 @@ func (q *Queries) GetHistoryResetAt(ctx context.Context, id pgtype.UUID) (pgtype
 	return history_reset_at, err
 }
 
-const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at FROM users WHERE email = $1
+const getUserByAccountID = `-- name: GetUserByAccountID :one
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id FROM users WHERE account_id = $1
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByEmail, email)
+func (q *Queries) GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByAccountID, accountID)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -120,12 +96,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, 
 		&i.BalanceAnchorAt,
 		&i.Timezone,
 		&i.HistoryResetAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at FROM users WHERE id = $1
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
@@ -148,12 +125,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 		&i.BalanceAnchorAt,
 		&i.Timezone,
 		&i.HistoryResetAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
 const getUserByTelegramID = `-- name: GetUserByTelegramID :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at FROM users WHERE telegram_id = $1
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id FROM users WHERE telegram_id = $1
 `
 
 func (q *Queries) GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error) {
@@ -176,24 +154,26 @@ func (q *Queries) GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int
 		&i.BalanceAnchorAt,
 		&i.Timezone,
 		&i.HistoryResetAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
 const insertUser = `-- name: InsertUser :one
 INSERT INTO users (
-    id, telegram_id, email, password_hash,
+    id, account_id, telegram_id, email, password_hash,
     first_name, username, language_code,
     month_start_day, currency, timezone,
     created_at, updated_at
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12
+    $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13
 )
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id
 `
 
 type InsertUserParams struct {
 	ID            pgtype.UUID
+	AccountID     pgtype.UUID
 	TelegramID    pgtype.Int8
 	Email         pgtype.Text
 	PasswordHash  pgtype.Text
@@ -210,6 +190,7 @@ type InsertUserParams struct {
 func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, insertUser,
 		arg.ID,
+		arg.AccountID,
 		arg.TelegramID,
 		arg.Email,
 		arg.PasswordHash,
@@ -240,6 +221,7 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		&i.BalanceAnchorAt,
 		&i.Timezone,
 		&i.HistoryResetAt,
+		&i.AccountID,
 	)
 	return i, err
 }
@@ -276,6 +258,101 @@ func (q *Queries) ListUsersForAdvice(ctx context.Context) ([]ListUsersForAdviceR
 	return items, nil
 }
 
+const listUsersWithoutAccount = `-- name: ListUsersWithoutAccount :many
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id FROM users WHERE account_id IS NULL ORDER BY created_at
+`
+
+func (q *Queries) ListUsersWithoutAccount(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersWithoutAccount)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.TelegramID,
+			&i.Email,
+			&i.PasswordHash,
+			&i.FirstName,
+			&i.Username,
+			&i.LanguageCode,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.MonthStartDay,
+			&i.Currency,
+			&i.DeletionRequestedAt,
+			&i.BalanceAnchorMinor,
+			&i.BalanceAnchorAt,
+			&i.Timezone,
+			&i.HistoryResetAt,
+			&i.AccountID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const mirrorAccountToUser = `-- name: MirrorAccountToUser :one
+UPDATE users
+SET telegram_id = $2, email = $3, password_hash = $4,
+    first_name = $5, username = $6, language_code = $7, updated_at = $8
+WHERE id = $1 RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id
+`
+
+type MirrorAccountToUserParams struct {
+	ID           pgtype.UUID
+	TelegramID   pgtype.Int8
+	Email        pgtype.Text
+	PasswordHash pgtype.Text
+	FirstName    string
+	Username     pgtype.Text
+	LanguageCode pgtype.Text
+	UpdatedAt    pgtype.Timestamptz
+}
+
+// The account is the source of truth for identity; this row keeps a copy.
+func (q *Queries) MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, mirrorAccountToUser,
+		arg.ID,
+		arg.TelegramID,
+		arg.Email,
+		arg.PasswordHash,
+		arg.FirstName,
+		arg.Username,
+		arg.LanguageCode,
+		arg.UpdatedAt,
+	)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.TelegramID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.Username,
+		&i.LanguageCode,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.MonthStartDay,
+		&i.Currency,
+		&i.DeletionRequestedAt,
+		&i.BalanceAnchorMinor,
+		&i.BalanceAnchorAt,
+		&i.Timezone,
+		&i.HistoryResetAt,
+		&i.AccountID,
+	)
+	return i, err
+}
+
 const rememberTimezone = `-- name: RememberTimezone :exec
 UPDATE users SET timezone = $1
 WHERE id = $2 AND timezone <> $1
@@ -298,7 +375,7 @@ UPDATE users
 SET deletion_requested_at = COALESCE(deletion_requested_at, $1),
     updated_at = $1
 WHERE id = $2
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id
 `
 
 type RequestUserDeletionParams struct {
@@ -328,6 +405,7 @@ func (q *Queries) RequestUserDeletion(ctx context.Context, arg RequestUserDeleti
 		&i.BalanceAnchorAt,
 		&i.Timezone,
 		&i.HistoryResetAt,
+		&i.AccountID,
 	)
 	return i, err
 }
@@ -338,7 +416,7 @@ SET balance_anchor_minor = $1,
     balance_anchor_at    = $2,
     updated_at           = $2
 WHERE id = $3
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
+RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id
 `
 
 type SetBalanceAnchorParams struct {
@@ -369,31 +447,23 @@ func (q *Queries) SetBalanceAnchor(ctx context.Context, arg SetBalanceAnchorPara
 		&i.BalanceAnchorAt,
 		&i.Timezone,
 		&i.HistoryResetAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
-const setUserWebIdentity = `-- name: SetUserWebIdentity :one
-UPDATE users
-SET email = $2, password_hash = $3, updated_at = $4
-WHERE id = $1
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
+const setUserAccount = `-- name: SetUserAccount :one
+UPDATE users SET account_id = $2, updated_at = $3 WHERE id = $1 RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at, account_id
 `
 
-type SetUserWebIdentityParams struct {
-	ID           pgtype.UUID
-	Email        pgtype.Text
-	PasswordHash pgtype.Text
-	UpdatedAt    pgtype.Timestamptz
+type SetUserAccountParams struct {
+	ID        pgtype.UUID
+	AccountID pgtype.UUID
+	UpdatedAt pgtype.Timestamptz
 }
 
-func (q *Queries) SetUserWebIdentity(ctx context.Context, arg SetUserWebIdentityParams) (User, error) {
-	row := q.db.QueryRow(ctx, setUserWebIdentity,
-		arg.ID,
-		arg.Email,
-		arg.PasswordHash,
-		arg.UpdatedAt,
-	)
+func (q *Queries) SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error) {
+	row := q.db.QueryRow(ctx, setUserAccount, arg.ID, arg.AccountID, arg.UpdatedAt)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -412,6 +482,7 @@ func (q *Queries) SetUserWebIdentity(ctx context.Context, arg SetUserWebIdentity
 		&i.BalanceAnchorAt,
 		&i.Timezone,
 		&i.HistoryResetAt,
+		&i.AccountID,
 	)
 	return i, err
 }
@@ -493,50 +564,5 @@ func (q *Queries) UpdateUserSettingsAndResetHistory(ctx context.Context, arg Upd
 	)
 	var i UpdateUserSettingsAndResetHistoryRow
 	err := row.Scan(&i.MonthStartDay, &i.Currency)
-	return i, err
-}
-
-const updateUserTelegramProfile = `-- name: UpdateUserTelegramProfile :one
-UPDATE users
-SET first_name = $2, username = $3, language_code = $4, updated_at = $5
-WHERE id = $1
-RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, month_start_day, currency, deletion_requested_at, balance_anchor_minor, balance_anchor_at, timezone, history_reset_at
-`
-
-type UpdateUserTelegramProfileParams struct {
-	ID           pgtype.UUID
-	FirstName    string
-	Username     pgtype.Text
-	LanguageCode pgtype.Text
-	UpdatedAt    pgtype.Timestamptz
-}
-
-func (q *Queries) UpdateUserTelegramProfile(ctx context.Context, arg UpdateUserTelegramProfileParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUserTelegramProfile,
-		arg.ID,
-		arg.FirstName,
-		arg.Username,
-		arg.LanguageCode,
-		arg.UpdatedAt,
-	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.TelegramID,
-		&i.Email,
-		&i.PasswordHash,
-		&i.FirstName,
-		&i.Username,
-		&i.LanguageCode,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.MonthStartDay,
-		&i.Currency,
-		&i.DeletionRequestedAt,
-		&i.BalanceAnchorMinor,
-		&i.BalanceAnchorAt,
-		&i.Timezone,
-		&i.HistoryResetAt,
-	)
 	return i, err
 }

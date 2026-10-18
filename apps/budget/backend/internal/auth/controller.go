@@ -5,15 +5,16 @@ import (
 	"strings"
 	"time"
 
+	ident "budget_me/account"
 	"github.com/labstack/echo/v4"
 
+	"budget_me/backend/internal/accountlink"
 	"budget_me/backend/internal/apperr"
 	"budget_me/backend/internal/auth/commands"
 	"budget_me/backend/internal/auth/queries"
 	"budget_me/backend/internal/clock"
 	"budget_me/backend/internal/db"
 	"budget_me/backend/internal/httpx"
-	"budget_me/backend/internal/ids"
 	"budget_me/backend/internal/token"
 )
 
@@ -33,16 +34,19 @@ type Controller struct {
 
 func NewController(
 	q *db.Queries,
+	accounts *ident.Store,
 	clk clock.Clock,
 	botToken string,
 	codec *token.Codec,
 	deletionGrace time.Duration,
 ) *Controller {
+	links := accountlink.New(q, accounts, clk)
+
 	return &Controller{
-		login:     commands.NewLoginHandler(q),
-		telegram:  commands.NewAuthTelegramHandler(q, clk, botToken),
-		linkEmail: commands.NewLinkEmailHandler(q, clk),
-		user:      queries.NewGetHandler(q),
+		login:     commands.NewLoginHandler(accounts, links),
+		telegram:  commands.NewAuthTelegramHandler(q, accounts, links, clk, botToken),
+		linkEmail: commands.NewLinkEmailHandler(q, accounts, links, clk),
+		user:      queries.NewGetHandler(q, links),
 		codec:     codec,
 		clock:     clk,
 
@@ -60,12 +64,12 @@ func (c *Controller) authTelegram(ctx echo.Context) error {
 		return apperr.NewInvalid("init_data is required")
 	}
 
-	user, err := c.telegram.Handle(ctx.Request().Context(), commands.AuthTelegram{InitData: req.InitData})
+	session, err := c.telegram.Handle(ctx.Request().Context(), commands.AuthTelegram{InitData: req.InitData})
 	if err != nil {
 		return err
 	}
 
-	return httpx.OK(ctx, c.session(user))
+	return httpx.OK(ctx, c.session(session))
 }
 
 func (c *Controller) loginUser(ctx echo.Context) error {
@@ -78,7 +82,7 @@ func (c *Controller) loginUser(ctx echo.Context) error {
 		return apperr.NewInvalid("invalid params")
 	}
 
-	user, err := c.login.Handle(ctx.Request().Context(), commands.Login{
+	session, err := c.login.Handle(ctx.Request().Context(), commands.Login{
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -86,18 +90,22 @@ func (c *Controller) loginUser(ctx echo.Context) error {
 		return err
 	}
 
-	return httpx.OK(ctx, c.session(user))
+	return httpx.OK(ctx, c.session(session))
 }
 
 func (c *Controller) getMe(ctx echo.Context) error {
 	userID := httpx.UserIDFromContext(ctx.Request().Context())
 
-	user, err := c.user.Handle(ctx.Request().Context(), queries.UserGet{ID: userID})
+	acc, err := c.user.Handle(ctx.Request().Context(), queries.UserGet{ID: userID})
 	if err != nil {
+		if db.IsNotFound(err) {
+			return commands.ErrUnknownAccount
+		}
+
 		return err
 	}
 
-	return httpx.OK(ctx, toUserResponse(user, c.deletionGrace))
+	return httpx.OK(ctx, toUserResponse(userID, acc, c.deletionGrace))
 }
 
 func (c *Controller) linkEmailIdentity(ctx echo.Context) error {
@@ -114,8 +122,10 @@ func (c *Controller) linkEmailIdentity(ctx echo.Context) error {
 		return apperr.NewInvalid("password must be at least 8 characters")
 	}
 
-	user, err := c.linkEmail.Handle(ctx.Request().Context(), commands.LinkEmail{
-		UserID:   httpx.UserIDFromContext(ctx.Request().Context()),
+	userID := httpx.UserIDFromContext(ctx.Request().Context())
+
+	acc, err := c.linkEmail.Handle(ctx.Request().Context(), commands.LinkEmail{
+		UserID:   userID,
 		Email:    req.Email,
 		Password: req.Password,
 	})
@@ -123,13 +133,13 @@ func (c *Controller) linkEmailIdentity(ctx echo.Context) error {
 		return err
 	}
 
-	return httpx.OK(ctx, toUserResponse(user, c.deletionGrace))
+	return httpx.OK(ctx, toUserResponse(userID, acc, c.deletionGrace))
 }
 
-func (c *Controller) session(user db.User) authResponse {
+func (c *Controller) session(s commands.Session) authResponse {
 	return authResponse{
-		Token: c.codec.Issue(ids.FromPg(user.ID), c.clock.Now(), sessionTTL),
-		User:  toUserResponse(user, c.deletionGrace),
+		Token: c.codec.Issue(s.UserID, c.clock.Now(), sessionTTL),
+		User:  toUserResponse(s.UserID, s.Account, c.deletionGrace),
 	}
 }
 
