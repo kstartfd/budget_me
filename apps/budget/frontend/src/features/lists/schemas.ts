@@ -19,6 +19,8 @@ export const itemListSchema = z.object({
   slug: z.string().nullable(),
   name: z.string().nullable(),
   color: z.string(),
+  /** How many items the list holds — shown on its card once GET /lists sends it. */
+  itemCount: z.number().int().nonnegative().optional(),
 })
 export type ItemList = z.infer<typeof itemListSchema>
 

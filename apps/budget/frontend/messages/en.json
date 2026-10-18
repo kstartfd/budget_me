@@ -392,6 +392,7 @@
     "desc": "Medicine cabinet, cosmetics, anything else — rated, with a note on whether it helped.",
     "loadError": "Couldn't load the data. Please try again in a moment.",
     "newList": "Create list",
+    "newListShort": "List",
     "newListTitle": "New list",
     "editListTitle": "Edit list",
     "listNamePlaceholder": "List name",

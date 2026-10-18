@@ -52,33 +52,38 @@ export function ListDetailScreen({ listId }: { listId: string }) {
   }
 
   return (
-    <div className="anim-fade flex flex-col gap-[18px] lg:max-w-3xl">
-      <div className="flex items-start gap-2.5">
+    <div className="anim-fade flex flex-col gap-4 lg:gap-6">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:gap-4">
+        <Link
+          href="/lists"
+          className="text-primary flex items-center gap-0.5 self-start text-[15px] lg:hidden"
+        >
+          <ChevronLeftIcon size={16} />
+          {t("title")}
+        </Link>
         <Link
           href="/lists"
           aria-label={t("title")}
-          className="border-border bg-secondary text-foreground flex size-[34px] shrink-0 items-center justify-center rounded-[11px] border"
+          className="border-border bg-card text-muted-foreground hidden size-10 shrink-0 items-center justify-center rounded-xl border lg:flex"
         >
           <ChevronLeftIcon />
         </Link>
         <div className="min-w-0">
-          <div className="text-faint truncate font-mono text-[11px]">
+          <div className="text-faint hidden truncate font-mono text-xs lg:block">
             {t("title")} › {label(list)}
           </div>
-          <div className="flex items-center gap-2.5">
+          <h1 className="flex items-center gap-2.5 text-[26px] font-bold tracking-[-0.02em] lg:mt-0.5">
             {list && (
               <span
-                className="size-[22px] shrink-0 rounded-full"
+                className="size-5 shrink-0 rounded-full"
                 style={{
                   background: list.color,
                   boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.18)",
                 }}
               />
             )}
-            <h1 className="truncate text-[22px] font-bold tracking-[-0.02em]">
-              {label(list)}
-            </h1>
-          </div>
+            <span className="truncate">{label(list)}</span>
+          </h1>
         </div>
       </div>
 
@@ -87,7 +92,7 @@ export function ListDetailScreen({ listId }: { listId: string }) {
           {t("emptyItems")}
         </p>
       ) : (
-        <div className="bg-card border-border divide-rowline divide-y overflow-hidden rounded-[22px] border shadow-[var(--shadow-card)]">
+        <div className="flex flex-col gap-2.5 lg:gap-0 lg:overflow-hidden lg:rounded-[18px] lg:border lg:border-border lg:bg-card">
           {items.data.map((item) => (
             <ItemRow
               key={item.id}
@@ -123,20 +128,14 @@ export function ListDetailScreen({ listId }: { listId: string }) {
 
 function DetailSkeleton() {
   return (
-    <div aria-hidden className="flex flex-col gap-[18px] lg:max-w-3xl">
-      <div className="flex items-center gap-2.5">
-        <Skeleton className="size-[34px] shrink-0 rounded-[11px]" />
-        <Skeleton className="h-6 w-32 rounded" />
+    <div aria-hidden className="flex flex-col gap-4 lg:gap-6">
+      <div className="flex items-center gap-4">
+        <Skeleton className="hidden size-10 shrink-0 rounded-xl lg:block" />
+        <Skeleton className="h-8 w-40 rounded-lg" />
       </div>
-      <div className="bg-card border-border divide-rowline divide-y overflow-hidden rounded-[22px] border">
-        {Array.from({ length: 4 }, (_, i) => (
-          <div key={i} className="flex items-center gap-3 px-[15px] py-[13px]">
-            <div className="min-w-0 flex-1">
-              <Skeleton className="h-4 w-32 rounded" />
-              <Skeleton className="mt-1.5 h-3 w-20 rounded" />
-            </div>
-            <Skeleton className="h-4 w-20 rounded" />
-          </div>
+      <div className="flex flex-col gap-2.5 lg:gap-0">
+        {Array.from({ length: 3 }, (_, i) => (
+          <Skeleton key={i} className="h-[84px] w-full rounded-2xl lg:h-[76px]" />
         ))}
       </div>
     </div>
