@@ -11,12 +11,21 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at FROM users WHERE email = $1
+const deleteUsersByAccount = `-- name: DeleteUsersByAccount :exec
+DELETE FROM users WHERE account_id = ANY($1::uuid[])
 `
 
-func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error) {
-	row := q.db.QueryRow(ctx, getUserByEmail, email)
+func (q *Queries) DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteUsersByAccount, accountIds)
+	return err
+}
+
+const getUserByAccountID = `-- name: GetUserByAccountID :one
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, account_id FROM users WHERE account_id = $1
+`
+
+func (q *Queries) GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error) {
+	row := q.db.QueryRow(ctx, getUserByAccountID, accountID)
 	var i User
 	err := row.Scan(
 		&i.ID,
@@ -28,12 +37,13 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email pgtype.Text) (User, 
 		&i.LanguageCode,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at FROM users WHERE id = $1
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, account_id FROM users WHERE id = $1
 `
 
 func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
@@ -49,12 +59,13 @@ func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 		&i.LanguageCode,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
 const getUserByTelegramID = `-- name: GetUserByTelegramID :one
-SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at FROM users WHERE telegram_id = $1
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, account_id FROM users WHERE telegram_id = $1
 `
 
 func (q *Queries) GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error) {
@@ -70,17 +81,19 @@ func (q *Queries) GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int
 		&i.LanguageCode,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
 const insertUser = `-- name: InsertUser :one
-INSERT INTO users (id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at)
-VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at
+INSERT INTO users (id, account_id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at)
+VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, account_id
 `
 
 type InsertUserParams struct {
 	ID           pgtype.UUID
+	AccountID    pgtype.UUID
 	TelegramID   pgtype.Int8
 	Email        pgtype.Text
 	PasswordHash pgtype.Text
@@ -94,6 +107,7 @@ type InsertUserParams struct {
 func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, error) {
 	row := q.db.QueryRow(ctx, insertUser,
 		arg.ID,
+		arg.AccountID,
 		arg.TelegramID,
 		arg.Email,
 		arg.PasswordHash,
@@ -114,60 +128,71 @@ func (q *Queries) InsertUser(ctx context.Context, arg InsertUserParams) (User, e
 		&i.LanguageCode,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AccountID,
 	)
 	return i, err
 }
 
-const setUserWebIdentity = `-- name: SetUserWebIdentity :one
-UPDATE users SET email = $2, password_hash = $3, updated_at = $4
-WHERE id = $1 RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at
+const listUsersWithoutAccount = `-- name: ListUsersWithoutAccount :many
+SELECT id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, account_id FROM users WHERE account_id IS NULL ORDER BY created_at
 `
 
-type SetUserWebIdentityParams struct {
+func (q *Queries) ListUsersWithoutAccount(ctx context.Context) ([]User, error) {
+	rows, err := q.db.Query(ctx, listUsersWithoutAccount)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []User{}
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.TelegramID,
+			&i.Email,
+			&i.PasswordHash,
+			&i.FirstName,
+			&i.Username,
+			&i.LanguageCode,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.AccountID,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const mirrorAccountToUser = `-- name: MirrorAccountToUser :one
+UPDATE users
+SET telegram_id = $2, email = $3, password_hash = $4,
+    first_name = $5, username = $6, language_code = $7, updated_at = $8
+WHERE id = $1 RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, account_id
+`
+
+type MirrorAccountToUserParams struct {
 	ID           pgtype.UUID
+	TelegramID   pgtype.Int8
 	Email        pgtype.Text
 	PasswordHash pgtype.Text
-	UpdatedAt    pgtype.Timestamptz
-}
-
-func (q *Queries) SetUserWebIdentity(ctx context.Context, arg SetUserWebIdentityParams) (User, error) {
-	row := q.db.QueryRow(ctx, setUserWebIdentity,
-		arg.ID,
-		arg.Email,
-		arg.PasswordHash,
-		arg.UpdatedAt,
-	)
-	var i User
-	err := row.Scan(
-		&i.ID,
-		&i.TelegramID,
-		&i.Email,
-		&i.PasswordHash,
-		&i.FirstName,
-		&i.Username,
-		&i.LanguageCode,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const updateUserTelegramProfile = `-- name: UpdateUserTelegramProfile :one
-UPDATE users SET first_name = $2, username = $3, language_code = $4, updated_at = $5
-WHERE id = $1 RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at
-`
-
-type UpdateUserTelegramProfileParams struct {
-	ID           pgtype.UUID
 	FirstName    string
 	Username     pgtype.Text
 	LanguageCode pgtype.Text
 	UpdatedAt    pgtype.Timestamptz
 }
 
-func (q *Queries) UpdateUserTelegramProfile(ctx context.Context, arg UpdateUserTelegramProfileParams) (User, error) {
-	row := q.db.QueryRow(ctx, updateUserTelegramProfile,
+// The account is the source of truth for identity; this row keeps a copy.
+func (q *Queries) MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error) {
+	row := q.db.QueryRow(ctx, mirrorAccountToUser,
 		arg.ID,
+		arg.TelegramID,
+		arg.Email,
+		arg.PasswordHash,
 		arg.FirstName,
 		arg.Username,
 		arg.LanguageCode,
@@ -184,6 +209,35 @@ func (q *Queries) UpdateUserTelegramProfile(ctx context.Context, arg UpdateUserT
 		&i.LanguageCode,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.AccountID,
+	)
+	return i, err
+}
+
+const setUserAccount = `-- name: SetUserAccount :one
+UPDATE users SET account_id = $2, updated_at = $3 WHERE id = $1 RETURNING id, telegram_id, email, password_hash, first_name, username, language_code, created_at, updated_at, account_id
+`
+
+type SetUserAccountParams struct {
+	ID        pgtype.UUID
+	AccountID pgtype.UUID
+	UpdatedAt pgtype.Timestamptz
+}
+
+func (q *Queries) SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error) {
+	row := q.db.QueryRow(ctx, setUserAccount, arg.ID, arg.AccountID, arg.UpdatedAt)
+	var i User
+	err := row.Scan(
+		&i.ID,
+		&i.TelegramID,
+		&i.Email,
+		&i.PasswordHash,
+		&i.FirstName,
+		&i.Username,
+		&i.LanguageCode,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.AccountID,
 	)
 	return i, err
 }

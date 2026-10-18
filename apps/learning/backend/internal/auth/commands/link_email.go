@@ -2,12 +2,11 @@ package commands
 
 import (
 	"context"
-	"errors"
-	"strings"
 
 	"github.com/google/uuid"
-	"github.com/jackc/pgx/v5"
 
+	ident "budget_me/account"
+	"learning_app/backend/internal/accountlink"
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
@@ -20,36 +19,35 @@ type LinkEmail struct {
 }
 
 type LinkEmailHandler struct {
-	q     *db.Queries
-	clock clock.Clock
+	q        *db.Queries
+	accounts *ident.Store
+	links    accountlink.Links
+	clock    clock.Clock
 }
 
-func NewLinkEmailHandler(q *db.Queries, clk clock.Clock) LinkEmailHandler {
-	return LinkEmailHandler{q: q, clock: clk}
+func NewLinkEmailHandler(q *db.Queries, accounts *ident.Store, links accountlink.Links, clk clock.Clock) LinkEmailHandler {
+	return LinkEmailHandler{q: q, accounts: accounts, links: links, clock: clk}
 }
 
-func (h LinkEmailHandler) Handle(ctx context.Context, cmd LinkEmail) (db.User, error) {
-	email := strings.ToLower(strings.TrimSpace(cmd.Email))
-
-	existing, err := h.q.GetUserByEmail(ctx, db.Text(&email))
-	switch {
-	case err == nil:
-		if ids.FromPg(existing.ID) != cmd.UserID {
-			return db.User{}, ErrEmailTaken
-		}
-	case !errors.Is(err, pgx.ErrNoRows):
-		return db.User{}, err
-	}
-
-	hash, err := HashPassword(cmd.Password)
+func (h LinkEmailHandler) Handle(ctx context.Context, cmd LinkEmail) (ident.Account, error) {
+	user, err := h.q.GetUserByID(ctx, ids.ToPg(cmd.UserID))
 	if err != nil {
-		return db.User{}, err
+		return ident.Account{}, err
 	}
 
-	return h.q.SetUserWebIdentity(ctx, db.SetUserWebIdentityParams{
-		ID:           ids.ToPg(cmd.UserID),
-		Email:        db.Text(&email),
-		PasswordHash: db.Text(&hash),
-		UpdatedAt:    db.Time(h.clock.Now()),
-	})
+	acc, err := h.links.AccountOf(ctx, user)
+	if err != nil {
+		return ident.Account{}, fromAccount(err)
+	}
+
+	acc, err = h.accounts.LinkEmail(ctx, acc.ID, cmd.Email, cmd.Password, h.clock.Now())
+	if err != nil {
+		return ident.Account{}, fromAccount(err)
+	}
+
+	if _, err := h.links.Mirror(ctx, cmd.UserID, acc); err != nil {
+		return ident.Account{}, err
+	}
+
+	return acc, nil
 }

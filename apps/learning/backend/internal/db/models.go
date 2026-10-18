@@ -249,4 +249,5 @@ type User struct {
 	LanguageCode pgtype.Text
 	CreatedAt    pgtype.Timestamptz
 	UpdatedAt    pgtype.Timestamptz
+	AccountID    pgtype.UUID
 }

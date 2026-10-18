@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 	echomw "github.com/labstack/echo/v4/middleware"
 
+	ident "budget_me/account"
+	"learning_app/backend/internal/account"
 	"learning_app/backend/internal/auth"
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/config"
@@ -21,7 +23,7 @@ import (
 	"learning_app/backend/internal/token"
 )
 
-func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
+func New(cfg config.Config, pool, accountPool *pgxpool.Pool) *echo.Echo {
 	e := echo.New()
 	e.HideBanner = true
 	e.HidePort = true
@@ -39,7 +41,7 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 	health := func(c echo.Context) error {
 		ctx, cancel := context.WithTimeout(c.Request().Context(), 2*time.Second)
 		defer cancel()
-		if err := pool.Ping(ctx); err != nil {
+		if err := pool.Ping(ctx); err != nil || accountPool.Ping(ctx) != nil {
 			return c.JSON(http.StatusServiceUnavailable, echo.Map{"status": "db_down"})
 		}
 		return c.JSON(http.StatusOK, echo.Map{"status": "ok"})
@@ -53,7 +55,9 @@ func New(cfg config.Config, pool *pgxpool.Pool) *echo.Echo {
 	queries := db.New(pool)
 	public := e.Group("/api/v1")
 	protected := e.Group("/api/v1", httpx.RequireAuth(codec))
-	auth.NewController(queries, clk, cfg.TelegramBotToken, codec).Routes(public, protected)
+	accounts := ident.New(accountPool)
+	auth.NewController(queries, accounts, clk, cfg.TelegramBotToken, codec, cfg.AccountDeletionGrace).Routes(public, protected)
+	account.NewController(queries, accounts, clk, cfg.AccountDeletionGrace).Routes(protected)
 	learningAuth := learningtokenqueries.NewTokenHandler(queries, clk, vault)
 	group := e.Group("/api/v1/learning", httpx.RequireLearningAuth(codec, learningAuth.Authenticate), echomw.BodyLimit("64K"))
 	learning.NewController(queries, clk).Routes(group)

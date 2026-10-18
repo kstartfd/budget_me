@@ -43,3 +43,19 @@ func NewUser(t *testing.T, pool *pgxpool.Pool, q *db.Queries, now time.Time, _ i
 	t.Cleanup(func() { _, _ = pool.Exec(context.Background(), "DELETE FROM users WHERE id = $1", userID) })
 	return userID
 }
+
+// AccountPool connects to the shared account database (ACCOUNT_DATABASE_URL,
+// migrated with budget_me/account/migrations) and SKIPS the test when it is unset.
+func AccountPool(t *testing.T) *pgxpool.Pool {
+	t.Helper()
+	url := os.Getenv("ACCOUNT_DATABASE_URL")
+	if url == "" {
+		t.Skip("ACCOUNT_DATABASE_URL not set")
+	}
+	pool, err := pgxpool.New(context.Background(), url)
+	if err != nil {
+		t.Fatalf("connect account database: %v", err)
+	}
+	t.Cleanup(pool.Close)
+	return pool
+}

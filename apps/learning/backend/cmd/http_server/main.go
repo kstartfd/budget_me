@@ -12,6 +12,8 @@ import (
 
 	"github.com/joho/godotenv"
 
+	ident "budget_me/account"
+	accountcommands "learning_app/backend/internal/account/commands"
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/config"
 	"learning_app/backend/internal/db"
@@ -42,13 +44,27 @@ func main() {
 	}
 	defer pool.Close()
 
-	e := server.New(cfg, pool)
+	accountPool, err := db.NewPool(rootCtx, cfg.AccountDatabaseURL)
+	if err != nil {
+		slog.Error("account db connect", "err", err)
+		os.Exit(1)
+	}
+	defer accountPool.Close()
+
+	e := server.New(cfg, pool, accountPool)
 	learningWorker := learningcommands.NewProcessHandler(pool, clock.New())
 
 	workerDone := make(chan struct{})
 	go func() { defer close(workerDone); learningWorker.Run(rootCtx) }()
 
 	defer func() { cancel(); <-workerDone }()
+
+	purge := accountcommands.NewPurgeHandler(db.New(pool), ident.New(accountPool), clock.New(), cfg.AccountDeletionGrace)
+
+	purgeDone := make(chan struct{})
+	go func() { defer close(purgeDone); purge.Run(rootCtx) }()
+
+	defer func() { cancel(); <-purgeDone }()
 
 	// Greet /start with a "Launch" button (no-op without a bot token).
 	go tgbot.New(cfg.TelegramBotToken, cfg.TelegramMiniAppURL).Run(rootCtx)

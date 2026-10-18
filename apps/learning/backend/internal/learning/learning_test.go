@@ -70,7 +70,7 @@ func setup(t *testing.T) (*echo.Echo, *db.Queries, uuid.UUID, string, commands.P
 	pool, q := testdb.Pool(t)
 	user := testdb.NewUser(t, pool, q, time.Now().UTC(), 1)
 	raw := token.NewCodec(authSecret).Issue(user, time.Now().UTC(), time.Hour)
-	e := server.New(config.Config{AuthSecret: authSecret}, pool)
+	e := server.New(config.Config{AuthSecret: authSecret}, pool, testdb.AccountPool(t))
 
 	return e, q, user, raw, commands.NewProcessHandler(pool, clock.New())
 }
@@ -624,7 +624,7 @@ func TestTokenSecretNeedsTheKeyItWasSealedWith(t *testing.T) {
 
 	pool, _ := testdb.Pool(t)
 	rotated := authSecret + "-rotated"
-	other := server.New(config.Config{AuthSecret: rotated}, pool)
+	other := server.New(config.Config{AuthSecret: rotated}, pool, testdb.AccountPool(t))
 	otherSession := token.NewCodec(rotated).Issue(user, time.Now().UTC(), time.Hour)
 
 	code, body := request(t, other, "GET", "/api/v1/learning/tokens/"+id+"/secret", otherSession, nil, "")

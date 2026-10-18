@@ -16,13 +16,14 @@ type Querier interface {
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
 	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
 	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
+	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
 	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)
-	GetUserByEmail(ctx context.Context, email pgtype.Text) (User, error)
+	GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
 	InsertLearningEntry(ctx context.Context, arg InsertLearningEntryParams) (LearningEntry, error)
@@ -32,13 +33,15 @@ type Querier interface {
 	ListLearningEntries(ctx context.Context, arg ListLearningEntriesParams) ([]LearningEntry, error)
 	ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error)
 	ListLearningTopics(ctx context.Context, userID pgtype.UUID) ([]LearningTopic, error)
+	ListUsersWithoutAccount(ctx context.Context) ([]User, error)
 	LockLearningCaptureLease(ctx context.Context, arg LockLearningCaptureLeaseParams) (LearningCapture, error)
+	// The account is the source of truth for identity; this row keeps a copy.
+	MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error)
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
-	SetUserWebIdentity(ctx context.Context, arg SetUserWebIdentityParams) (User, error)
+	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
 	UpdateLearningEntry(ctx context.Context, arg UpdateLearningEntryParams) (LearningEntry, error)
 	UpdateLearningTopic(ctx context.Context, arg UpdateLearningTopicParams) (LearningTopic, error)
-	UpdateUserTelegramProfile(ctx context.Context, arg UpdateUserTelegramProfileParams) (User, error)
 }
 
 var _ Querier = (*Queries)(nil)
