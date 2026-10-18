@@ -25,6 +25,7 @@ type UpdateTransaction struct {
 	Title       string
 	SpentAt     time.Time
 	Direction   db.TxDirection
+	Counted     bool
 }
 
 // UpdateHandler — обработчик команды. Часы не нужны (created_at не трогаем),
@@ -49,6 +50,10 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd UpdateTransaction) (db.Tr
 
 	if cmd.AmountMinor <= 0 {
 		return db.Transaction{}, ErrAmountNotPositive
+	}
+
+	if !cmd.Counted && cmd.Direction != db.TxDirectionExpense {
+		return db.Transaction{}, ErrIncomeAlwaysCounted
 	}
 
 	// Категория должна существовать и быть доступна юзеру (общая или его личная).
@@ -86,6 +91,7 @@ func (h UpdateHandler) Handle(ctx context.Context, cmd UpdateTransaction) (db.Tr
 		Title:       title,
 		SpentAt:     db.Time(cmd.SpentAt),
 		Direction:   cmd.Direction,
+		Counted:     cmd.Counted,
 	})
 	if db.IsNotFound(err) {
 		return db.Transaction{}, ErrNotFound

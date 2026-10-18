@@ -25,6 +25,7 @@ var (
 	ErrAmountNotPositive         = apperr.NewInvalid("amount must be positive")
 	ErrInvalidCategory           = apperr.NewInvalid("category not found")
 	ErrCategoryDirectionMismatch = apperr.NewInvalid("category direction does not match the transaction")
+	ErrIncomeAlwaysCounted       = apperr.NewInvalid("only an expense can be left out of the calculation")
 )
 
 // TransactionCreate — команда: ЧТО создаём. Чистый «пакет полей» без поведения —
@@ -39,6 +40,7 @@ var (
 //	        public string $title,
 //	        public DateTimeImmutable $spentAt,
 //	        public string $direction,         // 'income' | 'expense'
+//	        public bool $counted,             // участвует ли в расчёте
 //	    ) {}
 //	}
 //
@@ -51,6 +53,9 @@ type CreateTransaction struct {
 	Title       string
 	SpentAt     time.Time
 	Direction   db.TxDirection
+	// Counted — участвует ли трата в РАСЧЁТЕ (Остаток, «Свободно», перенос).
+	// false — «обязательный платёж»: в статистике он есть, из денег не вычитается.
+	Counted bool
 }
 
 // CreateHandler — обработчик команды. Держит ровно свои зависимости: sqlc-запросы
@@ -83,6 +88,11 @@ func (h CreateHandler) Handle(ctx context.Context, cmd CreateTransaction) (db.Tr
 	// а не минус в amount (см. миграцию 0007).
 	if cmd.AmountMinor <= 0 {
 		return db.Transaction{}, ErrAmountNotPositive
+	}
+
+	// Из расчёта можно убрать только расход: приход всегда пополняет деньги.
+	if !cmd.Counted && cmd.Direction != db.TxDirectionExpense {
+		return db.Transaction{}, ErrIncomeAlwaysCounted
 	}
 
 	// Категория должна существовать и быть доступна юзеру (общая или его личная).
@@ -127,5 +137,6 @@ func (h CreateHandler) Handle(ctx context.Context, cmd CreateTransaction) (db.Tr
 		SpentAt:     db.Time(cmd.SpentAt),
 		CreatedAt:   db.Time(h.clock.Now()),
 		Direction:   cmd.Direction,
+		Counted:     cmd.Counted,
 	})
 }

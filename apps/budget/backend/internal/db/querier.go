@@ -82,6 +82,10 @@ type Querier interface {
 	// counting, which is exactly what "my balance is actually X" should mean.
 	SetBalanceAnchor(ctx context.Context, arg SetBalanceAnchorParams) (User, error)
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
+	// Расход за период, который участвует в РАСЧЁТЕ («Свободно», полоска, перенос):
+	// без трат с выключенной галочкой counted. Статистика (SumSpentInRange и
+	// остальные Sum*) по-прежнему видит все траты.
+	SumCountedSpentInRange(ctx context.Context, arg SumCountedSpentInRangeParams) (int64, error)
 	SumIncomeInRange(ctx context.Context, arg SumIncomeInRangeParams) (int64, error)
 	// Net movement since the balance anchor: income adds, expense subtracts. Feeds
 	// the running balance (anchor + this).
@@ -92,6 +96,9 @@ type Querier interface {
 	// vice versa) purely through a timezone offset, and get counted twice. "Every
 	// entry made since you told me the balance" is unambiguous and needs no clock
 	// agreement.
+	//
+	// Rows with counted = false (e.g. a mandatory payment the user keeps out of the
+	// calculation) do not move the balance.
 	SumSignedSince(ctx context.Context, arg SumSignedSinceParams) (int64, error)
 	SumSpentByCategoryInRange(ctx context.Context, arg SumSpentByCategoryInRangeParams) ([]SumSpentByCategoryInRangeRow, error)
 	// Расход, свёрнутый по РАСЧЁТНЫМ периодам (месяц может начинаться не с 1-го).

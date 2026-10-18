@@ -1,8 +1,8 @@
 -- name: InsertTransaction :one
 INSERT INTO transactions (
-    id, user_id, category_id, amount_minor, title, spent_at, created_at, direction
+    id, user_id, category_id, amount_minor, title, spent_at, created_at, direction, counted
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
 RETURNING *;
 
@@ -28,6 +28,18 @@ WHERE user_id  =  sqlc.arg(user_id)
   AND spent_at >= sqlc.arg(from_at)
   AND spent_at <  sqlc.arg(to_at)
   AND direction = 'income';
+
+-- name: SumCountedSpentInRange :one
+-- Расход за период, который участвует в РАСЧЁТЕ («Свободно», полоска, перенос):
+-- без трат с выключенной галочкой counted. Статистика (SumSpentInRange и
+-- остальные Sum*) по-прежнему видит все траты.
+SELECT COALESCE(SUM(amount_minor), 0)::bigint AS spent_minor
+FROM transactions
+WHERE user_id  =  sqlc.arg(user_id)
+  AND spent_at >= sqlc.arg(from_at)
+  AND spent_at <  sqlc.arg(to_at)
+  AND direction = 'expense'
+  AND counted;
 
 -- name: SumTotalsInRange :one
 -- Расход и приход за период ОДНОЙ строкой, с необязательным сужением по категории
@@ -77,7 +89,8 @@ SET category_id = sqlc.arg(category_id),
     amount_minor = sqlc.arg(amount_minor),
     title = sqlc.arg(title),
     spent_at = sqlc.arg(spent_at),
-    direction = sqlc.arg(direction)
+    direction = sqlc.arg(direction),
+    counted = sqlc.arg(counted)
 WHERE id = sqlc.arg(id) AND user_id = sqlc.arg(user_id)   -- created_at не трогаем
 RETURNING *;
 
@@ -114,9 +127,13 @@ ORDER BY period;
 -- vice versa) purely through a timezone offset, and get counted twice. "Every
 -- entry made since you told me the balance" is unambiguous and needs no clock
 -- agreement.
+--
+-- Rows with counted = false (e.g. a mandatory payment the user keeps out of the
+-- calculation) do not move the balance.
 SELECT COALESCE(SUM(
     CASE WHEN direction = 'income' THEN amount_minor ELSE -amount_minor END
 ), 0)::bigint AS net_minor
 FROM transactions
 WHERE user_id    =  sqlc.arg(user_id)
-  AND created_at >= sqlc.arg(from_at);
+  AND created_at >= sqlc.arg(from_at)
+  AND counted;

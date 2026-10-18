@@ -90,6 +90,7 @@ func logIncome(t *testing.T, q *db.Queries, userID uuid.UUID, at time.Time, amou
 		Title:       title,
 		SpentAt:     at,
 		Direction:   db.TxDirectionIncome,
+		Counted:     true,
 	})
 	if err != nil {
 		t.Fatalf("log income %q: %v", title, err)

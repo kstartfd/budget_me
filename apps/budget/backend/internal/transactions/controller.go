@@ -131,6 +131,7 @@ func (c *Controller) createTransaction(ctx echo.Context) error {
 		Title:       req.Title,
 		SpentAt:     spentAt,
 		Direction:   direction,
+		Counted:     req.counted(),
 	})
 	if err != nil {
 		return err
@@ -205,6 +206,7 @@ func (c *Controller) updateTransaction(ctx echo.Context) error {
 		Title:       req.Title,
 		SpentAt:     spentAt,
 		Direction:   direction,
+		Counted:     req.counted(),
 	})
 	if err != nil {
 		return err

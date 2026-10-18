@@ -54,10 +54,14 @@ type CategorySpendDelta struct {
 // PHP-аналогия: readonly-DTO-«конверт», который хендлер собирает из нескольких
 // запросов и отдаёт наверх.
 type SummaryResult struct {
-	SpentMinor     int64
-	IncomeMinor    int64
-	CarriedInMinor int64
-	ByCategory     []CategorySpendDelta
+	SpentMinor int64
+	// CountedSpentMinor — часть расхода, которая участвует в РАСЧЁТЕ («Свободно»,
+	// полоска, перенос): без трат с выключенной галочкой. SpentMinor — весь расход,
+	// для статистики.
+	CountedSpentMinor int64
+	IncomeMinor       int64
+	CarriedInMinor    int64
+	ByCategory        []CategorySpendDelta
 }
 
 // SummaryHandler — обработчик запроса. Держит ровно свои зависимости: sqlc-запросы
@@ -87,6 +91,15 @@ func (h SummaryHandler) Handle(ctx context.Context, query TransactionSummary) (S
 	toPg := db.Time(to)
 
 	spent, err := h.q.SumSpentInRange(ctx, db.SumSpentInRangeParams{
+		UserID: userPg,
+		FromAt: fromPg,
+		ToAt:   toPg,
+	})
+	if err != nil {
+		return SummaryResult{}, err
+	}
+
+	countedSpent, err := h.q.SumCountedSpentInRange(ctx, db.SumCountedSpentInRangeParams{
 		UserID: userPg,
 		FromAt: fromPg,
 		ToAt:   toPg,
@@ -141,10 +154,11 @@ func (h SummaryHandler) Handle(ctx context.Context, query TransactionSummary) (S
 	}
 
 	return SummaryResult{
-		SpentMinor:     spent,
-		IncomeMinor:    income,
-		CarriedInMinor: carried,
-		ByCategory:     withDelta,
+		SpentMinor:        spent,
+		CountedSpentMinor: countedSpent,
+		IncomeMinor:       income,
+		CarriedInMinor:    carried,
+		ByCategory:        withDelta,
 	}, nil
 }
 
@@ -209,8 +223,8 @@ func (h SummaryHandler) prevSpendByCategory(ctx context.Context, userID uuid.UUI
 }
 
 // carriedIn — сколько неизрасходованного прихода перешло из прошлого периода:
-// приход прошлого периода минус его расход, за то же окно, что и дельта по
-// категориям. Один хоп назад, БЕЗ цепочки — если и в прошлом периоде что-то
+// приход прошлого периода минус его РАСЧЁТНЫЙ расход (без трат с выключенной
+// галочкой), за то же окно, что и дельта по категориям. Один хоп назад, БЕЗ цепочки — если и в прошлом периоде что-то
 // осталось неизрасходованным, оно уже сидит в Остатке (balance/queries), который
 // переносит вообще всё без ограничения на глубину; это — явный бейдж «вот
 // сколько перенеслось с прошлого раза», а не второй Остаток. Окно
@@ -248,7 +262,7 @@ func (h SummaryHandler) carriedIn(ctx context.Context, userID uuid.UUID, fromStr
 		return 0, err
 	}
 
-	spent, err := h.q.SumSpentInRange(ctx, db.SumSpentInRangeParams{
+	spent, err := h.q.SumCountedSpentInRange(ctx, db.SumCountedSpentInRangeParams{
 		UserID: userPg,
 		FromAt: fromPg,
 		ToAt:   toPg,

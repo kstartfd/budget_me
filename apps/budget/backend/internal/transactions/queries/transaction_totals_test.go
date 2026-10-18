@@ -41,6 +41,7 @@ func addTx(t *testing.T, q *db.Queries, userID, categoryID uuid.UUID, amountMino
 		Title:       "seed",
 		SpentAt:     at,
 		Direction:   dir,
+		Counted:     true,
 	}); err != nil {
 		t.Fatalf("seed tx: %v", err)
 	}

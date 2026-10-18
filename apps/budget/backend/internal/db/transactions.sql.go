@@ -51,11 +51,11 @@ func (q *Queries) DeleteTransaction(ctx context.Context, arg DeleteTransactionPa
 
 const insertTransaction = `-- name: InsertTransaction :one
 INSERT INTO transactions (
-    id, user_id, category_id, amount_minor, title, spent_at, created_at, direction
+    id, user_id, category_id, amount_minor, title, spent_at, created_at, direction, counted
 ) VALUES (
-    $1, $2, $3, $4, $5, $6, $7, $8
+    $1, $2, $3, $4, $5, $6, $7, $8, $9
 )
-RETURNING id, user_id, category_id, amount_minor, title, spent_at, created_at, direction
+RETURNING id, user_id, category_id, amount_minor, title, spent_at, created_at, direction, counted
 `
 
 type InsertTransactionParams struct {
@@ -67,6 +67,7 @@ type InsertTransactionParams struct {
 	SpentAt     pgtype.Timestamptz
 	CreatedAt   pgtype.Timestamptz
 	Direction   TxDirection
+	Counted     bool
 }
 
 func (q *Queries) InsertTransaction(ctx context.Context, arg InsertTransactionParams) (Transaction, error) {
@@ -79,6 +80,7 @@ func (q *Queries) InsertTransaction(ctx context.Context, arg InsertTransactionPa
 		arg.SpentAt,
 		arg.CreatedAt,
 		arg.Direction,
+		arg.Counted,
 	)
 	var i Transaction
 	err := row.Scan(
@@ -90,12 +92,13 @@ func (q *Queries) InsertTransaction(ctx context.Context, arg InsertTransactionPa
 		&i.SpentAt,
 		&i.CreatedAt,
 		&i.Direction,
+		&i.Counted,
 	)
 	return i, err
 }
 
 const listRecentTransactions = `-- name: ListRecentTransactions :many
-SELECT id, user_id, category_id, amount_minor, title, spent_at, created_at, direction FROM transactions
+SELECT id, user_id, category_id, amount_minor, title, spent_at, created_at, direction, counted FROM transactions
 WHERE user_id = $1
 ORDER BY spent_at DESC
 LIMIT $2
@@ -124,6 +127,7 @@ func (q *Queries) ListRecentTransactions(ctx context.Context, arg ListRecentTran
 			&i.SpentAt,
 			&i.CreatedAt,
 			&i.Direction,
+			&i.Counted,
 		); err != nil {
 			return nil, err
 		}
@@ -136,7 +140,7 @@ func (q *Queries) ListRecentTransactions(ctx context.Context, arg ListRecentTran
 }
 
 const listTransactionsInRange = `-- name: ListTransactionsInRange :many
-SELECT id, user_id, category_id, amount_minor, title, spent_at, created_at, direction FROM transactions
+SELECT id, user_id, category_id, amount_minor, title, spent_at, created_at, direction, counted FROM transactions
 WHERE user_id  =  $1
   AND spent_at >= $2
   AND spent_at <  $3
@@ -167,6 +171,7 @@ func (q *Queries) ListTransactionsInRange(ctx context.Context, arg ListTransacti
 			&i.SpentAt,
 			&i.CreatedAt,
 			&i.Direction,
+			&i.Counted,
 		); err != nil {
 			return nil, err
 		}
@@ -176,6 +181,32 @@ func (q *Queries) ListTransactionsInRange(ctx context.Context, arg ListTransacti
 		return nil, err
 	}
 	return items, nil
+}
+
+const sumCountedSpentInRange = `-- name: SumCountedSpentInRange :one
+SELECT COALESCE(SUM(amount_minor), 0)::bigint AS spent_minor
+FROM transactions
+WHERE user_id  =  $1
+  AND spent_at >= $2
+  AND spent_at <  $3
+  AND direction = 'expense'
+  AND counted
+`
+
+type SumCountedSpentInRangeParams struct {
+	UserID pgtype.UUID
+	FromAt pgtype.Timestamptz
+	ToAt   pgtype.Timestamptz
+}
+
+// Расход за период, который участвует в РАСЧЁТЕ («Свободно», полоска, перенос):
+// без трат с выключенной галочкой counted. Статистика (SumSpentInRange и
+// остальные Sum*) по-прежнему видит все траты.
+func (q *Queries) SumCountedSpentInRange(ctx context.Context, arg SumCountedSpentInRangeParams) (int64, error) {
+	row := q.db.QueryRow(ctx, sumCountedSpentInRange, arg.UserID, arg.FromAt, arg.ToAt)
+	var spent_minor int64
+	err := row.Scan(&spent_minor)
+	return spent_minor, err
 }
 
 const sumIncomeInRange = `-- name: SumIncomeInRange :one
@@ -207,6 +238,7 @@ SELECT COALESCE(SUM(
 FROM transactions
 WHERE user_id    =  $1
   AND created_at >= $2
+  AND counted
 `
 
 type SumSignedSinceParams struct {
@@ -223,6 +255,9 @@ type SumSignedSinceParams struct {
 // vice versa) purely through a timezone offset, and get counted twice. "Every
 // entry made since you told me the balance" is unambiguous and needs no clock
 // agreement.
+//
+// Rows with counted = false (e.g. a mandatory payment the user keeps out of the
+// calculation) do not move the balance.
 func (q *Queries) SumSignedSince(ctx context.Context, arg SumSignedSinceParams) (int64, error) {
 	row := q.db.QueryRow(ctx, sumSignedSince, arg.UserID, arg.FromAt)
 	var net_minor int64
@@ -404,9 +439,10 @@ SET category_id = $1,
     amount_minor = $2,
     title = $3,
     spent_at = $4,
-    direction = $5
-WHERE id = $6 AND user_id = $7   -- created_at не трогаем
-RETURNING id, user_id, category_id, amount_minor, title, spent_at, created_at, direction
+    direction = $5,
+    counted = $6
+WHERE id = $7 AND user_id = $8   -- created_at не трогаем
+RETURNING id, user_id, category_id, amount_minor, title, spent_at, created_at, direction, counted
 `
 
 type UpdateTransactionParams struct {
@@ -415,6 +451,7 @@ type UpdateTransactionParams struct {
 	Title       string
 	SpentAt     pgtype.Timestamptz
 	Direction   TxDirection
+	Counted     bool
 	ID          pgtype.UUID
 	UserID      pgtype.UUID
 }
@@ -427,6 +464,7 @@ func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionPa
 		arg.Title,
 		arg.SpentAt,
 		arg.Direction,
+		arg.Counted,
 		arg.ID,
 		arg.UserID,
 	)
@@ -440,6 +478,7 @@ func (q *Queries) UpdateTransaction(ctx context.Context, arg UpdateTransactionPa
 		&i.SpentAt,
 		&i.CreatedAt,
 		&i.Direction,
+		&i.Counted,
 	)
 	return i, err
 }

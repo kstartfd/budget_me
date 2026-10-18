@@ -558,6 +558,7 @@ type Transaction struct {
 	SpentAt     pgtype.Timestamptz
 	CreatedAt   pgtype.Timestamptz
 	Direction   TxDirection
+	Counted     bool
 }
 
 type User struct {

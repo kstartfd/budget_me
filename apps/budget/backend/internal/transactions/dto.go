@@ -26,6 +26,15 @@ type transactionRequest struct {
 	// есть на 3 часа мимо и «вчерашним» днём у границы суток. Момент однозначен.
 	SpentAt   string `json:"spentAt"`
 	Direction string `json:"direction"` // "income" | "expense"; пусто → expense
+	// Counted — участвует ли трата в расчёте (Остаток, «Свободно»). Указатель, чтобы
+	// отличить «не прислали» (старый клиент → true) от явного false.
+	Counted *bool `json:"counted"`
+}
+
+// counted — значение флага «в расчёте» с дефолтом: поле не прислали (старый клиент) →
+// участвует, как и вело себя всегда.
+func (r transactionRequest) counted() bool {
+	return r.Counted == nil || *r.Counted
 }
 
 // transactionResponse — форма ОДНОЙ транзакции в ответе (список = срез таких).
@@ -36,6 +45,7 @@ type transactionResponse struct {
 	Title       string `json:"title"`       // мерчант / заголовок строки
 	SpentAt     string `json:"spentAt"`     // МОМЕНТ траты в UTC (RFC3339)
 	Direction   string `json:"direction"`   // "income" | "expense"
+	Counted     bool   `json:"counted"`     // участвует ли в расчёте (false — только в статистике)
 }
 
 // summaryResponse — JSON-форма ответа /transactions/summary. Совпадает с
@@ -43,10 +53,11 @@ type transactionResponse struct {
 // периодом), CarriedInMinor — неизрасходованный приход, перешедший из прошлого
 // периода (0, если prevFrom/prevTo не присланы или сравнивать не с чем).
 type summaryResponse struct {
-	SpentMinor     int64                     `json:"spentMinor"`
-	IncomeMinor    int64                     `json:"incomeMinor"`
-	CarriedInMinor int64                     `json:"carriedInMinor"`
-	ByCategory     []summaryCategoryResponse `json:"byCategory"`
+	SpentMinor        int64                     `json:"spentMinor"`        // весь расход — для статистики
+	CountedSpentMinor int64                     `json:"countedSpentMinor"` // расход, участвующий в расчёте («Свободно», полоска)
+	IncomeMinor       int64                     `json:"incomeMinor"`
+	CarriedInMinor    int64                     `json:"carriedInMinor"`
+	ByCategory        []summaryCategoryResponse `json:"byCategory"`
 }
 
 // totalsResponse — форма ответа /transactions/totals: суммарный расход и приход
@@ -107,6 +118,9 @@ func toTransactionResponse(t db.Transaction) transactionResponse {
 
 		// direction — enum tx_direction, sqlc сгенерил db.TxDirection (string).
 		Direction: string(t.Direction),
+
+		// counted — boolean NOT NULL → обычный bool.
+		Counted: t.Counted,
 	}
 }
 
@@ -140,9 +154,10 @@ func toSummaryResponse(res queries.SummaryResult) summaryResponse {
 	}
 
 	return summaryResponse{
-		SpentMinor:     res.SpentMinor,
-		IncomeMinor:    res.IncomeMinor,
-		CarriedInMinor: res.CarriedInMinor,
-		ByCategory:     byCategory,
+		SpentMinor:        res.SpentMinor,
+		CountedSpentMinor: res.CountedSpentMinor,
+		IncomeMinor:       res.IncomeMinor,
+		CarriedInMinor:    res.CarriedInMinor,
+		ByCategory:        byCategory,
 	}
 }
