@@ -19,21 +19,28 @@ Learning runs on the same VPS as budget, at `learning.<domain>`
   learning. Both apps need `ACCOUNT_POSTGRES_PASSWORD` (the same value).
 - Nightly backup of `learning_app` runs from the same cron as budget's.
 
-Cutover, once:
+Cutover, once (this is how learning moved onto the shared Postgres and the
+shared account):
 
 1. Point the `learning.<domain>` A record at the VPS.
 2. Add the `LEARNING_*` CI variables (or fill `~/budget_me/.env.learning.local`) and
-   press `deploy:learning`. The first deploy creates the database, migrates it
-   and starts blue (no switch-back on a first deploy).
+   `ACCOUNT_POSTGRES_PASSWORD`, and press `deploy:learning`. The first deploy
+   creates the database, migrates it and starts blue (no switch-back on a first
+   deploy).
 3. Copy the data. Stop writes to the old learning API first, and keep the old
    stack's Postgres until the logins are checked. The source is the database that
    holds the live data — on a box that still runs the previous standalone stack
    (`~/learning`, container `learning_app-postgres-1`) that is **its** Postgres:
    the `learning_*` tables in the budget database are only a stale copy from the
-   first migration. `apps/learning/scripts/copy-learning-data.sh` takes any source
-   URL, but only copies users who own content and needs an empty target.
-   Validate counts and logins.
-4. Point the learning bot's Mini App URL at `https://learning.<domain>`.
+   first migration. Do this **before** the first deploy that has accounts: the
+   backfill then adopts the copied users together with their email logins.
+   (`apps/learning/scripts/copy-learning-data.sh` takes any source URL, but only
+   copies users who own content and needs an empty target.) Validate counts and
+   logins.
+4. Deploy budget and learning (either order — ids are per app, accounts are matched
+   by Telegram id and email). Check that a person who used both apps shows the same
+   email in both settings screens.
+5. Point the learning bot's Mini App URL at `https://learning.<domain>`.
 
 The old budget database still holds the existing Learning tables. The numbered
 Learning migrations remain in the budget backend until the data has been copied

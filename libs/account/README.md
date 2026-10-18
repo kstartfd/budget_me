@@ -29,7 +29,7 @@ to be in both, and either app can be deployed first.
 | `RequestDeletion` / `CancelDeletion` | the account screen; the first deadline wins |
 | `Register(id, app)` | an app says it holds data for the account |
 | `Purge(app, cutoff, deleteLocal)` | the app erases its data of every account whose deadline passed; the account row goes when the last app has let go |
-| `Adopt(existing)` | backfill: finds or creates the account of a user from before accounts (matching Telegram id, then email) — two apps adopting the same person end up on one account |
+| `Adopt(existing)` | backfill: finds or creates the account of a user from before accounts (matching Telegram id, then email) — two apps adopting the same person end up on one account; a found account takes any login it lacks (an email only the other app had) but never overwrites one it has |
 | `Merge(survivor, loser, now)` | operator tool (`admin merge`) |
 | `VerifyInitData`, `HashPassword`, `VerifyPassword` | the Telegram / password primitives both backends used to copy |
 

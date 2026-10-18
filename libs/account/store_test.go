@@ -379,3 +379,98 @@ func TestMergeFoldsTheLoserIntoTheSurvivor(t *testing.T) {
 		t.Fatalf("learning still holds the survivor after the merge: %v", err)
 	}
 }
+
+func TestAdoptGivesAnExistingAccountTheLoginsItLacks(t *testing.T) {
+	s, p := store(t)
+	ctx := context.Background()
+
+	tgID := tg(t).ID
+	email := "late-" + uuid.NewString() + "@example.com"
+	hash, _ := account.HashPassword("late-password")
+
+	// The first app knew only the Telegram id …
+	first, err := s.Adopt(ctx, account.Existing{TelegramID: &tgID, FirstName: "Ann", CreatedAt: now, UpdatedAt: now})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cleanup(t, p, first.ID)
+
+	// … the second one also had an email login for the same person.
+	second, err := s.Adopt(ctx, account.Existing{
+		TelegramID: &tgID, Email: &email, PasswordHash: &hash, FirstName: "Ann", CreatedAt: now, UpdatedAt: now,
+	})
+	if err != nil || second.ID != first.ID {
+		t.Fatalf("second adopt = %v, %v; want %s", second.ID, err, first.ID)
+	}
+
+	if _, err := s.SignInEmail(ctx, email, "late-password"); err != nil {
+		t.Fatalf("the email from the second app should open the shared account: %v", err)
+	}
+
+	// What the account has is not overwritten by a third source.
+	other := "other-" + uuid.NewString() + "@example.com"
+	otherHash, _ := account.HashPassword("other-password")
+
+	third, err := s.Adopt(ctx, account.Existing{
+		TelegramID: &tgID, Email: &other, PasswordHash: &otherHash, FirstName: "Ann", CreatedAt: now, UpdatedAt: now,
+	})
+	if err != nil || third.Email == nil || *third.Email != email {
+		t.Fatalf("an existing email must stay: %+v, %v", third, err)
+	}
+}
+
+func TestAdoptDoesNotTakeAnotherAccountsEmail(t *testing.T) {
+	s, p := store(t)
+	ctx := context.Background()
+
+	owner, err := s.SignInTelegram(ctx, tg(t), nil, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	email := "owned-" + uuid.NewString() + "@example.com"
+	if _, err := s.LinkEmail(ctx, owner.ID, email, "owner-password", now); err != nil {
+		t.Fatal(err)
+	}
+
+	otherTG := tg(t).ID + 7
+
+	person, err := s.Adopt(ctx, account.Existing{TelegramID: &otherTG, FirstName: "Bob", CreatedAt: now, UpdatedAt: now})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cleanup(t, p, owner.ID, person.ID)
+
+	hash, _ := account.HashPassword("whatever-password")
+
+	got, err := s.Adopt(ctx, account.Existing{TelegramID: &otherTG, Email: &email, PasswordHash: &hash, FirstName: "Bob", CreatedAt: now, UpdatedAt: now})
+	if err != nil || got.ID != person.ID || got.Email != nil {
+		t.Fatalf("must not take the other account's email: %+v, %v", got, err)
+	}
+}
+
+func TestSignInTelegramFillsTheEmailLoginOfAnExistingAccount(t *testing.T) {
+	s, p := store(t)
+	ctx := context.Background()
+	user := tg(t)
+
+	acc, err := s.SignInTelegram(ctx, user, nil, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	cleanup(t, p, acc.ID)
+
+	email := "carried-" + uuid.NewString() + "@example.com"
+	hash, _ := account.HashPassword("carried-password")
+
+	if _, err := s.SignInTelegram(ctx, user, &account.Credentials{Email: &email, PasswordHash: &hash}, now); err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := s.SignInEmail(ctx, email, "carried-password"); err != nil {
+		t.Fatalf("a carried login should reach an account that already existed: %v", err)
+	}
+}

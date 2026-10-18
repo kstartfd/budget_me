@@ -8,6 +8,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"budget_me/account/internal/db"
@@ -63,6 +64,10 @@ func (s *Store) SignInTelegram(ctx context.Context, tg TelegramUser, carry *Cred
 			})
 			if err != nil {
 				return Account{}, err
+			}
+
+			if carry != nil {
+				return s.inherit(ctx, uuid.UUID(updated.ID.Bytes), Existing{Email: carry.Email, PasswordHash: carry.PasswordHash}, now)
 			}
 
 			return toAccount(updated), nil
@@ -181,7 +186,7 @@ func (s *Store) Adopt(ctx context.Context, in Existing) (Account, error) {
 
 			switch {
 			case err == nil:
-				return toAccount(a), nil
+				return s.inherit(ctx, uuid.UUID(a.ID.Bytes), in, in.UpdatedAt)
 			case !errors.Is(err, pgx.ErrNoRows):
 				return Account{}, err
 			}
@@ -194,7 +199,7 @@ func (s *Store) Adopt(ctx context.Context, in Existing) (Account, error) {
 
 			switch {
 			case err == nil:
-				return toAccount(a), nil
+				return s.inherit(ctx, uuid.UUID(a.ID.Bytes), in, in.UpdatedAt)
 			case !errors.Is(err, pgx.ErrNoRows):
 				return Account{}, err
 			}
@@ -222,6 +227,35 @@ func (s *Store) Adopt(ctx context.Context, in Existing) (Account, error) {
 	}
 
 	return Account{}, errors.New("account: adopt kept colliding")
+}
+
+// inherit fills in what the account lacks from another source of the same
+// person — a login the other app had, say — and never overwrites what it has. A
+// telegram id or email that belongs to another account is left out rather than
+// taken over.
+func (s *Store) inherit(ctx context.Context, id uuid.UUID, in Existing, now time.Time) (Account, error) {
+	params := db.InheritAccountIdentityParams{
+		ID:           pgUUID(id),
+		TelegramID:   pgInt8(in.TelegramID),
+		Email:        pgText(in.Email),
+		PasswordHash: pgText(in.PasswordHash),
+		Username:     pgText(in.Username),
+		LanguageCode: pgText(in.LanguageCode),
+		Now:          pgTime(now),
+	}
+
+	a, err := s.q.InheritAccountIdentity(ctx, params)
+	if constraint(err) != "" {
+		params.TelegramID, params.Email, params.PasswordHash = pgtype.Int8{}, pgtype.Text{}, pgtype.Text{}
+
+		a, err = s.q.InheritAccountIdentity(ctx, params)
+	}
+
+	if err != nil {
+		return Account{}, err
+	}
+
+	return toAccount(a), nil
 }
 
 // Existing is a row of an app's users table from before accounts existed.
