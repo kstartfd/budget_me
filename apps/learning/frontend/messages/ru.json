@@ -131,6 +131,46 @@
     "tokenNoTopics": "Сначала создай топик — токен обязательно привязывается к одному из них.",
     "tokenEndpoint": "Эндпоинт",
     "tokenEndpointHint": "Вставь этот адрес в расширение вместе с токеном. Топик уже зашит в токен, поэтому все токены отправляют запросы на один и тот же эндпоинт.",
-    "copyEndpoint": "Скопировать эндпоинт"
+    "copyEndpoint": "Скопировать эндпоинт",
+    "settings": "Настройки"
+  },
+  "account": {
+    "kicker": "Аккаунт",
+    "sectionHint": "Один аккаунт — два способа входа. Привяжите второй, чтобы не потерять доступ.",
+    "emailLabel": "Email и пароль",
+    "emailNotLinked": "Не привязан",
+    "telegramLabel": "Telegram",
+    "telegramNotLinked": "Не привязан",
+    "linked": "Привязан",
+    "addEmail": "Добавить email и пароль",
+    "emailTitle": "Добавить email и пароль",
+    "emailSubtitle": "Второй способ входа — на случай, если Telegram будет недоступен.",
+    "email": "Email",
+    "password": "Пароль",
+    "save": "Привязать",
+    "saving": "Привязываем…",
+    "cancel": "Отмена",
+    "emailConflict": "Этот email уже привязан к другому аккаунту",
+    "genericError": "Не получилось привязать. Попробуйте ещё раз.",
+    "errors": {
+      "invalidEmail": "Укажите корректный email",
+      "passwordShort": "Пароль — минимум 8 символов"
+    },
+    "dangerKicker": "Опасная зона",
+    "deleteTitle": "Удалить аккаунт",
+    "deleteHint": "Все темы, записи и токены исчезнут.",
+    "deleteAction": "Удалить",
+    "deleteConfirmTitle": "Точно удалить аккаунт?",
+    "deleteConfirmHint": "Данные удалятся через 30 дней. До этого можно передумать — просто отмени удаление здесь.",
+    "deleteKeep": "Оставить",
+    "deleteConfirm": "Да, удалить",
+    "deleting": "Отправляем…",
+    "deleteScheduled": "Аккаунт будет удалён {date}",
+    "deleteScheduledHint": "До этой даты приложение работает как обычно. Передумал — отмени.",
+    "deleteCancel": "Отменить удаление",
+    "cancelling": "Отменяем…",
+    "deleteFailed": "Не получилось. Попробуй ещё раз",
+    "bannerScheduled": "Аккаунт удалится {date}",
+    "bannerCancel": "Отменить"
   }
 }

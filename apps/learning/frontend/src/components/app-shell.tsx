@@ -3,9 +3,10 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { IconBook2, IconKey, IconPlus } from "@tabler/icons-react"
+import { IconBook2, IconKey, IconPlus, IconSettings } from "@tabler/icons-react"
 import { AddActionProvider, useAddAction } from "@/components/add-action"
 import { HeaderControls } from "@/components/header-controls"
+import { DeletionBanner } from "@/features/account"
 import { AuthGate, AuthProvider } from "@/features/auth"
 
 function Frame({ children }: { children: React.ReactNode }) {
@@ -18,19 +19,21 @@ function Frame({ children }: { children: React.ReactNode }) {
         <Link href="/learning" className="px-2 pb-6 text-[15px] font-bold">learning</Link>
         <Link href="/learning" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconBook2 size={18} />{t("title")}</Link>
         <Link href="/learning/tokens" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconKey size={18} />{t("tokens")}</Link>
+        <Link href="/learning/settings" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconSettings size={18} />{t("settings")}</Link>
         <div className="mt-auto flex justify-center"><HeaderControls /></div>
       </aside>
       <div className="min-w-0 flex-1">
         <header className="bg-background border-border sticky top-0 z-20 border-b lg:hidden">
           <div className="mx-auto flex w-full max-w-md items-center justify-between px-5 py-4"><Link href="/learning" className="text-[15px] font-semibold">learning</Link><HeaderControls /></div>
         </header>
-        <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-[18px] pt-[18px] pb-44 lg:max-w-4xl lg:px-6 lg:pt-6 lg:pb-16">{children}</main>
+        <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-[18px] pt-[18px] pb-44 lg:max-w-4xl lg:px-6 lg:pt-6 lg:pb-16"><DeletionBanner />{children}</main>
       </div>
       <nav aria-label={t("title")} className="border-border fixed inset-x-0 bottom-0 z-20 border-t bg-background lg:hidden">
         <div className="mx-auto flex max-w-md items-center justify-around px-4 py-4 pb-[max(env(safe-area-inset-bottom),1.375rem)]">
           <Link href="/learning" aria-current={pathname === "/learning" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconBook2 size={22} />{t("title")}</Link>
           <button type="button" onClick={trigger} disabled={!enabled} aria-label={t("newTopic")} className="bg-primary text-primary-foreground flex size-11 items-center justify-center rounded-full disabled:opacity-40"><IconPlus size={22} /></button>
           <Link href="/learning/tokens" aria-current={pathname === "/learning/tokens" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconKey size={22} />{t("tokens")}</Link>
+          <Link href="/learning/settings" aria-current={pathname === "/learning/settings" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconSettings size={22} />{t("settings")}</Link>
         </div>
       </nav>
     </div>

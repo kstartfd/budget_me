@@ -12,6 +12,8 @@ export const userSchema = z.object({
   email: z.string().optional(),
   telegram_id: z.number().optional(),
   language_code: z.string().optional(),
+  /** Set while a deletion is pending: when the account will be erased. */
+  delete_at: z.string().optional(),
 })
 export type User = z.infer<typeof userSchema>
 

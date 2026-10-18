@@ -131,6 +131,46 @@
     "tokenNoTopics": "Create a topic first — a token has to be scoped to one.",
     "tokenEndpoint": "Endpoint",
     "tokenEndpointHint": "Paste this URL into the extension together with the token. The topic is already baked into the token, so every token posts to the same endpoint.",
-    "copyEndpoint": "Copy endpoint"
+    "copyEndpoint": "Copy endpoint",
+    "settings": "Settings"
+  },
+  "account": {
+    "kicker": "Account",
+    "sectionHint": "One account, two ways in. Link the second so you never lose access.",
+    "emailLabel": "Email & password",
+    "emailNotLinked": "Not linked",
+    "telegramLabel": "Telegram",
+    "telegramNotLinked": "Not linked",
+    "linked": "Linked",
+    "addEmail": "Add email & password",
+    "emailTitle": "Add email & password",
+    "emailSubtitle": "A second way in — for when Telegram isn't available.",
+    "email": "Email",
+    "password": "Password",
+    "save": "Link",
+    "saving": "Linking…",
+    "cancel": "Cancel",
+    "emailConflict": "This email is already linked to another account",
+    "genericError": "Couldn't link. Please try again.",
+    "errors": {
+      "invalidEmail": "Enter a valid email",
+      "passwordShort": "Password must be at least 8 characters"
+    },
+    "dangerKicker": "Danger zone",
+    "deleteTitle": "Delete account",
+    "deleteHint": "Every topic, entry and token goes with it.",
+    "deleteAction": "Delete",
+    "deleteConfirmTitle": "Delete this account?",
+    "deleteConfirmHint": "The data is erased in 30 days. Until then you can change your mind — just cancel it here.",
+    "deleteKeep": "Keep it",
+    "deleteConfirm": "Yes, delete",
+    "deleting": "Sending…",
+    "deleteScheduled": "Account will be deleted on {date}",
+    "deleteScheduledHint": "Until then the app works as usual. Changed your mind? Cancel below.",
+    "deleteCancel": "Cancel deletion",
+    "cancelling": "Cancelling…",
+    "deleteFailed": "That didn't work. Try again",
+    "bannerScheduled": "Account is being deleted on {date}",
+    "bannerCancel": "Cancel"
   }
 }

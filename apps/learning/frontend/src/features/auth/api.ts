@@ -1,3 +1,5 @@
+import { z } from "zod"
+
 import {
   authResponseSchema,
   userSchema,
@@ -87,5 +89,32 @@ export function linkEmail(
       body: JSON.stringify(input),
     },
     (d) => userSchema.parse(d),
+  )
+}
+
+const deletionSchema = z.object({
+  requestedAt: z.string().nullable(),
+  deleteAt: z.string().nullable(),
+})
+
+/**
+ * Schedule the account for deletion. Nothing is erased now: the backend stamps
+ * the request and removes the data once the grace period is up, so the user can
+ * still cancel. Returns the deadline.
+ */
+export function requestAccountDeletion(token: string): Promise<string | null> {
+  return call(
+    "/account/deletion",
+    { method: "POST", headers: { Authorization: `Bearer ${token}` } },
+    (d) => deletionSchema.parse(d).deleteAt,
+  )
+}
+
+/** Call the pending deletion off; the account stays. */
+export function cancelAccountDeletion(token: string): Promise<null> {
+  return call(
+    "/account/deletion",
+    { method: "DELETE", headers: { Authorization: `Bearer ${token}` } },
+    () => null,
   )
 }
