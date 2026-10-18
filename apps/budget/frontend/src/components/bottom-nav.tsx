@@ -14,7 +14,7 @@ import { cn } from "@/lib/utils"
 /**
  * Design bottom nav: four tabs around a raised center ＋. The four come from
  * the active space (see components/spaces.tsx) — «Бюджет» keeps the original
- * Обзор / Траты / Графики / AI, «Каталог» shows Списки / Ещё.
+ * Обзор / Траты / Графики / AI, «Каталог» shows Списки / Планы / Ещё.
  *
  * The ＋ is contextual. In «Бюджет» it is the add-expense sheet it has always
  * been; in «Каталог» it belongs to the open screen, which claims it through

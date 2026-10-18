@@ -311,37 +311,6 @@ export default function SettingsPage() {
             <ChevronRightIcon />
           </span>
         </Link>
-        <Link
-          href="/plans"
-          className="bg-card border-border flex items-center gap-3 rounded-[18px] border p-[14px] shadow-[var(--shadow-card)]"
-        >
-          <span className="bg-[color:var(--primary-wash)] text-primary flex size-[38px] shrink-0 items-center justify-center rounded-xl">
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden
-            >
-              <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
-              <rect x="9" y="3" width="6" height="4" rx="1" />
-              <path d="M9 13l2 2 4-4" />
-            </svg>
-          </span>
-          <div className="min-w-0 flex-1">
-            <div className="text-[14px] font-semibold">{t("plans")}</div>
-            <div className="text-faint mt-[2px] text-[11.5px]">
-              {t("plansSub")}
-            </div>
-          </div>
-          <span className="text-faint shrink-0">
-            <ChevronRightIcon />
-          </span>
-        </Link>
       </section>
 
       {/* Account — link Telegram ↔ email so one account has both login paths */}

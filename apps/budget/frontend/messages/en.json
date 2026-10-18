@@ -41,6 +41,7 @@
     "budgets": "Limits",
     "settings": "Settings",
     "lists": "Lists",
+    "plans": "Plans",
     "more": "More"
   },
   "settings": {
@@ -61,8 +62,6 @@
     "categoriesSub": "Add & edit",
     "limits": "Limits",
     "limitsSub": "Per-category caps",
-    "plans": "Plans",
-    "plansSub": "Planned expenses for the month",
     "yourId": "Your ID",
     "copyId": "Copy ID",
     "idCopied": "ID copied",
@@ -163,7 +162,6 @@
   },
   "plans": {
     "title": "Plans",
-    "crumb": "Settings",
     "plannedTotal": "Planned {amount} Br",
     "newPlan": "New plan",
     "empty": "No plans yet — add the first one.",
@@ -317,7 +315,8 @@
     "categoryName": "e.g. Pets",
     "create": "Create",
     "cancel": "Cancel",
-    "item": "Thing"
+    "item": "Thing",
+    "plan": "Plan"
   },
   "categories": {
     "coffee": "Coffee",

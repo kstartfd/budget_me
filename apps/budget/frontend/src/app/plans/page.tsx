@@ -1,9 +1,10 @@
 "use client"
 
-import Link from "next/link"
+import { useCallback } from "react"
 import { useTranslations } from "next-intl"
 
-import { CheckIcon, ChevronLeftIcon, PlusIcon } from "@/components/app-icons"
+import { useProvideAddAction } from "@/components/add-action"
+import { CheckIcon, PlusIcon } from "@/components/app-icons"
 import { useCategoryLabel } from "@/features/budget/category-label"
 import { useBudgetUI } from "@/features/budget/components/ui-context"
 import { usePlanConfirm } from "@/features/budget/use-plan-confirm"
@@ -35,6 +36,8 @@ export default function PlansPage() {
   const createPlan = useCreatePlan()
   const deletePlan = useDeletePlan()
   const { confirm, isPending: confirming } = usePlanConfirm()
+
+  useProvideAddAction(useCallback(() => openPlan(), [openPlan]))
 
   if (plans.isPending || categories.isPending) return <PlansSkeleton />
   if (plans.isError || categories.isError) {
@@ -79,27 +82,13 @@ export default function PlansPage() {
 
   return (
     <div className="anim-fade flex flex-col gap-4">
-      <div className="flex items-start gap-2.5">
-        <Link
-          href="/settings"
-          aria-label={t("crumb")}
-          className="border-border bg-secondary text-foreground flex size-[34px] shrink-0 items-center justify-center rounded-[11px] border"
-        >
-          <ChevronLeftIcon />
-        </Link>
-        <div className="flex min-w-0 grow items-end justify-between gap-2">
-          <div className="min-w-0">
-            <div className="text-faint truncate font-mono text-[11px]">
-              {t("crumb")} › {t("title")}
-            </div>
-            <h1 className="text-[22px] font-bold tracking-[-0.02em]">
-              {t("title")}
-            </h1>
-          </div>
-          <span className="text-faint shrink-0 font-mono text-[12.5px] font-medium">
-            {t("plannedTotal", { amount: formatBr(plannedTotal) })}
-          </span>
-        </div>
+      <div className="flex items-end justify-between gap-2">
+        <h1 className="min-w-0 text-[22px] font-bold tracking-[-0.02em]">
+          {t("title")}
+        </h1>
+        <span className="text-faint shrink-0 font-mono text-[12.5px] font-medium">
+          {t("plannedTotal", { amount: formatBr(plannedTotal) })}
+        </span>
       </div>
 
       <button

@@ -41,6 +41,7 @@
     "budgets": "Лимиты",
     "settings": "Настройки",
     "lists": "Списки",
+    "plans": "Планы",
     "more": "Ещё"
   },
   "settings": {
@@ -61,8 +62,6 @@
     "categoriesSub": "Добавить и изменить",
     "limits": "Лимиты",
     "limitsSub": "Лимиты по категориям",
-    "plans": "Планы",
-    "plansSub": "Планируемые траты месяца",
     "yourId": "Ваш ID",
     "copyId": "Копировать ID",
     "idCopied": "ID скопирован",
@@ -163,7 +162,6 @@
   },
   "plans": {
     "title": "Планы",
-    "crumb": "Настройки",
     "plannedTotal": "Запланировано {amount} Br",
     "newPlan": "Новый план",
     "empty": "Пока нет планов — добавь первый.",
@@ -317,7 +315,8 @@
     "categoryName": "Напр. «Питомцы»",
     "create": "Создать",
     "cancel": "Отмена",
-    "item": "Вещь"
+    "item": "Вещь",
+    "plan": "План"
   },
   "categories": {
     "coffee": "Кофе",
