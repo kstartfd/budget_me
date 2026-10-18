@@ -52,7 +52,10 @@ export function useCreateItem(listId: string) {
   return useMutation({
     mutationFn: createItem,
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: listKeys.items(listId) }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: listKeys.items(listId) }),
+        queryClient.invalidateQueries({ queryKey: listKeys.dictionary() }),
+      ]),
   })
 }
 
@@ -72,7 +75,10 @@ export function useDeleteItem(listId: string) {
   return useMutation({
     mutationFn: deleteItem,
     onSuccess: () =>
-      queryClient.invalidateQueries({ queryKey: listKeys.items(listId) }),
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: listKeys.items(listId) }),
+        queryClient.invalidateQueries({ queryKey: listKeys.dictionary() }),
+      ]),
   })
 }
 
