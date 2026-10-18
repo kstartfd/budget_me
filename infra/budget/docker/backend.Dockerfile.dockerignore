@@ -1,0 +1,8 @@
+# Only what the backend image needs: this app's backend and the account module.
+*
+!libs/account
+!apps/budget/backend
+apps/budget/backend/tmp
+apps/budget/backend/bin
+**/*.log
+**/.DS_Store

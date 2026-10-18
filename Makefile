@@ -10,7 +10,7 @@ COMPOSE_LEARNING := docker compose --env-file apps/learning/.env -f infra/learni
 COMPOSE_PROD := docker compose --env-file infra/budget/compose/.env --project-directory . -f infra/budget/compose/prod.yml
 
 .PHONY: help up down restart logs ps psql reset
-.PHONY: migrate.up migrate.down migrate.status migrate.reset
+.PHONY: migrate.up migrate.down migrate.status migrate.reset account.db
 .PHONY: tidy front sqlc build vet test fmt lint
 .PHONY: prod.pull prod.up prod.down prod.migrate prod.logs
 .PHONY: learning.up learning.down learning.logs learning.migrate
@@ -81,7 +81,12 @@ psql:
 reset:
 	$(COMPOSE) down -v
 
-migrate.up:
+# The shared account database lives next to each app's own in the dev Postgres.
+# A fresh volume gets it from infra/account/dev-init.sql; this covers an old one.
+account.db:
+	$(COMPOSE) exec -T postgres sh -c 'psql -U budget_me -d budget_me -tc "SELECT 1 FROM pg_database WHERE datname = '"'"'account_app'"'"'" | grep -q 1 || psql -U budget_me -d budget_me -c "CREATE DATABASE account_app"'
+
+migrate.up: account.db
 	$(COMPOSE) exec backend go run ./cmd/migrate up
 
 migrate.down:
@@ -130,8 +135,15 @@ vet:
 test:
 	$(COMPOSE) exec backend go test ./...
 
+# Pinned to the version the generated code was produced with (see the
+# `sqlc vX.Y.Z` header of internal/db) — never :latest.
+SQLC_VERSION := 1.31.1
+SQLC := docker run --rm --user $(shell id -u):$(shell id -g)
+
 sqlc:
-	docker run --rm -v $(CURDIR)/apps/budget/backend:/src -w /src sqlc/sqlc:latest generate
+	$(SQLC) -v $(CURDIR)/apps/budget/backend:/src -w /src sqlc/sqlc:$(SQLC_VERSION) generate
+	$(SQLC) -v $(CURDIR)/apps/learning/backend:/src -w /src sqlc/sqlc:$(SQLC_VERSION) generate
+	$(SQLC) -v $(CURDIR)/libs/account:/src -w /src sqlc/sqlc:$(SQLC_VERSION) generate
 
 fmt:
 	$(GOLANGCI) golangci-lint fmt

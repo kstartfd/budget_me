@@ -8,6 +8,7 @@
 #
 #   backup      03:40 daily — pg_dump → gpg → Telegram (infra/scripts/backup.sh)
 #   backup      03:50 daily — the same for learning_app
+#   backup      03:55 daily — the same for account_app (every app's logins)
 #   healthcheck every 5 min — disk/memory/load/containers/healthz/backup age
 #
 # The account/advice worker job (03:17 and 15:17) predates this script and is
@@ -45,6 +46,12 @@ ensure 'budget_me && ./scripts/backup.sh' \
 ensure 'BACKUP_DB=learning_app' \
   '# learning_app: ночной бэкап БД off-VPS' \
   '50 3 * * * cd ~/budget_me && BACKUP_DB=learning_app ./scripts/backup.sh >> ~/budget_me/backup.log 2>&1'
+
+# The shared account database: every app's logins and password hashes live here,
+# so it is backed up like the others.
+ensure 'BACKUP_DB=account_app' \
+  '# account_app: ночной бэкап общей БД аккаунтов off-VPS' \
+  '55 3 * * * cd ~/budget_me && BACKUP_DB=account_app ./scripts/backup.sh >> ~/budget_me/backup.log 2>&1'
 
 ensure 'scripts/healthcheck.sh' \
   '# budget_me: health-чек (диск/память/нагрузка/контейнеры/healthz/свежесть бэкапа)' \

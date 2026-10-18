@@ -80,14 +80,22 @@ is a multi-line key, so it **cannot be masked** — set its **Type = File** inst
 | `POSTGRES_PASSWORD`     | `openssl rand -hex 24`                         | Variable | yes       | **yes**|
 | `AUTH_SECRET`           | `openssl rand -hex 32`                          | Variable | yes       | **yes**|
 | `TELEGRAM_BOT_TOKEN`    | @BotFather token (may start empty)             | Variable | yes       | **yes**|
+| `ACCOUNT_POSTGRES_PASSWORD` | `openssl rand -hex 24` (role `account_app`, shared by both apps) | Variable | yes | **yes**|
 | `LEARNING_DOMAIN`       | optional — defaults to `learning.budgetme.xyz` | Variable | yes       | no     |
 | `LEARNING_POSTGRES_PASSWORD` | `openssl rand -hex 24` (role `learning_app`) | Variable | yes  | **yes**|
 | `LEARNING_AUTH_SECRET`  | `openssl rand -hex 32`                          | Variable | yes       | **yes**|
 | `LEARNING_TELEGRAM_BOT_TOKEN` | token of the learning bot                | Variable | yes       | **yes**|
 
-Learning has no switch to turn on: its buttons are always there, and the deploy
-refuses to start (before touching anything live) if `DOMAIN`, `POSTGRES_PASSWORD`,
-`AUTH_SECRET` or `TELEGRAM_BOT_TOKEN` is empty. Each app's secrets may instead
+`ACCOUNT_POSTGRES_PASSWORD` is the one value both apps share: the password of the
+`account_app` role that owns the shared account database
+([`libs/account`](../../libs/account/README.md)). CI renders it into both apps'
+env files; if you keep it in the `.local` files instead it must be the **same**
+value in both, because each deploy re-applies it to the role.
+
+Learning has no switch to turn on: its buttons are always there, and each deploy
+refuses to start (before touching anything live) if a required value is empty —
+budget: `DOMAIN`, `POSTGRES_PASSWORD`, `ACCOUNT_POSTGRES_PASSWORD`, `AUTH_SECRET`;
+learning: the same plus `TELEGRAM_BOT_TOKEN`. Each app's secrets may instead
 live on the server — `~/budget_me/.env.local` (budget) and
 `~/budget_me/.env.learning.local` (learning), `KEY=value` lines, `chmod 600`:
 CI wins when it has a value, the file fills whatever CI left empty
@@ -241,9 +249,13 @@ On the box: `./scripts/bluegreen.sh budget rollback 2`, `… status`.
 
 `scripts/bluegreen.sh <app> deploy <backend-image> <frontend-image>`:
 
+0. the shared `account_app` role and database are created if missing (both apps'
+   deploys do it, idempotently);
 1. local backup of the app's database;
 2. `migrate up` with the **new** image (before the switch: the live colour keeps
-   working on the expanded schema — see CODING_STYLE.md, Migrations);
+   working on the expanded schema — see CODING_STYLE.md, Migrations; it also
+   brings the account schema up), then `migrate backfill-accounts`, which links
+   the app's users to their accounts;
 3. start the **idle** colour, check it really runs the new image, health-check
    backend `/healthz` and frontend `/` over the internal network;
 4. rewrite `<app>.active.caddy`, `caddy reload` — zero downtime;

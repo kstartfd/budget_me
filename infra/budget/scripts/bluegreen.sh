@@ -148,6 +148,41 @@ backup_db() {
     || echo "bluegreen: локальный бэкап $DB_NAME не сделан — продолжаю" >&2
 }
 
+wait_postgres() {
+  host_compose up -d postgres
+
+  for _ in $(seq 1 20); do
+    host_compose exec -T postgres pg_isready -U budget_me -d budget_me >/dev/null 2>&1 && break
+    sleep 2
+  done
+}
+
+# The shared account database and its role (libs/account: one account for every
+# app). Both apps' deploys call this, and both env files must carry the SAME
+# ACCOUNT_POSTGRES_PASSWORD — it is re-applied on every deploy, so rotating the
+# value means changing it in both. Idempotent.
+ensure_account_db() {
+  local password
+
+  password="$(env_get ACCOUNT_POSTGRES_PASSWORD)"
+  [ -n "$password" ] || fail "$APP: ACCOUNT_POSTGRES_PASSWORD пуст в $ENV_FILE"
+
+  wait_postgres
+
+  host_compose exec -T postgres psql -U budget_me -d postgres -v ON_ERROR_STOP=1 -v pw="$password" <<'SQL' >/dev/null
+SELECT 'CREATE ROLE account_app LOGIN'
+WHERE NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'account_app')\gexec
+ALTER ROLE account_app WITH LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE PASSWORD :'pw';
+SELECT 'CREATE DATABASE account_app OWNER account_app'
+WHERE NOT EXISTS (SELECT 1 FROM pg_database WHERE datname = 'account_app')\gexec
+-- Only the account role reaches the accounts (the superuser always can, for backups),
+-- and the account role reaches nothing else.
+REVOKE CONNECT ON DATABASE budget_me FROM PUBLIC;
+REVOKE CONNECT ON DATABASE account_app FROM PUBLIC;
+GRANT CONNECT ON DATABASE account_app TO account_app;
+SQL
+}
+
 # The learning database and role live in the shared Postgres. Idempotent: the
 # password is re-applied on every deploy, so rotating the CI variable is enough.
 ensure_learning_db() {
@@ -156,12 +191,7 @@ ensure_learning_db() {
   password="$(env_get POSTGRES_PASSWORD)"
   [ -n "$password" ] || fail "learning: POSTGRES_PASSWORD пуст в $ENV_FILE"
 
-  host_compose up -d postgres
-
-  for _ in $(seq 1 20); do
-    host_compose exec -T postgres pg_isready -U budget_me -d budget_me >/dev/null 2>&1 && break
-    sleep 2
-  done
+  wait_postgres
 
   host_compose exec -T postgres psql -U budget_me -d postgres -v ON_ERROR_STOP=1 -v pw="$password" <<'SQL' >/dev/null
 SELECT 'CREATE ROLE learning_app LOGIN'
@@ -356,6 +386,7 @@ cmd_deploy() {
   local backend="$1" frontend="$2" current idle live_backend schema_before schema
 
   ensure_edge_files
+  ensure_account_db
 
   if [ "$APP" = learning ]; then
     ensure_learning_db
@@ -378,6 +409,14 @@ cmd_deploy() {
   if ! migrate_with "$backend" up; then
     undo_schema "$backend" "$schema_before"
     fail "$APP: миграции не прошли — трафик остался на ${current:-legacy}"
+  fi
+
+  # Users from before accounts existed get their account (or join the one the
+  # other app made). Idempotent; users created while the old release still
+  # serves are adopted when they next sign in.
+  if ! migrate_with "$backend" backfill-accounts; then
+    undo_schema "$backend" "$schema_before"
+    fail "$APP: перенос пользователей в аккаунты не прошёл — трафик остался на ${current:-legacy}"
   fi
 
   if ! start_color "$idle" "$backend" "$frontend"; then

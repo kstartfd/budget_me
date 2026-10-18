@@ -7,6 +7,9 @@ One GitLab repository with two separate Telegram Mini Apps.
 | Budget and lists | `apps/budget/` | Go API, Next.js, PostgreSQL, existing Telegram bot |
 | Learnings | `apps/learning/` | Go API, Next.js, separate PostgreSQL and bot |
 
+Both apps share one account (Telegram / email login, profile, deletion):
+`libs/account` (see its README) over a shared `account_app` database.
+
 Shared deployment configuration lives in `infra/`. Both apps run on one VPS
 behind one Caddy and one Postgres (separate databases), each deployed
 **blue-green** by GitLab CI: every `main` pipeline builds both apps and offers

@@ -21,8 +21,9 @@ name: learning_app
 #
 # Environment: ~/budget_me/.env.learning (DOMAIN = the learning domain,
 # POSTGRES_PASSWORD = the learning_app role's password, AUTH_SECRET,
-# TELEGRAM_BOT_TOKEN of the learning bot, BACKEND_IMAGE / FRONTEND_IMAGE and the
-# per-colour BLUE_* / GREEN_* images).
+# TELEGRAM_BOT_TOKEN of the learning bot, ACCOUNT_POSTGRES_PASSWORD (the same
+# value as budget's: it is the shared account database's role),
+# BACKEND_IMAGE / FRONTEND_IMAGE and the per-colour BLUE_* / GREEN_* images).
 
 x-backend: &backend
   restart: unless-stopped
@@ -33,6 +34,10 @@ x-backend: &backend
     ENV: prod
     PORT: "8080"
     DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
+    # The shared account database: one account for every app (libs/account).
+    ACCOUNT_DATABASE_URL: postgres://account_app:${ACCOUNT_POSTGRES_PASSWORD}@postgres:5432/account_app?sslmode=disable
+    # Same value the purge sweep uses — the API only reports the deadline.
+    ACCOUNT_DELETION_GRACE: ${ACCOUNT_DELETION_GRACE:-720h}
     AUTH_SECRET: ${AUTH_SECRET}
     TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
     TELEGRAM_MINIAPP_URL: https://${DOMAIN}
@@ -77,6 +82,7 @@ services:
     command: ["up"]
     environment:
       DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
+      ACCOUNT_DATABASE_URL: postgres://account_app:${ACCOUNT_POSTGRES_PASSWORD}@postgres:5432/account_app?sslmode=disable
 
 networks:
   default:

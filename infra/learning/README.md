@@ -14,6 +14,9 @@ Learning runs on the same VPS as budget, at `learning.<domain>`
   pipeline; they need the `LEARNING_*` variables or `~/budget_me/.env.learning.local`
   on the box (infra/budget/CI_CD.md §1d). A deploy with a required value missing
   stops before touching anything live.
+- Logins live in the shared account database (`account_app`, see
+  [`libs/account`](../../libs/account/README.md)): one account for budget and
+  learning. Both apps need `ACCOUNT_POSTGRES_PASSWORD` (the same value).
 - Nightly backup of `learning_app` runs from the same cron as budget's.
 
 Cutover, once:

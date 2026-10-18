@@ -21,6 +21,8 @@
 # learning:
 #   LEARNING_POSTGRES_PASSWORD (masked)  LEARNING_AUTH_SECRET (masked)
 #   LEARNING_TELEGRAM_BOT_TOKEN (masked)   [LEARNING_DOMAIN: default below]
+# both (the shared account database, libs/account):
+#   ACCOUNT_POSTGRES_PASSWORD (masked) — ONE value, rendered into both apps' env
 # An app's secrets may live on the server instead — ~/budget_me/.env.local (budget),
 # ~/budget_me/.env.learning.local (learning): CI wins when it has a value, the file
 # fills what CI left empty. A deploy with a required value in neither stops early.
@@ -46,17 +48,59 @@ stages:
     - if: '$CI_MERGE_REQUEST_IID'
       changes:
         - apps/budget/**/*
+        - libs/account/**/*
         - infra/budget/**/*
         - infra/edge/Caddyfile
         - .gitlab-ci.yml
     - if: '$CI_COMMIT_BRANCH == "main"'
 
+# Two throwaway Postgres instances so the DB-backed tests run for real instead of
+# skipping: one for the app's own database, one for the shared account database
+# (libs/account). Service variables stay with their own container.
+.db-services:
+  services:
+    - name: postgres:16-alpine
+      alias: pg
+      variables:
+        POSTGRES_USER: ci
+        POSTGRES_PASSWORD: ci
+        POSTGRES_DB: app
+    - name: postgres:16-alpine
+      alias: pgaccount
+      variables:
+        POSTGRES_USER: ci
+        POSTGRES_PASSWORD: ci
+        POSTGRES_DB: account
+  variables:
+    DATABASE_URL: postgres://ci:ci@pg:5432/app?sslmode=disable
+    ACCOUNT_DATABASE_URL: postgres://ci:ci@pgaccount:5432/account?sslmode=disable
+
+# The shared account module both backends sit on.
+test:account:
+  extends: .db-services
+  stage: test
+  image: golang:1.25-alpine
+  script:
+    - cd libs/account
+    - go vet ./...
+    - go test ./...
+  rules:
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_MERGE_REQUEST_IID'
+      changes:
+        - libs/account/**/*
+        - .gitlab-ci.yml
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
 test:backend:
-  extends: .test-rules
+  extends:
+    - .test-rules
+    - .db-services
   stage: test
   image: golang:1.25-alpine
   script:
     - cd apps/budget/backend
+    - go run ./cmd/migrate up
     - go vet ./...
     - go test ./...
 
@@ -102,14 +146,16 @@ test:frontend:
 
 build:backend:
   extends: .build
-  needs: [test:backend]
+  needs: [test:backend, test:account]
   script:
-    # Context is apps/budget; the Dockerfile COPYs backend/… from there.
+    # Context is the repo root: the Dockerfile COPYs apps/budget/backend and the
+    # shared libs/account (infra/budget/docker/backend.Dockerfile.dockerignore
+    # keeps everything else out).
     - docker build
         -f infra/budget/docker/backend.Dockerfile
         -t "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
         -t "$CI_REGISTRY_IMAGE/backend:latest"
-        apps/budget
+        .
     - docker push "$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA"
     - docker push "$CI_REGISTRY_IMAGE/backend:latest"
 
@@ -245,7 +291,7 @@ deploy:budget:
   variables:
     APP: budget
     APP_ENV: .env
-    REQUIRED_KEYS: "DOMAIN POSTGRES_PASSWORD AUTH_SECRET"
+    REQUIRED_KEYS: "DOMAIN POSTGRES_PASSWORD ACCOUNT_POSTGRES_PASSWORD AUTH_SECRET"
     NEW_BACKEND: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
     NEW_FRONTEND: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
   script:
@@ -259,6 +305,7 @@ deploy:budget:
       POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       AUTH_SECRET=$AUTH_SECRET
       TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
+      ACCOUNT_POSTGRES_PASSWORD=$ACCOUNT_POSTGRES_PASSWORD
       ACCOUNT_DELETION_GRACE=${ACCOUNT_DELETION_GRACE:-720h}
       AI_API_KEY=$AI_API_KEY
       AI_MODEL=${AI_MODEL:-glm-4.5-flash}
@@ -288,16 +335,20 @@ deploy:budget:
     - if: '$CI_MERGE_REQUEST_IID'
       changes:
         - apps/learning/**/*
+        - libs/account/**/*
         - infra/learning/**/*
         - .gitlab-ci.yml
     - if: '$CI_COMMIT_BRANCH == "main"'
 
 test:learning-backend:
-  extends: .learning-test-rules
+  extends:
+    - .learning-test-rules
+    - .db-services
   stage: test
   image: golang:1.25-alpine
   script:
     - cd apps/learning/backend
+    - go run ./cmd/migrate up
     - go vet ./...
     - go test ./...
 
@@ -321,12 +372,12 @@ test:learning-frontend:
 
 build:learning-backend:
   extends: .build
-  needs: [test:learning-backend]
+  needs: [test:learning-backend, test:account]
   script:
     - docker build
         -f infra/learning/docker/backend.Dockerfile
         -t "$CI_REGISTRY_IMAGE/learning-backend:$CI_COMMIT_SHORT_SHA"
-        apps/learning
+        .
     - docker push "$CI_REGISTRY_IMAGE/learning-backend:$CI_COMMIT_SHORT_SHA"
 
 build:learning-frontend:
@@ -353,7 +404,7 @@ deploy:learning:
   variables:
     APP: learning
     APP_ENV: .env.learning
-    REQUIRED_KEYS: "DOMAIN POSTGRES_PASSWORD AUTH_SECRET TELEGRAM_BOT_TOKEN"
+    REQUIRED_KEYS: "DOMAIN POSTGRES_PASSWORD ACCOUNT_POSTGRES_PASSWORD AUTH_SECRET TELEGRAM_BOT_TOKEN"
     NEW_BACKEND: $CI_REGISTRY_IMAGE/learning-backend:$CI_COMMIT_SHORT_SHA
     NEW_FRONTEND: $CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA
   script:
@@ -366,6 +417,8 @@ deploy:learning:
       POSTGRES_PASSWORD=$LEARNING_POSTGRES_PASSWORD
       AUTH_SECRET=$LEARNING_AUTH_SECRET
       TELEGRAM_BOT_TOKEN=$LEARNING_TELEGRAM_BOT_TOKEN
+      ACCOUNT_POSTGRES_PASSWORD=$ACCOUNT_POSTGRES_PASSWORD
+      ACCOUNT_DELETION_GRACE=${ACCOUNT_DELETION_GRACE:-720h}
       EOF
     - ssh "deploy@$SSH_HOST" "cd ~/budget_me && ./scripts/merge-env.sh .env.learning.new .env.learning.local"
     - !reference [.bluegreen-deploy, script]

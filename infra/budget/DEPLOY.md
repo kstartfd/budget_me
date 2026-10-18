@@ -65,11 +65,12 @@ The env file lives at `infra/budget/compose/.env` (all `make prod.*` targets poi
 cp infra/budget/.env.prod.example infra/budget/compose/.env
 # generate secrets:
 openssl rand -hex 24   # -> POSTGRES_PASSWORD
+openssl rand -hex 24   # -> ACCOUNT_POSTGRES_PASSWORD
 openssl rand -hex 32   # -> AUTH_SECRET
 nano infra/budget/compose/.env
 ```
 
-Set `DOMAIN`, `POSTGRES_PASSWORD`, `AUTH_SECRET`, `TELEGRAM_BOT_TOKEN` (may stay
+Set `DOMAIN`, `POSTGRES_PASSWORD`, `ACCOUNT_POSTGRES_PASSWORD`, `AUTH_SECRET`, `TELEGRAM_BOT_TOKEN` (may stay
 empty for the first bring-up), and the image tags **`BACKEND_IMAGE` /
 `FRONTEND_IMAGE`** — pin a real `:<sha>` from a green pipeline (or `:latest`).
 **Never commit this file** — the repo `.gitignore` already ignores every `.env`.
@@ -186,6 +187,11 @@ gpg --batch --passphrase "$BACKUP_PASSPHRASE" -d budget_me-<stamp>.sql.gz.gpg \
 docker compose --env-file .env -f prod.yml exec -T postgres \
   psql -U budget_me -d postgres -c 'CREATE DATABASE budget_me_restore;'
 ```
+
+The shared account database (every app's logins and password hashes) is dumped
+by the same script at 03:55: `BACKUP_DB=account_app ./scripts/backup.sh`, and
+restored the same way into `-d account_app`. Restore it together with the app
+databases — an app's `users.account_id` points into it.
 
 Run a restore drill occasionally — a backup nobody has restored is a hypothesis,
 not a backup.

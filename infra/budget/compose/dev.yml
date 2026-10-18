@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ../../account/dev-init.sql:/docker-entrypoint-initdb.d/account.sql:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U budget_me"]
       interval: 5s
@@ -28,6 +29,7 @@ services:
       ENV: dev
       PORT: "8080"
       DATABASE_URL: postgres://budget_me:budget_me@postgres:5432/budget_me?sslmode=disable
+      ACCOUNT_DATABASE_URL: postgres://budget_me:budget_me@postgres:5432/account_app?sslmode=disable
       CORS_ORIGINS: http://localhost:3000
       AUTH_SECRET: ${AUTH_SECRET:-dev-secret-change-me}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
@@ -35,6 +37,8 @@ services:
       - "8080:8080"
     volumes:
       - ../../../apps/budget/backend:/app
+      # go.mod points at ../../../libs/account, which from /app is /libs/account.
+      - ../../../libs/account:/libs/account
       - go_mod_cache:/go/pkg/mod
       - go_build_cache:/root/.cache/go-build
 
