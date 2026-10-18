@@ -1,31 +1,34 @@
 # budget_me — CI/CD (GitLab → VPS)
 
-This is the **primary** deploy path. A budget change pushed to `main` builds the backend and
-frontend Docker images on the GitLab runner, pushes them to the GitLab Container
-Registry, and the **deploy:budget** job SSHes into the VPS and rolls the release
+This is the **primary** deploy path. A push to `main` tests and builds the Docker
+images of **both** apps on the GitLab runner and pushes them to the GitLab
+Container Registry. Nothing deploys by itself: every `main` pipeline carries four
+manual buttons — **deploy:budget**, **deploy:learning**, **rollback:budget**,
+**rollback:learning** — and the deploy ones SSH into the VPS and roll the release
 out **blue-green** (see §6). Learning lives on the same VPS at
-`learning.<domain>` with its own colours and database and its own
-**deploy:learning** job (off until `LEARNING_DEPLOY_ENABLED=true`).
-Every green `main` pipeline that changes budget files auto-deploys (no manual gate). The VPS never builds
+`learning.<domain>` with its own colours, database and releases log. The VPS never builds
 images. The pipeline is defined in [`.gitlab-ci.yml`](../../.gitlab-ci.yml); the
 manual fallback lives in [`DEPLOY.md`](DEPLOY.md).
 
 ```
-push main ─▶ build:backend ─┐            (Docker-in-Docker on the runner)
-            build:frontend ─┴─▶ push to registry.gitlab.com/kstartfd/budget_me
+push main ─▶ test + build (budget AND learning)   (Docker-in-Docker on the runner)
+                  │
+                  └─▶ push to registry.gitlab.com/kstartfd/budget_me
                                     │
                                     ▼
-                              deploy:budget (auto): ssh deploy@45.133.19.54
-                                render ~/budget_me/.env  ·  docker login
-                                bluegreen.sh budget deploy:
-                                  backup → migrate up → start idle colour
-                                  → health → caddy reload → watch → release log
-                              rollback:budget:1 / :2 (manual buttons)
+                  deploy:budget / deploy:learning  (manual buttons)
+                    ssh deploy@45.133.19.54
+                    render ~/budget_me/.env[.learning]  ·  docker login
+                    bluegreen.sh <app> deploy:
+                      backup → migrate up → start idle colour
+                      → health → caddy reload → watch → release log
+                  rollback:budget / rollback:learning  (manual buttons)
 ```
 
 - Project: `gitlab.com/kstartfd/budget_me`
 - Registry: `registry.gitlab.com/kstartfd/budget_me`
-  (`…/backend:<sha>`, `…/frontend:<sha>`, plus a moving `:latest`)
+  (`…/backend:<sha>`, `…/frontend:<sha>`, plus a moving `:latest`; learning's are
+  `…/learning-backend:<sha>` and `…/learning-frontend:<sha>`)
 - Server: `deploy@45.133.19.54` (Ubuntu 26.04, Docker + Compose v2, 4 GB RAM /
   2 CPU / 50 GB, Toronto). Root bootstrap → `deploy` user; see §2.
 - Domain: `budgetme.xyz` — DNS at hoster.by, apex `A` record → the VPS IP.
@@ -77,11 +80,20 @@ is a multi-line key, so it **cannot be masked** — set its **Type = File** inst
 | `POSTGRES_PASSWORD`     | `openssl rand -hex 24`                         | Variable | yes       | **yes**|
 | `AUTH_SECRET`           | `openssl rand -hex 32`                          | Variable | yes       | **yes**|
 | `TELEGRAM_BOT_TOKEN`    | @BotFather token (may start empty)             | Variable | yes       | **yes**|
-| `LEARNING_DOMAIN`       | `learning.budgetme.xyz` (default if empty)     | Variable | yes       | no     |
-| `LEARNING_DEPLOY_ENABLED` | `true` to enable deploy/rollback of learning | Variable | yes       | no     |
+| `LEARNING_DOMAIN`       | optional — defaults to `learning.budgetme.xyz` | Variable | yes       | no     |
 | `LEARNING_POSTGRES_PASSWORD` | `openssl rand -hex 24` (role `learning_app`) | Variable | yes  | **yes**|
 | `LEARNING_AUTH_SECRET`  | `openssl rand -hex 32`                          | Variable | yes       | **yes**|
 | `LEARNING_TELEGRAM_BOT_TOKEN` | token of the learning bot                | Variable | yes       | **yes**|
+
+Learning has no switch to turn on: its buttons are always there, and the deploy
+refuses to start (before touching anything live) if `DOMAIN`, `POSTGRES_PASSWORD`,
+`AUTH_SECRET` or `TELEGRAM_BOT_TOKEN` is empty. Each app's secrets may instead
+live on the server — `~/budget_me/.env.local` (budget) and
+`~/budget_me/.env.learning.local` (learning), `KEY=value` lines, `chmod 600`:
+CI wins when it has a value, the file fills whatever CI left empty
+(`scripts/merge-env.sh`). The `LEARNING_*` CI variables map onto learning's
+`DOMAIN`, `POSTGRES_PASSWORD`, `AUTH_SECRET`, `TELEGRAM_BOT_TOKEN`; the same names
+in the `.local` file are plain, without the prefix.
 
 `CI_REGISTRY`, `CI_REGISTRY_USER`, `CI_REGISTRY_PASSWORD`, `CI_REGISTRY_IMAGE`,
 `CI_COMMIT_SHORT_SHA` are provided by GitLab automatically — do not add them.
@@ -185,29 +197,32 @@ variable and re-run deploy so the backend picks it up.
 ## 4. Updating (every later release)
 
 ```
-push main → test + build:* go green → deploy:budget runs automatically
+push main → test + build:* (both apps) go green → press deploy:budget and/or deploy:learning
 ```
 
-Every green `main` pipeline that changes budget files auto-deploys (no
-`when: manual`). See §6 for what the deploy does on the box.
+Both buttons exist on every `main` pipeline and ship exactly the commit that
+pipeline built, so deploying one app never drags the other along. Pressing a
+button of an older pipeline deploys that older commit. See §6 for what the deploy
+does on the box.
 
 ## 5. Rollback
 
-Two manual buttons on every `main` pipeline (CI/CD → Pipelines → the pipeline →
-stage *rollback*):
+One manual button per app on every `main` pipeline (CI/CD → Pipelines → the
+pipeline → stage *rollback*): `rollback:budget` and `rollback:learning`. A plain
+press goes **one** step back; to go further open the job and run it with the
+variable `ROLLBACK_STEPS` (Run job → Variables):
 
-| Job | Goes to | How |
+| `ROLLBACK_STEPS` | Goes to | How |
 | --- | --- | --- |
-| `rollback:budget:1` | the previous successful deploy | usually still running in the idle colour → health + Caddy switch, seconds, no pull |
-| `rollback:budget:2` | two successful deploys back | idle colour redeployed from the registry → health → switch |
+| `1` (default) | the previous successful deploy | usually still running in the idle colour → health + Caddy switch, seconds, no pull |
+| `2` | two successful deploys back | idle colour redeployed from the registry → health → switch |
 
-Steps count successful deploys back from the last one (`releases-budget.log`);
-rollbacks never write that log, so running `:2` twice changes nothing the
+Steps count successful deploys back from the last one (`releases-<app>.log`);
+rollbacks never write that log, so running `2` twice changes nothing the
 second time. After the switch the schema is migrated **down** to the version the
 target release was deployed with, by the newer image (only it has the Down SQL),
 after a local backup. To keep the schema and the data written since, run the job
-with the variable `ROLLBACK_KEEP_SCHEMA=1` (Run job → Variables). Learning has
-the same pair, `rollback:learning:1/2`.
+with the variable `ROLLBACK_KEEP_SCHEMA=1` (Run job → Variables).
 
 On the box: `./scripts/bluegreen.sh budget rollback 2`, `… status`.
 

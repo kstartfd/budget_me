@@ -1,8 +1,8 @@
 # budget_me — production deploy runbook (manual fallback)
 
 > **The primary deploy path is CI/CD — see [`CI_CD.md`](CI_CD.md).** `git push`
-> to `main` builds the images in GitLab, pushes them to the registry, and a
-> automatic **deploy** job pulls + restarts the stack on the VPS. This runbook is
+> to `main` builds the images in GitLab, pushes them to the registry, and the
+> manual **deploy:budget** / **deploy:learning** buttons roll the app out on the VPS. This runbook is
 > the hand-driven fallback (bring the stack up yourself from a checkout). Either
 > way the images are **pulled from the registry** — nothing is built on the VPS.
 >

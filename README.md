@@ -9,8 +9,9 @@ One GitLab repository with two separate Telegram Mini Apps.
 
 Shared deployment configuration lives in `infra/`. Both apps run on one VPS
 behind one Caddy and one Postgres (separate databases), each deployed
-**blue-green** by GitLab CI with manual one- and two-step rollback buttons.
-Learning's deploy is switched on by `LEARNING_DEPLOY_ENABLED=true`.
+**blue-green** by GitLab CI: every `main` pipeline builds both apps and offers
+four manual buttons — `deploy:budget`, `deploy:learning`, `rollback:budget`,
+`rollback:learning` (see `infra/budget/CI_CD.md`).
 
 ## Local work
 
