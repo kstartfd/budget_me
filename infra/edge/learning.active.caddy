@@ -1,0 +1,24 @@
+# First-boot default for the learning site (infra/edge/Caddyfile): live colour blue.
+# On the server scripts/bluegreen.sh owns this file and rewrites it on every
+# switch; the deploy never copies the repo version over it.
+#
+# The backend serves /api/v1/*, so the FULL path is forwarded (`handle` keeps
+# the /api prefix; `handle_path` would strip it). /healthz is exposed for an
+# external uptime monitor of whichever colour is live.
+handle /api/* {
+	reverse_proxy learning-backend-blue:8080 {
+		lb_try_duration 5s
+		fail_duration 10s
+	}
+}
+
+handle /healthz {
+	reverse_proxy learning-backend-blue:8080
+}
+
+handle {
+	reverse_proxy learning-frontend-blue:3000 {
+		lb_try_duration 5s
+		fail_duration 10s
+	}
+}

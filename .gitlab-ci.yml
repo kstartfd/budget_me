@@ -2,8 +2,9 @@
 #
 # Flow: git push main  ->  build:backend + build:frontend build Docker images on
 # the runner (Docker-in-Docker) and push them to the GitLab Container Registry
-# ->  deploy SSHes into the VPS, renders ~/budget_me/.env, docker login, then
-# `docker compose pull && up -d && migrate`. The VPS never builds (1 GB RAM).
+# ->  deploy:budget / deploy:learning SSH into the VPS, render the app's env and
+# run scripts/bluegreen.sh: migrate, start the idle colour, health, switch Caddy.
+# rollback:<app>:1 / :2 are manual buttons. The VPS never builds (1 GB RAM).
 #
 # Registry (auto): registry.gitlab.com/kstartfd/budget_me
 #   $CI_REGISTRY_IMAGE/backend:<sha>   $CI_REGISTRY_IMAGE/frontend:<sha>
@@ -12,11 +13,16 @@
 #   SSH_PRIVATE_KEY (File, protected)  SSH_HOST  SSH_KNOWN_HOSTS
 #   DEPLOY_TOKEN_USER  DEPLOY_TOKEN_PASSWORD (masked)
 #   DOMAIN  POSTGRES_PASSWORD (masked)  AUTH_SECRET (masked)  TELEGRAM_BOT_TOKEN (masked)
+# Learning (only with LEARNING_DEPLOY_ENABLED=true):
+#   LEARNING_DOMAIN  LEARNING_POSTGRES_PASSWORD (masked)  LEARNING_AUTH_SECRET (masked)
+#   LEARNING_TELEGRAM_BOT_TOKEN (masked)
+
 
 stages:
   - test
   - build
   - deploy
+  - rollback
 
 # ── test ─────────────────────────────────────────────────────────────────────
 # Gate the pipeline on a clean backend (vet + tests) and frontend (lint + types).
@@ -109,26 +115,25 @@ build:frontend:
     - docker push "$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA"
     - docker push "$CI_REGISTRY_IMAGE/frontend:latest"
 
-# ── deploy ───────────────────────────────────────────────────────────────────
-# SSH into the VPS, push the compose file + Caddyfile + a freshly rendered .env,
-# then pull the images just built and (re)start the stack.
+# ── deploy (blue-green) ──────────────────────────────────────────────────────
+# Both apps run on one VPS behind one Caddy, each in two colours (blue/green)
+# with its own database in the shared Postgres. A deploy ships the compose
+# files, Caddyfile and scripts, renders the app's env, and hands over to
+# scripts/bluegreen.sh on the server:
 #
-# Auto-deploys every green `main` pipeline (no manual gate). The rollout is
-# fail-safe: the new env is staged as .env.new, migrations run BEFORE the app is
-# switched, and the backend must pass /healthz. If ANY step fails the previous
-# images are restored, so prod stays on the last good version and the pipeline
-# goes red — a broken version is never shipped, and nothing new ships until the
-# fix lands. `resource_group: production` serialises overlapping deploys.
-deploy:
-  stage: deploy
+#   backup → migrate up (new image) → start the IDLE colour → health →
+#   switch Caddy (reload, zero downtime) → watch the public URL → record the
+#   release in releases-<app>.log
+#
+# Any failure before the release is recorded puts traffic back on the colour
+# that was live and the schema back where it was, and reds the pipeline. The
+# previous colour keeps running: rollback:<app>:1 is a switch, not a redeploy.
+#
+# One resource_group per app: two deploys of the same app never interleave,
+# budget and learning never wait for each other.
+
+.ssh:
   image: alpine:3.20
-  needs:
-    - build:backend
-    - build:frontend
-  resource_group: production
-  environment:
-    name: production
-    url: https://$DOMAIN
   before_script:
     - apk add --no-cache openssh-client
     - eval "$(ssh-agent -s)"
@@ -139,13 +144,17 @@ deploy:
     - (cat "$SSH_PRIVATE_KEY"; echo) > ~/.ssh/id_deploy && chmod 400 ~/.ssh/id_deploy
     - ssh-add ~/.ssh/id_deploy
     - printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+
+# Shared by both deploys: everything the server needs besides the env files.
+# The *.active.caddy files are NOT shipped — on the server bluegreen.sh owns
+# them, and copying the repo defaults over would silently switch colours.
+.ship:
   script:
-    # 1. Layout on the server: compose at ~/budget_me/prod.yml, Caddyfile at
-    #    ~/budget_me/infra/edge/Caddyfile (matches the ./infra/edge mount).
     - ssh "deploy@$SSH_HOST" "mkdir -p ~/budget_me/infra/edge ~/budget_me/scripts"
     - scp infra/budget/compose/prod.yml "deploy@$SSH_HOST:~/budget_me/prod.yml"
+    - scp infra/learning/compose/prod.yml "deploy@$SSH_HOST:~/budget_me/learning.yml"
     - scp infra/edge/Caddyfile "deploy@$SSH_HOST:~/budget_me/infra/edge/Caddyfile"
-    - scp infra/budget/scripts/backup.sh infra/budget/scripts/healthcheck.sh infra/budget/scripts/merge-env.sh "deploy@$SSH_HOST:~/budget_me/scripts/"
+    - scp infra/budget/scripts/backup.sh infra/budget/scripts/healthcheck.sh infra/budget/scripts/merge-env.sh infra/budget/scripts/bluegreen.sh "deploy@$SSH_HOST:~/budget_me/scripts/"
     - ssh "deploy@$SSH_HOST" "chmod +x ~/budget_me/scripts/*.sh"
     # The crons are owned by the repo, not by whoever last SSHed in: the deploy
     # plants a missing line and leaves an existing one alone.
@@ -159,11 +168,66 @@ deploy:
         echo "NOTE: on the server (see infra/budget/DEPLOY.md). If they are in neither,"
         echo "NOTE: the nightly backup fails and prod keeps its only copy on one disk."
       fi
-    # 2. Stage the NEW env as .env.new (NOT the live .env) so a failed rollout
-    #    can fall back to the previous images. The heredoc expands on THIS runner.
+
+# The server half of every deploy. Expects $APP, $APP_ENV (the env file name on
+# the server, freshly rendered as $APP_ENV.new), $NEW_BACKEND, $NEW_FRONTEND.
+# Runner-side $vars expand in this unquoted heredoc; remote-only ones are \$.
+.bluegreen-deploy:
+  script:
+    - |
+      ssh "deploy@$SSH_HOST" 'bash -s' <<EOF
+      set -e
+      cd ~/budget_me
+      docker login registry.gitlab.com -u '$DEPLOY_TOKEN_USER' -p '$DEPLOY_TOKEN_PASSWORD'
+
+      # The render above only knows CI variables. The blue-green state and the
+      # LIVE release (what cron/admin run until the switch) come from the
+      # current env; the new images go to bluegreen.sh as arguments.
+      cp -f $APP_ENV $APP_ENV.prev 2>/dev/null || touch $APP_ENV.prev
+      grep -E '^(ACTIVE_COLOR|BACKEND_IMAGE|FRONTEND_IMAGE|(BLUE|GREEN)_(BACKEND|FRONTEND)_IMAGE)=' $APP_ENV.prev >> $APP_ENV.new || true
+      # First deploy of an app: nothing live yet — the new release is the fallback.
+      grep -q '^BACKEND_IMAGE=.' $APP_ENV.new || echo 'BACKEND_IMAGE=$NEW_BACKEND' >> $APP_ENV.new
+      grep -q '^FRONTEND_IMAGE=.' $APP_ENV.new || echo 'FRONTEND_IMAGE=$NEW_FRONTEND' >> $APP_ENV.new
+      mv -f $APP_ENV.new $APP_ENV
+      chmod 600 $APP_ENV
+
+      if ! ./scripts/bluegreen.sh $APP deploy '$NEW_BACKEND' '$NEW_FRONTEND'; then
+        # bluegreen.sh already put traffic and schema back; restore the env too.
+        mv -f $APP_ENV.prev $APP_ENV
+        exit 1
+      fi
+      rm -f $APP_ENV.prev
+
+      # Reclaim disk: dangling layers only. Tagged per-SHA images stay — the
+      # idle colour and a rollback:2 may still need them (and the registry
+      # keeps every one of them anyway).
+      docker image prune -f >/dev/null 2>&1 || true
+      ./scripts/bluegreen.sh $APP status
+      EOF
+
+deploy:budget:
+  extends: .ssh
+  stage: deploy
+  needs:
+    - build:backend
+    - build:frontend
+  resource_group: production-budget
+  environment:
+    name: production
+    url: https://$DOMAIN
+  variables:
+    APP: budget
+    APP_ENV: .env
+    NEW_BACKEND: $CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
+    NEW_FRONTEND: $CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
+  script:
+    - !reference [.ship, script]
+    # Stage the NEW env as .env.new (NOT the live .env). The heredoc expands on
+    # THIS runner. Image lines are added on the server (.bluegreen-deploy).
     - |
       ssh "deploy@$SSH_HOST" "cat > ~/budget_me/.env.new && chmod 600 ~/budget_me/.env.new" <<EOF
       DOMAIN=$DOMAIN
+      LEARNING_DOMAIN=$LEARNING_DOMAIN
       POSTGRES_PASSWORD=$POSTGRES_PASSWORD
       AUTH_SECRET=$AUTH_SECRET
       TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
@@ -174,99 +238,24 @@ deploy:
       BACKUP_CHAT_ID=$BACKUP_CHAT_ID
       BACKUP_PASSPHRASE=$BACKUP_PASSPHRASE
       ALERT_CHAT_ID=$ALERT_CHAT_ID
-      BACKEND_IMAGE=$CI_REGISTRY_IMAGE/backend:$CI_COMMIT_SHORT_SHA
-      FRONTEND_IMAGE=$CI_REGISTRY_IMAGE/frontend:$CI_COMMIT_SHORT_SHA
       EOF
     # Secrets the operator chose to keep on the server (~/budget_me/.env.local)
     # fill in whatever CI left empty. Without this the render above would blank
     # them on every deploy, and the CI variables would be the only place a value
     # could live.
     - ssh "deploy@$SSH_HOST" "cd ~/budget_me && ./scripts/merge-env.sh .env.new .env.local"
-    # 3. Deploy with automatic rollback. Runner-side $vars expand in this
-    #    unquoted heredoc; remote-only vars are escaped as \$var. On any error
-    #    the ERR trap restores .env.prev and brings the old images back up.
-    - |
-      ssh "deploy@$SSH_HOST" 'bash -s' <<EOF
-      set -e
-      cd ~/budget_me
-      docker login registry.gitlab.com -u '$DEPLOY_TOKEN_USER' -p '$DEPLOY_TOKEN_PASSWORD'
-
-      rollback() {
-        echo "deploy failed — rolling back to previous version"
-        if [ -f .env.prev ]; then
-          mv -f .env.prev .env
-          docker compose --env-file .env -f prod.yml up -d || true
-        fi
-        exit 1
-      }
-      trap rollback ERR
-
-      cp -f .env .env.prev 2>/dev/null || true
-      mv -f .env.new .env
-
-      docker compose --env-file .env -f prod.yml pull
-      # Migrate before switching the app so a bad migration never leaves new
-      # code running against an unmigrated DB (postgres image is pinned, so
-      # "up -d postgres" only ensures the DB is up — it never swaps versions).
-      docker compose --env-file .env -f prod.yml up -d postgres
-
-      # A dump taken seconds before the migration — the rollback above restores
-      # the previous IMAGES, but nothing restores a table a migration dropped.
-      # Local copy only (Telegram is the nightly job's business), and never fatal:
-      # a deploy that is fine must not be blocked by a backup that is not.
-      # </dev/null here too: this heredoc IS the remote shell's stdin, and anything
-      # inside the script that reads stdin devours the rest of the deploy.
-      ./scripts/backup.sh --local </dev/null || echo "pre-migrate backup failed — continuing"
-      # -T + </dev/null: this whole script is piped to the remote 'bash -s' over
-      # ssh stdin, and 'compose run' attaches stdin by default — without the
-      # redirect it swallows the rest of the script and the deploy stops here.
-      docker compose --env-file .env -f prod.yml --profile tools run --rm -T migrate </dev/null
-      docker compose --env-file .env -f prod.yml up -d
-
-      # The Caddyfile is bind-mounted, so a changed FILE does not change the
-      # container spec and "up -d" leaves the old config running in memory. Ask
-      # Caddy to re-read it (zero downtime); force a recreate if that fails.
-      docker compose --env-file .env -f prod.yml exec -T caddy \
-        caddy reload --config /etc/caddy/Caddyfile --adapter caddyfile </dev/null \
-        || docker compose --env-file .env -f prod.yml up -d --force-recreate caddy
-
-      # The containers must actually BE the version we just shipped. A deploy that
-      # silently changes nothing and reports success is worse than a failed one:
-      # a `compose exec` inside a called script ate the rest of this heredoc from
-      # ssh stdin, and two green pipelines in a row left prod on the old image.
-      want_backend="\$(grep '^BACKEND_IMAGE=' .env | cut -d= -f2-)"
-      got_backend="\$(docker inspect budget_me-backend-1 --format '{{.Config.Image}}')"
-      if [ "\$want_backend" != "\$got_backend" ]; then
-        echo "backend runs \$got_backend, expected \$want_backend — deploy did not take"
-        false
-      fi
-
-      # Health gate: backend must report healthy within ~30s or we roll back.
-      ok=""
-      for i in \$(seq 1 10); do
-        if docker run --rm --network budget_me_default curlimages/curl:latest \
-             -fsS http://backend:8080/healthz </dev/null >/dev/null 2>&1; then
-          ok=1; break
-        fi
-        sleep 3
-      done
-      [ -n "\$ok" ] || false
-
-      trap - ERR
-      rm -f .env.prev
-      # Reclaim disk: past deploys leave old per-SHA backend/frontend images.
-      # Runs only here (health passed, no rollback), so nothing in use is hit —
-      # the 4 running services keep their images; the registry stays the source
-      # of truth for any future rollback. Never fail the deploy on cleanup.
-      docker image prune -f >/dev/null 2>&1 || true
-      echo "deploy healthy on $CI_COMMIT_SHORT_SHA"
-      EOF
+    - !reference [.bluegreen-deploy, script]
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
       changes: *budget_paths
 
-# Learning: its own test/build jobs below (independent of budget), deployed to the
-# same box by `deploy:learning` at the end of this file.
+# ── learning ─────────────────────────────────────────────────────────────────
+# Learning runs on the same VPS as budget (learning.<domain>), with its own
+# colours, database and releases log. Its deploy and rollback jobs exist only
+# when LEARNING_DEPLOY_ENABLED == "true" (Settings → CI/CD → Variables): until
+# the learning secrets are in CI and its data is copied out of the budget
+# database (apps/learning/scripts/copy-learning-data.sh), every learning push
+# would otherwise end in a red deploy. Tests and images run regardless.
 .learning-test-rules:
   rules:
     - if: '$CI_COMMIT_TAG'
@@ -336,113 +325,100 @@ build:learning-frontend:
         apps/learning/frontend
     - docker push "$CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA"
 
-# ── deploy:learning ──────────────────────────────────────────────────────────
-# Same box, own Compose project in ~/learning (own postgres, own bot, own secrets).
-# Same fail-safe shape as `deploy`: the env is staged as .env.new, a backup and the
-# migrations run BEFORE the switch, the running containers must be the images just
-# shipped, /healthz gates, and an ERR trap restores the previous images.
-#
-# Secrets (POSTGRES_PASSWORD, AUTH_SECRET, DOMAIN, TELEGRAM_BOT_TOKEN, BACKUP_*)
-# live in ~/learning/.env.local on the box and are merged in by merge-env.sh. They
-# are deliberately NOT read from CI here: the CI variables of those names belong
-# to budget_me and would silently point learning at budget's database and bot.
-#
-# resource_group: production is shared with `deploy` on purpose — the crontab and
-# the Caddy fronting both apps are shared state. `needs: deploy (optional)` makes a
-# pipeline that changes both ship budget first (Caddy + the apps_edge network).
 deploy:learning:
+  extends: .ssh
   stage: deploy
-  image: alpine:3.20
   needs:
     - build:learning-backend
     - build:learning-frontend
-    - job: deploy
-      optional: true
-  resource_group: production
+  resource_group: production-learning
   environment:
     name: learning
-    url: https://learning.budgetme.xyz
-  before_script:
-    - apk add --no-cache openssh-client
-    - eval "$(ssh-agent -s)"
-    - mkdir -p ~/.ssh && chmod 700 ~/.ssh
-    - (cat "$SSH_PRIVATE_KEY"; echo) > ~/.ssh/id_deploy && chmod 400 ~/.ssh/id_deploy
-    - ssh-add ~/.ssh/id_deploy
-    - printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+    url: https://$LEARNING_DOMAIN
+  variables:
+    APP: learning
+    APP_ENV: .env.learning
+    NEW_BACKEND: $CI_REGISTRY_IMAGE/learning-backend:$CI_COMMIT_SHORT_SHA
+    NEW_FRONTEND: $CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA
   script:
-    - ssh "deploy@$SSH_HOST" "mkdir -p ~/learning/scripts"
-    - scp infra/learning/compose/prod.yml "deploy@$SSH_HOST:~/learning/prod.yml"
-    # backup.sh and merge-env.sh are budget's scripts, shared: backup.sh takes the
-    # app and database names from the environment (see the crontab line).
-    - scp infra/budget/scripts/backup.sh infra/budget/scripts/merge-env.sh "deploy@$SSH_HOST:~/learning/scripts/"
-    - ssh "deploy@$SSH_HOST" "chmod +x ~/learning/scripts/*.sh"
+    - !reference [.ship, script]
+    # The learning env: its own domain, its own DB role password, session
+    # secret and bot. Same staging pattern as budget (.env.learning.new).
     - |
-      ssh "deploy@$SSH_HOST" 'bash -s' < infra/learning/cron/install-crons.sh
-    - |
-      ssh "deploy@$SSH_HOST" "cat > ~/learning/.env.new && chmod 600 ~/learning/.env.new" <<EOF
-      BACKEND_IMAGE=$CI_REGISTRY_IMAGE/learning-backend:$CI_COMMIT_SHORT_SHA
-      FRONTEND_IMAGE=$CI_REGISTRY_IMAGE/learning-frontend:$CI_COMMIT_SHORT_SHA
+      ssh "deploy@$SSH_HOST" "cat > ~/budget_me/.env.learning.new && chmod 600 ~/budget_me/.env.learning.new" <<EOF
+      DOMAIN=$LEARNING_DOMAIN
+      POSTGRES_PASSWORD=$LEARNING_POSTGRES_PASSWORD
+      AUTH_SECRET=$LEARNING_AUTH_SECRET
+      TELEGRAM_BOT_TOKEN=$LEARNING_TELEGRAM_BOT_TOKEN
       EOF
-    - ssh "deploy@$SSH_HOST" "cd ~/learning && ./scripts/merge-env.sh .env.new .env.local"
+    - ssh "deploy@$SSH_HOST" "cd ~/budget_me && ./scripts/merge-env.sh .env.learning.new .env.learning.local"
+    - !reference [.bluegreen-deploy, script]
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $LEARNING_DEPLOY_ENABLED == "true"'
+      changes: *learning_paths
+
+# ── rollback (blue-green) ────────────────────────────────────────────────────
+# Manual buttons on every main pipeline. ROLLBACK_STEPS counts successful
+# deploys back from the last one (releases-<app>.log):
+#   :1 — the previous release. Usually still running in the idle colour, so it
+#        is a health check and a Caddy switch: seconds, no pull.
+#   :2 — the release before that. The idle colour is redeployed with it from
+#        the registry (pull → start → health), then Caddy switches.
+# After the switch the schema is migrated DOWN to the version that release was
+# deployed with (backup first). Run the job with ROLLBACK_KEEP_SCHEMA=1 to keep
+# the schema and the data written into it since (additive migrations only).
+.rollback:
+  extends: .ssh
+  stage: rollback
+  needs: []
+  script:
     - |
       ssh "deploy@$SSH_HOST" 'bash -s' <<EOF
       set -e
-      cd ~/learning
+      cd ~/budget_me
       docker login registry.gitlab.com -u '$DEPLOY_TOKEN_USER' -p '$DEPLOY_TOKEN_PASSWORD'
-
-      rollback() {
-        echo "learning deploy failed — rolling back to previous version"
-        if [ -f .env.prev ]; then
-          mv -f .env.prev .env
-          docker compose --env-file .env -f prod.yml up -d || true
-        fi
-        exit 1
-      }
-      trap rollback ERR
-
-      cp -f .env .env.prev 2>/dev/null || true
-      mv -f .env.new .env
-
-      docker compose --env-file .env -f prod.yml pull
-      docker compose --env-file .env -f prod.yml up -d postgres
-
-      # Local dump right before the migration; never fatal. </dev/null on every
-      # step that could read stdin: this heredoc IS the remote shell's stdin.
-      APP_NAME=learning DB_USER=learning_app DB_NAME=learning_app ./scripts/backup.sh --local </dev/null || echo "pre-migrate backup failed — continuing"
-      docker compose --env-file .env -f prod.yml --profile tools run --rm -T migrate </dev/null
-      docker compose --env-file .env -f prod.yml up -d
-
-      # The containers must actually BE the images we just shipped (a deploy that
-      # silently changes nothing and reports success is worse than a failed one).
-      want_backend="\$(grep '^BACKEND_IMAGE=' .env | cut -d= -f2-)"
-      got_backend="\$(docker inspect learning_app-backend-1 --format '{{.Config.Image}}')"
-      if [ "\$want_backend" != "\$got_backend" ]; then
-        echo "backend runs \$got_backend, expected \$want_backend — deploy did not take"
-        false
-      fi
-      want_frontend="\$(grep '^FRONTEND_IMAGE=' .env | cut -d= -f2-)"
-      got_frontend="\$(docker inspect learning_app-frontend-1 --format '{{.Config.Image}}')"
-      if [ "\$want_frontend" != "\$got_frontend" ]; then
-        echo "frontend runs \$got_frontend, expected \$want_frontend — deploy did not take"
-        false
-      fi
-
-      # Health gate: backend must report healthy within ~30s or we roll back.
-      ok=""
-      for i in \$(seq 1 10); do
-        if docker run --rm --network learning_app_default alpine:3.20 \
-             wget -qO- -T 3 http://backend:8080/healthz </dev/null >/dev/null 2>&1; then
-          ok=1; break
-        fi
-        sleep 3
-      done
-      [ -n "\$ok" ] || false
-
-      trap - ERR
-      rm -f .env.prev
-      docker image prune -f >/dev/null 2>&1 || true
-      echo "learning deploy healthy on $CI_COMMIT_SHORT_SHA"
+      ROLLBACK_KEEP_SCHEMA='${ROLLBACK_KEEP_SCHEMA:-}' ./scripts/bluegreen.sh $APP rollback $ROLLBACK_STEPS
+      ./scripts/bluegreen.sh $APP status
       EOF
+
+.rollback-budget:
+  extends: .rollback
+  resource_group: production-budget
+  variables:
+    APP: budget
   rules:
     - if: '$CI_COMMIT_BRANCH == "main"'
-      changes: *learning_paths
+      when: manual
+      allow_failure: true
+
+.rollback-learning:
+  extends: .rollback
+  resource_group: production-learning
+  variables:
+    APP: learning
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main" && $LEARNING_DEPLOY_ENABLED == "true"'
+      when: manual
+      allow_failure: true
+
+# One step back — the existing safety net, now as an explicit button.
+rollback:budget:1:
+  extends: .rollback-budget
+  variables:
+    ROLLBACK_STEPS: "1"
+
+# Two steps back, by analogy with :1.
+rollback:budget:2:
+  extends: .rollback-budget
+  variables:
+    ROLLBACK_STEPS: "2"
+
+rollback:learning:1:
+  extends: .rollback-learning
+  variables:
+    ROLLBACK_STEPS: "1"
+
+rollback:learning:2:
+  extends: .rollback-learning
+  variables:
+    ROLLBACK_STEPS: "2"

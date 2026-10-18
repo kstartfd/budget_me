@@ -7,10 +7,10 @@ One GitLab repository with two separate Telegram Mini Apps.
 | Budget and lists | `apps/budget/` | Go API, Next.js, PostgreSQL, existing Telegram bot |
 | Learnings | `apps/learning/` | Go API, Next.js, separate PostgreSQL and bot |
 
-Shared deployment configuration lives in `infra/`. The budget application keeps
-its current automatic GitLab deployment to the existing VPS. Learnings is
-checked and built in CI, but has **no production deploy job** until the VPS
-migration.
+Shared deployment configuration lives in `infra/`. Both apps run on one VPS
+behind one Caddy and one Postgres (separate databases), each deployed
+**blue-green** by GitLab CI with manual one- and two-step rollback buttons.
+Learning's deploy is switched on by `LEARNING_DEPLOY_ENABLED=true`.
 
 ## Local work
 
@@ -25,9 +25,9 @@ For Learnings local setup, see `apps/learning/README.md`.
 ## Deployment
 
 - `infra/budget/`: current production Compose, Dockerfiles, cron and scripts.
-- `infra/learning/`: prepared local and production Compose; production is not active.
-- `infra/edge/Caddyfile`: current budget-only Caddy configuration.
-- `infra/edge/Caddyfile.shared.example`: routing template for the future shared VPS.
+- `infra/learning/`: local and production Compose (production joins the budget host stack).
+- `infra/edge/Caddyfile`: both sites; each imports its `*.active.caddy` (live colour).
+- `infra/budget/scripts/bluegreen.sh`: deploy / rollback / status per app.
 
-Budget deployment details are in `infra/budget/CI_CD.md`; the future learning
-cutover is outlined in `infra/learning/README.md`.
+Deployment details are in `infra/budget/CI_CD.md`; the learning cutover is in
+`infra/learning/README.md`.

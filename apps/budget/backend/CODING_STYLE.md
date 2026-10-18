@@ -626,6 +626,32 @@ func (h *GetUserByIDQueryHandler) Handle(ctx context.Context, query GetUserByIDQ
 }
 ```
 
+## Migrations (blue-green)
+
+Production runs two colours of the app against ONE database
+(`infra/budget/scripts/bluegreen.sh`). A deploy migrates up before the new
+colour takes traffic, so the live release runs on the new schema for a while;
+`rollback:<app>:1/2` switches back to a release up to two deploys old and only
+then migrates down. Every migration therefore has to keep releases N, N-1 and
+N-2 working on the same schema:
+
+- **Expand first.** Add tables, add columns as nullable or with a default, add
+  indexes `CONCURRENTLY` where the table is large. Old code must not notice.
+- **Contract three releases later.** Dropping or renaming a column or table,
+  tightening `NOT NULL`, changing a type: only after no release that still uses
+  the old shape can be rolled back to — i.e. at least three deploys after the
+  code stopped using it. A rename is add-new → backfill → switch reads → drop
+  old, across releases.
+- **Every migration has a working `-- +goose Down`.** A rollback runs it from
+  the newer image (`migrate down-to <version>`). Down must undo exactly its Up;
+  it deletes whatever was written into the dropped objects since the deploy,
+  which is why the rollback takes a local backup first.
+- **Data migrations are separate files** from schema changes and must be
+  idempotent: a deploy that fails after `up` runs `down-to`, and the next
+  deploy runs `up` again.
+- A migration that cannot be reversed without losing data the business needs
+  says so in its header; roll back past it only with `ROLLBACK_KEEP_SCHEMA=1`.
+
 ## Commit Message Standards
 
 Follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:

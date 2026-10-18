@@ -2,7 +2,10 @@
 
 This is the **primary** deploy path. A budget change pushed to `main` builds the backend and
 frontend Docker images on the GitLab runner, pushes them to the GitLab Container
-Registry, and the **deploy** job SSHes into the VPS to pull + restart the stack.
+Registry, and the **deploy:budget** job SSHes into the VPS and rolls the release
+out **blue-green** (see §6). Learning lives on the same VPS at
+`learning.<domain>` with its own colours and database and its own
+**deploy:learning** job (off until `LEARNING_DEPLOY_ENABLED=true`).
 Every green `main` pipeline that changes budget files auto-deploys (no manual gate). The VPS never builds
 images. The pipeline is defined in [`.gitlab-ci.yml`](../../.gitlab-ci.yml); the
 manual fallback lives in [`DEPLOY.md`](DEPLOY.md).
@@ -12,9 +15,12 @@ push main ─▶ build:backend ─┐            (Docker-in-Docker on the runner
             build:frontend ─┴─▶ push to registry.gitlab.com/kstartfd/budget_me
                                     │
                                     ▼
-                              deploy (auto): ssh deploy@45.133.19.54
+                              deploy:budget (auto): ssh deploy@45.133.19.54
                                 render ~/budget_me/.env  ·  docker login
-                                compose pull → up -d → migrate → /healthz gate
+                                bluegreen.sh budget deploy:
+                                  backup → migrate up → start idle colour
+                                  → health → caddy reload → watch → release log
+                              rollback:budget:1 / :2 (manual buttons)
 ```
 
 - Project: `gitlab.com/kstartfd/budget_me`
@@ -71,6 +77,11 @@ is a multi-line key, so it **cannot be masked** — set its **Type = File** inst
 | `POSTGRES_PASSWORD`     | `openssl rand -hex 24`                         | Variable | yes       | **yes**|
 | `AUTH_SECRET`           | `openssl rand -hex 32`                          | Variable | yes       | **yes**|
 | `TELEGRAM_BOT_TOKEN`    | @BotFather token (may start empty)             | Variable | yes       | **yes**|
+| `LEARNING_DOMAIN`       | `learning.budgetme.xyz` (default if empty)     | Variable | yes       | no     |
+| `LEARNING_DEPLOY_ENABLED` | `true` to enable deploy/rollback of learning | Variable | yes       | no     |
+| `LEARNING_POSTGRES_PASSWORD` | `openssl rand -hex 24` (role `learning_app`) | Variable | yes  | **yes**|
+| `LEARNING_AUTH_SECRET`  | `openssl rand -hex 32`                          | Variable | yes       | **yes**|
+| `LEARNING_TELEGRAM_BOT_TOKEN` | token of the learning bot                | Variable | yes       | **yes**|
 
 `CI_REGISTRY`, `CI_REGISTRY_USER`, `CI_REGISTRY_PASSWORD`, `CI_REGISTRY_IMAGE`,
 `CI_COMMIT_SHORT_SHA` are provided by GitLab automatically — do not add them.
@@ -129,8 +140,9 @@ no `www` record needed.
    ```
 2. Watch the pipeline (CI/CD → Pipelines). `build:backend` + `build:frontend`
    build and push `:<sha>` and `:latest`; **deploy** then runs automatically.
-3. The deploy job renders `~/budget_me/.env`, `docker login`s, then
-   `compose pull && up -d && migrate` behind a `/healthz` gate with rollback.
+3. The deploy job renders `~/budget_me/.env`, `docker login`s, then runs
+   `scripts/bluegreen.sh budget deploy` (§6): migrate, idle colour, health gate,
+   Caddy switch, automatic switch-back on failure.
 4. Open `https://budgetme.xyz`. First hit may lag a few seconds while Caddy
    fetches the TLS cert — follow it with
    `ssh deploy@45.133.19.54 'cd ~/budget_me && docker compose -f prod.yml logs -f caddy'`.
@@ -141,14 +153,23 @@ compose file's own directory, so the layout on the server is:
 
 ```
 ~/budget_me/
-├── prod.yml                     # scp of infra/budget/compose/prod.yml
-├── .env                         # rendered from CI variables, chmod 600
-└── infra/edge/Caddyfile        # scp of infra/edge/Caddyfile  → mounted read-only
+├── prod.yml                     # scp of infra/budget/compose/prod.yml (host stack + budget colours)
+├── learning.yml                 # scp of infra/learning/compose/prod.yml (learning colours)
+├── .env / .env.learning         # rendered from CI variables + blue-green state, chmod 600
+├── releases-budget.log          # one line per successful deploy — what rollbacks read
+├── releases-learning.log
+├── scripts/bluegreen.sh         # deploy / rollback / status
+└── infra/edge/                  # → mounted read-only at /etc/caddy
+    ├── Caddyfile                # scp of infra/edge/Caddyfile (two site blocks)
+    ├── budget.active.caddy      # live colour of budget — owned by bluegreen.sh
+    └── learning.active.caddy    # live colour of learning — owned by bluegreen.sh
 ```
 
 The job runs `cd ~/budget_me && docker compose --env-file .env -f prod.yml …`, so
-the mount resolves to `~/budget_me/infra/edge/Caddyfile` — exactly where the job
-placed it.
+the mount resolves to `~/budget_me/infra/edge/` — exactly where the job placed
+the Caddyfile and where bluegreen.sh writes the `*.active.caddy` files. The
+deploy never copies the repo's `*.active.caddy` over the server's: that would
+silently switch colours.
 
 ### Category presets (automatic)
 The 6 shared presets are seeded by migration `0004_seed_categories.sql`
@@ -164,16 +185,62 @@ variable and re-run deploy so the backend picks it up.
 ## 4. Updating (every later release)
 
 ```
-push main → test + build:* go green → deploy runs automatically
+push main → test + build:* go green → deploy:budget runs automatically
 ```
 
-Every green `main` pipeline that changes budget files auto-deploys (`deploy` has no `when: manual`).
-Each deploy pins `BACKEND_IMAGE` / `FRONTEND_IMAGE` to the new commit SHA in
-`.env`, re-runs migrations (idempotent), and gates on `/healthz` — a failing
-step rolls the previous images back and reds the pipeline.
+Every green `main` pipeline that changes budget files auto-deploys (no
+`when: manual`). See §6 for what the deploy does on the box.
 
 ## 5. Rollback
 
-Re-run the deploy job of an older green pipeline (its `.env` pins that older
-SHA), or SSH in and point `BACKEND_IMAGE` / `FRONTEND_IMAGE` in `~/budget_me/.env`
-at a previous `:<sha>` then `docker compose --env-file .env -f prod.yml up -d`.
+Two manual buttons on every `main` pipeline (CI/CD → Pipelines → the pipeline →
+stage *rollback*):
+
+| Job | Goes to | How |
+| --- | --- | --- |
+| `rollback:budget:1` | the previous successful deploy | usually still running in the idle colour → health + Caddy switch, seconds, no pull |
+| `rollback:budget:2` | two successful deploys back | idle colour redeployed from the registry → health → switch |
+
+Steps count successful deploys back from the last one (`releases-budget.log`);
+rollbacks never write that log, so running `:2` twice changes nothing the
+second time. After the switch the schema is migrated **down** to the version the
+target release was deployed with, by the newer image (only it has the Down SQL),
+after a local backup. To keep the schema and the data written since, run the job
+with the variable `ROLLBACK_KEEP_SCHEMA=1` (Run job → Variables). Learning has
+the same pair, `rollback:learning:1/2`.
+
+On the box: `./scripts/bluegreen.sh budget rollback 2`, `… status`.
+
+## 6. Blue-green on the box
+
+```
+            ┌───────────── caddy :80/:443 ─────────────┐
+            │ budgetme.xyz          learning.budgetme.xyz │
+            │ import budget.active  import learning.active│
+            └──────┬──────────────────────────┬──────────┘
+       backend-blue │ backend-green   learning-backend-blue │ learning-backend-green
+      frontend-blue │ frontend-green learning-frontend-blue │ learning-frontend-green
+                    └──────────── postgres ────────────┘
+                     db budget_me        db learning_app (role learning_app)
+```
+
+`scripts/bluegreen.sh <app> deploy <backend-image> <frontend-image>`:
+
+1. local backup of the app's database;
+2. `migrate up` with the **new** image (before the switch: the live colour keeps
+   working on the expanded schema — see CODING_STYLE.md, Migrations);
+3. start the **idle** colour, check it really runs the new image, health-check
+   backend `/healthz` and frontend `/` over the internal network;
+4. rewrite `<app>.active.caddy`, `caddy reload` — zero downtime;
+5. poll `https://<domain>/healthz` through Caddy for ~60s; three failures in a
+   row switch traffic back;
+6. append the release to `releases-<app>.log`.
+
+A failure in 2–5 puts traffic back on the old colour and runs
+`migrate down-to <previous version>`, and the pipeline goes red. The old colour
+stays up after a good deploy: it is the instant `rollback:<app>:1`.
+
+The first blue-green deploy of budget migrates the old in-place stack: traffic
+stays on the old `backend`/`frontend` services until blue is healthy, Caddy is
+recreated once with the directory mount (a second or two), then the old
+containers are removed.

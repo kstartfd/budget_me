@@ -4,28 +4,87 @@ name: budget_me
 # Only Caddy is exposed to the internet (80/443); Postgres has no published
 # port and is reachable only over the internal compose network.
 #
-# Caddy is also the edge for the learning app: it joins the external `apps_edge`
-# network (docker network create apps_edge, once per box) and routes
-# LEARNING_DOMAIN to learning-api / learning-web — see infra/learning/README.md.
+# This file is also the HOST stack of the VPS: the one Caddy (80/443) and the
+# one Postgres serve both apps. Learning runs as its own compose project
+# (infra/learning/compose/prod.yml → ~/budget_me/learning.yml) with its own
+# database `learning_app` in this Postgres, joined over this project's default
+# network `budget_me_default`.
 #
-# Images are NOT built here — backend/frontend/migrate pull pre-built images
-# from the GitLab Container Registry (BACKEND_IMAGE / FRONTEND_IMAGE come from
-# the .env). CI builds and pushes them; the VPS (1 GB RAM) never builds.
+# Images are NOT built here — they are pulled from the GitLab Container
+# Registry (BLUE_* / GREEN_* / BACKEND_IMAGE / FRONTEND_IMAGE come from the
+# .env). CI builds and pushes them; the VPS (1 GB RAM) never builds.
 # See infra/budget/CI_CD.md for the pipeline and infra/budget/DEPLOY.md for the manual path.
 #
-#   # deployed by CI from ~/budget_me on the server:
-#   docker compose --env-file .env -f prod.yml pull
-#   docker compose --env-file .env -f prod.yml up -d
-#   docker compose --env-file .env -f prod.yml --profile tools run --rm migrate
+#   # deployed by CI from ~/budget_me on the server (blue-green):
+#   ./scripts/bluegreen.sh budget deploy <backend-image> <frontend-image>
+#   ./scripts/bluegreen.sh budget rollback 1|2
+#   ./scripts/bluegreen.sh budget status
 #
-# The Caddyfile bind-mount below (./infra/edge/Caddyfile) resolves against the
-# compose file's own directory. On the server the file sits at
-# ~/budget_me/prod.yml with the Caddyfile at ~/budget_me/infra/edge/Caddyfile,
-# so it just works. Run from the repo (Makefile fallback) it is invoked with
+# The ./infra/edge bind-mount below resolves against the compose file's own
+# directory. On the server the file sits at ~/budget_me/prod.yml with the
+# Caddyfile and the *.active.caddy files in ~/budget_me/infra/edge/, so it just
+# works. Run from the repo (Makefile fallback) it is invoked with
 # `--project-directory .` (repo root) so the same path resolves there too.
 #
-# Environment comes from an .env file (BACKEND_IMAGE, FRONTEND_IMAGE, DOMAIN,
+# Environment comes from an .env file (BACKEND_IMAGE, FRONTEND_IMAGE, the
+# per-colour BLUE_*/GREEN_* images, ACTIVE_COLOR, DOMAIN, LEARNING_DOMAIN,
 # POSTGRES_PASSWORD, AUTH_SECRET, TELEGRAM_BOT_TOKEN) — see .env.prod.example.
+
+# ── Blue-green ──────────────────────────────────────────────────────────────
+# backend and frontend exist twice, as a "blue" and a "green" colour. Caddy
+# routes to exactly one of them (infra/edge/budget.active.caddy, rewritten by
+# scripts/bluegreen.sh); the other is the idle slot the next release goes into,
+# or the previous release a rollback switches back to. Postgres, Caddy and the
+# uploads volume are shared by both colours — one database, so migrations must
+# keep releases N, N-1 and N-2 working (see CODING_STYLE.md, Migrations).
+#
+# Each colour has its own image variables. A missing one falls back to
+# BACKEND_IMAGE / FRONTEND_IMAGE (= the live release), so an .env written
+# before the split still parses and the tools-profile services below keep
+# running the release that serves traffic.
+x-backend: &backend
+  restart: unless-stopped
+  # In-flight requests finish before a colour is stopped (Echo shuts down
+  # gracefully on SIGTERM); Docker's default 10s cuts long uploads short.
+  stop_grace_period: 30s
+  expose:
+    - "8080"
+  environment:
+    ENV: prod
+    PORT: "8080"
+    DATABASE_URL: postgres://budget_me:${POSTGRES_PASSWORD}@postgres:5432/budget_me?sslmode=disable
+    AUTH_SECRET: ${AUTH_SECRET}
+    TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+    TELEGRAM_MINIAPP_URL: https://${DOMAIN}
+    CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
+    # Same value the worker sweeps by — the API only reports the deadline.
+    ACCOUNT_DELETION_GRACE: ${ACCOUNT_DELETION_GRACE:-720h}
+    # Advice writer. An empty key just disables the prose — the AI screen still
+    # shows its (computed) facts, so this is optional.
+    AI_API_KEY: ${AI_API_KEY:-}
+    AI_MODEL: ${AI_MODEL:-glm-4.5-flash}
+    AI_BASE_URL: ${AI_BASE_URL:-https://api.z.ai/api/paas/v4}
+    # Where 5xx alerts go (internal/alert). Empty → alerting off, which is what
+    # a box with no chat configured must do. Falls back to the backup chat in
+    # config.Load, so one chat can serve both until the noise justifies two.
+    ALERT_CHAT_ID: ${ALERT_CHAT_ID:-}
+    BACKUP_CHAT_ID: ${BACKUP_CHAT_ID:-}
+    # Item photos (internal/photostore) — local disk, not S3; won't be many,
+    # and each is already resized/recompressed down to a small JPEG on
+    # upload. Named volume so they survive an image redeploy — and shared by
+    # both colours, so a rollback still sees every photo.
+    UPLOADS_DIR: /data/uploads
+  volumes:
+    - uploads_data:/data/uploads
+  depends_on:
+    postgres:
+      condition: service_healthy
+
+x-frontend: &frontend
+  restart: unless-stopped
+  stop_grace_period: 30s
+  expose:
+    - "3000"
 
 services:
   caddy:
@@ -36,60 +95,33 @@ services:
       - "443:443"
     environment:
       DOMAIN: ${DOMAIN}
-      LEARNING_DOMAIN: ${LEARNING_DOMAIN:-learning.invalid}
-    networks:
-      - default
-      - edge
+      # The learning app's site block (infra/edge/Caddyfile).
+      LEARNING_DOMAIN: ${LEARNING_DOMAIN:-learning.${DOMAIN}}
+    # The whole directory, not just the Caddyfile: the *.active.caddy files next
+    # to it are rewritten on every switch (mv over the old file), and a single-file bind
+    # mount would keep pointing at the replaced inode.
     volumes:
-      - ./infra/edge/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./infra/edge:/etc/caddy:ro
       - caddy_data:/data
       - caddy_config:/config
-    depends_on:
-      - frontend
-      - backend
+    # No depends_on on the app: which colour is live is Caddy's config, not a
+    # start order, and Caddy must not restart along with a colour.
 
-  frontend:
-    image: ${FRONTEND_IMAGE}
-    restart: unless-stopped
-    expose:
-      - "3000"
-    depends_on:
-      - backend
+  backend-blue:
+    <<: *backend
+    image: ${BLUE_BACKEND_IMAGE:-${BACKEND_IMAGE}}
 
-  backend:
-    image: ${BACKEND_IMAGE}
-    restart: unless-stopped
-    expose:
-      - "8080"
-    environment:
-      ENV: prod
-      PORT: "8080"
-      DATABASE_URL: postgres://budget_me:${POSTGRES_PASSWORD}@postgres:5432/budget_me?sslmode=disable
-      AUTH_SECRET: ${AUTH_SECRET}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
-      TELEGRAM_MINIAPP_URL: https://${DOMAIN}
-      CORS_ORIGINS: ${CORS_ORIGINS:-https://${DOMAIN}}
-      # Same value the worker sweeps by — the API only reports the deadline.
-      ACCOUNT_DELETION_GRACE: ${ACCOUNT_DELETION_GRACE:-720h}
-      # Advice writer. An empty key just disables the prose — the AI screen still
-      # shows its (computed) facts, so this is optional.
-      AI_API_KEY: ${AI_API_KEY:-}
-      AI_MODEL: ${AI_MODEL:-glm-4.5-flash}
-      AI_BASE_URL: ${AI_BASE_URL:-https://api.z.ai/api/paas/v4}
-      # Where 5xx alerts go (internal/alert). Empty → alerting off, which is what
-      # a box with no chat configured must do. Falls back to the backup chat in
-      # config.Load, so one chat can serve both until the noise justifies two.
-      ALERT_CHAT_ID: ${ALERT_CHAT_ID:-}
-      BACKUP_CHAT_ID: ${BACKUP_CHAT_ID:-}
-      # Item photos (internal/photostore) — local disk, not S3; won't be many,
-      # and each is already resized/recompressed down to a small JPEG on
-      # upload. Named volume so they survive an image redeploy.
-      UPLOADS_DIR: /data/uploads
-    volumes:
-      - uploads_data:/data/uploads
-    depends_on:
-      postgres:
-        condition: service_healthy
+  backend-green:
+    <<: *backend
+    image: ${GREEN_BACKEND_IMAGE:-${BACKEND_IMAGE}}
+
+  frontend-blue:
+    <<: *frontend
+    image: ${BLUE_FRONTEND_IMAGE:-${FRONTEND_IMAGE}}
+
+  frontend-green:
+    <<: *frontend
+    image: ${GREEN_FRONTEND_IMAGE:-${FRONTEND_IMAGE}}
 
   postgres:
     image: postgres:16-alpine

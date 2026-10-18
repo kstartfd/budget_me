@@ -7,6 +7,7 @@
 # nothing and an operator who retimed a job keeps their edit.
 #
 #   backup      03:40 daily — pg_dump → gpg → Telegram (infra/scripts/backup.sh)
+#   backup      03:50 daily — the same for learning_app
 #   healthcheck every 5 min — disk/memory/load/containers/healthz/backup age
 #
 # The account/advice worker job (03:17 and 15:17) predates this script and is
@@ -38,6 +39,12 @@ ensure() {
 ensure 'budget_me && ./scripts/backup.sh' \
   '# budget_me: ночной бэкап БД off-VPS' \
   '40 3 * * * cd ~/budget_me && ./scripts/backup.sh >> ~/budget_me/backup.log 2>&1'
+
+# The learning app's database (same Postgres). Matched by its own marker, so
+# it is planted on boxes that already carry the budget line.
+ensure 'BACKUP_DB=learning_app' \
+  '# learning_app: ночной бэкап БД off-VPS' \
+  '50 3 * * * cd ~/budget_me && BACKUP_DB=learning_app ./scripts/backup.sh >> ~/budget_me/backup.log 2>&1'
 
 ensure 'scripts/healthcheck.sh' \
   '# budget_me: health-чек (диск/память/нагрузка/контейнеры/healthz/свежесть бэкапа)' \

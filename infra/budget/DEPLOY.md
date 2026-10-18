@@ -5,6 +5,11 @@
 > automatic **deploy** job pulls + restarts the stack on the VPS. This runbook is
 > the hand-driven fallback (bring the stack up yourself from a checkout). Either
 > way the images are **pulled from the registry** — nothing is built on the VPS.
+>
+> Since the blue-green switch the live colour is chosen by
+> `infra/edge/budget.active.caddy` (blue in the repo). `make prod.up` starts
+> both colours; switch with `./infra/budget/scripts/bluegreen.sh` only on the
+> CI layout (`~/budget_me`), see [`CI_CD.md` §6](CI_CD.md).
 
 Target: one small VPS (Ubuntu 26.04, Docker + Compose v2, 4 GB RAM, 50 GB
 disk — `deploy@45.133.19.54`, Toronto). Everything runs from `infra/budget/compose/prod.yml`:

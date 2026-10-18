@@ -1,68 +1,84 @@
 name: learning_app
 
+# Production stack of the Learnings app, on the same VPS as budget.
+#
+# It brings NO Caddy and NO Postgres of its own: the host stack
+# (infra/budget/compose/prod.yml, project budget_me) owns both. Learning gets
+# its own database `learning_app` and role `learning_app` in that Postgres
+# (created by scripts/bluegreen.sh learning deploy), and joins the host
+# network `budget_me_default` so Caddy and Postgres are reachable by name.
+#
+# Every service name carries the `learning-` prefix: on the shared network a
+# container is reachable by its service name, and a bare `backend-blue` would
+# collide with budget's.
+#
+# Blue-green like budget: Caddy routes learning.<domain> to one colour through
+# infra/edge/learning.active.caddy.
+#
+#   # deployed by CI from ~/budget_me on the server (copied as learning.yml):
+#   ./scripts/bluegreen.sh learning deploy <backend-image> <frontend-image>
+#   ./scripts/bluegreen.sh learning rollback 1|2
+#
+# Environment: ~/budget_me/.env.learning (DOMAIN = the learning domain,
+# POSTGRES_PASSWORD = the learning_app role's password, AUTH_SECRET,
+# TELEGRAM_BOT_TOKEN of the learning bot, BACKEND_IMAGE / FRONTEND_IMAGE and the
+# per-colour BLUE_* / GREEN_* images).
+
+x-backend: &backend
+  restart: unless-stopped
+  stop_grace_period: 30s
+  expose:
+    - "8080"
+  environment:
+    ENV: prod
+    PORT: "8080"
+    DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
+    AUTH_SECRET: ${AUTH_SECRET}
+    TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+    TELEGRAM_MINIAPP_URL: https://${DOMAIN}
+    CORS_ORIGINS: https://${DOMAIN}
+
+x-frontend: &frontend
+  restart: unless-stopped
+  stop_grace_period: 30s
+  expose:
+    - "3000"
+
 services:
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: learning_app
-      POSTGRES_USER: learning_app
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
-    volumes:
-      - learning_pg_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U learning_app -d learning_app"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
+  learning-backend-blue:
+    <<: *backend
+    image: ${BLUE_BACKEND_IMAGE:-${BACKEND_IMAGE}}
 
-  backend:
-    image: ${BACKEND_IMAGE:?set BACKEND_IMAGE}
-    restart: unless-stopped
-    environment:
-      ENV: prod
-      PORT: "8080"
-      DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
-      AUTH_SECRET: ${AUTH_SECRET:?set AUTH_SECRET}
-      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:?set TELEGRAM_BOT_TOKEN}
-      TELEGRAM_MINIAPP_URL: https://${DOMAIN:?set DOMAIN}
-      CORS_ORIGINS: https://${DOMAIN}
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      default:
-      edge:
-        aliases: [learning-api]
+  learning-backend-green:
+    <<: *backend
+    image: ${GREEN_BACKEND_IMAGE:-${BACKEND_IMAGE}}
 
-  frontend:
-    image: ${FRONTEND_IMAGE:?set FRONTEND_IMAGE}
-    restart: unless-stopped
+  learning-frontend-blue:
+    <<: *frontend
+    image: ${BLUE_FRONTEND_IMAGE:-${FRONTEND_IMAGE}}
     environment:
-      BACKEND_URL: http://backend:8080
-    depends_on:
-      - backend
-    networks:
-      default:
-      edge:
-        aliases: [learning-web]
+      BACKEND_URL: http://learning-backend-blue:8080
 
-  migrate:
-    image: ${BACKEND_IMAGE:?set BACKEND_IMAGE}
+  learning-frontend-green:
+    <<: *frontend
+    image: ${GREEN_FRONTEND_IMAGE:-${FRONTEND_IMAGE}}
+    environment:
+      BACKEND_URL: http://learning-backend-green:8080
+
+  # One-off migration runner (tools profile, never started by `up`). Runs the
+  # image given in BACKEND_IMAGE — bluegreen.sh overrides it per call, so a
+  # deploy migrates up with the NEW image and a rollback migrates down with the
+  # newer one (only it has the Down SQL).
+  learning-migrate:
+    image: ${BACKEND_IMAGE}
     profiles: ["tools"]
     restart: "no"
     entrypoint: ["/migrate"]
     command: ["up"]
     environment:
       DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-volumes:
-  learning_pg_data:
 
 networks:
-  edge:
+  default:
+    name: budget_me_default
     external: true
-    name: apps_edge

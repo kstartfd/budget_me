@@ -1,46 +1,22 @@
-# Reverse proxy + automatic HTTPS (Let's Encrypt) for budget_me AND learning —
-# the one Caddy on ports 80/443 of the box. It lives in the budget compose project
-# and reaches the learning containers over the external `apps_edge` network, by
-# the aliases infra/learning/compose/prod.yml gives them (learning-api, learning-web).
-# {$DOMAIN} and {$LEARNING_DOMAIN} are injected from the environment (compose passes them).
+# Reverse proxy + automatic HTTPS (Let's Encrypt) for both apps on this VPS.
+# {$DOMAIN} / {$LEARNING_DOMAIN} are injected from the environment (compose
+# passes both; LEARNING_DOMAIN defaults to learning.<DOMAIN>).
 #
-# The backend serves its routes under /api/v1/* (see backend/internal/server),
-# so we must forward the FULL path. `handle /api/*` matches and proxies while
-# preserving the /api prefix — do NOT use `handle_path`, which would strip
-# /api and turn /api/v1/foo into /v1/foo (a 404 on the backend).
+# Blue-green: each site's routes live in its own *.active.caddy, pointing at
+# ONE colour of that app. scripts/bluegreen.sh rewrites the file and runs
+# `caddy reload` — a zero-downtime switch that leaves the other app and the
+# idle colour untouched. The copies in the repo are only the first-boot
+# defaults: on the server bluegreen.sh owns them and the deploy never copies
+# them over.
 
 {$DOMAIN} {
 	encode gzip
 
-	handle /api/* {
-		reverse_proxy backend:8080
-	}
-
-	# The backend's liveness probe, exposed so an EXTERNAL monitor can reach it.
-	# An alert that only runs on the box cannot fire when the box is the thing
-	# that died; this is the one URL an uptime service outside the VPS can watch
-	# (it answers 503 when the DB is down, so it catches more than "process up").
-	handle /healthz {
-		reverse_proxy backend:8080
-	}
-
-	handle {
-		reverse_proxy frontend:3000
-	}
+	import /etc/caddy/budget.active.caddy
 }
 
 {$LEARNING_DOMAIN} {
-	encode gzip
+	encode zstd gzip
 
-	handle /api/* {
-		reverse_proxy learning-api:8080
-	}
-
-	handle /healthz {
-		reverse_proxy learning-api:8080
-	}
-
-	handle {
-		reverse_proxy learning-web:3000
-	}
+	import /etc/caddy/learning.active.caddy
 }

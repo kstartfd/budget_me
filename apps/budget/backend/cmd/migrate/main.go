@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"os"
+	"strconv"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/joho/godotenv"
@@ -17,7 +18,7 @@ func main() {
 	_ = godotenv.Load()
 
 	if len(os.Args) < 2 {
-		fmt.Fprintln(os.Stderr, "usage: migrate <up|down|status|reset|version>")
+		fmt.Fprintln(os.Stderr, "usage: migrate <up|down|down-to N|status|reset|version>")
 		os.Exit(2)
 	}
 
@@ -51,6 +52,21 @@ func main() {
 		err = goose.UpContext(ctx, d, ".")
 	case "down":
 		err = goose.DownContext(ctx, d, ".")
+	case "down-to":
+		// Blue-green rollback (infra/budget/scripts/bluegreen.sh): bring the
+		// schema back to the version a previous release was deployed with. Run
+		// from the NEWER image — only it carries the Down SQL of its migrations.
+		if len(os.Args) < 3 {
+			fmt.Fprintln(os.Stderr, "usage: migrate down-to <version>")
+			os.Exit(2)
+		}
+
+		var v int64
+
+		v, err = strconv.ParseInt(os.Args[2], 10, 64)
+		if err == nil {
+			err = goose.DownToContext(ctx, d, ".", v)
+		}
 	case "status":
 		err = goose.StatusContext(ctx, d, ".")
 	case "reset":

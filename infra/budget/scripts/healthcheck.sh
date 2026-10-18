@@ -58,7 +58,15 @@ LOAD_MAX="${LOAD_MAX:-2.0}"
 # a backup that is about to happen "missing".
 BACKUP_MAX_AGE_H="${BACKUP_MAX_AGE_H:-26}"
 REMIND_HOURS="${REMIND_HOURS:-6}"
-SERVICES="${SERVICES:-caddy backend frontend postgres}"
+# The budget project's long-running services: the shared Caddy and Postgres,
+# plus the LIVE colour (blue-green, see scripts/bluegreen.sh). The idle colour
+# may legitimately be stopped. Before the first blue-green deploy ACTIVE_COLOR
+# is empty and the old backend/frontend services are the live ones.
+if [ -n "${ACTIVE_COLOR:-}" ]; then
+  SERVICES="${SERVICES:-caddy postgres backend-$ACTIVE_COLOR frontend-$ACTIVE_COLOR}"
+else
+  SERVICES="${SERVICES:-caddy postgres backend frontend}"
+fi
 
 DRY_RUN="${DRY_RUN:-}"
 
