@@ -54,6 +54,12 @@ export function TxDetailSheet() {
         </div>
       </div>
 
+      {!tx.counted && (
+        <p className="text-muted-foreground bg-secondary/60 mb-3 rounded-2xl px-4 py-2.5 text-[12.5px] leading-snug">
+          {t("uncountedDetail")}
+        </p>
+      )}
+
       <div className="bg-secondary mb-5 rounded-2xl px-4 py-3">
         <div className="text-faint font-mono text-[10px] font-semibold tracking-[0.06em] uppercase">
           {t("commentLabel")}

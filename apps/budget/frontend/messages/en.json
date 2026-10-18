@@ -137,7 +137,8 @@
     "aiTag": "AI insight",
     "byCategory": "By category",
     "seeAll": "All",
-    "recent": "Recent"
+    "recent": "Recent",
+    "uncountedLine": "Not in calculation: {amount}"
   },
   "moneyInfo": {
     "title": "About these amounts",
@@ -146,7 +147,9 @@
     "incomeTerm": "Income",
     "incomeDesc": "How much money came in during the current period.",
     "freeTerm": "Free",
-    "freeDesc": "Income minus spending for the period — how much of what came in is still unspent. Not the same as Balance: this is only this period's money."
+    "freeDesc": "Income minus spending for the period — how much of what came in is still unspent. Not the same as Balance: this is only this period's money.",
+    "uncountedTerm": "Not in calculation",
+    "uncountedDesc": "A payment with “Count in calculation” switched off — say, a mandatory one. It stays in your statistics and lists, but isn’t subtracted from Balance or Free."
   },
   "balance": {
     "kicker": "Balance",
@@ -232,7 +235,9 @@
     "deleting": "Deleting…",
     "deleteFailed": "Couldn’t delete",
     "detailTitle": "Transaction",
-    "commentLabel": "Note"
+    "commentLabel": "Note",
+    "uncounted": "not in calculation",
+    "uncountedDetail": "Not in the calculation — shown in statistics, but not deducted from Balance or Free."
   },
   "analytics": {
     "title": "Analytics",
@@ -326,7 +331,9 @@
     "create": "Create",
     "cancel": "Cancel",
     "item": "Thing",
-    "plan": "Plan"
+    "plan": "Plan",
+    "counted": "Count in calculation",
+    "countedOffHint": "Statistics only"
   },
   "categories": {
     "coffee": "Coffee",

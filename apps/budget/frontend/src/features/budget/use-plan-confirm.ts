@@ -33,6 +33,7 @@ export function usePlanConfirm() {
         date: today,
         time: nowTime(),
         direction: "expense",
+        counted: true,
       },
       {
         onSuccess: () => {

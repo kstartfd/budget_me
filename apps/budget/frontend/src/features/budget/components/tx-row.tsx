@@ -1,5 +1,7 @@
 "use client"
 
+import { useTranslations } from "next-intl"
+
 import { formatBr } from "@/lib/money"
 import { cn } from "@/lib/utils"
 
@@ -29,6 +31,7 @@ export function TxRow({
   /** Right part of the subtitle: time on the list screen, day on recent. */
   meta: string
 }) {
+  const t = useTranslations("transactions")
   const label = useCategoryLabel()
   const { fx, openDetail } = useBudgetUI()
   const approx = fx(tx.amountMinor)
@@ -51,6 +54,7 @@ export function TxRow({
         <div className="truncate text-sm font-medium">{tx.title}</div>
         <div className="text-faint mt-0.5 text-xs">
           {label(category)} · {meta}
+          {!tx.counted && <span className="italic"> · {t("uncounted")}</span>}
         </div>
       </div>
       <div className="text-right">

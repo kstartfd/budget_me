@@ -58,7 +58,8 @@ export default function OverviewPage() {
     )
   }
 
-  const { spentMinor, incomeMinor, carriedInMinor, byCategory } = summary.data
+  const { spentMinor, countedSpentMinor, incomeMinor, carriedInMinor, byCategory } =
+    summary.data
   // The real dictionary carries both directions, so income rows resolve their
   // category name straight from it; the expense-only "by category" is unaffected.
   const catById = new Map(categories.data.map((c) => [c.id, c]))
@@ -68,8 +69,12 @@ export default function OverviewPage() {
   const hasIncome = incomeMinor > 0
   const spentApprox = fx(spentMinor)
   const balanceApprox = balance.data?.set ? fx(balance.data.balanceMinor) : null
-  const over = hasIncome && spentMinor > incomeMinor
-  const leftMinor = Math.max(incomeMinor - spentMinor, 0)
+  // The big figure is all spending (statistics); what is left, the bar and
+  // "over" use only the part that takes part in the calculation — payments kept
+  // out of it (mandatory ones) are in the stats but don't eat into what's free.
+  const uncountedMinor = spentMinor - countedSpentMinor
+  const over = hasIncome && countedSpentMinor > incomeMinor
+  const leftMinor = Math.max(incomeMinor - countedSpentMinor, 0)
   const daysLeft = daysLeftInPeriod(today, startDay)
 
   const top = byCategory.slice(0, 4)
@@ -179,6 +184,11 @@ export default function OverviewPage() {
             )}
           </div>
         )}
+        {uncountedMinor > 0 && (
+          <p className="text-faint mt-1 font-mono text-[12px] font-medium">
+            {t("uncountedLine", { amount: `${formatBr(uncountedMinor)} Br` })}
+          </p>
+        )}
         {carriedInMinor > 0 && (
           <p
             className="mt-1 font-mono text-[12px] font-medium"
@@ -191,7 +201,7 @@ export default function OverviewPage() {
           <div
             className="h-full rounded-full"
             style={{
-              width: `${hasIncome ? Math.min((spentMinor / incomeMinor) * 100, 100) : 0}%`,
+              width: `${hasIncome ? Math.min((countedSpentMinor / incomeMinor) * 100, 100) : 0}%`,
               background: over ? "var(--destructive)" : "var(--primary)",
             }}
           />

@@ -7,12 +7,13 @@ import { BottomSheet } from "./bottom-sheet"
 /**
  * Plain-language explainer for the dashboard's money figures, opened by the ⓘ
  * on the hero card. «Остаток» (wallet) and «Свободно» (income − spend) read as
- * near-synonyms at a glance, so this spells out what each one actually means.
+ * near-synonyms at a glance, so this spells out what each one actually means —
+ * plus what a payment kept «вне расчёта» does and doesn't affect.
  */
 export function MoneyInfoSheet({ onClose }: { onClose: () => void }) {
   const t = useTranslations("moneyInfo")
 
-  const terms = ["balance", "income", "free"] as const
+  const terms = ["balance", "income", "free", "uncounted"] as const
 
   return (
     <BottomSheet title={t("title")} onClose={onClose}>

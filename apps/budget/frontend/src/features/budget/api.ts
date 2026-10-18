@@ -256,6 +256,7 @@ export async function fetchMonthSummary(month: string): Promise<MonthSummary> {
       z
         .object({
           spentMinor: z.number().int().min(0),
+          countedSpentMinor: z.number().int().min(0),
           incomeMinor: z.number().int().min(0),
           carriedInMinor: z.number().int().min(0),
           byCategory: z.array(
@@ -272,6 +273,7 @@ export async function fetchMonthSummary(month: string): Promise<MonthSummary> {
   return {
     month,
     spentMinor: summary.spentMinor,
+    countedSpentMinor: summary.countedSpentMinor,
     incomeMinor: summary.incomeMinor,
     carriedInMinor: summary.carriedInMinor,
     byCategory: [...summary.byCategory].sort(
@@ -357,6 +359,7 @@ export function createTransaction(
     // The sheet works in wall-clock; the wire is UTC.
     spentAt: toInstant(input.date, input.time),
     direction: input.direction,
+    counted: input.counted,
   }
   return call(
     "/transactions",
@@ -375,6 +378,7 @@ export function updateTransaction(
     title: input.title,
     spentAt: toInstant(input.date, input.time),
     direction: input.direction,
+    counted: input.counted,
   }
   return call(
     `/transactions/${input.id}`,

@@ -3,6 +3,8 @@
 import { useState, type CSSProperties } from "react"
 import { useLocale, useTranslations } from "next-intl"
 
+import { Checkbox } from "@/components/ui/checkbox"
+import { Label } from "@/components/ui/label"
 import { useToday } from "@/features/settings"
 import { formatBr } from "@/lib/money"
 import { dayLabel, nowTime } from "@/lib/month"
@@ -64,6 +66,7 @@ function AddSheetInner({ editTx }: { editTx: Transaction | null }) {
   const [categoryId, setCategoryId] = useState(editTx?.categoryId ?? "")
   const [note, setNote] = useState(editTx?.title ?? "")
   const [date, setDate] = useState(editTx?.date ?? today)
+  const [counted, setCounted] = useState(editTx?.counted ?? true)
   const [step, setStep] = useState<1 | 2>(1)
   const [nav, setNav] = useState<"fwd" | "back">("fwd")
 
@@ -110,6 +113,8 @@ function AddSheetInner({ editTx }: { editTx: Transaction | null }) {
     const category = activeCategories.find((c) => c.id === selectedId)
     // Free-form note is the row title; fall back to the category name when empty.
     const title = note.trim() || label(category)
+    // Only an expense can be kept out of the calculation; income always counts.
+    const inCalculation = direction === "income" || counted
 
     if (editing) {
       // The time is preserved; the date can be changed via the picker.
@@ -122,6 +127,7 @@ function AddSheetInner({ editTx }: { editTx: Transaction | null }) {
           date,
           time: editTx.time,
           direction,
+          counted: inCalculation,
         },
         {
           onSuccess: () => {
@@ -141,6 +147,7 @@ function AddSheetInner({ editTx }: { editTx: Transaction | null }) {
         date,
         time: nowTime(),
         direction,
+        counted: inCalculation,
       },
       {
         onSuccess: () => {
@@ -233,6 +240,26 @@ function AddSheetInner({ editTx }: { editTx: Transaction | null }) {
                 />
               )}
             </div>
+            {direction === "expense" && (
+              <div className="mb-3 flex items-center gap-2.5">
+                <Checkbox
+                  id="add-counted"
+                  checked={counted}
+                  onCheckedChange={(v) => setCounted(v === true)}
+                />
+                <Label
+                  htmlFor="add-counted"
+                  className="cursor-pointer text-[13px] font-medium"
+                >
+                  {t("counted")}
+                </Label>
+                {!counted && (
+                  <span className="text-faint ml-auto truncate text-[11.5px]">
+                    {t("countedOffHint")}
+                  </span>
+                )}
+              </div>
+            )}
             <Numpad value={amount} onChange={setAmount} />
             <button
               type="button"

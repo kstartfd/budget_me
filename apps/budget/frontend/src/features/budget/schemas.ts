@@ -90,6 +90,12 @@ export const transactionSchema = z
     /** The instant of the spend, RFC3339 UTC. */
     spentAt: z.string(),
     direction: directionSchema.default("expense"),
+    /**
+     * Whether it takes part in the calculation (Balance, Free, carry-over).
+     * `false` = a payment kept out of it, e.g. a mandatory one — statistics
+     * still see it. Defaults to true for rows from before the flag existed.
+     */
+    counted: z.boolean().default(true),
   })
   .transform((t) => ({ ...t, ...fromInstant(t.spentAt) }))
 export type Transaction = z.infer<typeof transactionSchema>
@@ -159,8 +165,13 @@ export type Balance = z.infer<typeof balanceSchema>
 /** Aggregated month view the dashboard/analytics screens render from. */
 export const monthSummarySchema = z.object({
   month: monthKeySchema,
+  /** All spending — what statistics show. */
   spentMinor: z.number().int().min(0),
-  /** Total income (приход) logged in the period — «Осталось» = incomeMinor − spentMinor. */
+  /** The part of it that takes part in the calculation (transactions with the
+   *  «count in calculation» box on). «Свободно», the progress bar and the
+   *  carry-over use this one, not `spentMinor`. */
+  countedSpentMinor: z.number().int().min(0),
+  /** Total income (приход) logged in the period — «Свободно» = incomeMinor − countedSpentMinor. */
   incomeMinor: z.number().int().min(0),
   /** Unspent income carried in from the immediately preceding period (0 if that
    *  period was fully spent, or overspent — never a debt). Shown as its own line,
@@ -252,5 +263,7 @@ export const addTransactionInputSchema = z.object({
   /** Local wall-clock `HH:MM`. */
   time: z.string().regex(/^\d{2}:\d{2}$/),
   direction: directionSchema.default("expense"),
+  /** Takes part in the calculation; only an expense may be switched off. */
+  counted: z.boolean().default(true),
 })
 export type AddTransactionInput = z.infer<typeof addTransactionInputSchema>
