@@ -46,6 +46,8 @@ type Send struct {
 type Reply struct {
 	Question db.LearningChatMessage
 	Answer   db.LearningChatMessage
+	// Budget is what the chat may still spend, with this turn counted.
+	Budget Budget
 }
 
 // Stream receives the answer while it is written. Delta gets each piece; Done
@@ -151,6 +153,12 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 	work := context.WithoutCancel(ctx)
 	defer func() { _ = h.q.UnlockLearningChat(work, chat.ID) }()
 
+	// Read under the lease, so two questions cannot both slip in below the limit.
+	budget := BudgetOf(chat, agent.profile, now)
+	if budget.Exhausted() {
+		return &BudgetError{ResetsAt: *budget.ResetsAt}
+	}
+
 	stored, err := h.q.ListLearningChatMessagesAfter(work, db.ListLearningChatMessagesAfterParams{ChatID: chat.ID, ID: chat.SummaryUpto})
 	if err != nil {
 		return err
@@ -170,7 +178,7 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		return err
 	}
 
-	reply, err := h.save(work, chat, question, result)
+	reply, err := h.save(work, chat, question, result, budget.After(result.Context(), now, agent.profile.BudgetWindow), agent.profile.BudgetWindow)
 	if err != nil {
 		return err
 	}
@@ -199,9 +207,10 @@ func (h SendHandler) lock(ctx context.Context, chat db.LearningChat, now time.Ti
 	return locked, err
 }
 
-// save stores the question and its answer together and records how big the
-// conversation has become.
-func (h SendHandler) save(ctx context.Context, chat db.LearningChat, question string, result llm.ChatResult) (Reply, error) {
+// save stores the question and its answer together, and records how big the
+// conversation has become and what the turn cost. `after` is the budget with
+// this turn counted, for the reply to carry.
+func (h SendHandler) save(ctx context.Context, chat db.LearningChat, question string, result llm.ChatResult, after Budget, window time.Duration) (Reply, error) {
 	tx, err := h.pool.Begin(ctx)
 	if err != nil {
 		return Reply{}, err
@@ -222,11 +231,18 @@ func (h SendHandler) save(ctx context.Context, chat db.LearningChat, question st
 		return Reply{}, err
 	}
 
-	if err := q.TouchLearningChat(ctx, db.TouchLearningChatParams{ID: chat.ID, ContextTokens: int32(result.Context()), UpdatedAt: now}); err != nil {
+	err = q.RecordLearningChatTurn(ctx, db.RecordLearningChatTurnParams{
+		ID:            chat.ID,
+		ContextTokens: int32(result.Context()),
+		Now:           now,
+		WindowSecs:    window.Seconds(),
+		Spent:         int64(result.Context()),
+	})
+	if err != nil {
 		return Reply{}, err
 	}
 
-	return Reply{Question: asked, Answer: answered}, tx.Commit(ctx)
+	return Reply{Question: asked, Answer: answered, Budget: after}, tx.Commit(ctx)
 }
 
 // compact folds the older messages into the summary with the provider's cheap

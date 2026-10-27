@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"learning_app/backend/internal/llm"
+	"learning_app/backend/internal/ratelimit"
 )
 
 // defaultDeletionGrace is the wait between "delete my account" and the data
@@ -27,6 +28,9 @@ type Config struct {
 	// LLMURLs are the provider API roots. Never read from the environment:
 	// blank means the real providers, and tests point it at fakes.
 	LLMURLs llm.URLs
+	// ChatRate is how fast one user may use the chat. Never read from the
+	// environment: blank means the defaults, and tests loosen or tighten it.
+	ChatRate ratelimit.Config
 }
 
 func Load() (Config, error) {

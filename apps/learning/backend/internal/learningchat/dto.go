@@ -19,16 +19,26 @@ type messageResponse struct {
 	CreatedAt string `json:"createdAt"`
 }
 
+// budgetResponse is what the chat may still spend: tokens used of the limit in
+// the current window, which ends at resetsAt (null while nothing is spent).
+type budgetResponse struct {
+	Limit    int64   `json:"limit"`
+	Used     int64   `json:"used"`
+	ResetsAt *string `json:"resetsAt"`
+}
+
 type chatResponse struct {
 	Available bool              `json:"available"`
 	Messages  []messageResponse `json:"messages"`
+	Budget    *budgetResponse   `json:"budget"`
 }
 
 // doneEvent closes a stream: the stored question and answer, with the ids and
-// times the history shows.
+// times the history shows, and the budget with the turn counted.
 type doneEvent struct {
 	Question messageResponse `json:"question"`
 	Answer   messageResponse `json:"answer"`
+	Budget   budgetResponse  `json:"budget"`
 }
 
 type deltaEvent struct {
@@ -44,15 +54,31 @@ func messageDTO(row db.LearningChatMessage) messageResponse {
 	return messageResponse{ID: row.ID, Role: string(row.Role), Content: row.Content, CreatedAt: row.CreatedAt.Time.UTC().Format(time.RFC3339)}
 }
 
+func budgetDTO(b commands.Budget) budgetResponse {
+	out := budgetResponse{Limit: b.Limit, Used: b.Used}
+
+	if b.ResetsAt != nil {
+		resets := b.ResetsAt.UTC().Format(time.RFC3339)
+		out.ResetsAt = &resets
+	}
+
+	return out
+}
+
 func chatDTO(chat queries.Chat) chatResponse {
 	out := chatResponse{Available: chat.Available, Messages: make([]messageResponse, len(chat.Messages))}
 	for i, row := range chat.Messages {
 		out.Messages[i] = messageDTO(row)
 	}
 
+	if chat.Budget != nil {
+		budget := budgetDTO(*chat.Budget)
+		out.Budget = &budget
+	}
+
 	return out
 }
 
 func doneDTO(reply commands.Reply) doneEvent {
-	return doneEvent{Question: messageDTO(reply.Question), Answer: messageDTO(reply.Answer)}
+	return doneEvent{Question: messageDTO(reply.Question), Answer: messageDTO(reply.Answer), Budget: budgetDTO(reply.Budget)}
 }

@@ -13,12 +13,14 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 
 	"learning_app/backend/internal/config"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/llm"
+	"learning_app/backend/internal/ratelimit"
 	"learning_app/backend/internal/server"
 	"learning_app/backend/internal/testdb"
 	"learning_app/backend/internal/token"
@@ -71,13 +73,20 @@ func (d *deepseek) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 type chatEnv struct {
 	e        *echo.Echo
 	q        *db.Queries
+	pool     *pgxpool.Pool
 	provider *deepseek
 	user     uuid.UUID
 	session  string
 	entry    string
 }
 
-func setupChat(t *testing.T) chatEnv {
+// looseRate keeps the per-user rate limit out of the way of tests that are not
+// about it.
+var looseRate = ratelimit.Config{Burst: 1000, Every: time.Millisecond, InFlight: 100}
+
+func setupChat(t *testing.T) chatEnv { return setupChatRate(t, looseRate) }
+
+func setupChatRate(t *testing.T, rate ratelimit.Config) chatEnv {
 	t.Helper()
 
 	pool, q := testdb.Pool(t)
@@ -87,7 +96,7 @@ func setupChat(t *testing.T) chatEnv {
 	srv := httptest.NewServer(provider)
 	t.Cleanup(srv.Close)
 
-	cfg := config.Config{AuthSecret: authSecret, LLMURLs: llm.URLs{Anthropic: srv.URL, OpenAI: srv.URL, DeepSeek: srv.URL}}
+	cfg := config.Config{AuthSecret: authSecret, ChatRate: rate, LLMURLs: llm.URLs{Anthropic: srv.URL, OpenAI: srv.URL, DeepSeek: srv.URL}}
 	e := server.New(cfg, pool, testdb.AccountPool(t))
 	session := token.NewCodec(authSecret).Issue(user, time.Now().UTC(), time.Hour)
 
@@ -98,7 +107,7 @@ func setupChat(t *testing.T) chatEnv {
 		t.Fatalf("entry: %d %v", code, body)
 	}
 
-	return chatEnv{e: e, q: q, provider: provider, user: user, session: session, entry: data(t, body)["id"].(string)}
+	return chatEnv{e: e, q: q, pool: pool, provider: provider, user: user, session: session, entry: data(t, body)["id"].(string)}
 }
 
 func (c chatEnv) path() string { return "/api/v1/learning/entries/" + c.entry + "/chat" }
@@ -116,9 +125,8 @@ type sseEvent struct {
 	data map[string]any
 }
 
-// ask posts a question and returns the status with the parsed event stream (or,
-// for a refusal, the JSON envelope as one event named "body").
-func (c chatEnv) ask(t *testing.T, text string) (int, []sseEvent) {
+// post sends a question as it is and returns the raw response.
+func (c chatEnv) post(t *testing.T, text string) *httptest.ResponseRecorder {
 	t.Helper()
 
 	raw, _ := json.Marshal(map[string]any{"text": text})
@@ -128,6 +136,16 @@ func (c chatEnv) ask(t *testing.T, text string) (int, []sseEvent) {
 
 	rec := httptest.NewRecorder()
 	c.e.ServeHTTP(rec, req)
+
+	return rec
+}
+
+// ask posts a question and returns the status with the parsed event stream (or,
+// for a refusal, the JSON envelope as one event named "body").
+func (c chatEnv) ask(t *testing.T, text string) (int, []sseEvent) {
+	t.Helper()
+
+	rec := c.post(t, text)
 
 	if !strings.HasPrefix(rec.Header().Get("Content-Type"), "text/event-stream") {
 		var body map[string]any
@@ -379,5 +397,111 @@ func TestChatBelongsToTheEntrysOwnerAndChecksTheText(t *testing.T) {
 
 	if code, _ := request(t, other.e, "GET", other.path(), other.session, nil, ""); code != http.StatusNotFound {
 		t.Fatalf("someone else's chat: %d", code)
+	}
+}
+
+func TestChatStopsAtItsTokenBudgetAndClearingDoesNotGiveItBack(t *testing.T) {
+	env := setupChat(t)
+	env.useDeepSeek(t)
+
+	// Each answer costs 70 005 tokens; the limit is 120 000. The turn that
+	// crosses it still completes, the next one is refused.
+	env.provider.promptTokens = 70000
+
+	var done map[string]any
+
+	for i := 1; i <= 2; i++ {
+		code, events := env.ask(t, fmt.Sprintf("question %d", i))
+		if code != http.StatusOK {
+			t.Fatalf("question %d: %d %v", i, code, events)
+		}
+
+		done = events[len(events)-1].data["budget"].(map[string]any)
+	}
+
+	if done["limit"] != float64(120000) || done["used"] != float64(140010) || done["resetsAt"] == nil {
+		t.Fatalf("budget after two turns: %v", done)
+	}
+
+	rec := env.post(t, "question 3")
+	if rec.Code != http.StatusTooManyRequests || rec.Header().Get("Retry-After") == "" {
+		t.Fatalf("over budget: %d retry-after %q body %s", rec.Code, rec.Header().Get("Retry-After"), rec.Body)
+	}
+
+	var refused map[string]any
+	_ = json.Unmarshal(rec.Body.Bytes(), &refused)
+
+	if refused["code"] != float64(42902) || len(refused["details"].([]any)) != 1 {
+		t.Fatalf("refusal: %v", refused)
+	}
+
+	if len(env.provider.turns) != 2 {
+		t.Fatalf("a refused question must not reach the provider: %d calls", len(env.provider.turns))
+	}
+
+	code, body := request(t, env.e, "GET", env.path(), env.session, nil, "")
+	budget := data(t, body)["budget"].(map[string]any)
+
+	if code != 200 || budget["used"] != float64(140010) {
+		t.Fatalf("get chat: %d %v", code, body)
+	}
+
+	// Starting the conversation over must not buy a new budget.
+	if code, _ := request(t, env.e, "DELETE", env.path(), env.session, nil, ""); code != http.StatusOK {
+		t.Fatalf("clear: %d", code)
+	}
+
+	if code, _ := env.ask(t, "again"); code != http.StatusTooManyRequests {
+		t.Fatalf("a cleared chat is still over budget: %d", code)
+	}
+
+	// Once the window has ended the chat is whole again, and counts from zero.
+	_, err := env.pool.Exec(context.Background(), "UPDATE learning_chats SET spent_since = now() - interval '25 hours' WHERE user_id = $1", env.user)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	env.provider.promptTokens = 300
+
+	code, events := env.ask(t, "a new day")
+	if code != http.StatusOK {
+		t.Fatalf("after the window: %d %v", code, events)
+	}
+
+	if used := events[len(events)-1].data["budget"].(map[string]any)["used"]; used != float64(305) {
+		t.Fatalf("the new window must count from zero: %v", used)
+	}
+}
+
+func TestChatRateLimitIsPerUserAnd429(t *testing.T) {
+	env := setupChatRate(t, ratelimit.Config{Burst: 2, Every: time.Hour, InFlight: 2})
+	env.useDeepSeek(t)
+
+	for i := 1; i <= 2; i++ {
+		if code, _ := env.ask(t, "question"); code != http.StatusOK {
+			t.Fatalf("question %d inside the burst: %d", i, code)
+		}
+	}
+
+	rec := env.post(t, "question")
+	if rec.Code != http.StatusTooManyRequests || rec.Header().Get("Retry-After") == "" {
+		t.Fatalf("over the rate: %d retry-after %q", rec.Code, rec.Header().Get("Retry-After"))
+	}
+
+	var refused map[string]any
+	_ = json.Unmarshal(rec.Body.Bytes(), &refused)
+
+	if refused["code"] != float64(42901) || len(env.provider.turns) != 2 {
+		t.Fatalf("refusal %v after %d provider calls", refused, len(env.provider.turns))
+	}
+
+	// Someone else is not held back by it.
+	pool, q := testdb.Pool(t)
+	other := env
+	other.user = testdb.NewUser(t, pool, q, time.Now().UTC(), 3)
+	other.session = token.NewCodec(authSecret).Issue(other.user, time.Now().UTC(), time.Hour)
+
+	if code, _ := request(t, other.e, "GET", other.path(), other.session, nil, ""); code != http.StatusNotFound {
+		t.Fatalf("reading is not limited, and the entry is not theirs: %d", code)
 	}
 }

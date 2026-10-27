@@ -24,7 +24,7 @@ const ensureLearningChat = `-- name: EnsureLearningChat :one
 INSERT INTO learning_chats (id, user_id, entry_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $4)
 ON CONFLICT (entry_id) DO UPDATE SET entry_id = EXCLUDED.entry_id
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since
 `
 
 type EnsureLearningChatParams struct {
@@ -52,12 +52,14 @@ func (q *Queries) EnsureLearningChat(ctx context.Context, arg EnsureLearningChat
 		&i.BusyUntil,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
 	)
 	return i, err
 }
 
 const getLearningChatByEntry = `-- name: GetLearningChatByEntry :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at FROM learning_chats WHERE entry_id = $1 AND user_id = $2
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since FROM learning_chats WHERE entry_id = $1 AND user_id = $2
 `
 
 type GetLearningChatByEntryParams struct {
@@ -78,6 +80,8 @@ func (q *Queries) GetLearningChatByEntry(ctx context.Context, arg GetLearningCha
 		&i.BusyUntil,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
 	)
 	return i, err
 }
@@ -182,7 +186,7 @@ const lockLearningChat = `-- name: LockLearningChat :one
 UPDATE learning_chats SET busy_until = $1
 WHERE id = $2 AND user_id = $3
   AND (busy_until IS NULL OR busy_until < $4)
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since
 `
 
 type LockLearningChatParams struct {
@@ -210,8 +214,45 @@ func (q *Queries) LockLearningChat(ctx context.Context, arg LockLearningChatPara
 		&i.BusyUntil,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
 	)
 	return i, err
+}
+
+const recordLearningChatTurn = `-- name: RecordLearningChatTurn :exec
+UPDATE learning_chats SET
+    context_tokens = $1,
+    updated_at = $2,
+    spent_tokens = CASE
+        WHEN spent_since IS NULL OR spent_since + make_interval(secs => $3::float8) <= $2
+        THEN 0 ELSE spent_tokens END + $4::bigint,
+    spent_since = CASE
+        WHEN spent_since IS NULL OR spent_since + make_interval(secs => $3::float8) <= $2
+        THEN $2 ELSE spent_since END
+WHERE id = $5
+`
+
+type RecordLearningChatTurnParams struct {
+	ContextTokens int32
+	Now           pgtype.Timestamptz
+	WindowSecs    float64
+	Spent         int64
+	ID            pgtype.UUID
+}
+
+// Records a finished turn: the size the next one starts from, and what it cost.
+// A budget window that has run out starts over with this turn (every SET
+// expression reads the row as it was, so both CASEs see the same spent_since).
+func (q *Queries) RecordLearningChatTurn(ctx context.Context, arg RecordLearningChatTurnParams) error {
+	_, err := q.db.Exec(ctx, recordLearningChatTurn,
+		arg.ContextTokens,
+		arg.Now,
+		arg.WindowSecs,
+		arg.Spent,
+		arg.ID,
+	)
+	return err
 }
 
 const resetLearningChat = `-- name: ResetLearningChat :exec
@@ -246,21 +287,6 @@ func (q *Queries) SaveLearningChatSummary(ctx context.Context, arg SaveLearningC
 		arg.SummaryUpto,
 		arg.UpdatedAt,
 	)
-	return err
-}
-
-const touchLearningChat = `-- name: TouchLearningChat :exec
-UPDATE learning_chats SET context_tokens = $2, updated_at = $3 WHERE id = $1
-`
-
-type TouchLearningChatParams struct {
-	ID            pgtype.UUID
-	ContextTokens int32
-	UpdatedAt     pgtype.Timestamptz
-}
-
-func (q *Queries) TouchLearningChat(ctx context.Context, arg TouchLearningChatParams) error {
-	_, err := q.db.Exec(ctx, touchLearningChat, arg.ID, arg.ContextTokens, arg.UpdatedAt)
 	return err
 }
 

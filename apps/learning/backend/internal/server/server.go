@@ -67,6 +67,6 @@ func New(cfg config.Config, pool, accountPool *pgxpool.Pool) *echo.Echo {
 	learningtokens.NewController(queries, clk, vault).Routes(protected)
 	agent := llm.New(cfg.LLMURLs)
 	learningai.NewController(queries, clk, vault, agent).Routes(protected)
-	learningchat.NewController(pool, queries, clk, vault, agent).Routes(protected)
+	learningchat.NewController(pool, queries, clk, vault, agent, cfg.ChatRate).Routes(protected)
 	return e
 }

@@ -1,10 +1,14 @@
 package learningchat
 
 import (
+	"cmp"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
+	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -17,16 +21,33 @@ import (
 	"learning_app/backend/internal/learningchat/commands"
 	"learning_app/backend/internal/learningchat/queries"
 	"learning_app/backend/internal/llm"
+	"learning_app/backend/internal/ratelimit"
 	"learning_app/backend/internal/secretbox"
 )
+
+// defaultRate: five questions back to back, then one every four seconds, and at
+// most two being answered at once. A person reading each answer asks far
+// slower; this only stops a script.
+var defaultRate = ratelimit.Config{Burst: 5, Every: 4 * time.Second, InFlight: 2}
 
 type Controller struct {
 	write commands.SendHandler
 	read  queries.ChatHandler
+	limit *ratelimit.Limiter
 }
 
-func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, client llm.Client) *Controller {
-	return &Controller{write: commands.NewSendHandler(pool, q, clk, vault, client), read: queries.NewChatHandler(q)}
+// NewController takes the rate each user may ask at; a zero field falls back
+// to the default.
+func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, client llm.Client, rate ratelimit.Config) *Controller {
+	rate.Burst = cmp.Or(rate.Burst, defaultRate.Burst)
+	rate.Every = cmp.Or(rate.Every, defaultRate.Every)
+	rate.InFlight = cmp.Or(rate.InFlight, defaultRate.InFlight)
+
+	return &Controller{
+		write: commands.NewSendHandler(pool, q, clk, vault, client),
+		read:  queries.NewChatHandler(q, clk),
+		limit: ratelimit.New(rate),
+	}
 }
 
 func entryID(ctx echo.Context) (uuid.UUID, error) {
@@ -69,13 +90,25 @@ func (c *Controller) send(ctx echo.Context) error {
 		return apperr.NewInvalid("invalid body")
 	}
 
+	userID := httpx.UserIDFromContext(ctx.Request().Context())
+
+	// Before anything else, so a flood costs as little as possible.
+	release, wait, ok := c.limit.Acquire(userID)
+	if !ok {
+		retryAfter(ctx, wait)
+
+		return httpx.TooManyRequests
+	}
+
+	defer release()
+
 	out := &eventStream{ctx: ctx}
 
-	err = c.write.Handle(ctx.Request().Context(), commands.Send{UserID: httpx.UserIDFromContext(ctx.Request().Context()), EntryID: id, Text: req.Text}, commands.Stream{
+	err = c.write.Handle(ctx.Request().Context(), commands.Send{UserID: userID, EntryID: id, Text: req.Text}, commands.Stream{
 		Delta: func(piece string) { out.send("delta", deltaEvent{Text: piece}) },
 		Done:  func(reply commands.Reply) { out.send("done", doneDTO(reply)) },
 	})
-	if err = agentError(err); err == nil {
+	if err = agentError(ctx, err); err == nil {
 		return nil
 	}
 
@@ -101,8 +134,25 @@ func (c *Controller) clear(ctx echo.Context) error {
 	return httpx.OK(ctx, nil)
 }
 
-// agentError sorts a provider failure into the errors the API speaks in.
-func agentError(err error) error {
+// retryAfter tells a client how long to wait, in whole seconds and never zero.
+func retryAfter(ctx echo.Context, wait time.Duration) {
+	ctx.Response().Header().Set("Retry-After", strconv.Itoa(max(1, int(math.Ceil(wait.Seconds())))))
+}
+
+// agentError sorts a provider failure, or a chat out of tokens, into the errors
+// the API speaks in.
+func agentError(ctx echo.Context, err error) error {
+	var spent *commands.BudgetError
+	if errors.As(err, &spent) {
+		retryAfter(ctx, time.Until(spent.ResetsAt))
+
+		// A copy, since the details belong to this one answer.
+		refused := *httpx.ChatBudgetExhausted
+		refused.Details = []string{spent.ResetsAt.UTC().Format(time.RFC3339)}
+
+		return &refused
+	}
+
 	switch {
 	case errors.Is(err, llm.ErrRejected):
 		return apperr.NewInvalid("the provider rejected your API key: enter it again in settings")

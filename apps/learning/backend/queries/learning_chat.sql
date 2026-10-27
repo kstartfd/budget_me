@@ -27,8 +27,20 @@ INSERT INTO learning_chat_messages (chat_id, role, content, created_at)
 VALUES ($1, $2, $3, $4)
 RETURNING *;
 
--- name: TouchLearningChat :exec
-UPDATE learning_chats SET context_tokens = $2, updated_at = $3 WHERE id = $1;
+-- Records a finished turn: the size the next one starts from, and what it cost.
+-- A budget window that has run out starts over with this turn (every SET
+-- expression reads the row as it was, so both CASEs see the same spent_since).
+-- name: RecordLearningChatTurn :exec
+UPDATE learning_chats SET
+    context_tokens = sqlc.arg(context_tokens),
+    updated_at = sqlc.arg(now),
+    spent_tokens = CASE
+        WHEN spent_since IS NULL OR spent_since + make_interval(secs => sqlc.arg(window_secs)::float8) <= sqlc.arg(now)
+        THEN 0 ELSE spent_tokens END + sqlc.arg(spent)::bigint,
+    spent_since = CASE
+        WHEN spent_since IS NULL OR spent_since + make_interval(secs => sqlc.arg(window_secs)::float8) <= sqlc.arg(now)
+        THEN sqlc.arg(now) ELSE spent_since END
+WHERE id = sqlc.arg(id);
 
 -- name: SaveLearningChatSummary :exec
 UPDATE learning_chats SET summary = $2, summary_upto = $3, context_tokens = 0, updated_at = $4 WHERE id = $1;

@@ -350,6 +350,8 @@ type LearningChat struct {
 	BusyUntil     pgtype.Timestamptz
 	CreatedAt     pgtype.Timestamptz
 	UpdatedAt     pgtype.Timestamptz
+	SpentTokens   int64
+	SpentSince    pgtype.Timestamptz
 }
 
 type LearningChatMessage struct {

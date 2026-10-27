@@ -46,12 +46,15 @@ type Querier interface {
 	LockLearningChat(ctx context.Context, arg LockLearningChatParams) (LearningChat, error)
 	// The account is the source of truth for identity; this row keeps a copy.
 	MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error)
+	// Records a finished turn: the size the next one starts from, and what it cost.
+	// A budget window that has run out starts over with this turn (every SET
+	// expression reads the row as it was, so both CASEs see the same spent_since).
+	RecordLearningChatTurn(ctx context.Context, arg RecordLearningChatTurnParams) error
 	ResetLearningChat(ctx context.Context, arg ResetLearningChatParams) error
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
 	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
-	TouchLearningChat(ctx context.Context, arg TouchLearningChatParams) error
 	UnlockLearningChat(ctx context.Context, id pgtype.UUID) error
 	UpdateLearningAIChoice(ctx context.Context, arg UpdateLearningAIChoiceParams) (LearningAiSetting, error)
 	UpdateLearningEntry(ctx context.Context, arg UpdateLearningEntryParams) (LearningEntry, error)

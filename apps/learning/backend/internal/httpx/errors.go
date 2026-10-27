@@ -32,6 +32,12 @@ const (
 	// AgentUnavailableCode: the user's AI provider timed out, is down or is
 	// rate-limiting. Nothing is wrong with the request; trying again may work.
 	AgentUnavailableCode = 50201
+	// TooManyRequestsCode: one caller is asking faster than allowed; the
+	// Retry-After header says when to try again.
+	TooManyRequestsCode = 42901
+	// ChatBudgetCode: a chat has used up its tokens for the current window.
+	// Both are 429, told apart by this code; the details carry when it resets.
+	ChatBudgetCode = 42902
 )
 
 // Predefined errors. New panics on a duplicate code (registry guard).
@@ -44,6 +50,9 @@ var (
 	Conflict      = New(ConflictCode, http.StatusConflict, "conflict")
 
 	AgentUnavailable = New(AgentUnavailableCode, http.StatusBadGateway, "the AI agent is not answering, try again")
+
+	TooManyRequests     = New(TooManyRequestsCode, http.StatusTooManyRequests, "too many requests, slow down")
+	ChatBudgetExhausted = New(ChatBudgetCode, http.StatusTooManyRequests, "this chat has used up its limit for now")
 )
 
 // New registers a predefined error and panics on a duplicate code.

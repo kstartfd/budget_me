@@ -156,6 +156,20 @@ profile in `llm/chat.go`.
   the client disconnects, so the answer is there when the chat is opened again.
 - `DELETE /entries/<uuid>/chat` — forgets the conversation and its summary. **409** while busy.
 
+Limits (both answer **429**, told apart by the business `code`):
+
+- **Rate, `42901`:** per user, a token bucket of 5 questions back to back, then one every 4 seconds,
+  and at most 2 answers being written at once. `Retry-After` says how many seconds to wait.
+  It is kept in the process's memory, so it only ever gets looser by the number of running backends.
+- **Budget, `42902`:** per chat, 120 000 tokens (prompt and reply of every turn, so a long history
+  weighs what it is paid for) within a 24-hour window that opens with the first turn after the
+  previous window ended. The turn that crosses the limit still completes, the next question is
+  refused with `Retry-After` and `details: ["<RFC 3339 time the window ends>"]`. Clearing a chat
+  does **not** give the budget back. `GET` returns `budget: {limit, used, resetsAt}` (null while
+  `available` is false) and `done` carries it with the turn counted. The numbers are the provider
+  profile's (`BudgetTokens`, `BudgetWindow` in `llm/chat.go`); the cost of the cheap summarizing
+  call is not counted.
+
 What the model sees each turn: a system prompt (tutor rules, both languages, the entry's card,
 and the summary once there is one), then the unsummarized messages word for word, then the new
 question. It is built append-only so the provider's prefix cache keeps hitting. When the

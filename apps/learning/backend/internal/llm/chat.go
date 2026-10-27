@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 )
 
 // ErrChatUnsupported means chat is not built for the user's provider yet.
@@ -56,13 +57,24 @@ type ChatProfile struct {
 	// SummaryModel and SummaryLevel pick the cheap call that writes the summary.
 	SummaryModel string
 	SummaryLevel string
+	// BudgetTokens is what one chat may cost (prompt and reply tokens of all
+	// its turns) within BudgetWindow. A long conversation about one phrase
+	// helps no one; after the window it starts afresh.
+	BudgetTokens int
+	BudgetWindow time.Duration
 }
 
 var chatProfiles = map[Provider]ChatProfile{
 	// DeepSeek caches the repeated prefix of a prompt by itself. Folding at
 	// 7k tokens leaves a long stretch of turns that all hit the cache, and the
 	// flash model without thinking writes the summary for almost nothing.
-	DeepSeek: {MaxReply: 1500, CompactAt: 7000, KeepTail: 8, SummaryModel: "deepseek-flash", SummaryLevel: "off"},
+	//
+	// A turn costs roughly 1k tokens early on and a few thousand once the
+	// history has grown, so 120k tokens a day are around 40 questions on one phrase.
+	DeepSeek: {
+		MaxReply: 1500, CompactAt: 7000, KeepTail: 8, SummaryModel: "deepseek-flash", SummaryLevel: "off",
+		BudgetTokens: 120_000, BudgetWindow: 24 * time.Hour,
+	},
 }
 
 // ChatProfileOf reports false for a provider chat is not built for.
