@@ -135,6 +135,35 @@ The key is stored sealed with AES-256-GCM (key derived from `AUTH_SECRET`, bound
 row) and cannot be read back through the API. Rotating `AUTH_SECRET` makes stored keys unreadable:
 captures are then saved as sent, and the user enters the key again.
 
+## Chat about an entry (session only)
+
+One conversation per entry, with the user's own agent. Extension tokens get **401**.
+Only `deepseek` has a chat so far; the other providers answer **400** until they get a
+profile in `llm/chat.go`.
+
+- `GET /entries/<uuid>/chat` — `{"available":true,"messages":[{"id":1,"role":"user","content":"…","createdAt":"…"}]}`.
+  `available` is `false` while no agent is chosen or its provider has no chat; the messages
+  already exchanged stay readable. **404** for a missing or another user's entry.
+- `POST /entries/<uuid>/chat` — body `{"text":"…"}` (1..2000 characters). A refused question is an
+  ordinary error response: **400** (no agent, unsupported provider, bad text, unreadable key),
+  **404**, **409** (the previous answer or a compaction of this chat is still running), **502**
+  (code `50201`, the provider is down, timing out or rate-limiting).
+  Otherwise the response is a `text/event-stream`:
+  `event: delta` `{"text":"…"}` for each piece of the answer, then `event: done`
+  `{"question":{…},"answer":{…}}` with the stored messages, or `event: error`
+  `{"code":…,"message":"…"}` if it fails once started. Nothing is stored unless the answer
+  arrived whole; the question can simply be sent again. The provider call keeps going if
+  the client disconnects, so the answer is there when the chat is opened again.
+- `DELETE /entries/<uuid>/chat` — forgets the conversation and its summary. **409** while busy.
+
+What the model sees each turn: a system prompt (tutor rules, both languages, the entry's card,
+and the summary once there is one), then the unsummarized messages word for word, then the new
+question. It is built append-only so the provider's prefix cache keeps hitting. When the
+provider reports the context past the profile's mark (DeepSeek: 7000 tokens), everything but the
+newest 8 messages is folded into `learning_chats.summary` by the cheap model
+(`deepseek-flash`, thinking off), after the answer has been delivered. The full history stays in
+`learning_chat_messages`. Chat replies use no thinking and at most 1500 tokens.
+
 ## Session-only management
 
 - `POST /topics`, `PUT /topics/<uuid>` — `name`, `language`, `translationLanguage`.

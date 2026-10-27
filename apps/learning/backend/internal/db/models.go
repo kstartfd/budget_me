@@ -145,6 +145,48 @@ func (ns NullLearningCaptureStatus) Value() (driver.Value, error) {
 	return string(ns.LearningCaptureStatus), nil
 }
 
+type LearningChatRole string
+
+const (
+	LearningChatRoleUser      LearningChatRole = "user"
+	LearningChatRoleAssistant LearningChatRole = "assistant"
+)
+
+func (e *LearningChatRole) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningChatRole(s)
+	case string:
+		*e = LearningChatRole(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningChatRole: %T", src)
+	}
+	return nil
+}
+
+type NullLearningChatRole struct {
+	LearningChatRole LearningChatRole
+	Valid            bool // Valid is true if LearningChatRole is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningChatRole) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningChatRole, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningChatRole.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningChatRole) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningChatRole), nil
+}
+
 type LearningEntryKind string
 
 const (
@@ -296,6 +338,26 @@ type LearningCapture struct {
 	Error       string
 	CreatedAt   pgtype.Timestamptz
 	UpdatedAt   pgtype.Timestamptz
+}
+
+type LearningChat struct {
+	ID            pgtype.UUID
+	UserID        pgtype.UUID
+	EntryID       pgtype.UUID
+	Summary       string
+	SummaryUpto   int64
+	ContextTokens int32
+	BusyUntil     pgtype.Timestamptz
+	CreatedAt     pgtype.Timestamptz
+	UpdatedAt     pgtype.Timestamptz
+}
+
+type LearningChatMessage struct {
+	ID        int64
+	ChatID    pgtype.UUID
+	Role      LearningChatRole
+	Content   string
+	CreatedAt pgtype.Timestamptz
 }
 
 type LearningEntry struct {

@@ -158,7 +158,7 @@ var fieldGuide = map[string]string{
 // enrichmentPrompt keeps the saved text out of the instructions: it travels as
 // a JSON value, so a phrase that reads like a command is still just a phrase.
 func enrichmentPrompt(f EntryFields, topic db.LearningTopic, want []string) (string, string) {
-	learned, native := languageName(topic.Language), languageName(topic.TranslationLanguage)
+	learned, native := LanguageName(topic.Language), LanguageName(topic.TranslationLanguage)
 
 	guide := strings.NewReplacer("{learned}", learned, "{native}", native)
 
@@ -204,7 +204,9 @@ func parseEnrichment(text string, want []string) map[string]string {
 	return out
 }
 
-func languageName(tag string) string {
+// LanguageName spells a language tag out in English for a prompt, and falls
+// back to the tag itself when it is not one.
+func LanguageName(tag string) string {
 	parsed, err := language.Parse(tag)
 	if err != nil {
 		return tag

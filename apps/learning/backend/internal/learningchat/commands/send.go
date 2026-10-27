@@ -1,0 +1,319 @@
+package commands
+
+import (
+	"context"
+	"log/slog"
+	"strings"
+	"time"
+	"unicode/utf8"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"learning_app/backend/internal/apperr"
+	"learning_app/backend/internal/clock"
+	"learning_app/backend/internal/db"
+	"learning_app/backend/internal/ids"
+	"learning_app/backend/internal/llm"
+	"learning_app/backend/internal/secretbox"
+)
+
+const (
+	maxQuestionRunes = 2000
+	maxSummaryRunes  = 2000
+	// chatLease outlives chatTimeout plus a compaction, so a chat is only ever
+	// busy for longer than that if the server died holding it.
+	chatLease      = 3 * time.Minute
+	chatTimeout    = 90 * time.Second
+	compactTimeout = 40 * time.Second
+)
+
+// ErrBusy: an answer or a compaction of this chat is still running.
+var ErrBusy = apperr.NewConflict("the previous answer is still being written")
+
+// Agent is the part of llm.Client a chat needs; tests swap in a fake.
+type Agent interface {
+	Chat(ctx context.Context, req llm.ChatRequest, onDelta func(string)) (llm.ChatResult, error)
+	Complete(ctx context.Context, req llm.Request) (string, error)
+}
+
+type Send struct {
+	UserID  uuid.UUID
+	EntryID uuid.UUID
+	Text    string
+}
+
+type Reply struct {
+	Question db.LearningChatMessage
+	Answer   db.LearningChatMessage
+}
+
+// Stream receives the answer while it is written. Delta gets each piece; Done
+// gets the stored messages once they are saved, before the history is folded,
+// so the learner is never kept waiting for housekeeping. Either may be nil.
+type Stream struct {
+	Delta func(string)
+	Done  func(Reply)
+}
+
+type SendHandler struct {
+	pool  *pgxpool.Pool
+	q     *db.Queries
+	clock clock.Clock
+	vault secretbox.Box
+	agent Agent
+}
+
+func NewSendHandler(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent Agent) SendHandler {
+	return SendHandler{pool: pool, q: q, clock: clk, vault: vault, agent: agent}
+}
+
+// chatAgent is what a chat needs from the user's settings: the stored choice
+// and the provider's own way of keeping a chat cheap.
+type chatAgent struct {
+	settings db.LearningAiSetting
+	profile  llm.ChatProfile
+	key      string
+}
+
+// agentFor fails with a message the learner can act on when there is no agent
+// to talk to: none chosen, a provider chat is not built for, or an unreadable key.
+func (h SendHandler) agentFor(ctx context.Context, userID uuid.UUID) (chatAgent, error) {
+	settings, err := h.q.GetLearningAISettings(ctx, ids.ToPg(userID))
+	if db.IsNotFound(err) {
+		return chatAgent{}, apperr.NewInvalid("chat needs an AI agent: set one up in settings")
+	}
+
+	if err != nil {
+		return chatAgent{}, err
+	}
+
+	profile, ok := llm.ChatProfileOf(llm.Provider(settings.Provider))
+	if !ok {
+		return chatAgent{}, apperr.NewInvalid("chat is not available for this AI provider yet")
+	}
+
+	key, err := h.vault.Open(settings.KeyCiphertext, userID[:])
+	if err != nil {
+		slog.Error("learning ai key cannot be decrypted", "user_id", userID, "err", err)
+
+		return chatAgent{}, apperr.NewInvalid("the saved API key cannot be read: enter it again in settings")
+	}
+
+	return chatAgent{settings: settings, profile: profile, key: string(key)}, nil
+}
+
+// Handle answers one question of the chat of an entry. Nothing is stored unless
+// the answer arrived whole, so a failed turn leaves the chat as it was and the
+// learner can send the question again. The provider call is not tied to the
+// request: a learner who leaves mid-answer still finds it there afterwards.
+func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error {
+	question := strings.TrimSpace(cmd.Text)
+	if question == "" || utf8.RuneCountInString(question) > maxQuestionRunes {
+		return apperr.NewInvalid("the message must be 1 to 2000 characters")
+	}
+
+	agent, err := h.agentFor(ctx, cmd.UserID)
+	if err != nil {
+		return err
+	}
+
+	entry, err := h.q.GetLearningEntry(ctx, db.GetLearningEntryParams{ID: ids.ToPg(cmd.EntryID), UserID: ids.ToPg(cmd.UserID)})
+	if db.IsNotFound(err) {
+		return apperr.NewNotFound("entry not found")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	topic, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: entry.TopicID, UserID: entry.UserID})
+	if err != nil {
+		return err
+	}
+
+	now := h.clock.Now()
+
+	chat, err := h.q.EnsureLearningChat(ctx, db.EnsureLearningChatParams{ID: ids.ToPg(ids.New()), UserID: entry.UserID, EntryID: entry.ID, CreatedAt: db.Time(now)})
+	if err != nil {
+		return err
+	}
+
+	chat, err = h.lock(ctx, chat, now)
+	if err != nil {
+		return err
+	}
+
+	// The lease is released even when the learner is gone, so it is not
+	// bound to the request.
+	work := context.WithoutCancel(ctx)
+	defer func() { _ = h.q.UnlockLearningChat(work, chat.ID) }()
+
+	stored, err := h.q.ListLearningChatMessagesAfter(work, db.ListLearningChatMessagesAfterParams{ChatID: chat.ID, ID: chat.SummaryUpto})
+	if err != nil {
+		return err
+	}
+
+	callCtx, cancel := context.WithTimeout(work, chatTimeout)
+	defer cancel()
+
+	result, err := h.agent.Chat(callCtx, llm.ChatRequest{
+		Provider: llm.Provider(agent.settings.Provider),
+		Model:    agent.settings.Model,
+		Key:      agent.key,
+		System:   chatSystem(topic, entry, chat.Summary),
+		Messages: history(stored, question),
+	}, stream.Delta)
+	if err != nil {
+		return err
+	}
+
+	reply, err := h.save(work, chat, question, result)
+	if err != nil {
+		return err
+	}
+
+	slog.Info("learning chat turn", "chat_id", ids.FromPg(chat.ID), "prompt_tokens", result.PromptTokens, "cached_tokens", result.CacheHitTokens, "reply_tokens", result.CompletionTokens)
+
+	if stream.Done != nil {
+		stream.Done(reply)
+	}
+
+	if result.Context() >= agent.profile.CompactAt {
+		h.compact(work, chat, agent)
+	}
+
+	return nil
+}
+
+// lock takes the chat for one turn; nobody else can answer or fold it until
+// the lease ends or is released.
+func (h SendHandler) lock(ctx context.Context, chat db.LearningChat, now time.Time) (db.LearningChat, error) {
+	locked, err := h.q.LockLearningChat(ctx, db.LockLearningChatParams{ID: chat.ID, UserID: chat.UserID, BusyUntil: db.Time(now.Add(chatLease)), Now: db.Time(now)})
+	if db.IsNotFound(err) {
+		return db.LearningChat{}, ErrBusy
+	}
+
+	return locked, err
+}
+
+// save stores the question and its answer together and records how big the
+// conversation has become.
+func (h SendHandler) save(ctx context.Context, chat db.LearningChat, question string, result llm.ChatResult) (Reply, error) {
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		return Reply{}, err
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	q := h.q.WithTx(tx)
+	now := db.Time(h.clock.Now())
+
+	asked, err := q.InsertLearningChatMessage(ctx, db.InsertLearningChatMessageParams{ChatID: chat.ID, Role: db.LearningChatRoleUser, Content: question, CreatedAt: now})
+	if err != nil {
+		return Reply{}, err
+	}
+
+	answered, err := q.InsertLearningChatMessage(ctx, db.InsertLearningChatMessageParams{ChatID: chat.ID, Role: db.LearningChatRoleAssistant, Content: result.Text, CreatedAt: now})
+	if err != nil {
+		return Reply{}, err
+	}
+
+	if err := q.TouchLearningChat(ctx, db.TouchLearningChatParams{ID: chat.ID, ContextTokens: int32(result.Context()), UpdatedAt: now}); err != nil {
+		return Reply{}, err
+	}
+
+	return Reply{Question: asked, Answer: answered}, tx.Commit(ctx)
+}
+
+// compact folds the older messages into the summary with the provider's cheap
+// summarizing call. It is housekeeping: when it fails the chat is merely sent
+// in full again, and the next turn tries once more.
+func (h SendHandler) compact(ctx context.Context, chat db.LearningChat, agent chatAgent) {
+	ctx, cancel := context.WithTimeout(ctx, compactTimeout)
+	defer cancel()
+
+	stored, err := h.q.ListLearningChatMessagesAfter(ctx, db.ListLearningChatMessagesAfterParams{ChatID: chat.ID, ID: chat.SummaryUpto})
+	if err != nil {
+		slog.Warn("learning chat compaction", "chat_id", ids.FromPg(chat.ID), "err", err)
+
+		return
+	}
+
+	fold := foldable(stored, agent.profile.KeepTail)
+	if len(fold) == 0 {
+		return
+	}
+
+	system, prompt := summaryPrompt(chat.Summary, fold)
+
+	text, err := h.agent.Complete(ctx, llm.Request{
+		Provider: llm.Provider(agent.settings.Provider),
+		Model:    agent.profile.SummaryModel,
+		Level:    agent.profile.SummaryLevel,
+		Key:      agent.key,
+		System:   system,
+		Prompt:   prompt,
+	})
+	if err != nil {
+		slog.Warn("learning chat compaction", "chat_id", ids.FromPg(chat.ID), "provider", agent.settings.Provider, "err", err)
+
+		return
+	}
+
+	summary := strings.TrimSpace(text)
+	if summary == "" {
+		return
+	}
+
+	if utf8.RuneCountInString(summary) > maxSummaryRunes {
+		summary = string([]rune(summary)[:maxSummaryRunes])
+	}
+
+	err = h.q.SaveLearningChatSummary(ctx, db.SaveLearningChatSummaryParams{ID: chat.ID, Summary: summary, SummaryUpto: fold[len(fold)-1].ID, UpdatedAt: db.Time(h.clock.Now())})
+	if err != nil {
+		slog.Warn("learning chat compaction", "chat_id", ids.FromPg(chat.ID), "err", err)
+	}
+}
+
+// Clear forgets the whole conversation of an entry: messages and summary.
+// Nothing to forget is not an error.
+func (h SendHandler) Clear(ctx context.Context, userID, entryID uuid.UUID) error {
+	chat, err := h.q.GetLearningChatByEntry(ctx, db.GetLearningChatByEntryParams{EntryID: ids.ToPg(entryID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+
+	now := h.clock.Now()
+
+	chat, err = h.lock(ctx, chat, now)
+	if err != nil {
+		return err
+	}
+
+	defer func() { _ = h.q.UnlockLearningChat(context.WithoutCancel(ctx), chat.ID) }()
+
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	q := h.q.WithTx(tx)
+
+	if err := q.DeleteLearningChatMessages(ctx, chat.ID); err != nil {
+		return err
+	}
+
+	if err := q.ResetLearningChat(ctx, db.ResetLearningChatParams{ID: chat.ID, UpdatedAt: db.Time(now)}); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
+}

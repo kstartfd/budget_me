@@ -15,33 +15,44 @@ type Querier interface {
 	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
 	DeleteLearningAISettings(ctx context.Context, userID pgtype.UUID) (int64, error)
+	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
 	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
 	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
+	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
 	GetLearningAISettings(ctx context.Context, userID pgtype.UUID) (LearningAiSetting, error)
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
+	GetLearningChatByEntry(ctx context.Context, arg GetLearningChatByEntryParams) (LearningChat, error)
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
 	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)
 	GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
+	InsertLearningChatMessage(ctx context.Context, arg InsertLearningChatMessageParams) (LearningChatMessage, error)
 	InsertLearningEntry(ctx context.Context, arg InsertLearningEntryParams) (LearningEntry, error)
 	InsertLearningToken(ctx context.Context, arg InsertLearningTokenParams) (LearningToken, error)
 	InsertLearningTopic(ctx context.Context, arg InsertLearningTopicParams) (LearningTopic, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
+	ListLearningChatMessages(ctx context.Context, chatID pgtype.UUID) ([]LearningChatMessage, error)
+	ListLearningChatMessagesAfter(ctx context.Context, arg ListLearningChatMessagesAfterParams) ([]LearningChatMessage, error)
 	ListLearningEntries(ctx context.Context, arg ListLearningEntriesParams) ([]LearningEntry, error)
 	ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error)
 	ListLearningTopics(ctx context.Context, userID pgtype.UUID) ([]LearningTopic, error)
 	ListUsersWithoutAccount(ctx context.Context) ([]User, error)
 	LockLearningCaptureLease(ctx context.Context, arg LockLearningCaptureLeaseParams) (LearningCapture, error)
+	LockLearningChat(ctx context.Context, arg LockLearningChatParams) (LearningChat, error)
 	// The account is the source of truth for identity; this row keeps a copy.
 	MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error)
+	ResetLearningChat(ctx context.Context, arg ResetLearningChatParams) error
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
+	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
+	TouchLearningChat(ctx context.Context, arg TouchLearningChatParams) error
+	UnlockLearningChat(ctx context.Context, id pgtype.UUID) error
 	UpdateLearningAIChoice(ctx context.Context, arg UpdateLearningAIChoiceParams) (LearningAiSetting, error)
 	UpdateLearningEntry(ctx context.Context, arg UpdateLearningEntryParams) (LearningEntry, error)
 	UpdateLearningTopic(ctx context.Context, arg UpdateLearningTopicParams) (LearningTopic, error)

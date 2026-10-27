@@ -29,6 +29,9 @@ const (
 	UnauthorizedCode  = 20001
 	ForbiddenCode     = 20002
 	ConflictCode      = 40001
+	// AgentUnavailableCode: the user's AI provider timed out, is down or is
+	// rate-limiting. Nothing is wrong with the request; trying again may work.
+	AgentUnavailableCode = 50201
 )
 
 // Predefined errors. New panics on a duplicate code (registry guard).
@@ -39,6 +42,8 @@ var (
 	Unauthorized  = New(UnauthorizedCode, http.StatusUnauthorized, "unauthorized")
 	Forbidden     = New(ForbiddenCode, http.StatusForbidden, "forbidden")
 	Conflict      = New(ConflictCode, http.StatusConflict, "conflict")
+
+	AgentUnavailable = New(AgentUnavailableCode, http.StatusBadGateway, "the AI agent is not answering, try again")
 )
 
 // New registers a predefined error and panics on a duplicate code.
