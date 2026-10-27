@@ -19,7 +19,7 @@ import {
   type ModelSpec,
   type ProviderId,
 } from "../catalog"
-import { useSaveAiSettings } from "../mutations"
+import { useDeleteAiSettings, useSaveAiSettings } from "../mutations"
 import { useAiSettings } from "../queries"
 import {
   makeAiFormSchema,
@@ -72,6 +72,7 @@ export function AiSection() {
 function AiForm({ saved }: { saved: AiSettings | null }) {
   const t = useTranslations("ai")
   const save = useSaveAiSettings()
+  const disconnect = useDeleteAiSettings()
   const [replacing, setReplacing] = useState(false)
 
   const initialProvider = findProvider(saved?.provider ?? "") ?? providers[0]
@@ -324,10 +325,25 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
             t("save")
           )}
         </Button>
-        {save.isError && (
+        {(save.isError || disconnect.isError) && (
           <p role="alert" className="text-destructive mt-3 text-xs">
-            {t("saveFailed")}
+            {(save.isError && save.error.message) || t("saveFailed")}
           </p>
+        )}
+        {saved && (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={disconnect.isPending}
+            onClick={() =>
+              disconnect.mutate(undefined, {
+                onSuccess: () => setReplacing(false),
+              })
+            }
+            className="text-muted-foreground mt-1.5 h-auto w-full rounded-[14px] py-2.5 text-[12.5px] font-semibold"
+          >
+            {disconnect.isPending ? t("disconnecting") : t("disconnect")}
+          </Button>
         )}
       </div>
     </form>

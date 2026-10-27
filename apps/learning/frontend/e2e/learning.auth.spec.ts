@@ -298,7 +298,7 @@ test("extension token delivers a capture and revocation blocks further requests"
   }
 })
 
-test("AI agent settings follow the provider and survive a reload", async ({
+test("AI agent settings follow the provider and talk to the API", async ({
   page,
   context,
   baseURL,
@@ -310,15 +310,56 @@ test("AI agent settings follow the provider and survive a reload", async ({
   await page.addInitScript((token) => {
     localStorage.setItem("learning_app.token.v1", token)
   }, session!.token)
+
+  // The backend checks a saved key with the provider itself, which a made-up
+  // key cannot pass, so this endpoint is played by the test; the session is real.
+  type Body = {
+    provider: string
+    model: string
+    level: string
+    apiKey?: string
+  }
+  let saved: (Body & { keyHint: string }) | null = null
+  const sent: Body[] = []
+  await page.route("**/api/v1/learning/ai/settings", async (route) => {
+    const request = route.request()
+    const reply = (data: unknown) =>
+      route.fulfill({ json: { code: 0, message: "success", data } })
+
+    if (request.method() === "PUT") {
+      const body = request.postDataJSON() as Body
+      sent.push(body)
+      saved = {
+        provider: body.provider,
+        model: body.model,
+        level: body.level,
+        keyHint: body.apiKey?.slice(-4) ?? saved!.keyHint,
+      }
+
+      return reply(saved)
+    }
+
+    if (request.method() === "DELETE") {
+      saved = null
+
+      return reply(null)
+    }
+
+    return reply(saved)
+  })
   await page.goto("/learning/settings")
 
   const provider = (name: RegExp) =>
     page
       .getByRole("radiogroup", { name: "Provider" })
       .getByRole("radio", { name })
+  const agent = (name: string) =>
+    page.getByRole("button", { name, exact: true })
   const levels = (group: string) =>
     page.getByRole("group", { name: group, exact: true }).getByRole("button")
+  const save = page.getByRole("button", { name: "Save", exact: true })
 
+  await expect(agent("Sonnet 5.5")).toHaveAttribute("aria-pressed", "true")
   await expect(levels("Effort")).toHaveText([
     "Low",
     "Medium",
@@ -330,33 +371,50 @@ test("AI agent settings follow the provider and survive a reload", async ({
   await provider(/ChatGPT/).click()
   await expect(levels("Effort").first()).toHaveText("None")
   await provider(/DeepSeek/).click()
-  await expect(levels("Thinking")).toHaveText(["Off", "High", "Max"])
+  await expect(levels("Thinking")).toHaveText(["Off", "Low", "High", "Max"])
   await expect(page.getByRole("group", { name: "Effort" })).toHaveCount(0)
 
-  await page.getByRole("button", { name: "Save", exact: true }).click()
+  await save.click()
   await expect(page.getByText("Enter the API key")).toBeVisible()
 
   await provider(/Claude/).click()
-  await page.getByRole("button", { name: "Sonnet 5.5", exact: true }).click()
+  await agent("Opus 5.5").click()
   await levels("Effort").getByText("Max", { exact: true }).click()
   await page.getByLabel("API key").fill("sk-ant-api03-SECRETSECRETWXYZ")
-  await page.getByRole("button", { name: "Save", exact: true }).click()
+  await save.click()
   await expect(page.getByRole("button", { name: "Saved" })).toBeDisabled()
   await expect(page.getByText("••••WXYZ")).toBeVisible()
+  await expect(page.getByText("Connected")).toBeVisible()
+  expect(sent).toEqual([
+    {
+      provider: "anthropic",
+      model: "claude-opus-5-5",
+      level: "max",
+      apiKey: "sk-ant-api03-SECRETSECRETWXYZ",
+    },
+  ])
 
   await page.reload()
-  await expect(
-    page.getByRole("button", { name: "Sonnet 5.5", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true")
-  await expect(
-    page.getByRole("button", { name: "Max", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true")
+  await expect(agent("Opus 5.5")).toHaveAttribute("aria-pressed", "true")
+  await expect(agent("Max")).toHaveAttribute("aria-pressed", "true")
   await expect(page.getByText("••••WXYZ")).toBeVisible()
-  expect(
-    await page.evaluate(() => localStorage.getItem("learning_app.ai.v1")),
-  ).not.toContain("SECRET")
+
+  await agent("High").click()
+  await save.click()
+  await expect(page.getByRole("button", { name: "Saved" })).toBeDisabled()
+  expect(sent[1]).toEqual({
+    provider: "anthropic",
+    model: "claude-opus-5-5",
+    level: "high",
+  })
 
   await provider(/DeepSeek/).click()
   await expect(page.getByLabel("API key")).toBeVisible()
   await expect(page.getByText("••••WXYZ")).toHaveCount(0)
+  await provider(/Claude/).click()
+
+  await page.getByRole("button", { name: "Disconnect agent" }).click()
+  await expect(page.getByText("Connected")).toHaveCount(0)
+  await expect(page.getByLabel("API key")).toBeVisible()
+  expect(saved).toBeNull()
 })

@@ -177,7 +177,7 @@
   },
   "ai": {
     "kicker": "AI agent",
-    "sectionHint": "The agent translates and explains the words you save. Your key is stored encrypted and is never shown again.",
+    "sectionHint": "The agent writes the translation and explanations for the words you save from the extension. Your key is stored encrypted and is never shown again.",
     "connected": "Connected",
     "loadError": "Couldn't load the agent settings. Reload the page.",
     "provider": "Provider",
@@ -213,6 +213,8 @@
       "keyShort": "That key looks too short",
       "keyLong": "That key is too long",
       "choice": "Pick an agent and a level"
-    }
+    },
+    "disconnect": "Disconnect agent",
+    "disconnecting": "Disconnecting…"
   }
 }

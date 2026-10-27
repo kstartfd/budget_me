@@ -13,7 +13,7 @@ import {
   type TopicInput,
 } from "./schemas"
 
-async function call<T>(
+export async function call<T>(
   path: string,
   method: string,
   parse: (data: unknown) => T,

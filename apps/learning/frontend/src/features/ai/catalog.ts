@@ -24,12 +24,15 @@ export interface ProviderSpec {
 }
 
 const claudeLevels = ["low", "medium", "high", "xhigh", "max"] as const
-const gptLevels = ["none", "low", "medium", "high", "xhigh", "max"] as const
+const gptLevels = ["low", "medium", "high", "xhigh", "max"] as const
+const gptLightLevels = ["none", ...gptLevels] as const
+const deepseekLevels = ["off", "low", "high", "max"] as const
 
 /**
- * The agents a user can pick. Model ids and the levels each accepts are the
- * provider's own (the backend sends them as-is), so a model that gains or
- * loses a level is a change here and nowhere else.
+ * The agents a user can pick; the backend keeps the same list and rejects
+ * anything else (`internal/llm/catalog.go`). The first model of each provider
+ * is what a fresh pick lands on, so it is the mid-tier one: a card for one
+ * saved word does not need the flagship.
  */
 export const providers: readonly ProviderSpec[] = [
   {
@@ -39,18 +42,18 @@ export const providers: readonly ProviderSpec[] = [
     keyPlaceholder: "sk-ant-…",
     models: [
       {
-        id: "claude-opus-5-5",
-        label: "Opus 5.5",
+        id: "claude-sonnet-5-5",
+        label: "Sonnet 5.5",
         kind: "effort",
         levels: claudeLevels,
         defaultLevel: "medium",
       },
       {
-        id: "claude-sonnet-5-5",
-        label: "Sonnet 5.5",
+        id: "claude-opus-5-5",
+        label: "Opus 5.5",
         kind: "effort",
         levels: claudeLevels,
-        defaultLevel: "high",
+        defaultLevel: "medium",
       },
       {
         id: "claude-haiku-5-5",
@@ -64,7 +67,7 @@ export const providers: readonly ProviderSpec[] = [
         label: "Fable 5.1",
         kind: "effort",
         levels: claudeLevels,
-        defaultLevel: "high",
+        defaultLevel: "medium",
       },
     ],
   },
@@ -75,31 +78,31 @@ export const providers: readonly ProviderSpec[] = [
     keyPlaceholder: "sk-…",
     models: [
       {
-        id: "gpt-5.6-terra",
-        label: "GPT-5.6 Terra",
+        id: "gpt-6.1-terra",
+        label: "GPT-6.1 Terra",
+        kind: "effort",
+        levels: gptLightLevels,
+        defaultLevel: "medium",
+      },
+      {
+        id: "gpt-6.1-sol",
+        label: "GPT-6.1 Sol",
         kind: "effort",
         levels: gptLevels,
         defaultLevel: "medium",
       },
       {
-        id: "gpt-5.6-sol",
-        label: "GPT-5.6 Sol",
+        id: "gpt-6-astra",
+        label: "GPT-6 Astra",
         kind: "effort",
         levels: gptLevels,
         defaultLevel: "medium",
       },
       {
-        id: "gpt-5.6-luna",
-        label: "GPT-5.6 Luna",
+        id: "gpt-6-luna",
+        label: "GPT-6 Luna",
         kind: "effort",
-        levels: gptLevels,
-        defaultLevel: "medium",
-      },
-      {
-        id: "gpt-5.5",
-        label: "GPT-5.5",
-        kind: "effort",
-        levels: ["none", "low", "medium", "high", "xhigh"],
+        levels: gptLightLevels,
         defaultLevel: "medium",
       },
     ],
@@ -111,17 +114,17 @@ export const providers: readonly ProviderSpec[] = [
     keyPlaceholder: "sk-…",
     models: [
       {
-        id: "deepseek-v4-pro",
-        label: "V4 Pro",
+        id: "deepseek-flash",
+        label: "V4.1 Flash",
         kind: "thinking",
-        levels: ["off", "high", "max"],
+        levels: deepseekLevels,
         defaultLevel: "high",
       },
       {
-        id: "deepseek-v4-flash",
-        label: "V4 Flash",
+        id: "deepseek-v4-pro",
+        label: "V4 Pro",
         kind: "thinking",
-        levels: ["off", "high", "max"],
+        levels: deepseekLevels,
         defaultLevel: "high",
       },
     ],
