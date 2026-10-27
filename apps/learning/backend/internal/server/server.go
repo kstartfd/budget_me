@@ -17,8 +17,10 @@ import (
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/httpx"
 	"learning_app/backend/internal/learning"
+	"learning_app/backend/internal/learningai"
 	"learning_app/backend/internal/learningtokens"
 	learningtokenqueries "learning_app/backend/internal/learningtokens/queries"
+	"learning_app/backend/internal/llm"
 	"learning_app/backend/internal/secretbox"
 	"learning_app/backend/internal/token"
 )
@@ -62,5 +64,6 @@ func New(cfg config.Config, pool, accountPool *pgxpool.Pool) *echo.Echo {
 	group := e.Group("/api/v1/learning", httpx.RequireLearningAuth(codec, learningAuth.Authenticate), echomw.BodyLimit("64K"))
 	learning.NewController(queries, clk).Routes(group)
 	learningtokens.NewController(queries, clk, vault).Routes(protected)
+	learningai.NewController(queries, clk, vault, llm.New(cfg.LLMURLs)).Routes(protected)
 	return e
 }

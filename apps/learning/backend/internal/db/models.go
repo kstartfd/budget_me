@@ -11,6 +11,96 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type LearningAiLevel string
+
+const (
+	LearningAiLevelNone   LearningAiLevel = "none"
+	LearningAiLevelOff    LearningAiLevel = "off"
+	LearningAiLevelLow    LearningAiLevel = "low"
+	LearningAiLevelMedium LearningAiLevel = "medium"
+	LearningAiLevelHigh   LearningAiLevel = "high"
+	LearningAiLevelXhigh  LearningAiLevel = "xhigh"
+	LearningAiLevelMax    LearningAiLevel = "max"
+)
+
+func (e *LearningAiLevel) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningAiLevel(s)
+	case string:
+		*e = LearningAiLevel(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningAiLevel: %T", src)
+	}
+	return nil
+}
+
+type NullLearningAiLevel struct {
+	LearningAiLevel LearningAiLevel
+	Valid           bool // Valid is true if LearningAiLevel is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningAiLevel) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningAiLevel, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningAiLevel.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningAiLevel) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningAiLevel), nil
+}
+
+type LearningAiProvider string
+
+const (
+	LearningAiProviderAnthropic LearningAiProvider = "anthropic"
+	LearningAiProviderOpenai    LearningAiProvider = "openai"
+	LearningAiProviderDeepseek  LearningAiProvider = "deepseek"
+)
+
+func (e *LearningAiProvider) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningAiProvider(s)
+	case string:
+		*e = LearningAiProvider(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningAiProvider: %T", src)
+	}
+	return nil
+}
+
+type NullLearningAiProvider struct {
+	LearningAiProvider LearningAiProvider
+	Valid              bool // Valid is true if LearningAiProvider is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningAiProvider) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningAiProvider, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningAiProvider.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningAiProvider) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningAiProvider), nil
+}
+
 type LearningCaptureStatus string
 
 const (
@@ -180,6 +270,16 @@ func (ns NullLearningTokenScope) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(ns.LearningTokenScope), nil
+}
+
+type LearningAiSetting struct {
+	UserID        pgtype.UUID
+	Provider      LearningAiProvider
+	Model         string
+	Level         LearningAiLevel
+	KeyCiphertext []byte
+	KeyHint       string
+	UpdatedAt     pgtype.Timestamptz
 }
 
 type LearningCapture struct {

@@ -13,16 +13,23 @@ import (
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
+	"learning_app/backend/internal/secretbox"
 )
+
+// attemptTimeout stays under the one-minute lease a claimed capture holds, and
+// is long enough for a reasoning model to write the card (see enrichTimeout).
+const attemptTimeout = 55 * time.Second
 
 type ProcessHandler struct {
 	pool  *pgxpool.Pool
 	q     *db.Queries
 	clock clock.Clock
+	vault secretbox.Box
+	llm   Completer
 }
 
-func NewProcessHandler(pool *pgxpool.Pool, clk clock.Clock) ProcessHandler {
-	return ProcessHandler{pool: pool, q: db.New(pool), clock: clk}
+func NewProcessHandler(pool *pgxpool.Pool, clk clock.Clock, vault secretbox.Box, completer Completer) ProcessHandler {
+	return ProcessHandler{pool: pool, q: db.New(pool), clock: clk, vault: vault, llm: completer}
 }
 
 func (h ProcessHandler) Handle(ctx context.Context) (bool, error) {
@@ -78,6 +85,11 @@ func (h ProcessHandler) process(ctx context.Context, job db.LearningCapture) err
 		return err
 	}
 
+	fields, err = h.enrich(ctx, job, fields)
+	if err != nil {
+		return err
+	}
+
 	tx, err := h.pool.Begin(ctx)
 	if err != nil {
 		return err
@@ -121,7 +133,7 @@ func (h ProcessHandler) Run(ctx context.Context) {
 		case <-ctx.Done():
 			return
 		case <-timer.C:
-			workCtx, cancel := context.WithTimeout(ctx, 20*time.Second)
+			workCtx, cancel := context.WithTimeout(ctx, attemptTimeout)
 			worked, err := h.Handle(workCtx)
 
 			cancel()

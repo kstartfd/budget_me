@@ -5,6 +5,8 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"learning_app/backend/internal/llm"
 )
 
 // defaultDeletionGrace is the wait between "delete my account" and the data
@@ -22,6 +24,9 @@ type Config struct {
 	AuthSecret           string
 	TelegramBotToken     string
 	TelegramMiniAppURL   string
+	// LLMURLs are the provider API roots. Never read from the environment:
+	// blank means the real providers, and tests point it at fakes.
+	LLMURLs llm.URLs
 }
 
 func Load() (Config, error) {

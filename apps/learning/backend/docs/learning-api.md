@@ -65,8 +65,10 @@ to `inbox`. Optional fields default to empty strings:
 | `status` | `inbox`, `learning`, `known` |
 
 `text` is limited to 1,000 characters; each other text field to 4,000.
-Request bodies are limited to 64 KiB. The extension prepares the translation and
-explanations before queueing the capture; the API persists the supplied fields.
+Request bodies are limited to 64 KiB. The extension may prepare the translation and
+explanations before queueing the capture; the API persists the supplied fields. If the
+user has chosen an AI agent (see below), the queue writes the fields the capture left
+empty, and never overwrites a supplied one.
 
 Generate a new idempotency key for each intentional selection and **reuse it on
 network retries**. Keys are scoped to your account, not to one token.
@@ -107,6 +109,32 @@ case-insensitive `search` across original text, translation, breakdown, rule and
 **Extension tokens always add entries through `/captures`**, so they cannot
 bypass the queue.
 
+## AI agent (session only)
+
+The user picks which agent writes the card fields a capture leaves empty. Extension
+tokens get **401** on these endpoints.
+
+- `GET /ai/settings` — `{"provider":"anthropic","model":"claude-opus-5-5","level":"high","keyHint":"WXYZ"}`,
+  or `null` while nothing is chosen. The key is never returned, only its last four characters.
+- `PUT /ai/settings` — `provider`, `model`, `level`, `apiKey`. Omit `apiKey` (or send `""`) to keep
+  the stored key, which only works while `provider` stays the same: a key belongs to one provider.
+  Responds with the same shape as `GET`. **400** for an unknown provider/model, a level the model
+  does not take, a key outside 8..500 characters, no stored key to keep, or a key the provider
+  rejects (401 from its model list; an outage or a restricted key does not block saving).
+  Responses use `Cache-Control: no-store`.
+- `DELETE /ai/settings` — forgets the agent and deletes the stored key. Safe to repeat.
+
+| `provider` | `model` | `level` |
+| --- | --- | --- |
+| `anthropic` | `claude-opus-5-5`, `claude-sonnet-5-5`, `claude-haiku-5-5`, `claude-fable-5-1` | `low` `medium` `high` `xhigh` `max` (the model's effort) |
+| `openai` | `gpt-6-astra`, `gpt-6.1-sol` | `low` … `max` |
+| `openai` | `gpt-6.1-terra`, `gpt-6-luna` | `none` `low` … `max` |
+| `deepseek` | `deepseek-v4-pro`, `deepseek-flash` | `off` (thinking disabled), `low`, `high`, `max` |
+
+The key is stored sealed with AES-256-GCM (key derived from `AUTH_SECRET`, bound to the user's
+row) and cannot be read back through the API. Rotating `AUTH_SECRET` makes stored keys unreadable:
+captures are then saved as sent, and the user enters the key again.
+
 ## Session-only management
 
 - `POST /topics`, `PUT /topics/<uuid>` — `name`, `language`, `translationLanguage`.
@@ -129,12 +157,20 @@ missing or another user's resource: **404**; invalid payload: **400**.
 Migration `0001_learning.sql` creates a durable Postgres queue. The HTTP server
 runs a consumer automatically; no broker or cron setup is required.
 Consumers claim jobs with `FOR UPDATE SKIP LOCKED`; a one-minute lease
-allows recovery after a crash. Each attempt has a 20-second processing timeout.
+allows recovery after a crash. Each attempt has a 55-second processing timeout, so the
+lease outlives it.
 Entry creation and receipt completion commit in one transaction. The capture ID
 is also the entry ID, so retries cannot create additional entries.
 Temporary failures retry with exponential delays, up to five attempts; permanent
-errors (such as a deleted topic) finish as `failed`. Entries are not automatically
-translated or enriched: optional fields stay empty until supplied or edited.
+errors (such as a deleted topic) finish as `failed`.
+
+Enrichment happens in the same attempt, before the entry is written, and only for users with
+an agent chosen and a capture with empty card fields. One call to the user's provider (40-second
+limit) asks for exactly the missing fields; the prompt carries the saved text as data, never as
+instructions, and the reply is parsed as a JSON object of strings. An agent problem never fails
+a capture: a permanent one (rejected key, refusal, unreadable reply) saves the entry as sent; a
+temporary one (timeout, rate limit, provider outage) is retried on attempts 1 and 2 and saved as
+sent on attempt 3. Entries added from the app form (`POST /entries`) are not enriched.
 
 ## Chrome integration
 

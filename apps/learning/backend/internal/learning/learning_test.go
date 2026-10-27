@@ -16,11 +16,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 
-	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/config"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/learning/commands"
+	"learning_app/backend/internal/secretbox"
 	"learning_app/backend/internal/server"
 	"learning_app/backend/internal/testdb"
 	"learning_app/backend/internal/token"
@@ -67,12 +67,9 @@ func data(t *testing.T, response map[string]any) map[string]any {
 
 func setup(t *testing.T) (*echo.Echo, *db.Queries, uuid.UUID, string, commands.ProcessHandler) {
 	t.Helper()
-	pool, q := testdb.Pool(t)
-	user := testdb.NewUser(t, pool, q, time.Now().UTC(), 1)
-	raw := token.NewCodec(authSecret).Issue(user, time.Now().UTC(), time.Hour)
-	e := server.New(config.Config{AuthSecret: authSecret}, pool, testdb.AccountPool(t))
+	env := setupAI(t)
 
-	return e, q, user, raw, commands.NewProcessHandler(pool, clock.New())
+	return env.e, env.q, env.user, env.session, env.processor
 }
 func topic(t *testing.T, e *echo.Echo, raw string) string {
 	t.Helper()
@@ -315,7 +312,7 @@ func TestCaptureRecoversExpiredLeaseAndFailsDeletedTopic(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	processor := commands.NewProcessHandler(pool, testdb.Clock{At: now.Add(2 * time.Minute)})
+	processor := commands.NewProcessHandler(pool, testdb.Clock{At: now.Add(2 * time.Minute)}, secretbox.New(authSecret), &fakeLLM{})
 
 	worked, err := processor.Handle(context.Background())
 	if err != nil || !worked {

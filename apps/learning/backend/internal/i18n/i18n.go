@@ -69,6 +69,11 @@ var catalogs = map[Locale]map[string]string{
 		"password must be at least 8 characters": "пароль должен быть не короче 8 символов",
 		"first name is required":                 "укажите имя",
 		"init_data is required":                  "требуется init_data",
+		// learning agent
+		"unknown agent or level":              "неизвестный агент или уровень",
+		"API key is required":                 "укажите API-ключ",
+		"API key must be 8 to 500 characters": "API-ключ должен быть от 8 до 500 символов",
+		"the provider rejected this API key":  "провайдер не принял этот API-ключ",
 		// auth
 		"invalid credentials":      "неверный email или пароль",
 		"invalid init data":        "не удалось подтвердить вход через Telegram",

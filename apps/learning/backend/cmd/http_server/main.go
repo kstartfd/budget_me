@@ -18,7 +18,9 @@ import (
 	"learning_app/backend/internal/config"
 	"learning_app/backend/internal/db"
 	learningcommands "learning_app/backend/internal/learning/commands"
+	"learning_app/backend/internal/llm"
 	"learning_app/backend/internal/log"
+	"learning_app/backend/internal/secretbox"
 	"learning_app/backend/internal/server"
 	"learning_app/backend/internal/tgbot"
 )
@@ -52,7 +54,7 @@ func main() {
 	defer accountPool.Close()
 
 	e := server.New(cfg, pool, accountPool)
-	learningWorker := learningcommands.NewProcessHandler(pool, clock.New())
+	learningWorker := learningcommands.NewProcessHandler(pool, clock.New(), secretbox.New(cfg.AuthSecret), llm.New(cfg.LLMURLs))
 
 	workerDone := make(chan struct{})
 	go func() { defer close(workerDone); learningWorker.Run(rootCtx) }()
