@@ -62,6 +62,7 @@ export function useChatTurn(entryId: string) {
             old && {
               ...old,
               messages: [...old.messages, done.question, done.answer],
+              budget: done.budget,
             },
         )
 

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useTranslations } from "next-intl"
+import { useFormatter, useTranslations } from "next-intl"
 import { IconMessageCircle, IconSend2, IconTrash } from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
@@ -50,6 +50,7 @@ export function EntryChat({
   page?: boolean
 }) {
   const t = useTranslations("chat")
+  const format = useFormatter()
   const chat = useChat(entryId)
   const { turn, error, send, sending } = useChatTurn(entryId)
   const clear = useClearChat(entryId)
@@ -60,6 +61,11 @@ export function EntryChat({
 
   const messages = chat.data?.messages ?? []
   const streaming = turn?.answer.length ?? 0
+  const budget = chat.data?.budget
+  const exhausted = !!budget && budget.used >= budget.limit
+  const usedPercent = budget
+    ? Math.round((budget.used / budget.limit) * 100)
+    : 0
 
   useEffect(() => {
     if (open) end.current?.scrollIntoView({ block: "nearest" })
@@ -74,12 +80,22 @@ export function EntryChat({
     if (await send(question)) setText("")
   }
 
+  /** When the chat's window ends, as a time of day; empty if it is not known. */
+  const resetTime = (iso?: string | null) =>
+    iso
+      ? format.dateTime(new Date(iso), { hour: "numeric", minute: "numeric" })
+      : ""
+
   const failure = (e: ChatError) => {
     switch (e.code) {
       case chatErrorCode.unavailable:
         return t("unavailable")
       case chatErrorCode.busy:
         return t("busy")
+      case chatErrorCode.tooMany:
+        return t("tooMany")
+      case chatErrorCode.budget:
+        return t("budgetReached", { time: resetTime(e.details[0]) })
       // The backend words these for the learner (no agent, key rejected, ...).
       case chatErrorCode.invalid:
         return e.message
@@ -136,37 +152,48 @@ export function EntryChat({
               {failure(error)}
             </p>
           )}
-          <div className="flex items-end gap-2">
-            <Textarea
-              value={text}
-              maxLength={maxQuestionLength}
-              rows={1}
-              disabled={sending}
-              placeholder={t("placeholder")}
-              aria-label={t("placeholder")}
-              className="max-h-40 min-h-10 flex-1 resize-none rounded-xl px-3 py-2.5 text-[13px] md:text-[13px]"
-              onChange={(e) => setText(e.target.value)}
-              onKeyDown={(e) => {
-                if (
-                  e.key === "Enter" &&
-                  !e.shiftKey &&
-                  !e.nativeEvent.isComposing
-                ) {
-                  e.preventDefault()
-                  void submit()
-                }
-              }}
-            />
-            <Button
-              size="icon"
-              aria-label={t("send")}
-              disabled={sending || text.trim() === ""}
-              className="size-10 shrink-0 rounded-xl"
-              onClick={() => void submit()}
-            >
-              <IconSend2 size={18} />
-            </Button>
-          </div>
+          {exhausted ? (
+            <p className="text-muted-foreground bg-secondary rounded-xl px-3.5 py-2.5 text-[13px] leading-[1.5]">
+              {t("budgetReached", { time: resetTime(budget?.resetsAt) })}
+            </p>
+          ) : (
+            <div className="flex items-end gap-2">
+              <Textarea
+                value={text}
+                maxLength={maxQuestionLength}
+                rows={1}
+                disabled={sending}
+                placeholder={t("placeholder")}
+                aria-label={t("placeholder")}
+                className="max-h-40 min-h-10 flex-1 resize-none rounded-xl px-3 py-2.5 text-[13px] md:text-[13px]"
+                onChange={(e) => setText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    !e.shiftKey &&
+                    !e.nativeEvent.isComposing
+                  ) {
+                    e.preventDefault()
+                    void submit()
+                  }
+                }}
+              />
+              <Button
+                size="icon"
+                aria-label={t("send")}
+                disabled={sending || text.trim() === ""}
+                className="size-10 shrink-0 rounded-xl"
+                onClick={() => void submit()}
+              >
+                <IconSend2 size={18} />
+              </Button>
+            </div>
+          )}
+          {!exhausted && usedPercent >= 70 && (
+            <p className="text-faint text-xs">
+              {t("budgetLow", { percent: usedPercent })}
+            </p>
+          )}
           {messages.length > 0 &&
             (confirmClear ? (
               <div className="flex items-center gap-2">

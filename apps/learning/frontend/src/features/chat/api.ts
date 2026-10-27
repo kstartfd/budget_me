@@ -13,6 +13,10 @@ import {
 export const chatErrorCode = {
   invalid: 10001,
   busy: 40001,
+  /** Asking faster than allowed: wait a few seconds. */
+  tooMany: 42901,
+  /** The chat used up its tokens; `details[0]` is when its window ends. */
+  budget: 42902,
   unavailable: 50201,
 } as const
 
@@ -21,6 +25,7 @@ export class ChatError extends Error {
   constructor(
     message: string,
     readonly code?: number,
+    readonly details: string[] = [],
   ) {
     super(message)
     this.name = "ChatError"
@@ -78,7 +83,11 @@ export async function streamChat(
 
   if (!res.ok || !res.body) {
     const body = await res.json().catch(() => null)
-    throw new ChatError(body?.message ?? res.statusText, body?.code)
+    throw new ChatError(
+      body?.message ?? res.statusText,
+      body?.code,
+      Array.isArray(body?.details) ? body.details : [],
+    )
   }
 
   const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()

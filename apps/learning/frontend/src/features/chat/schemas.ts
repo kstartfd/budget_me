@@ -12,12 +12,24 @@ export const chatMessageSchema = z.object({
 export type ChatMessage = z.infer<typeof chatMessageSchema>
 
 /**
+ * What one chat may spend with the agent in the current window: tokens used of
+ * the limit. `resetsAt` is when the window ends; null while nothing is spent.
+ */
+export const budgetSchema = z.object({
+  limit: z.number(),
+  used: z.number(),
+  resetsAt: z.string().nullable(),
+})
+export type Budget = z.infer<typeof budgetSchema>
+
+/**
  * `available` is false while no agent is chosen or its provider has no chat;
- * the chat is then not offered at all.
+ * the chat is then not offered at all (and has no budget).
  */
 export const chatSchema = z.object({
   available: z.boolean(),
   messages: chatMessageSchema.array(),
+  budget: budgetSchema.nullable(),
 })
 export type Chat = z.infer<typeof chatSchema>
 
@@ -25,6 +37,7 @@ export type Chat = z.infer<typeof chatSchema>
 export const chatDoneSchema = z.object({
   question: chatMessageSchema,
   answer: chatMessageSchema,
+  budget: budgetSchema,
 })
 export type ChatDone = z.infer<typeof chatDoneSchema>
 

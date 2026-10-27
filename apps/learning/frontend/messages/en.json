@@ -189,7 +189,10 @@
     "clearFailed": "Couldn't clear the chat. Please try again.",
     "failed": "Couldn't get an answer. Please try again.",
     "unavailable": "The AI agent isn't answering right now. Try again in a moment.",
-    "busy": "The previous answer is still being written."
+    "busy": "The previous answer is still being written.",
+    "tooMany": "Too many questions in a row. Wait a few seconds.",
+    "budgetReached": "This chat has reached its limit for now. It resets at {time}. Time to practice the phrase instead.",
+    "budgetLow": "{percent}% of this chat's limit is used."
   },
   "ai": {
     "kicker": "AI agent",
