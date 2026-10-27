@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl"
 import { IconPencil, IconTrash } from "@tabler/icons-react"
 import { BottomBar } from "@/components/bottom-bar"
 import { Button } from "@/components/ui/button"
+import { EntryChat } from "@/features/chat"
 import { cn } from "@/lib/utils"
 import { useLearning } from "../hooks"
 import type { Entry } from "../schemas"
@@ -150,6 +151,7 @@ export function EntryDetail({
             </Button>
           </div>
         )}
+      <EntryChat entryId={entry.id} page={page} />
       {!page && (
         <div className="border-border border-t pt-3.5">
           {confirm ? (

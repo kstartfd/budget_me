@@ -1,0 +1,118 @@
+import { readToken } from "@/features/auth"
+import { call } from "@/features/learning/api"
+
+import {
+  chatDeltaSchema,
+  chatDoneSchema,
+  chatSchema,
+  chatStreamErrorSchema,
+  type ChatDone,
+} from "./schemas"
+
+/** Business codes of the backend that the chat tells apart. */
+export const chatErrorCode = {
+  invalid: 10001,
+  busy: 40001,
+  unavailable: 50201,
+} as const
+
+/** A refused or failed turn; `code` is the backend's business code, when it sent one. */
+export class ChatError extends Error {
+  constructor(
+    message: string,
+    readonly code?: number,
+  ) {
+    super(message)
+    this.name = "ChatError"
+  }
+}
+
+export const fetchChat = (entryId: string) =>
+  call(`/entries/${entryId}/chat`, "GET", (d) => chatSchema.parse(d))
+
+export const clearChat = (entryId: string) =>
+  call(`/entries/${entryId}/chat`, "DELETE", () => undefined)
+
+type StreamEvent = { name: string; data: unknown }
+
+/** One server-sent event: `event: name` and `data: {json}` lines. */
+function parseEvent(block: string): StreamEvent | null {
+  let name = "message"
+  let data = ""
+
+  for (const line of block.split("\n")) {
+    if (line.startsWith("event:")) name = line.slice(6).trim()
+    else if (line.startsWith("data:")) data += line.slice(5).trim()
+  }
+
+  if (!data) return null
+
+  try {
+    return { name, data: JSON.parse(data) }
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Asks one question and calls `onDelta` with each piece of the answer as it
+ * arrives. Resolves with the stored messages once the answer is whole; any
+ * failure rejects with a {@link ChatError}. A stream that breaks midway also
+ * rejects, although the server may still store the answer: callers refetch.
+ */
+export async function streamChat(
+  entryId: string,
+  text: string,
+  onDelta: (piece: string) => void,
+): Promise<ChatDone> {
+  const token = readToken()
+  const res = await fetch(`/api/v1/learning/entries/${entryId}/chat`, {
+    method: "POST",
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+    body: JSON.stringify({ text }),
+  })
+
+  if (!res.ok || !res.body) {
+    const body = await res.json().catch(() => null)
+    throw new ChatError(body?.message ?? res.statusText, body?.code)
+  }
+
+  const reader = res.body.pipeThrough(new TextDecoderStream()).getReader()
+  let buffer = ""
+  let done: ChatDone | null = null
+
+  for (;;) {
+    const { value, done: finished } = await reader.read()
+    if (finished) break
+
+    buffer += value.replace(/\r\n/g, "\n")
+
+    for (
+      let cut = buffer.indexOf("\n\n");
+      cut >= 0;
+      cut = buffer.indexOf("\n\n")
+    ) {
+      const event = parseEvent(buffer.slice(0, cut))
+      buffer = buffer.slice(cut + 2)
+
+      if (!event) continue
+
+      if (event.name === "delta") {
+        onDelta(chatDeltaSchema.parse(event.data).text)
+      } else if (event.name === "done") {
+        done = chatDoneSchema.parse(event.data)
+      } else if (event.name === "error") {
+        const failure = chatStreamErrorSchema.parse(event.data)
+        throw new ChatError(failure.message, failure.code)
+      }
+    }
+  }
+
+  if (!done) throw new ChatError("The answer was interrupted")
+
+  return done
+}

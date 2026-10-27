@@ -175,6 +175,22 @@
     "bannerScheduled": "Account is being deleted on {date}",
     "bannerCancel": "Cancel"
   },
+  "chat": {
+    "open": "Ask the AI agent",
+    "hide": "Hide chat",
+    "count": "{count, plural, one {# message} other {# messages}}",
+    "hint": "Ask anything about this entry: how it's used, how it differs from similar ones, more examples.",
+    "placeholder": "Ask a question…",
+    "send": "Send",
+    "typing": "…",
+    "clear": "Clear chat",
+    "clearConfirm": "Delete this conversation?",
+    "cancel": "Cancel",
+    "clearFailed": "Couldn't clear the chat. Please try again.",
+    "failed": "Couldn't get an answer. Please try again.",
+    "unavailable": "The AI agent isn't answering right now. Try again in a moment.",
+    "busy": "The previous answer is still being written."
+  },
   "ai": {
     "kicker": "AI agent",
     "sectionHint": "The agent writes the translation and explanations for the words you save from the extension. Your key is stored encrypted and is never shown again.",
