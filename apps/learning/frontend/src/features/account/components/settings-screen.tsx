@@ -4,6 +4,8 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { IconArrowLeft } from "@tabler/icons-react"
 
+import { AiSection } from "@/features/ai"
+
 import { AccountSection } from "./account-section"
 import { DeleteAccountSection } from "./delete-account-section"
 
@@ -24,6 +26,7 @@ export function SettingsScreen() {
       </header>
 
       <AccountSection />
+      <AiSection />
       <DeleteAccountSection />
     </div>
   )

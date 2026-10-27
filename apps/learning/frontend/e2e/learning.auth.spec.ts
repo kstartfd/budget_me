@@ -297,3 +297,66 @@ test("extension token delivers a capture and revocation blocks further requests"
     }
   }
 })
+
+test("AI agent settings follow the provider and survive a reload", async ({
+  page,
+  context,
+  baseURL,
+}) => {
+  test.skip(!session, "Set E2E_SESSION_FILE to a seeded test account JSON file")
+  await context.addCookies([
+    { name: "NEXT_LOCALE", value: "en", url: baseURL! },
+  ])
+  await page.addInitScript((token) => {
+    localStorage.setItem("learning_app.token.v1", token)
+  }, session!.token)
+  await page.goto("/learning/settings")
+
+  const provider = (name: RegExp) =>
+    page
+      .getByRole("radiogroup", { name: "Provider" })
+      .getByRole("radio", { name })
+  const levels = (group: string) =>
+    page.getByRole("group", { name: group, exact: true }).getByRole("button")
+
+  await expect(levels("Effort")).toHaveText([
+    "Low",
+    "Medium",
+    "High",
+    "Extra high",
+    "Max",
+  ])
+
+  await provider(/ChatGPT/).click()
+  await expect(levels("Effort").first()).toHaveText("None")
+  await provider(/DeepSeek/).click()
+  await expect(levels("Thinking")).toHaveText(["Off", "High", "Max"])
+  await expect(page.getByRole("group", { name: "Effort" })).toHaveCount(0)
+
+  await page.getByRole("button", { name: "Save", exact: true }).click()
+  await expect(page.getByText("Enter the API key")).toBeVisible()
+
+  await provider(/Claude/).click()
+  await page.getByRole("button", { name: "Sonnet 5.5", exact: true }).click()
+  await levels("Effort").getByText("Max", { exact: true }).click()
+  await page.getByLabel("API key").fill("sk-ant-api03-SECRETSECRETWXYZ")
+  await page.getByRole("button", { name: "Save", exact: true }).click()
+  await expect(page.getByRole("button", { name: "Saved" })).toBeDisabled()
+  await expect(page.getByText("••••WXYZ")).toBeVisible()
+
+  await page.reload()
+  await expect(
+    page.getByRole("button", { name: "Sonnet 5.5", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true")
+  await expect(
+    page.getByRole("button", { name: "Max", exact: true }),
+  ).toHaveAttribute("aria-pressed", "true")
+  await expect(page.getByText("••••WXYZ")).toBeVisible()
+  expect(
+    await page.evaluate(() => localStorage.getItem("learning_app.ai.v1")),
+  ).not.toContain("SECRET")
+
+  await provider(/DeepSeek/).click()
+  await expect(page.getByLabel("API key")).toBeVisible()
+  await expect(page.getByText("••••WXYZ")).toHaveCount(0)
+})
