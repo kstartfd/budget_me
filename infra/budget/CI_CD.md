@@ -2,10 +2,13 @@
 
 This is the **primary** deploy path. A push to `main` tests and builds the Docker
 images of **both** apps on the GitLab runner and pushes them to the GitLab
-Container Registry. Nothing deploys by itself: every `main` pipeline carries four
-manual buttons — **deploy:budget**, **deploy:learning**, **rollback:budget**,
-**rollback:learning** — and the deploy ones SSH into the VPS and roll the release
-out **blue-green** (see §6). Learning lives on the same VPS at
+Container Registry. **deploy:learning runs by itself** after its tests and builds
+are green whenever something of learning changed (`apps/learning`, `libs/account`,
+`infra/learning`, `infra/edge`, `.gitlab-ci.yml`); on any other `main` pipeline it
+stays a manual button. **deploy:budget**, **rollback:budget** and
+**rollback:learning** are manual buttons on every `main` pipeline. The deploy jobs
+SSH into the VPS and roll the release out **blue-green** (see §6); a failed deploy
+puts traffic and schema back by itself and reds the pipeline. Learning lives on the same VPS at
 `learning.<domain>` with its own colours, database and releases log. The VPS never builds
 images. The pipeline is defined in [`.gitlab-ci.yml`](../../.gitlab-ci.yml); the
 manual fallback lives in [`DEPLOY.md`](DEPLOY.md).
@@ -16,7 +19,7 @@ push main ─▶ test + build (budget AND learning)   (Docker-in-Docker on the r
                   └─▶ push to registry.gitlab.com/kstartfd/budget_me
                                     │
                                     ▼
-                  deploy:budget / deploy:learning  (manual buttons)
+                  deploy:budget (manual button) / deploy:learning (automatic when learning changed)
                     ssh deploy@45.133.19.54
                     render ~/budget_me/.env[.learning]  ·  docker login
                     bluegreen.sh <app> deploy:
