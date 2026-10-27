@@ -192,6 +192,7 @@
     "busy": "The previous answer is still being written.",
     "tooMany": "Too many questions in a row. Wait a few seconds.",
     "budgetReached": "This chat has reached its limit for now. It resets at {time}. Time to practice the phrase instead.",
+    "dailyReached": "You've used today's chat limit. It resets at {time}.",
     "budgetLow": "{percent}% of this chat's limit is used."
   },
   "ai": {

@@ -62,7 +62,9 @@ export function EntryChat({
   const messages = chat.data?.messages ?? []
   const streaming = turn?.answer.length ?? 0
   const budget = chat.data?.budget
-  const exhausted = !!budget && budget.used >= budget.limit
+  const daily = chat.data?.daily
+  const dailyExhausted = !!daily && daily.used >= daily.limit
+  const exhausted = (!!budget && budget.used >= budget.limit) || dailyExhausted
   const usedPercent = budget
     ? Math.round((budget.used / budget.limit) * 100)
     : 0
@@ -96,6 +98,8 @@ export function EntryChat({
         return t("tooMany")
       case chatErrorCode.budget:
         return t("budgetReached", { time: resetTime(e.details[0]) })
+      case chatErrorCode.daily:
+        return t("dailyReached", { time: resetTime(e.details[0]) })
       // The backend words these for the learner (no agent, key rejected, ...).
       case chatErrorCode.invalid:
         return e.message
@@ -154,7 +158,9 @@ export function EntryChat({
           )}
           {exhausted ? (
             <p className="text-muted-foreground bg-secondary rounded-xl px-3.5 py-2.5 text-[13px] leading-[1.5]">
-              {t("budgetReached", { time: resetTime(budget?.resetsAt) })}
+              {dailyExhausted
+                ? t("dailyReached", { time: resetTime(daily?.resetsAt) })
+                : t("budgetReached", { time: resetTime(budget?.resetsAt) })}
             </p>
           ) : (
             <div className="flex items-end gap-2">

@@ -17,6 +17,8 @@ export const chatErrorCode = {
   tooMany: 42901,
   /** The chat used up its tokens; `details[0]` is when its window ends. */
   budget: 42902,
+  /** The user's (or their API key's) tokens for today are used up; resets at UTC midnight. */
+  daily: 42903,
   unavailable: 50201,
 } as const
 

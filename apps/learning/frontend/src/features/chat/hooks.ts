@@ -63,6 +63,7 @@ export function useChatTurn(entryId: string) {
               ...old,
               messages: [...old.messages, done.question, done.answer],
               budget: done.budget,
+              daily: done.daily,
             },
         )
 

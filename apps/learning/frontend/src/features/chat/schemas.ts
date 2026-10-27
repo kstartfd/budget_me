@@ -30,6 +30,8 @@ export const chatSchema = z.object({
   available: z.boolean(),
   messages: chatMessageSchema.array(),
   budget: budgetSchema.nullable(),
+  /** The user's spending today across all their chats; same shape as a budget. */
+  daily: budgetSchema.nullable(),
 })
 export type Chat = z.infer<typeof chatSchema>
 
@@ -38,6 +40,7 @@ export const chatDoneSchema = z.object({
   question: chatMessageSchema,
   answer: chatMessageSchema,
   budget: budgetSchema,
+  daily: budgetSchema,
 })
 export type ChatDone = z.infer<typeof chatDoneSchema>
 
