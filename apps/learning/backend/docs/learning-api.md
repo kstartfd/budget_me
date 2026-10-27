@@ -170,6 +170,15 @@ Limits (both answer **429**, told apart by the business `code`):
   profile's (`BudgetTokens`, `BudgetWindow` in `llm/chat.go`); the cost of the cheap summarizing
   call is not counted.
 
+- **Daily, `42903`:** two counters per UTC day in `learning_chat_usage`, both in tokens across all chats.
+  *Per user* (400 000): keyed by the user, so changing the API key or starting new chats buys nothing.
+  *Per API key* (800 000, looser so people sharing one key are not the ones to hit it): keyed by an
+  HMAC fingerprint of the key (never the key), so several accounts on one key share it. Refused with
+  `Retry-After` and `details: ["<next UTC midnight>"]`. `GET` returns `daily` (the user's counter) and
+  `done` carries it. Counters older than a week are swept as turns are recorded. Like the chat's budget
+  these are soft by the turns in flight (at most 2 per user). Rotating `AUTH_SECRET` renames every
+  fingerprint, which resets the key counters.
+
 What the model sees each turn: a system prompt (tutor rules, both languages, the entry's card,
 and the summary once there is one), then the unsummarized messages word for word, then the new
 question. It is built append-only so the provider's prefix cache keeps hitting. When the

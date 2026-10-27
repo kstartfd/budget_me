@@ -30,6 +30,9 @@ type Chat struct {
 	Messages  []db.LearningChatMessage
 	// Budget is what the chat may still spend; nil while it is not available.
 	Budget *commands.Budget
+	// Daily is what the user may still spend today across all chats; nil while
+	// the chat is not available.
+	Daily *commands.Usage
 }
 
 // Get returns the conversation of an entry, empty until the first question.
@@ -65,6 +68,14 @@ func (h ChatHandler) Get(ctx context.Context, userID, entryID uuid.UUID) (Chat, 
 		// A chat not started yet has the whole budget; its zero row says so.
 		budget := commands.BudgetOf(chat, profile, h.clock.Now())
 		out.Budget = &budget
+
+		// Only the user's own count is shown: the key's would need the key opened.
+		daily, err := commands.LoadDaily(ctx, h.q, userID, "", profile, h.clock.Now())
+		if err != nil {
+			return Chat{}, err
+		}
+
+		out.Daily = &daily.User
 	}
 
 	if db.IsNotFound(err) {

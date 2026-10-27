@@ -38,6 +38,9 @@ const (
 	// ChatBudgetCode: a chat has used up its tokens for the current window.
 	// Both are 429, told apart by this code; the details carry when it resets.
 	ChatBudgetCode = 42902
+	// ChatDailyCode: the user, or the API key they use, has spent the day's
+	// chat tokens; the details carry when the day ends (UTC midnight).
+	ChatDailyCode = 42903
 )
 
 // Predefined errors. New panics on a duplicate code (registry guard).
@@ -53,6 +56,7 @@ var (
 
 	TooManyRequests     = New(TooManyRequestsCode, http.StatusTooManyRequests, "too many requests, slow down")
 	ChatBudgetExhausted = New(ChatBudgetCode, http.StatusTooManyRequests, "this chat has used up its limit for now")
+	ChatDailyExhausted  = New(ChatDailyCode, http.StatusTooManyRequests, "the daily chat limit is used up")
 )
 
 // New registers a predefined error and panics on a duplicate code.

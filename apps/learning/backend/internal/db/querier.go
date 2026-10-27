@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	AddLearningChatUsage(ctx context.Context, arg AddLearningChatUsageParams) error
 	AuthenticateLearningToken(ctx context.Context, arg AuthenticateLearningTokenParams) (LearningToken, error)
 	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
@@ -18,6 +19,7 @@ type Querier interface {
 	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
 	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
 	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
+	DeleteOldLearningChatUsage(ctx context.Context, day pgtype.Date) error
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
@@ -38,6 +40,7 @@ type Querier interface {
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
 	ListLearningChatMessages(ctx context.Context, chatID pgtype.UUID) ([]LearningChatMessage, error)
 	ListLearningChatMessagesAfter(ctx context.Context, arg ListLearningChatMessagesAfterParams) ([]LearningChatMessage, error)
+	ListLearningChatUsage(ctx context.Context, arg ListLearningChatUsageParams) ([]ListLearningChatUsageRow, error)
 	ListLearningEntries(ctx context.Context, arg ListLearningEntriesParams) ([]LearningEntry, error)
 	ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error)
 	ListLearningTopics(ctx context.Context, userID pgtype.UUID) ([]LearningTopic, error)

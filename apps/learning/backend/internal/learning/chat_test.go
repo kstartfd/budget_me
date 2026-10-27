@@ -21,6 +21,7 @@ import (
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/llm"
 	"learning_app/backend/internal/ratelimit"
+	"learning_app/backend/internal/secretbox"
 	"learning_app/backend/internal/server"
 	"learning_app/backend/internal/testdb"
 	"learning_app/backend/internal/token"
@@ -112,11 +113,28 @@ func setupChatRate(t *testing.T, rate ratelimit.Config) chatEnv {
 
 func (c chatEnv) path() string { return "/api/v1/learning/entries/" + c.entry + "/chat" }
 
-func (c chatEnv) useDeepSeek(t *testing.T) {
+const defaultKey = "sk-deepseek-1234"
+
+func (c chatEnv) useDeepSeek(t *testing.T) { c.useKey(t, defaultKey) }
+
+// useKey chooses DeepSeek with the given API key.
+func (c chatEnv) useKey(t *testing.T, key string) {
 	t.Helper()
 
-	if code, body := request(t, c.e, "PUT", settingsPath, c.session, choice("deepseek", "deepseek-v4-pro", "high", "sk-deepseek-1234"), ""); code != 200 {
+	if code, body := request(t, c.e, "PUT", settingsPath, c.session, choice("deepseek", "deepseek-v4-pro", "high", key), ""); code != 200 {
 		t.Fatalf("settings: %d %v", code, body)
+	}
+}
+
+// setUsage writes a day's counter as if that many tokens had been spent.
+func (c chatEnv) setUsage(t *testing.T, scope, subject string, daysAgo int, tokens int64) {
+	t.Helper()
+
+	_, err := c.pool.Exec(context.Background(), `INSERT INTO learning_chat_usage (scope, subject, day, tokens, turns)
+		VALUES ($1, $2, (now() AT TIME ZONE 'utc')::date - $3::int, $4, 1)
+		ON CONFLICT (scope, subject, day) DO UPDATE SET tokens = EXCLUDED.tokens`, scope, subject, daysAgo, tokens)
+	if err != nil {
+		t.Fatal(err)
 	}
 }
 
@@ -503,5 +521,97 @@ func TestChatRateLimitIsPerUserAnd429(t *testing.T) {
 
 	if code, _ := request(t, other.e, "GET", other.path(), other.session, nil, ""); code != http.StatusNotFound {
 		t.Fatalf("reading is not limited, and the entry is not theirs: %d", code)
+	}
+}
+
+func TestChatDailyLimitBelongsToTheUserNotTheKey(t *testing.T) {
+	env := setupChat(t)
+	env.useDeepSeek(t)
+
+	env.setUsage(t, "user", env.user.String(), 0, 400000)
+
+	rec := env.post(t, "question")
+	if rec.Code != http.StatusTooManyRequests || rec.Header().Get("Retry-After") == "" {
+		t.Fatalf("over the daily limit: %d retry-after %q", rec.Code, rec.Header().Get("Retry-After"))
+	}
+
+	var refused map[string]any
+	_ = json.Unmarshal(rec.Body.Bytes(), &refused)
+
+	if refused["code"] != float64(42903) || len(refused["details"].([]any)) != 1 || len(env.provider.turns) != 0 {
+		t.Fatalf("refusal %v after %d provider calls", refused, len(env.provider.turns))
+	}
+
+	code, body := request(t, env.e, "GET", env.path(), env.session, nil, "")
+	daily := data(t, body)["daily"].(map[string]any)
+
+	if code != 200 || daily["used"] != float64(400000) || daily["limit"] != float64(400000) {
+		t.Fatalf("daily in the chat: %d %v", code, daily)
+	}
+
+	// A different API key is the same user: nothing is gained.
+	env.useKey(t, "sk-deepseek-another-key")
+
+	if code, _ := env.ask(t, "question"); code != http.StatusTooManyRequests {
+		t.Fatalf("a new key must not lift the user's limit: %d", code)
+	}
+}
+
+func TestChatDailyCountersStartOverEachDayAndAreSwept(t *testing.T) {
+	env := setupChat(t)
+	env.useDeepSeek(t)
+
+	// Yesterday's spending does not count today, and a week-old row is swept
+	// by the next turn.
+	env.setUsage(t, "user", env.user.String(), 1, 999999)
+	env.setUsage(t, "user", env.user.String(), 10, 1)
+
+	code, events := env.ask(t, "question")
+	if code != http.StatusOK {
+		t.Fatalf("a new day: %d %v", code, events)
+	}
+
+	if daily := events[len(events)-1].data["daily"].(map[string]any); daily["used"] != float64(305) {
+		t.Fatalf("today counts from zero: %v", daily)
+	}
+
+	var old int
+	err := env.pool.QueryRow(context.Background(), "SELECT count(*) FROM learning_chat_usage WHERE subject = $1 AND day < (now() AT TIME ZONE 'utc')::date - 7", env.user.String()).Scan(&old)
+	if err != nil || old != 0 {
+		t.Fatalf("rows older than a week must be swept: %d %v", old, err)
+	}
+}
+
+func TestChatDailyLimitOfAKeyIsSharedByEveryAccountUsingIt(t *testing.T) {
+	first, second := setupChat(t), setupChat(t)
+	first.useDeepSeek(t)
+	second.useDeepSeek(t)
+
+	// The key has been used up by others today.
+	fingerprint := secretbox.New(authSecret).Fingerprint([]byte(defaultKey))
+	first.setUsage(t, "key", fingerprint, 0, 800000)
+
+	for name, env := range map[string]chatEnv{"first": first, "second": second} {
+		if code, _ := env.ask(t, "question"); code != http.StatusTooManyRequests {
+			t.Errorf("%s account on the used-up key: %d", name, code)
+		}
+	}
+
+	// The second account brings its own key and is free to go on; the first is not.
+	second.useKey(t, "sk-deepseek-second-own-key")
+
+	if code, _ := second.ask(t, "question"); code != http.StatusOK {
+		t.Fatalf("an account with its own key: %d", code)
+	}
+
+	if code, _ := first.ask(t, "question"); code != http.StatusTooManyRequests {
+		t.Fatalf("the first account is still on the used-up key: %d", code)
+	}
+
+	// What is stored is the fingerprint, never the key.
+	var leaked int
+	err := first.pool.QueryRow(context.Background(), "SELECT count(*) FROM learning_chat_usage WHERE subject LIKE '%sk-deepseek%'").Scan(&leaked)
+	if err != nil || leaked != 0 {
+		t.Fatalf("an API key reached the usage table: %d %v", leaked, err)
 	}
 }

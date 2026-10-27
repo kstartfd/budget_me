@@ -11,12 +11,46 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addLearningChatUsage = `-- name: AddLearningChatUsage :exec
+INSERT INTO learning_chat_usage (scope, subject, day, tokens, turns)
+VALUES ($1, $2, $3, $4, 1)
+ON CONFLICT (scope, subject, day) DO UPDATE SET
+    tokens = learning_chat_usage.tokens + EXCLUDED.tokens,
+    turns = learning_chat_usage.turns + 1
+`
+
+type AddLearningChatUsageParams struct {
+	Scope   string
+	Subject string
+	Day     pgtype.Date
+	Tokens  int64
+}
+
+func (q *Queries) AddLearningChatUsage(ctx context.Context, arg AddLearningChatUsageParams) error {
+	_, err := q.db.Exec(ctx, addLearningChatUsage,
+		arg.Scope,
+		arg.Subject,
+		arg.Day,
+		arg.Tokens,
+	)
+	return err
+}
+
 const deleteLearningChatMessages = `-- name: DeleteLearningChatMessages :exec
 DELETE FROM learning_chat_messages WHERE chat_id = $1
 `
 
 func (q *Queries) DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteLearningChatMessages, chatID)
+	return err
+}
+
+const deleteOldLearningChatUsage = `-- name: DeleteOldLearningChatUsage :exec
+DELETE FROM learning_chat_usage WHERE day < $1
+`
+
+func (q *Queries) DeleteOldLearningChatUsage(ctx context.Context, day pgtype.Date) error {
+	_, err := q.db.Exec(ctx, deleteOldLearningChatUsage, day)
 	return err
 }
 
@@ -172,6 +206,43 @@ func (q *Queries) ListLearningChatMessagesAfter(ctx context.Context, arg ListLea
 			&i.Content,
 			&i.CreatedAt,
 		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLearningChatUsage = `-- name: ListLearningChatUsage :many
+SELECT scope, tokens FROM learning_chat_usage
+WHERE day = $1
+  AND ((scope = 'user' AND subject = $2) OR (scope = 'key' AND subject = $3))
+`
+
+type ListLearningChatUsageParams struct {
+	Day         pgtype.Date
+	UserSubject string
+	KeySubject  string
+}
+
+type ListLearningChatUsageRow struct {
+	Scope  string
+	Tokens int64
+}
+
+func (q *Queries) ListLearningChatUsage(ctx context.Context, arg ListLearningChatUsageParams) ([]ListLearningChatUsageRow, error) {
+	rows, err := q.db.Query(ctx, listLearningChatUsage, arg.Day, arg.UserSubject, arg.KeySubject)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListLearningChatUsageRow{}
+	for rows.Next() {
+		var i ListLearningChatUsageRow
+		if err := rows.Scan(&i.Scope, &i.Tokens); err != nil {
 			return nil, err
 		}
 		items = append(items, i)

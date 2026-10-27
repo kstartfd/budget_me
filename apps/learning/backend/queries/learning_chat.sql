@@ -50,3 +50,18 @@ DELETE FROM learning_chat_messages WHERE chat_id = $1;
 
 -- name: ResetLearningChat :exec
 UPDATE learning_chats SET summary = '', summary_upto = 0, context_tokens = 0, updated_at = $2 WHERE id = $1;
+
+-- name: ListLearningChatUsage :many
+SELECT scope, tokens FROM learning_chat_usage
+WHERE day = sqlc.arg(day)
+  AND ((scope = 'user' AND subject = sqlc.arg(user_subject)) OR (scope = 'key' AND subject = sqlc.arg(key_subject)));
+
+-- name: AddLearningChatUsage :exec
+INSERT INTO learning_chat_usage (scope, subject, day, tokens, turns)
+VALUES ($1, $2, $3, $4, 1)
+ON CONFLICT (scope, subject, day) DO UPDATE SET
+    tokens = learning_chat_usage.tokens + EXCLUDED.tokens,
+    turns = learning_chat_usage.turns + 1;
+
+-- name: DeleteOldLearningChatUsage :exec
+DELETE FROM learning_chat_usage WHERE day < $1;

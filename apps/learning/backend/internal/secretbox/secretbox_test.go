@@ -83,3 +83,21 @@ func TestOpenRejectsForeignInput(t *testing.T) {
 		})
 	}
 }
+
+func TestFingerprintNamesASecretWithoutRevealingIt(t *testing.T) {
+	box := secretbox.New("a-long-enough-test-secret")
+	key := []byte("sk-deepseek-1234567890")
+
+	fp := box.Fingerprint(key)
+	if fp != box.Fingerprint(key) || len(fp) != 32 {
+		t.Fatalf("the same secret must always have the same 32-character name: %q", fp)
+	}
+
+	if bytes.Contains([]byte(fp), key) || fp == box.Fingerprint([]byte("sk-deepseek-1234567891")) {
+		t.Fatalf("a fingerprint must differ per secret and not contain it: %q", fp)
+	}
+
+	if fp == secretbox.New("another-long-enough-secret").Fingerprint(key) {
+		t.Fatal("a fingerprint must depend on the app secret, or it could be computed from a guessed key")
+	}
+}

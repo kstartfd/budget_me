@@ -139,18 +139,29 @@ func retryAfter(ctx echo.Context, wait time.Duration) {
 	ctx.Response().Header().Set("Retry-After", strconv.Itoa(max(1, int(math.Ceil(wait.Seconds())))))
 }
 
+// limitReached is a 429 that says when the limit lifts, in Retry-After and in
+// the details.
+func limitReached(ctx echo.Context, base *httpx.Error, resetsAt time.Time) *httpx.Error {
+	retryAfter(ctx, time.Until(resetsAt))
+
+	// A copy, since the details belong to this one answer.
+	refused := *base
+	refused.Details = []string{resetsAt.UTC().Format(time.RFC3339)}
+
+	return &refused
+}
+
 // agentError sorts a provider failure, or a chat out of tokens, into the errors
 // the API speaks in.
 func agentError(ctx echo.Context, err error) error {
 	var spent *commands.BudgetError
 	if errors.As(err, &spent) {
-		retryAfter(ctx, time.Until(spent.ResetsAt))
+		return limitReached(ctx, httpx.ChatBudgetExhausted, spent.ResetsAt)
+	}
 
-		// A copy, since the details belong to this one answer.
-		refused := *httpx.ChatBudgetExhausted
-		refused.Details = []string{spent.ResetsAt.UTC().Format(time.RFC3339)}
-
-		return &refused
+	var day *commands.DailyError
+	if errors.As(err, &day) {
+		return limitReached(ctx, httpx.ChatDailyExhausted, day.ResetsAt)
 	}
 
 	switch {

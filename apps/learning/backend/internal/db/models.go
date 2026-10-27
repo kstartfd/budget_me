@@ -362,6 +362,14 @@ type LearningChatMessage struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type LearningChatUsage struct {
+	Scope   string
+	Subject string
+	Day     pgtype.Date
+	Tokens  int64
+	Turns   int32
+}
+
 type LearningEntry struct {
 	ID            pgtype.UUID
 	UserID        pgtype.UUID

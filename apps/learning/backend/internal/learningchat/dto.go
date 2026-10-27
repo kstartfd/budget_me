@@ -31,6 +31,8 @@ type chatResponse struct {
 	Available bool              `json:"available"`
 	Messages  []messageResponse `json:"messages"`
 	Budget    *budgetResponse   `json:"budget"`
+	// Daily is what the user may still spend today across all their chats.
+	Daily *budgetResponse `json:"daily"`
 }
 
 // doneEvent closes a stream: the stored question and answer, with the ids and
@@ -39,6 +41,13 @@ type doneEvent struct {
 	Question messageResponse `json:"question"`
 	Answer   messageResponse `json:"answer"`
 	Budget   budgetResponse  `json:"budget"`
+	Daily    budgetResponse  `json:"daily"`
+}
+
+func dailyDTO(u commands.Usage) budgetResponse {
+	resets := u.ResetsAt.UTC().Format(time.RFC3339)
+
+	return budgetResponse{Limit: u.Limit, Used: u.Used, ResetsAt: &resets}
 }
 
 type deltaEvent struct {
@@ -76,9 +85,14 @@ func chatDTO(chat queries.Chat) chatResponse {
 		out.Budget = &budget
 	}
 
+	if chat.Daily != nil {
+		daily := dailyDTO(*chat.Daily)
+		out.Daily = &daily
+	}
+
 	return out
 }
 
 func doneDTO(reply commands.Reply) doneEvent {
-	return doneEvent{Question: messageDTO(reply.Question), Answer: messageDTO(reply.Answer), Budget: budgetDTO(reply.Budget)}
+	return doneEvent{Question: messageDTO(reply.Question), Answer: messageDTO(reply.Answer), Budget: budgetDTO(reply.Budget), Daily: dailyDTO(reply.Daily)}
 }

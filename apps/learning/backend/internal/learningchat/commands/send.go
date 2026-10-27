@@ -48,6 +48,8 @@ type Reply struct {
 	Answer   db.LearningChatMessage
 	// Budget is what the chat may still spend, with this turn counted.
 	Budget Budget
+	// Daily is what the user may still spend today across all chats.
+	Daily Usage
 }
 
 // Stream receives the answer while it is written. Delta gets each piece; Done
@@ -76,6 +78,9 @@ type chatAgent struct {
 	settings db.LearningAiSetting
 	profile  llm.ChatProfile
 	key      string
+	// fingerprint names the key without revealing it: the daily limit of a key
+	// is counted across every account that uses it.
+	fingerprint string
 }
 
 // agentFor fails with a message the learner can act on when there is no agent
@@ -102,7 +107,7 @@ func (h SendHandler) agentFor(ctx context.Context, userID uuid.UUID) (chatAgent,
 		return chatAgent{}, apperr.NewInvalid("the saved API key cannot be read: enter it again in settings")
 	}
 
-	return chatAgent{settings: settings, profile: profile, key: string(key)}, nil
+	return chatAgent{settings: settings, profile: profile, key: string(key), fingerprint: h.vault.Fingerprint(key)}, nil
 }
 
 // Handle answers one question of the chat of an entry. Nothing is stored unless
@@ -159,6 +164,18 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		return &BudgetError{ResetsAt: *budget.ResetsAt}
 	}
 
+	// The day's limits come after the chat's, so a refusal names the nearest end.
+	daily, err := LoadDaily(work, h.q, cmd.UserID, agent.fingerprint, agent.profile, now)
+	if err != nil {
+		return err
+	}
+
+	if daily.User.Exhausted() || daily.Key.Exhausted() {
+		slog.Info("learning chat daily limit", "user_id", cmd.UserID, "user_used", daily.User.Used, "key_used", daily.Key.Used)
+
+		return &DailyError{ResetsAt: daily.User.ResetsAt}
+	}
+
 	stored, err := h.q.ListLearningChatMessagesAfter(work, db.ListLearningChatMessagesAfterParams{ChatID: chat.ID, ID: chat.SummaryUpto})
 	if err != nil {
 		return err
@@ -178,7 +195,15 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		return err
 	}
 
-	reply, err := h.save(work, chat, question, result, budget.After(result.Context(), now, agent.profile.BudgetWindow), agent.profile.BudgetWindow)
+	reply, err := h.save(work, chat, turn{
+		question:    question,
+		result:      result,
+		window:      agent.profile.BudgetWindow,
+		after:       budget.After(result.Context(), now, agent.profile.BudgetWindow),
+		daily:       daily.User.After(result.Context()),
+		user:        cmd.UserID,
+		fingerprint: agent.fingerprint,
+	})
 	if err != nil {
 		return err
 	}
@@ -207,10 +232,24 @@ func (h SendHandler) lock(ctx context.Context, chat db.LearningChat, now time.Ti
 	return locked, err
 }
 
+// turn is one finished exchange on its way into the database: what was asked
+// and answered, what it cost, and the limits as they stand with it counted
+// (for the reply to carry).
+type turn struct {
+	question    string
+	result      llm.ChatResult
+	window      time.Duration
+	after       Budget
+	daily       Usage
+	user        uuid.UUID
+	fingerprint string
+}
+
 // save stores the question and its answer together, and records how big the
-// conversation has become and what the turn cost. `after` is the budget with
-// this turn counted, for the reply to carry.
-func (h SendHandler) save(ctx context.Context, chat db.LearningChat, question string, result llm.ChatResult, after Budget, window time.Duration) (Reply, error) {
+// conversation has become and what the turn cost the chat, the user and the key.
+func (h SendHandler) save(ctx context.Context, chat db.LearningChat, t turn) (Reply, error) {
+	question, result, window, after := t.question, t.result, t.window, t.after
+
 	tx, err := h.pool.Begin(ctx)
 	if err != nil {
 		return Reply{}, err
@@ -219,7 +258,8 @@ func (h SendHandler) save(ctx context.Context, chat db.LearningChat, question st
 	defer func() { _ = tx.Rollback(ctx) }()
 
 	q := h.q.WithTx(tx)
-	now := db.Time(h.clock.Now())
+	at := h.clock.Now()
+	now := db.Time(at)
 
 	asked, err := q.InsertLearningChatMessage(ctx, db.InsertLearningChatMessageParams{ChatID: chat.ID, Role: db.LearningChatRoleUser, Content: question, CreatedAt: now})
 	if err != nil {
@@ -242,7 +282,11 @@ func (h SendHandler) save(ctx context.Context, chat db.LearningChat, question st
 		return Reply{}, err
 	}
 
-	return Reply{Question: asked, Answer: answered, Budget: after}, tx.Commit(ctx)
+	if err := recordUsage(ctx, q, t.user, t.fingerprint, result.Context(), at); err != nil {
+		return Reply{}, err
+	}
+
+	return Reply{Question: asked, Answer: answered, Budget: after, Daily: t.daily}, tx.Commit(ctx)
 }
 
 // compact folds the older messages into the summary with the provider's cheap

@@ -62,6 +62,13 @@ type ChatProfile struct {
 	// helps no one; after the window it starts afresh.
 	BudgetTokens int
 	BudgetWindow time.Duration
+	// UserDayTokens caps what one user's chats cost together per UTC day, and
+	// KeyDayTokens what one API key costs across every account that uses it.
+	// The user's is keyed by the user, never by the key, so changing keys buys
+	// nothing; the key's is the looser of the two so people sharing a key are
+	// not the ones to hit it.
+	UserDayTokens int
+	KeyDayTokens  int
 }
 
 var chatProfiles = map[Provider]ChatProfile{
@@ -74,6 +81,7 @@ var chatProfiles = map[Provider]ChatProfile{
 	DeepSeek: {
 		MaxReply: 1500, CompactAt: 7000, KeepTail: 8, SummaryModel: "deepseek-flash", SummaryLevel: "off",
 		BudgetTokens: 120_000, BudgetWindow: 24 * time.Hour,
+		UserDayTokens: 400_000, KeyDayTokens: 800_000,
 	},
 }
 

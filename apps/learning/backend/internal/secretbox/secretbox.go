@@ -8,22 +8,33 @@ import (
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/hkdf"
+	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 )
 
-const keyInfo = "learning_app secretbox v1"
+const (
+	keyInfo         = "learning_app secretbox v1"
+	fingerprintInfo = "learning_app fingerprint v1"
+)
 
 var ErrOpen = errors.New("secretbox: cannot open")
 
 type Box struct {
 	aead cipher.AEAD
+	mac  []byte
 }
 
 // New cannot fail for a 32-byte key, so the errors below are programming bugs.
 func New(secret string) Box {
 	key, err := hkdf.Key(sha256.New, []byte(secret), nil, keyInfo, 32)
+	if err != nil {
+		panic(err)
+	}
+
+	mac, err := hkdf.Key(sha256.New, []byte(secret), nil, fingerprintInfo, 32)
 	if err != nil {
 		panic(err)
 	}
@@ -38,7 +49,19 @@ func New(secret string) Box {
 		panic(err)
 	}
 
-	return Box{aead: aead}
+	return Box{aead: aead, mac: mac}
+}
+
+// Fingerprint names a secret without revealing it: the same secret always gives
+// the same name, and the name tells nothing about the secret. It lets the app
+// recognise one API key used by several accounts without keeping the key (the
+// stored copy is sealed per account, so two copies never compare equal).
+// Changing the app secret renames every fingerprint.
+func (b Box) Fingerprint(secret []byte) string {
+	h := hmac.New(sha256.New, b.mac)
+	h.Write(secret)
+
+	return hex.EncodeToString(h.Sum(nil)[:16])
 }
 
 func (b Box) Seal(plaintext, aad []byte) ([]byte, error) {
