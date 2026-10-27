@@ -113,16 +113,18 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		return apperr.NewInvalid("the message must be 1 to 2000 characters")
 	}
 
-	agent, err := h.agentFor(ctx, cmd.UserID)
-	if err != nil {
-		return err
-	}
-
+	// The entry comes first: whose it is must not depend on what the caller
+	// has set up.
 	entry, err := h.q.GetLearningEntry(ctx, db.GetLearningEntryParams{ID: ids.ToPg(cmd.EntryID), UserID: ids.ToPg(cmd.UserID)})
 	if db.IsNotFound(err) {
 		return apperr.NewNotFound("entry not found")
 	}
 
+	if err != nil {
+		return err
+	}
+
+	agent, err := h.agentFor(ctx, cmd.UserID)
 	if err != nil {
 		return err
 	}
