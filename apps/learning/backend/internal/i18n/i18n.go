@@ -74,6 +74,14 @@ var catalogs = map[Locale]map[string]string{
 		"API key is required":                 "укажите API-ключ",
 		"API key must be 8 to 500 characters": "API-ключ должен быть от 8 до 500 символов",
 		"the provider rejected this API key":  "провайдер не принял этот API-ключ",
+		// learning agent completion
+		"prompt is required": "укажите запрос",
+		"prompt is too long": "запрос слишком длинный",
+		"no AI agent chosen": "агент не выбран",
+		"the stored API key cannot be read; enter it again": "сохранённый API-ключ не читается; введите его заново",
+		"the provider rejected the AI agent's API key":      "провайдер не принял API-ключ агента",
+		"the AI agent is temporarily unavailable":           "агент временно недоступен",
+		"the AI agent did not return an answer":             "агент не вернул ответ",
 		// auth
 		"invalid credentials":      "неверный email или пароль",
 		"invalid init data":        "не удалось подтвердить вход через Telegram",

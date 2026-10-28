@@ -9,6 +9,15 @@ type settingsRequest struct {
 	APIKey   string `json:"apiKey"`
 }
 
+type completeRequest struct {
+	System string `json:"system"`
+	Prompt string `json:"prompt"`
+}
+
+type completeResponse struct {
+	Text string `json:"text"`
+}
+
 type settingsResponse struct {
 	Provider string `json:"provider"`
 	Model    string `json:"model"`

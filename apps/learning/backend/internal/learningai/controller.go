@@ -1,6 +1,10 @@
 package learningai
 
 import (
+	"errors"
+	"strings"
+	"unicode/utf8"
+
 	"github.com/labstack/echo/v4"
 
 	"learning_app/backend/internal/apperr"
@@ -13,13 +17,25 @@ import (
 	"learning_app/backend/internal/secretbox"
 )
 
+// The extension sends a prompt with the page text around a phrase and a few
+// earlier turns of the chat; these keep a request to what that needs.
+const (
+	maxSystemRunes = 10_000
+	maxPromptRunes = 60_000
+)
+
 type Controller struct {
-	write commands.SaveHandler
-	read  queries.SettingsHandler
+	write    commands.SaveHandler
+	read     queries.SettingsHandler
+	complete commands.CompleteHandler
 }
 
 func NewController(q *db.Queries, clk clock.Clock, vault secretbox.Box, client llm.Client) *Controller {
-	return &Controller{write: commands.NewSaveHandler(q, clk, vault, client), read: queries.NewSettingsHandler(q)}
+	return &Controller{
+		write:    commands.NewSaveHandler(q, clk, vault, client),
+		read:     queries.NewSettingsHandler(q),
+		complete: commands.NewCompleteHandler(q, vault, client),
+	}
 }
 
 func (c *Controller) get(ctx echo.Context) error {
@@ -65,4 +81,43 @@ func (c *Controller) remove(ctx echo.Context) error {
 	}
 
 	return httpx.OK(ctx, nil)
+}
+
+// answer runs a prompt through the user's agent. It is session-only like the
+// rest of the agent endpoints: an extension token must not be able to spend the
+// key. The key itself never leaves the server.
+func (c *Controller) answer(ctx echo.Context) error {
+	var req completeRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	if strings.TrimSpace(req.Prompt) == "" {
+		return apperr.NewInvalid("prompt is required")
+	}
+
+	if utf8.RuneCountInString(req.System) > maxSystemRunes || utf8.RuneCountInString(req.Prompt) > maxPromptRunes {
+		return apperr.NewInvalid("prompt is too long")
+	}
+
+	text, err := c.complete.Handle(ctx.Request().Context(), commands.Complete{
+		UserID: httpx.UserIDFromContext(ctx.Request().Context()),
+		System: req.System,
+		Prompt: req.Prompt,
+	})
+
+	switch {
+	case errors.Is(err, llm.ErrRejected):
+		return agentRejected
+	case errors.Is(err, llm.ErrTemporary):
+		return agentUnavailable
+	case errors.Is(err, commands.ErrAgentFailed):
+		return agentFailed
+	case err != nil:
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, completeResponse{Text: text})
 }

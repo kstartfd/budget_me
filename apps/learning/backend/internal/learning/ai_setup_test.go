@@ -2,8 +2,11 @@ package learning_test
 
 import (
 	"context"
+	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"testing"
@@ -55,6 +58,68 @@ func (f *fakeLLM) requests() []llm.Request {
 	return append([]llm.Request(nil), f.calls...)
 }
 
+// providerStub stands in for the three providers. A GET is the key check; a POST
+// is a completion, answered in the shape of whichever provider the path belongs
+// to, and remembered so a test can see exactly what the server sent.
+type providerStub struct {
+	mu    sync.Mutex
+	text  string
+	calls []providerCall
+}
+
+type providerCall struct {
+	Path string
+	// Key is the credential the server presented, whichever header carried it.
+	Key  string
+	Body string
+}
+
+func (p *providerStub) serve(status int, w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+
+	if r.Method != http.MethodPost {
+		_, _ = w.Write([]byte(`{"data":[],"has_more":false,"first_id":null,"last_id":null}`))
+
+		return
+	}
+
+	raw, _ := io.ReadAll(r.Body)
+	key := r.Header.Get("X-Api-Key")
+
+	if key == "" {
+		key = strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+	}
+
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	p.calls = append(p.calls, providerCall{Path: r.URL.Path, Key: key, Body: string(raw)})
+
+	switch {
+	case strings.HasSuffix(r.URL.Path, "/v1/messages"):
+		_, _ = w.Write([]byte(`{"id":"msg_1","type":"message","role":"assistant","model":"m","content":[{"type":"text","text":` + quote(p.text) + `}],"stop_reason":"end_turn","usage":{"input_tokens":1,"output_tokens":1}}`))
+	case strings.HasSuffix(r.URL.Path, "/responses"):
+		_, _ = w.Write([]byte(`{"output":[{"type":"reasoning","content":[]},{"type":"message","content":[{"type":"output_text","text":` + quote(p.text) + `}]}]}`))
+	default:
+		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":` + quote(p.text) + `}}]}`))
+	}
+}
+
+func (p *providerStub) reply(text string) {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	p.text = text
+}
+
+func (p *providerStub) requests() []providerCall {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+
+	return append([]providerCall(nil), p.calls...)
+}
+
 type aiEnv struct {
 	e         *echo.Echo
 	q         *db.Queries
@@ -66,6 +131,9 @@ type aiEnv struct {
 	// keyStatus is what the stand-in providers answer when the settings
 	// endpoint checks a key: 200 accepts it, 401 rejects it.
 	keyStatus *atomic.Int32
+	// provider records the completions the server asked the providers for. It
+	// answers with keyStatus too, so a test can make a provider refuse or fail.
+	provider *providerStub
 }
 
 func setupAI(t *testing.T) aiEnv {
@@ -78,10 +146,9 @@ func setupAI(t *testing.T) aiEnv {
 	keyStatus := &atomic.Int32{}
 	keyStatus.Store(http.StatusOK)
 
-	providers := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(int(keyStatus.Load()))
-		_, _ = w.Write([]byte(`{"data":[],"has_more":false,"first_id":null,"last_id":null}`))
+	provider := &providerStub{}
+	providers := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		provider.serve(int(keyStatus.Load()), w, r)
 	}))
 	t.Cleanup(providers.Close)
 
@@ -97,5 +164,12 @@ func setupAI(t *testing.T) aiEnv {
 		processor: commands.NewProcessHandler(pool, clock.New(), secretbox.New(authSecret), agent),
 		agent:     agent,
 		keyStatus: keyStatus,
+		provider:  provider,
 	}
+}
+
+func quote(s string) string {
+	b, _ := json.Marshal(s)
+
+	return string(b)
 }
