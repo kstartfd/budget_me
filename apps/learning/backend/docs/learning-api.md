@@ -123,6 +123,8 @@ tokens get **401** on these endpoints.
   rejects (401 from its model list; an outage or a restricted key does not block saving).
   Responses use `Cache-Control: no-store`.
 - `DELETE /ai/settings` — forgets the agent and deletes the stored key. Safe to repeat.
+- `POST /ai/complete` — runs one prompt through the chosen agent and returns its text, so a client
+  can use the agent without ever holding the key. See below.
 
 | `provider` | `model` | `level` |
 | --- | --- | --- |
@@ -134,6 +136,34 @@ tokens get **401** on these endpoints.
 The key is stored sealed with AES-256-GCM (key derived from `AUTH_SECRET`, bound to the user's
 row) and cannot be read back through the API. Rotating `AUTH_SECRET` makes stored keys unreadable:
 captures are then saved as sent, and the user enters the key again.
+
+### Run a prompt through the agent
+
+```http
+POST /api/v1/learning/ai/complete
+Authorization: Bearer <session token>
+Content-Type: application/json
+
+{"system":"You explain phrases from subtitles.","prompt":"Explain: hit the road"}
+```
+
+Returns `{"code":0,"message":"success","data":{"text":"…"}}` with `Cache-Control: no-store`.
+The server opens the sealed key, makes one call to the user's provider with the stored model and
+level, and returns the text. The key and the prompt are never logged or returned. The answer arrives
+whole (no streaming), after up to 150 seconds. `prompt` is required (up to 60,000 characters);
+`system` is optional (up to 10,000); the body is limited to 192 KiB. There is no conversation
+memory: a client that wants follow-ups includes the earlier turns in `prompt`.
+
+| Status | Code | Meaning |
+| --- | --- | --- |
+| 400 | 10001 | Missing, blank or too long `prompt`/`system` |
+| 401 | 20001 | Missing or expired session, or an extension token |
+| 404 | 10002 | No agent chosen yet |
+| 409 | 40001 | The stored key can no longer be read; save the key again |
+| 413 | 10001 | Body over the size limit |
+| 422 | 30001 | The provider rejected the key |
+| 503 | 30002 | Provider outage, rate limit or timeout; try again later |
+| 502 | 30003 | The agent refused or returned nothing usable |
 
 ## Chat about an entry (session only)
 
@@ -225,6 +255,16 @@ temporary one (timeout, rate limit, provider outage) is retried on attempts 1 an
 sent on attempt 3. Entries added from the app form (`POST /entries`) are not enriched.
 
 ## Chrome integration
+
+An extension has two ways to authenticate. A pasted extension token (above) is scoped to one topic
+and cannot reach `/ai/*`. Alternatively the user can sign in with the email and password of the
+account: `POST /api/v1/auth/login` with `{"email":"…","password":"…"}` returns
+`{"code":0,"data":{"token":"v1.…","user":{…}}}`. That session token is a full-access Bearer token valid
+for 30 days: it works on every `/learning` route (all topics, captures, entries) and on `/ai/*`,
+including `/ai/complete`, so the extension can use the user's agent without ever seeing its key.
+Session tokens are stateless and cannot be revoked before they expire; the extension drops its copy
+on sign-out. Send `Accept-Language: ru` to get Russian error messages.
+
 
 Keep the token in extension storage and send requests from the extension's
 background/service worker with host permission for the API origin. A content
