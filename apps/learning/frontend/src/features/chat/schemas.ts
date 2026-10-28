@@ -28,6 +28,8 @@ export type Budget = z.infer<typeof budgetSchema>
  */
 export const chatSchema = z.object({
   available: z.boolean(),
+  /** The agent teaches the language and corrects mistakes, instead of just answering. */
+  teacher: z.boolean(),
   messages: chatMessageSchema.array(),
   budget: budgetSchema.nullable(),
   /** The user's spending today across all their chats; same shape as a budget. */

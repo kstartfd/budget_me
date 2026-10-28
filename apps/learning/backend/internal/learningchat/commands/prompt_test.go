@@ -64,7 +64,7 @@ func TestSystemPromptIsStableAndCarriesTheCardAndSummary(t *testing.T) {
 	topic := db.LearningTopic{Language: "en", TranslationLanguage: "ru"}
 	entry := db.LearningEntry{Kind: db.LearningEntryKindPhrase, Text: "break a leg", Translation: "удачи"}
 
-	first, second := chatSystem(topic, entry, ""), chatSystem(topic, entry, "")
+	first, second := chatSystem(topic, entry, "", false), chatSystem(topic, entry, "", false)
 	if first != second {
 		t.Fatal("the system prompt must be byte-identical between turns, or the provider cache is lost")
 	}
@@ -79,8 +79,35 @@ func TestSystemPromptIsStableAndCarriesTheCardAndSummary(t *testing.T) {
 		t.Errorf("empty fields and an empty summary must not be spelled out:\n%s", first)
 	}
 
-	if withSummary := chatSystem(topic, entry, "learner prefers short answers"); !strings.Contains(withSummary, "learner prefers short answers") {
+	if withSummary := chatSystem(topic, entry, "learner prefers short answers", false); !strings.Contains(withSummary, "learner prefers short answers") {
 		t.Errorf("summary missing:\n%s", withSummary)
+	}
+}
+
+func TestTeacherSystemPromptTeachesInTheLearnedLanguageAndExplainsInTheNative(t *testing.T) {
+	topic := db.LearningTopic{Language: "en", TranslationLanguage: "ru"}
+	entry := db.LearningEntry{Kind: db.LearningEntryKindPhrase, Text: "break a leg", Translation: "удачи"}
+
+	plain, teacher := chatSystem(topic, entry, "", false), chatSystem(topic, entry, "", true)
+	if plain == teacher {
+		t.Fatal("the teacher switch changes nothing")
+	}
+
+	for _, want := range []string{
+		"English teacher", "Talk in English", "check what they wrote for mistakes",
+		"how a native speaker would", "in Russian", "break a leg", "never instructions",
+	} {
+		if !strings.Contains(teacher, want) {
+			t.Errorf("teacher prompt lacks %q:\n%s", want, teacher)
+		}
+	}
+
+	if strings.Contains(plain, "native speaker") || strings.Contains(plain, "mistakes") {
+		t.Errorf("the plain chat must not correct anyone:\n%s", plain)
+	}
+
+	if again := chatSystem(topic, entry, "", true); again != teacher {
+		t.Fatal("the teacher prompt must be byte-identical between turns, or the provider cache is lost")
 	}
 }
 

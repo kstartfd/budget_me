@@ -24,7 +24,7 @@ func (q *Queries) DeleteLearningAISettings(ctx context.Context, userID pgtype.UU
 }
 
 const getLearningAISettings = `-- name: GetLearningAISettings :one
-SELECT user_id, provider, model, level, key_ciphertext, key_hint, updated_at FROM learning_ai_settings WHERE user_id = $1
+SELECT user_id, provider, model, level, key_ciphertext, key_hint, updated_at, teacher FROM learning_ai_settings WHERE user_id = $1
 `
 
 func (q *Queries) GetLearningAISettings(ctx context.Context, userID pgtype.UUID) (LearningAiSetting, error) {
@@ -38,14 +38,15 @@ func (q *Queries) GetLearningAISettings(ctx context.Context, userID pgtype.UUID)
 		&i.KeyCiphertext,
 		&i.KeyHint,
 		&i.UpdatedAt,
+		&i.Teacher,
 	)
 	return i, err
 }
 
 const updateLearningAIChoice = `-- name: UpdateLearningAIChoice :one
-UPDATE learning_ai_settings SET model = $3, level = $4, updated_at = $5
+UPDATE learning_ai_settings SET model = $3, level = $4, teacher = $5, updated_at = $6
 WHERE user_id = $1 AND provider = $2
-RETURNING user_id, provider, model, level, key_ciphertext, key_hint, updated_at
+RETURNING user_id, provider, model, level, key_ciphertext, key_hint, updated_at, teacher
 `
 
 type UpdateLearningAIChoiceParams struct {
@@ -53,6 +54,7 @@ type UpdateLearningAIChoiceParams struct {
 	Provider  LearningAiProvider
 	Model     string
 	Level     LearningAiLevel
+	Teacher   bool
 	UpdatedAt pgtype.Timestamptz
 }
 
@@ -62,6 +64,7 @@ func (q *Queries) UpdateLearningAIChoice(ctx context.Context, arg UpdateLearning
 		arg.Provider,
 		arg.Model,
 		arg.Level,
+		arg.Teacher,
 		arg.UpdatedAt,
 	)
 	var i LearningAiSetting
@@ -73,21 +76,23 @@ func (q *Queries) UpdateLearningAIChoice(ctx context.Context, arg UpdateLearning
 		&i.KeyCiphertext,
 		&i.KeyHint,
 		&i.UpdatedAt,
+		&i.Teacher,
 	)
 	return i, err
 }
 
 const upsertLearningAISettings = `-- name: UpsertLearningAISettings :one
-INSERT INTO learning_ai_settings (user_id, provider, model, level, key_ciphertext, key_hint, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7)
+INSERT INTO learning_ai_settings (user_id, provider, model, level, teacher, key_ciphertext, key_hint, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 ON CONFLICT (user_id) DO UPDATE SET
     provider = EXCLUDED.provider,
     model = EXCLUDED.model,
     level = EXCLUDED.level,
+    teacher = EXCLUDED.teacher,
     key_ciphertext = EXCLUDED.key_ciphertext,
     key_hint = EXCLUDED.key_hint,
     updated_at = EXCLUDED.updated_at
-RETURNING user_id, provider, model, level, key_ciphertext, key_hint, updated_at
+RETURNING user_id, provider, model, level, key_ciphertext, key_hint, updated_at, teacher
 `
 
 type UpsertLearningAISettingsParams struct {
@@ -95,6 +100,7 @@ type UpsertLearningAISettingsParams struct {
 	Provider      LearningAiProvider
 	Model         string
 	Level         LearningAiLevel
+	Teacher       bool
 	KeyCiphertext []byte
 	KeyHint       string
 	UpdatedAt     pgtype.Timestamptz
@@ -106,6 +112,7 @@ func (q *Queries) UpsertLearningAISettings(ctx context.Context, arg UpsertLearni
 		arg.Provider,
 		arg.Model,
 		arg.Level,
+		arg.Teacher,
 		arg.KeyCiphertext,
 		arg.KeyHint,
 		arg.UpdatedAt,
@@ -119,6 +126,7 @@ func (q *Queries) UpsertLearningAISettings(ctx context.Context, arg UpsertLearni
 		&i.KeyCiphertext,
 		&i.KeyHint,
 		&i.UpdatedAt,
+		&i.Teacher,
 	)
 	return i, err
 }

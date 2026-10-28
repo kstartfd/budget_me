@@ -25,6 +25,7 @@ type SaveSettings struct {
 	Provider llm.Provider
 	Model    string
 	Level    string
+	Teacher  bool
 	APIKey   string
 }
 
@@ -53,7 +54,7 @@ func (h SaveHandler) Handle(ctx context.Context, cmd SaveSettings) (db.LearningA
 
 	key := strings.TrimSpace(cmd.APIKey)
 	if key == "" {
-		row, err := h.q.UpdateLearningAIChoice(ctx, db.UpdateLearningAIChoiceParams{UserID: userID, Provider: provider, Model: cmd.Model, Level: level, UpdatedAt: now})
+		row, err := h.q.UpdateLearningAIChoice(ctx, db.UpdateLearningAIChoiceParams{UserID: userID, Provider: provider, Model: cmd.Model, Level: level, Teacher: cmd.Teacher, UpdatedAt: now})
 		if db.IsNotFound(err) {
 			return row, apperr.NewInvalid("API key is required")
 		}
@@ -76,7 +77,7 @@ func (h SaveHandler) Handle(ctx context.Context, cmd SaveSettings) (db.LearningA
 
 	hint := []rune(key)
 
-	return h.q.UpsertLearningAISettings(ctx, db.UpsertLearningAISettingsParams{UserID: userID, Provider: provider, Model: cmd.Model, Level: level, KeyCiphertext: sealed, KeyHint: string(hint[len(hint)-4:]), UpdatedAt: now})
+	return h.q.UpsertLearningAISettings(ctx, db.UpsertLearningAISettingsParams{UserID: userID, Provider: provider, Model: cmd.Model, Level: level, Teacher: cmd.Teacher, KeyCiphertext: sealed, KeyHint: string(hint[len(hint)-4:]), UpdatedAt: now})
 }
 
 // verify turns the provider's "invalid key" into a message for the form. Any

@@ -6,6 +6,7 @@ type settingsRequest struct {
 	Provider string `json:"provider"`
 	Model    string `json:"model"`
 	Level    string `json:"level"`
+	Teacher  bool   `json:"teacher"`
 	APIKey   string `json:"apiKey"`
 }
 
@@ -22,9 +23,10 @@ type settingsResponse struct {
 	Provider string `json:"provider"`
 	Model    string `json:"model"`
 	Level    string `json:"level"`
+	Teacher  bool   `json:"teacher"`
 	KeyHint  string `json:"keyHint"`
 }
 
 func settingsDTO(row db.LearningAiSetting) settingsResponse {
-	return settingsResponse{Provider: string(row.Provider), Model: row.Model, Level: string(row.Level), KeyHint: row.KeyHint}
+	return settingsResponse{Provider: string(row.Provider), Model: row.Model, Level: string(row.Level), Teacher: row.Teacher, KeyHint: row.KeyHint}
 }
