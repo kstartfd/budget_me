@@ -90,6 +90,39 @@ func TestAISettingsAreValidatedSealedAndWriteOnly(t *testing.T) {
 	}
 }
 
+func TestAISettingsRememberTheTeacherSwitch(t *testing.T) {
+	env := setupAI(t)
+
+	req := choice("deepseek", "deepseek-flash", "high", "sk-test-key-1234")
+
+	if code, body := request(t, env.e, "PUT", settingsPath, env.session, req, ""); code != 200 || data(t, body)["teacher"] != false {
+		t.Fatalf("a plain chat is the default: %d %v", code, body)
+	}
+
+	req["teacher"] = true
+	if code, body := request(t, env.e, "PUT", settingsPath, env.session, req, ""); code != 200 || data(t, body)["teacher"] != true {
+		t.Fatalf("switch the teacher on: %d %v", code, body)
+	}
+
+	// Keeping the stored key takes another path through the handler.
+	keep := choice("deepseek", "deepseek-flash", "low", "")
+	keep["teacher"] = true
+
+	if code, body := request(t, env.e, "PUT", settingsPath, env.session, keep, ""); code != 200 || data(t, body)["teacher"] != true || data(t, body)["keyHint"] != "1234" {
+		t.Fatalf("keep the key and the teacher: %d %v", code, body)
+	}
+
+	keep["teacher"] = false
+
+	if code, body := request(t, env.e, "PUT", settingsPath, env.session, keep, ""); code != 200 || data(t, body)["teacher"] != false {
+		t.Fatalf("switch the teacher off without touching the key: %d %v", code, body)
+	}
+
+	if code, body := request(t, env.e, "GET", settingsPath, env.session, nil, ""); code != 200 || data(t, body)["teacher"] != false {
+		t.Fatalf("get: %d %v", code, body)
+	}
+}
+
 func TestAISettingsRejectAKeyTheProviderRefuses(t *testing.T) {
 	env := setupAI(t)
 	env.keyStatus.Store(http.StatusUnauthorized)

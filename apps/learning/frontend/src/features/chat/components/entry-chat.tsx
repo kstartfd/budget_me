@@ -63,6 +63,7 @@ export function EntryChat({
   const streaming = turn?.answer.length ?? 0
   const budget = chat.data?.budget
   const daily = chat.data?.daily
+  const teacher = !!chat.data?.teacher
   const dailyExhausted = !!daily && daily.used >= daily.limit
   const exhausted = (!!budget && budget.used >= budget.limit) || dailyExhausted
   const usedPercent = budget
@@ -123,7 +124,7 @@ export function EntryChat({
         onClick={() => setOpen((v) => !v)}
       >
         <IconMessageCircle size={17} />
-        {t(open ? "hide" : "open")}
+        {t(open ? "hide" : teacher ? "openTeacher" : "open")}
         {messages.length > 0 && (
           <span className="text-faint text-xs font-normal">
             {t("count", { count: messages.length })}
@@ -134,7 +135,7 @@ export function EntryChat({
         <div className="mt-3 space-y-3">
           {messages.length === 0 && !turn && (
             <p className="text-muted-foreground text-[13px] leading-[1.5]">
-              {t("hint")}
+              {t(teacher ? "hintTeacher" : "hint")}
             </p>
           )}
           <div className="space-y-2" aria-live="polite">
@@ -169,8 +170,8 @@ export function EntryChat({
                 maxLength={maxQuestionLength}
                 rows={1}
                 disabled={sending}
-                placeholder={t("placeholder")}
-                aria-label={t("placeholder")}
+                placeholder={t(teacher ? "placeholderTeacher" : "placeholder")}
+                aria-label={t(teacher ? "placeholderTeacher" : "placeholder")}
                 className="max-h-40 min-h-10 flex-1 resize-none rounded-xl px-3 py-2.5 text-[13px] md:text-[13px]"
                 onChange={(e) => setText(e.target.value)}
                 onKeyDown={(e) => {

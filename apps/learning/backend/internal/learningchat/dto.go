@@ -28,9 +28,11 @@ type budgetResponse struct {
 }
 
 type chatResponse struct {
-	Available bool              `json:"available"`
-	Messages  []messageResponse `json:"messages"`
-	Budget    *budgetResponse   `json:"budget"`
+	Available bool `json:"available"`
+	// Teacher is whether the agent plays the language teacher in this chat.
+	Teacher  bool              `json:"teacher"`
+	Messages []messageResponse `json:"messages"`
+	Budget   *budgetResponse   `json:"budget"`
 	// Daily is what the user may still spend today across all their chats.
 	Daily *budgetResponse `json:"daily"`
 }
@@ -75,7 +77,7 @@ func budgetDTO(b commands.Budget) budgetResponse {
 }
 
 func chatDTO(chat queries.Chat) chatResponse {
-	out := chatResponse{Available: chat.Available, Messages: make([]messageResponse, len(chat.Messages))}
+	out := chatResponse{Available: chat.Available, Teacher: chat.Teacher, Messages: make([]messageResponse, len(chat.Messages))}
 	for i, row := range chat.Messages {
 		out.Messages[i] = messageDTO(row)
 	}

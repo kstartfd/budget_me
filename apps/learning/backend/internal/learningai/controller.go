@@ -64,6 +64,7 @@ func (c *Controller) save(ctx echo.Context) error {
 		Provider: llm.Provider(req.Provider),
 		Model:    req.Model,
 		Level:    req.Level,
+		Teacher:  req.Teacher,
 		APIKey:   req.APIKey,
 	})
 	if err != nil {

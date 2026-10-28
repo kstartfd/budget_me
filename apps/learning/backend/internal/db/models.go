@@ -322,6 +322,7 @@ type LearningAiSetting struct {
 	KeyCiphertext []byte
 	KeyHint       string
 	UpdatedAt     pgtype.Timestamptz
+	Teacher       bool
 }
 
 type LearningCapture struct {

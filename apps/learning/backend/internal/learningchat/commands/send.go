@@ -188,7 +188,7 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		Provider: llm.Provider(agent.settings.Provider),
 		Model:    agent.settings.Model,
 		Key:      agent.key,
-		System:   chatSystem(topic, entry, chat.Summary),
+		System:   chatSystem(topic, entry, chat.Summary, agent.settings.Teacher),
 		Messages: history(stored, question),
 	}, stream.Delta)
 	if err != nil {

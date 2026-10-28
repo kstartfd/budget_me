@@ -114,9 +114,11 @@ bypass the queue.
 The user picks which agent writes the card fields a capture leaves empty. Extension
 tokens get **401** on these endpoints.
 
-- `GET /ai/settings` — `{"provider":"anthropic","model":"claude-opus-5-5","level":"high","keyHint":"WXYZ"}`,
+- `GET /ai/settings` — `{"provider":"anthropic","model":"claude-opus-5-5","level":"high","teacher":false,"keyHint":"WXYZ"}`,
   or `null` while nothing is chosen. The key is never returned, only its last four characters.
-- `PUT /ai/settings` — `provider`, `model`, `level`, `apiKey`. Omit `apiKey` (or send `""`) to keep
+- `PUT /ai/settings` — `provider`, `model`, `level`, `teacher`, `apiKey`. `teacher` (default `false`)
+  turns the chat into a language lesson, see below; it is saved with every `PUT`, so send the
+  current value when only changing something else. Omit `apiKey` (or send `""`) to keep
   the stored key, which only works while `provider` stays the same: a key belongs to one provider.
   Responds with the same shape as `GET`. **400** for an unknown provider/model, a level the model
   does not take, a key outside 8..500 characters, no stored key to keep, or a key the provider
@@ -171,9 +173,10 @@ One conversation per entry, with the user's own agent. Extension tokens get **40
 Only `deepseek` has a chat so far; the other providers answer **400** until they get a
 profile in `llm/chat.go`.
 
-- `GET /entries/<uuid>/chat` — `{"available":true,"messages":[{"id":1,"role":"user","content":"…","createdAt":"…"}]}`.
+- `GET /entries/<uuid>/chat` — `{"available":true,"teacher":false,"messages":[{"id":1,"role":"user","content":"…","createdAt":"…"}]}`.
   `available` is `false` while no agent is chosen or its provider has no chat; the messages
-  already exchanged stay readable. **404** for a missing or another user's entry.
+  already exchanged stay readable. `teacher` is the `teacher` choice of the agent settings
+  (always `false` while the chat is not available). **404** for a missing or another user's entry.
 - `POST /entries/<uuid>/chat` — body `{"text":"…"}` (1..2000 characters). A refused question is an
   ordinary error response: **400** (no agent, unsupported provider, bad text, unreadable key),
   **404**, **409** (the previous answer or a compaction of this chat is still running), **502**
@@ -209,7 +212,16 @@ Limits (both answer **429**, told apart by the business `code`):
   these are soft by the turns in flight (at most 2 per user). Rotating `AUTH_SECRET` renames every
   fingerprint, which resets the key counters.
 
-What the model sees each turn: a system prompt (tutor rules, both languages, the entry's card,
+Two modes, by the `teacher` choice of the agent settings. Off, the agent is a tutor that answers
+questions about the entry in the topic's translation language. On, it is a teacher of the
+topic's language: it talks in that language (short replies that end with a question), and when
+the learner writes in it, it adds a `✏️` section after the reply that explains each mistake in the
+translation language: what is wrong and why, the correct version, and how a native speaker would
+say it. A message in the translation language is treated as the learner being stuck: the agent
+answers in it, gives the wording in the learned language and asks to try it. Switching changes the
+system prompt (so the provider cache is lost once) and keeps the history.
+
+What the model sees each turn: a system prompt (tutor or teacher rules, both languages, the entry's card,
 and the summary once there is one), then the unsummarized messages word for word, then the new
 question. It is built append-only so the provider's prefix cache keeps hitting. When the
 provider reports the context past the profile's mark (DeepSeek: 7000 tokens), everything but the

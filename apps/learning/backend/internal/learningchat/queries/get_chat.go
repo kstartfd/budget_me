@@ -27,7 +27,10 @@ type Chat struct {
 	// provider chat is not built for. The conversation already held stays
 	// readable either way.
 	Available bool
-	Messages  []db.LearningChatMessage
+	// Teacher is the user's choice to have the agent teach the language rather
+	// than just answer; it only matters while the chat is available.
+	Teacher  bool
+	Messages []db.LearningChatMessage
 	// Budget is what the chat may still spend; nil while it is not available.
 	Budget *commands.Budget
 	// Daily is what the user may still spend today across all chats; nil while
@@ -57,6 +60,7 @@ func (h ChatHandler) Get(ctx context.Context, userID, entryID uuid.UUID) (Chat, 
 
 	if err == nil {
 		profile, out.Available = llm.ChatProfileOf(llm.Provider(settings.Provider))
+		out.Teacher = out.Available && settings.Teacher
 	}
 
 	chat, err := h.q.GetLearningChatByEntry(ctx, db.GetLearningChatByEntryParams{EntryID: ids.ToPg(entryID), UserID: ids.ToPg(userID)})
