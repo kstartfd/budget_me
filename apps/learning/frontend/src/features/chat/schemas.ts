@@ -52,3 +52,19 @@ export const chatStreamErrorSchema = z.object({
   code: z.number(),
   message: z.string(),
 })
+
+/** A closed conversation of a topic, as listed in its history. */
+export const dialogSchema = z.object({
+  id: z.string().uuid(),
+  /** How the dialog began: its first message. */
+  title: z.string(),
+  messageCount: z.number(),
+  startedAt: z.string(),
+  archivedAt: z.string(),
+})
+export type Dialog = z.infer<typeof dialogSchema>
+
+export const transcriptSchema = dialogSchema.extend({
+  messages: chatMessageSchema.array(),
+})
+export type Transcript = z.infer<typeof transcriptSchema>

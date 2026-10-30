@@ -6,6 +6,8 @@ import {
   chatDoneSchema,
   chatSchema,
   chatStreamErrorSchema,
+  dialogSchema,
+  transcriptSchema,
   type ChatDone,
 } from "./schemas"
 
@@ -40,6 +42,24 @@ export const fetchChat = (entryId: string) =>
 export const clearChat = (entryId: string) =>
   call(`/entries/${entryId}/chat`, "DELETE", () => undefined)
 
+export const fetchTopicChat = (topicId: string) =>
+  call(`/topics/${topicId}/chat`, "GET", (d) => chatSchema.parse(d))
+
+/** "Clear chat": the open dialog is closed and kept in the history. */
+export const archiveTopicChat = (topicId: string) =>
+  call(`/topics/${topicId}/chat/archive`, "POST", () => undefined)
+
+export const fetchDialogs = (topicId: string) =>
+  call(`/topics/${topicId}/chat/history`, "GET", (d) =>
+    dialogSchema.array().parse(d),
+  )
+
+export const fetchDialog = (id: string) =>
+  call(`/chat-dialogs/${id}`, "GET", (d) => transcriptSchema.parse(d))
+
+export const deleteDialog = (id: string) =>
+  call(`/chat-dialogs/${id}`, "DELETE", () => undefined)
+
 type StreamEvent = { name: string; data: unknown }
 
 /** One server-sent event: `event: name` and `data: {json}` lines. */
@@ -67,13 +87,26 @@ function parseEvent(block: string): StreamEvent | null {
  * failure rejects with a {@link ChatError}. A stream that breaks midway also
  * rejects, although the server may still store the answer: callers refetch.
  */
-export async function streamChat(
+export const streamChat = (
   entryId: string,
+  text: string,
+  onDelta: (piece: string) => void,
+) => streamAnswer(`/entries/${entryId}/chat`, text, onDelta)
+
+/** The same for the free conversation with the teacher of a topic. */
+export const streamTopicChat = (
+  topicId: string,
+  text: string,
+  onDelta: (piece: string) => void,
+) => streamAnswer(`/topics/${topicId}/chat`, text, onDelta)
+
+async function streamAnswer(
+  path: string,
   text: string,
   onDelta: (piece: string) => void,
 ): Promise<ChatDone> {
   const token = readToken()
-  const res = await fetch(`/api/v1/learning/entries/${entryId}/chat`, {
+  const res = await fetch(`/api/v1/learning${path}`, {
     method: "POST",
     cache: "no-store",
     headers: {

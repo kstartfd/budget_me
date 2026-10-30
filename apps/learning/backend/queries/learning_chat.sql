@@ -65,3 +65,43 @@ ON CONFLICT (scope, subject, day) DO UPDATE SET
 
 -- name: DeleteOldLearningChatUsage :exec
 DELETE FROM learning_chat_usage WHERE day < $1;
+
+-- name: GetOpenTopicChat :one
+SELECT * FROM learning_chats
+WHERE topic_id = $1 AND user_id = $2 AND archived_at IS NULL;
+
+-- name: EnsureOpenTopicChat :one
+INSERT INTO learning_chats (id, user_id, topic_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $4)
+ON CONFLICT (topic_id) WHERE topic_id IS NOT NULL AND archived_at IS NULL
+DO UPDATE SET topic_id = EXCLUDED.topic_id
+RETURNING *;
+
+-- The next dialog carries over what the closed one spent in its budget window,
+-- so clearing a chat never gives its budget back.
+-- name: OpenNextTopicChat :exec
+INSERT INTO learning_chats (id, user_id, topic_id, spent_tokens, spent_since, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $6);
+
+-- name: ArchiveLearningChat :exec
+UPDATE learning_chats SET archived_at = $2, updated_at = $2, busy_until = NULL WHERE id = $1;
+
+-- name: ListArchivedTopicChats :many
+SELECT c.id, c.created_at, c.archived_at,
+    COALESCE((
+        SELECT left(m.content, 160) FROM learning_chat_messages m
+        WHERE m.chat_id = c.id AND m.role = 'user' ORDER BY m.id LIMIT 1
+    ), '')::text AS first_message,
+    (SELECT count(*) FROM learning_chat_messages m WHERE m.chat_id = c.id)::bigint AS message_count
+FROM learning_chats c
+WHERE c.topic_id = $1 AND c.user_id = $2 AND c.archived_at IS NOT NULL
+ORDER BY c.archived_at DESC, c.id
+LIMIT 100;
+
+-- name: GetArchivedTopicChat :one
+SELECT * FROM learning_chats
+WHERE id = $1 AND user_id = $2 AND topic_id IS NOT NULL AND archived_at IS NOT NULL;
+
+-- name: DeleteArchivedTopicChat :execrows
+DELETE FROM learning_chats
+WHERE id = $1 AND user_id = $2 AND topic_id IS NOT NULL AND archived_at IS NOT NULL;

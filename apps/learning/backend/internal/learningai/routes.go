@@ -9,9 +9,20 @@ import (
 // Cyrillic text, plus the JSON around it.
 const completeBodyLimit = "192K"
 
+// The picture is sent already shrunk by the app; this leaves room for a phone's
+// own file picked as it is. maxImageBytes is the picture alone, the body limit
+// adds the form around it.
+const (
+	scanBodyLimit = "7M"
+	maxImageBytes = 6 << 20
+)
+
+var imageTypes = map[string]bool{"image/jpeg": true, "image/png": true, "image/gif": true, "image/webp": true}
+
 func (c *Controller) Routes(protected *echo.Group) {
 	protected.GET("/learning/ai/settings", c.get)
 	protected.PUT("/learning/ai/settings", c.save)
 	protected.DELETE("/learning/ai/settings", c.remove)
 	protected.POST("/learning/ai/complete", c.answer, echomw.BodyLimit(completeBodyLimit))
+	protected.POST("/learning/ai/scan", c.scanPicture, echomw.BodyLimit(scanBodyLimit))
 }

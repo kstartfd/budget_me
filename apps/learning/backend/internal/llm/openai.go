@@ -10,7 +10,7 @@ import (
 type responsesRequest struct {
 	Model           string    `json:"model"`
 	Instructions    string    `json:"instructions"`
-	Input           string    `json:"input"`
+	Input           any       `json:"input"`
 	Reasoning       reasoning `json:"reasoning"`
 	MaxOutputTokens int       `json:"max_output_tokens"`
 }
@@ -29,13 +29,30 @@ type responsesResponse struct {
 	} `json:"output"`
 }
 
+// responsesInput is the prompt alone, or, with pictures, one user message that
+// holds the pictures and then the prompt.
+func responsesInput(req Request) any {
+	if len(req.Images) == 0 {
+		return req.Prompt
+	}
+
+	parts := make([]map[string]string, 0, len(req.Images)+1)
+	for _, image := range req.Images {
+		parts = append(parts, map[string]string{"type": "input_image", "image_url": image.dataURL()})
+	}
+
+	parts = append(parts, map[string]string{"type": "input_text", "text": req.Prompt})
+
+	return []map[string]any{{"role": "user", "content": parts}}
+}
+
 func (c Client) completeOpenAI(ctx context.Context, req Request) (string, error) {
 	var res responsesResponse
 
 	err := c.doJSON(ctx, http.MethodPost, c.urls.OpenAI+"/responses", req.Key, responsesRequest{
 		Model:           req.Model,
 		Instructions:    req.System,
-		Input:           req.Prompt,
+		Input:           responsesInput(req),
 		Reasoning:       reasoning{Effort: req.Level},
 		MaxOutputTokens: 25000,
 	}, &res)

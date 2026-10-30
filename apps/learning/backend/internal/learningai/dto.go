@@ -1,6 +1,9 @@
 package learningai
 
-import "learning_app/backend/internal/db"
+import (
+	"learning_app/backend/internal/db"
+	"learning_app/backend/internal/learningai/commands"
+)
 
 type settingsRequest struct {
 	Provider string `json:"provider"`
@@ -29,4 +32,9 @@ type settingsResponse struct {
 
 func settingsDTO(row db.LearningAiSetting) settingsResponse {
 	return settingsResponse{Provider: string(row.Provider), Model: row.Model, Level: string(row.Level), Teacher: row.Teacher, KeyHint: row.KeyHint}
+}
+
+// scanResponse is what a picture held, for the learner to pick from.
+type scanResponse struct {
+	Items []commands.Found `json:"items"`
 }

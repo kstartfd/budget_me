@@ -78,6 +78,7 @@ type chatEnv struct {
 	provider *deepseek
 	user     uuid.UUID
 	session  string
+	topic    string
 	entry    string
 }
 
@@ -108,7 +109,7 @@ func setupChatRate(t *testing.T, rate ratelimit.Config) chatEnv {
 		t.Fatalf("entry: %d %v", code, body)
 	}
 
-	return chatEnv{e: e, q: q, pool: pool, provider: provider, user: user, session: session, entry: data(t, body)["id"].(string)}
+	return chatEnv{e: e, q: q, pool: pool, provider: provider, user: user, session: session, topic: topicID, entry: data(t, body)["id"].(string)}
 }
 
 func (c chatEnv) path() string { return "/api/v1/learning/entries/" + c.entry + "/chat" }
@@ -147,8 +148,14 @@ type sseEvent struct {
 func (c chatEnv) post(t *testing.T, text string) *httptest.ResponseRecorder {
 	t.Helper()
 
+	return c.postTo(t, c.path(), text)
+}
+
+func (c chatEnv) postTo(t *testing.T, path, text string) *httptest.ResponseRecorder {
+	t.Helper()
+
 	raw, _ := json.Marshal(map[string]any{"text": text})
-	req := httptest.NewRequest(http.MethodPost, c.path(), bytes.NewReader(raw))
+	req := httptest.NewRequest(http.MethodPost, path, bytes.NewReader(raw))
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", "Bearer "+c.session)
 
@@ -163,7 +170,13 @@ func (c chatEnv) post(t *testing.T, text string) *httptest.ResponseRecorder {
 func (c chatEnv) ask(t *testing.T, text string) (int, []sseEvent) {
 	t.Helper()
 
-	rec := c.post(t, text)
+	return c.askAt(t, c.path(), text)
+}
+
+func (c chatEnv) askAt(t *testing.T, path, text string) (int, []sseEvent) {
+	t.Helper()
+
+	rec := c.postTo(t, path, text)
 
 	if !strings.HasPrefix(rec.Header().Get("Content-Type"), "text/event-stream") {
 		var body map[string]any

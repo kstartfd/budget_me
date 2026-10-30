@@ -229,6 +229,50 @@ newest 8 messages is folded into `learning_chats.summary` by the cheap model
 (`deepseek-flash`, thinking off), after the answer has been delivered. The full history stays in
 `learning_chat_messages`. Chat replies use no thinking and at most 1500 tokens.
 
+## Free chat with the teacher (session only)
+
+A conversation with the user's agent that is about no entry: a lesson in the topic's language,
+opened from the app's chat tab. It is **always the teacher** (the `teacher` setting does not
+matter), speaks the topic's language, finds out the learner's level and leads the lesson, and
+corrects mistakes with the same `✏️` section. Same provider, rate, budget and daily limits as the
+chat of an entry (they are the same rows in `learning_chats`, `topic_id` set instead of `entry_id`).
+Extension tokens get **401**.
+
+A topic has one **open** dialog. Clearing it **closes** it (`archived_at`) and the next message
+opens a new one, so nothing said is lost; closed dialogs are read-only and can be deleted.
+The new dialog starts without the old one's history and summary but **inherits what the old one
+spent** of its budget window, so clearing never buys a new budget.
+
+- `GET /topics/<uuid>/chat` — same body as the chat of an entry, for the open dialog
+  (`teacher` is `true` whenever `available` is). **404** for a missing or another user's topic.
+- `POST /topics/<uuid>/chat` — body and event stream exactly as `POST /entries/<uuid>/chat`.
+- `POST /topics/<uuid>/chat/archive` — "clear chat": closes the open dialog. A dialog nobody wrote in
+  is left alone. **409** while an answer is being written.
+- `GET /topics/<uuid>/chat/history` — closed dialogs, newest first (up to 100):
+  `[{"id":"…","title":"how the dialog began (160 chars)","messageCount":4,"startedAt":"…","archivedAt":"…"}]`.
+- `GET /chat-dialogs/<uuid>` — one closed dialog with its `messages`. **404** for the open one.
+- `DELETE /chat-dialogs/<uuid>` — deletes a closed dialog for good. **404** for the open one.
+
+Deleting a topic deletes its dialogs.
+
+## Words and phrases from a picture (session only)
+
+`POST /ai/scan` — `multipart/form-data` with `topicId` and `image` (JPEG, PNG, GIF or WebP up to
+6 MB, recognized by its bytes). The user's agent reads the picture and the response is
+`{"items":[{"kind":"word"|"phrase","text":"…","translation":"…"}]}`: the words and phrases written
+in the topic's language, in the order they appear, at most 30, tidied (spaces collapsed, duplicates
+dropped, a text with a space is always a phrase). An empty list means the picture holds nothing to
+learn. **Nothing is stored**: the app lets the learner pick and sends the pick to `POST /captures`
+as `source: "photo"`, so the queue fills the rest of the card as usual.
+
+The picture is read at the lowest effort of the provider (`low`, `off` for DeepSeek). A model that
+cannot see pictures (`deepseek-v4-pro`) is swapped for the provider's first one that can
+(`deepseek-flash`) on the same key, see `llm.Reader`. Errors: **400** (no agent, no/invalid
+picture or topic id), **404** (topic), **409** (unreadable key), **422/503/502** with the codes
+`30001/30002/30003` of the agent endpoints, **429** (`42901`, 4 pictures back to back, then one
+every 15 seconds, one at a time; only requests that reach the agent count). It is not counted
+against the chat's token limits. Extension tokens get **401**.
+
 ## Session-only management
 
 - `POST /topics`, `PUT /topics/<uuid>` — `name`, `language`, `translationLanguage`.

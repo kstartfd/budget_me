@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"cmp"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,6 +36,13 @@ var DefaultURLs = URLs{
 	DeepSeek:  "https://api.deepseek.com",
 }
 
+// Image is a picture sent along with the prompt, as the bytes of a JPEG, PNG,
+// GIF or WebP file.
+type Image struct {
+	MediaType string
+	Data      []byte
+}
+
 type Request struct {
 	Provider Provider
 	Model    string
@@ -42,6 +50,8 @@ type Request struct {
 	Key      string
 	System   string
 	Prompt   string
+	// Images travel with the prompt; the model must be one that reads them (see Reader).
+	Images []Image
 }
 
 type Client struct {
@@ -156,4 +166,9 @@ func (c Client) doJSON(ctx context.Context, method, url, key string, in, out any
 // log line needs.
 func redact(err error, url string) string {
 	return strings.ReplaceAll(err.Error(), url, "provider")
+}
+
+// dataURL is how the chat-style APIs take a picture inline.
+func (i Image) dataURL() string {
+	return "data:" + i.MediaType + ";base64," + base64.StdEncoding.EncodeToString(i.Data)
 }

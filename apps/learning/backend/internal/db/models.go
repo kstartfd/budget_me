@@ -353,6 +353,8 @@ type LearningChat struct {
 	UpdatedAt     pgtype.Timestamptz
 	SpentTokens   int64
 	SpentSince    pgtype.Timestamptz
+	TopicID       pgtype.UUID
+	ArchivedAt    pgtype.Timestamptz
 }
 
 type LearningChatMessage struct {

@@ -184,3 +184,31 @@ func TestValidChoice(t *testing.T) {
 		}
 	}
 }
+
+func TestReaderPicksAModelThatSeesAtALowEffort(t *testing.T) {
+	for _, tc := range []struct {
+		provider     llm.Provider
+		model        string
+		wantModel    string
+		wantLevel    string
+		wantReadable bool
+	}{
+		{llm.Anthropic, "claude-haiku-5-5", "claude-haiku-5-5", "low", true},
+		{llm.OpenAI, "gpt-6-luna", "gpt-6-luna", "low", true},
+		{llm.DeepSeek, "deepseek-flash", "deepseek-flash", "off", true},
+		// The chosen model cannot see: the provider's own that can stands in.
+		{llm.DeepSeek, "deepseek-v4-pro", "deepseek-flash", "off", true},
+		// An unknown model of a known provider is not trusted to see either.
+		{llm.Anthropic, "claude-unknown", "claude-opus-5-5", "low", true},
+		{llm.Provider("nobody"), "x", "", "", false},
+	} {
+		model, level, ok := llm.Reader(tc.provider, tc.model)
+		if model != tc.wantModel || level != tc.wantLevel || ok != tc.wantReadable {
+			t.Errorf("%s/%s: got %q %q %v, want %q %q %v", tc.provider, tc.model, model, level, ok, tc.wantModel, tc.wantLevel, tc.wantReadable)
+		}
+
+		if ok && !llm.Valid(tc.provider, model, level) {
+			t.Errorf("%s/%s: %s at %s is not a choice the catalog offers", tc.provider, tc.model, model, level)
+		}
+	}
+}

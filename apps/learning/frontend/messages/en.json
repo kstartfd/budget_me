@@ -134,7 +134,8 @@
     "copyEndpoint": "Copy endpoint",
     "settings": "Settings",
     "markKnown": "Mark as known",
-    "markLearning": "Move back to Learning"
+    "markLearning": "Move back to Learning",
+    "chatTab": "Chat"
   },
   "account": {
     "kicker": "Account",
@@ -196,7 +197,45 @@
     "tooMany": "Too many questions in a row. Wait a few seconds.",
     "budgetReached": "This chat has reached its limit for now. It resets at {time}. Time to practice the phrase instead.",
     "dailyReached": "You've used today's chat limit. It resets at {time}.",
-    "budgetLow": "{percent}% of this chat's limit is used."
+    "budgetLow": "{percent}% of this chat's limit is used.",
+    "teacherTitle": "AI teacher",
+    "teacherSubtitle": "Free conversation in the language you learn: the teacher leads the lesson and corrects your mistakes.",
+    "topic": "Topic",
+    "noTopics": "Create a topic first",
+    "noTopicsHint": "The teacher speaks the language of a topic, so pick which language you study.",
+    "needAgent": "An AI agent is needed",
+    "needAgentHint": "The chat runs on your own agent and is available for DeepSeek for now. Connect it in settings: pick a provider and paste the API key.",
+    "openSettings": "Open settings",
+    "welcome": "Let's start a lesson",
+    "welcomeHint": "Write anything or pick a way to begin. The teacher will find your level.",
+    "starters": {
+      "beginner": {
+        "label": "I'm a beginner, start with the basics",
+        "message": "I'm a beginner. Start a lesson with me from the very basics."
+      },
+      "talk": {
+        "label": "Let's just chat",
+        "message": "Let's just chat about simple things, and you correct my mistakes."
+      },
+      "check": {
+        "label": "Check my sentences",
+        "message": "I'll write sentences in the language I'm learning, and you go through my mistakes."
+      },
+      "grammar": {
+        "label": "Go through grammar",
+        "message": "Explain one useful grammar rule and give me exercises for it."
+      }
+    },
+    "loadFailed": "Couldn't load the chat. Try refreshing the page.",
+    "clearDialogConfirm": "Clear the chat? This dialog stays in the history, and your next message starts a new one.",
+    "history": "Dialog history",
+    "historyHint": "Cleared dialogs are kept here. You can read them or delete them.",
+    "historyEmpty": "No saved dialogs yet. When you clear the chat, the current dialog shows up here.",
+    "historyLoadFailed": "Couldn't load the dialogs.",
+    "dialog": "Dialog",
+    "deleteDialog": "Delete dialog",
+    "deleteDialogConfirm": "Delete for good?",
+    "deleteDialogFailed": "Couldn't delete the dialog. Try again."
   },
   "ai": {
     "kicker": "AI agent",
@@ -242,5 +281,37 @@
     },
     "disconnect": "Disconnect agent",
     "disconnecting": "Disconnecting…"
+  },
+  "scan": {
+    "open": "From photo",
+    "title": "Words from a photo",
+    "hint": "Take a photo of a page, sign, menu or screen — the AI will find words and phrases in the language you study.",
+    "takePhoto": "Take a photo",
+    "choosePhoto": "Upload a picture",
+    "reading": "Reading the photo…",
+    "previewAlt": "The chosen photo",
+    "found": "{count, plural, one {Found # item} other {Found # items}}",
+    "nothing": "No words or phrases in the language you study were found in the photo. Try a closer shot in good light.",
+    "selectAll": "Select all",
+    "selectNone": "Clear selection",
+    "add": "Add ({count})",
+    "adding": "Adding…",
+    "addFailed": "Some items could not be added. Try again.",
+    "added": "{count, plural, one {# item added} other {# items added}}",
+    "addedHint": "They will show up in Inbox. If an AI agent is connected, it fills in the cards: transcription, examples and rules.",
+    "source": "Photo",
+    "another": "Another photo",
+    "close": "Close",
+    "retry": "Another photo",
+    "notImage": "Choose an image file.",
+    "openSettings": "Open settings",
+    "errors": {
+      "failed": "Couldn't read the photo. Try again.",
+      "rejected": "The provider rejected the agent's API key. Enter it again in settings.",
+      "unavailable": "The AI agent isn't answering right now. Try again a bit later.",
+      "agentFailed": "The agent couldn't read this photo. Try another one.",
+      "tooMany": "Too many photos in a row. Wait a moment."
+    },
+    "needAgent": "Reading a photo needs an AI agent. Connect one in settings."
   }
 }

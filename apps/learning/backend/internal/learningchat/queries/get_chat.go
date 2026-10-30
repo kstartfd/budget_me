@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"time"
 
 	"github.com/google/uuid"
 
@@ -28,7 +29,8 @@ type Chat struct {
 	// readable either way.
 	Available bool
 	// Teacher is the user's choice to have the agent teach the language rather
-	// than just answer; it only matters while the chat is available.
+	// than just answer; it only matters while the chat is available. The free
+	// chat of a topic is always the teacher.
 	Teacher  bool
 	Messages []db.LearningChatMessage
 	// Budget is what the chat may still spend; nil while it is not available.
@@ -49,6 +51,31 @@ func (h ChatHandler) Get(ctx context.Context, userID, entryID uuid.UUID) (Chat, 
 		return Chat{}, err
 	}
 
+	chat, err := h.q.GetLearningChatByEntry(ctx, db.GetLearningChatByEntryParams{EntryID: ids.ToPg(entryID), UserID: ids.ToPg(userID)})
+	if err != nil && !db.IsNotFound(err) {
+		return Chat{}, err
+	}
+
+	return h.state(ctx, userID, chat, err == nil, false)
+}
+
+// GetTopic returns the open dialog of a topic, empty until the first question.
+func (h ChatHandler) GetTopic(ctx context.Context, userID, topicID uuid.UUID) (Chat, error) {
+	if err := h.topicExists(ctx, userID, topicID); err != nil {
+		return Chat{}, err
+	}
+
+	chat, err := h.q.GetOpenTopicChat(ctx, db.GetOpenTopicChatParams{TopicID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if err != nil && !db.IsNotFound(err) {
+		return Chat{}, err
+	}
+
+	return h.state(ctx, userID, chat, err == nil, true)
+}
+
+// state is a chat as the learner sees it. `found` is false for a chat not
+// started yet, whose zero row stands for the whole budget.
+func (h ChatHandler) state(ctx context.Context, userID uuid.UUID, chat db.LearningChat, found, teaches bool) (Chat, error) {
 	out := Chat{Messages: []db.LearningChatMessage{}}
 
 	var profile llm.ChatProfile
@@ -60,16 +87,10 @@ func (h ChatHandler) Get(ctx context.Context, userID, entryID uuid.UUID) (Chat, 
 
 	if err == nil {
 		profile, out.Available = llm.ChatProfileOf(llm.Provider(settings.Provider))
-		out.Teacher = out.Available && settings.Teacher
-	}
-
-	chat, err := h.q.GetLearningChatByEntry(ctx, db.GetLearningChatByEntryParams{EntryID: ids.ToPg(entryID), UserID: ids.ToPg(userID)})
-	if err != nil && !db.IsNotFound(err) {
-		return Chat{}, err
+		out.Teacher = out.Available && (teaches || settings.Teacher)
 	}
 
 	if out.Available {
-		// A chat not started yet has the whole budget; its zero row says so.
 		budget := commands.BudgetOf(chat, profile, h.clock.Now())
 		out.Budget = &budget
 
@@ -82,11 +103,76 @@ func (h ChatHandler) Get(ctx context.Context, userID, entryID uuid.UUID) (Chat, 
 		out.Daily = &daily.User
 	}
 
-	if db.IsNotFound(err) {
+	if !found {
 		return out, nil
 	}
 
 	out.Messages, err = h.q.ListLearningChatMessages(ctx, chat.ID)
 
 	return out, err
+}
+
+// Dialog is a closed conversation of a topic, as listed in its history.
+type Dialog struct {
+	ID           uuid.UUID
+	StartedAt    time.Time
+	ArchivedAt   time.Time
+	FirstMessage string
+	MessageCount int64
+}
+
+// History lists the closed dialogs of a topic, the newest first.
+func (h ChatHandler) History(ctx context.Context, userID, topicID uuid.UUID) ([]Dialog, error) {
+	if err := h.topicExists(ctx, userID, topicID); err != nil {
+		return nil, err
+	}
+
+	rows, err := h.q.ListArchivedTopicChats(ctx, db.ListArchivedTopicChatsParams{TopicID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if err != nil {
+		return nil, err
+	}
+
+	out := make([]Dialog, len(rows))
+	for i, row := range rows {
+		out[i] = Dialog{ID: ids.FromPg(row.ID), StartedAt: row.CreatedAt.Time, ArchivedAt: row.ArchivedAt.Time, FirstMessage: row.FirstMessage, MessageCount: row.MessageCount}
+	}
+
+	return out, nil
+}
+
+// Transcript is a closed dialog with everything said in it.
+type Transcript struct {
+	Dialog   Dialog
+	Messages []db.LearningChatMessage
+}
+
+// Transcript reads one closed dialog.
+func (h ChatHandler) Transcript(ctx context.Context, userID, chatID uuid.UUID) (Transcript, error) {
+	chat, err := h.q.GetArchivedTopicChat(ctx, db.GetArchivedTopicChatParams{ID: ids.ToPg(chatID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return Transcript{}, apperr.NewNotFound("dialog not found")
+	}
+
+	if err != nil {
+		return Transcript{}, err
+	}
+
+	messages, err := h.q.ListLearningChatMessages(ctx, chat.ID)
+	if err != nil {
+		return Transcript{}, err
+	}
+
+	return Transcript{
+		Dialog:   Dialog{ID: chatID, StartedAt: chat.CreatedAt.Time, ArchivedAt: chat.ArchivedAt.Time, MessageCount: int64(len(messages))},
+		Messages: messages,
+	}, nil
+}
+
+func (h ChatHandler) topicExists(ctx context.Context, userID, topicID uuid.UUID) error {
+	_, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return apperr.NewNotFound("topic not found")
+	}
+
+	return err
 }
