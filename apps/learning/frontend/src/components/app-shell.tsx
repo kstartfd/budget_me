@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useTranslations } from "next-intl"
-import { IconBook2, IconKey, IconMessageCircle, IconPlus, IconSettings } from "@tabler/icons-react"
+import { IconBook2, IconMessageCircle, IconPlus, IconSettings } from "@tabler/icons-react"
 import { AddActionProvider, useAddAction } from "@/components/add-action"
 import { FullScreenProvider, useIsFullScreen } from "@/components/full-screen"
 import { HeaderControls } from "@/components/header-controls"
@@ -21,7 +21,6 @@ function Frame({ children }: { children: React.ReactNode }) {
         <Link href="/learning" className="px-2 pb-6 text-[15px] font-bold">learning</Link>
         <Link href="/learning" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconBook2 size={18} />{t("title")}</Link>
         <Link href="/learning/chat" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconMessageCircle size={18} />{t("chatTab")}</Link>
-        <Link href="/learning/tokens" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconKey size={18} />{t("tokens")}</Link>
         <Link href="/learning/settings" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconSettings size={18} />{t("settings")}</Link>
         <div className="mt-auto flex justify-center"><HeaderControls /></div>
       </aside>
@@ -39,7 +38,6 @@ function Frame({ children }: { children: React.ReactNode }) {
           <Link href="/learning" aria-current={pathname === "/learning" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconBook2 size={22} />{t("title")}</Link>
           <Link href="/learning/chat" aria-current={pathname === "/learning/chat" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconMessageCircle size={22} />{t("chatTab")}</Link>
           <button type="button" onClick={trigger} disabled={!enabled} aria-label={t("newTopic")} className="bg-primary text-primary-foreground flex size-11 items-center justify-center rounded-full disabled:opacity-40"><IconPlus size={22} /></button>
-          <Link href="/learning/tokens" aria-current={pathname === "/learning/tokens" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconKey size={22} />{t("tokens")}</Link>
           <Link href="/learning/settings" aria-current={pathname === "/learning/settings" ? "page" : undefined} className="text-primary flex flex-col items-center gap-1 text-xs"><IconSettings size={22} />{t("settings")}</Link>
         </div>
       </nav>

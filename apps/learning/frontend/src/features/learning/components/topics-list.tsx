@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconChevronRight, IconKey, IconPlus } from "@tabler/icons-react"
+import { IconChevronRight, IconPlus } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { useProvideAddAction } from "@/components/add-action"
 import { languageBadge, useLanguageName } from "../language"
@@ -30,13 +30,6 @@ export function TopicsList({
             {t("subtitle")}
           </p>
         </div>
-        <Link
-          href="/learning/tokens"
-          aria-label={t("tokens")}
-          className="bg-secondary border-border text-muted-foreground flex size-[38px] shrink-0 items-center justify-center rounded-full border"
-        >
-          <IconKey size={18} />
-        </Link>
       </header>
 
       <div className="grid gap-2.5 lg:grid-cols-3 lg:gap-3.5">
@@ -76,15 +69,6 @@ export function TopicsList({
           {t("topicsEmpty")}
         </p>
       )}
-
-      <Link
-        href="/learning/tokens"
-        className="text-muted-foreground inline-flex items-center gap-2 px-1 text-[13px]"
-      >
-        <IconKey size={15} />
-        {t("extensionHint")}
-        <IconChevronRight size={14} className="text-faint" />
-      </Link>
     </div>
   )
 }

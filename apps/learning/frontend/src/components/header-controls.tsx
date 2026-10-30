@@ -66,12 +66,12 @@ export function HeaderControls() {
         ))}
       </div>
       <Link
-        href="/learning/tokens"
-        aria-label={tLearning("tokens")}
-        aria-current={pathname === "/learning/tokens" ? "page" : undefined}
+        href="/learning/settings"
+        aria-label={tLearning("settings")}
+        aria-current={pathname === "/learning/settings" ? "page" : undefined}
         className={cn(
           "border-border bg-secondary flex size-[30px] items-center justify-center rounded-full border",
-          pathname === "/learning/tokens" ? "text-primary" : "text-muted-foreground",
+          pathname === "/learning/settings" ? "text-primary" : "text-muted-foreground",
         )}
       >
         <GearIcon />

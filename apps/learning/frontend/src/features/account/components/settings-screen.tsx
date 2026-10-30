@@ -8,6 +8,7 @@ import { AiSection } from "@/features/ai"
 
 import { AccountSection } from "./account-section"
 import { DeleteAccountSection } from "./delete-account-section"
+import { ExtensionSection } from "./extension-section"
 
 export function SettingsScreen() {
   const t = useTranslations("learning")
@@ -27,6 +28,7 @@ export function SettingsScreen() {
 
       <AccountSection />
       <AiSection />
+      <ExtensionSection />
       <DeleteAccountSection />
     </div>
   )

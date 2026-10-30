@@ -79,11 +79,11 @@ export function TokenScreen() {
     <div className="anim-fade max-w-2xl space-y-[18px]">
       <header>
         <Link
-          href="/learning"
+          href="/learning/settings"
           className="text-muted-foreground mb-2 inline-flex items-center gap-1 text-xs"
         >
           <IconArrowLeft size={14} />
-          {t("title")}
+          {t("settings")}
         </Link>
         <h1 className="text-[22px] font-bold tracking-tight">{t("tokens")}</h1>
         <p className="text-muted-foreground mt-2 text-sm leading-relaxed">

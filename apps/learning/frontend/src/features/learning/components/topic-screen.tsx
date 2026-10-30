@@ -7,7 +7,6 @@ import {
   IconArrowLeft,
   IconCamera,
   IconChevronRight,
-  IconKey,
   IconLanguage,
   IconPencil,
   IconPlus,
@@ -354,14 +353,7 @@ export function TopicScreen({
             </aside>
           </div>
 
-          <div className="flex items-center justify-between gap-3 pt-1">
-            <Link
-              href="/learning/tokens"
-              className="text-muted-foreground inline-flex items-center gap-2 text-[13px]"
-            >
-              <IconKey size={15} />
-              {t("tokens")}
-            </Link>
+          <div className="flex items-center justify-end gap-3 pt-1">
             <Button
               variant="ghost"
               className="text-muted-foreground text-[13px]"
