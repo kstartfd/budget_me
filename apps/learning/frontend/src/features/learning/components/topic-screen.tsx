@@ -5,6 +5,7 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import {
   IconArrowLeft,
+  IconCamera,
   IconChevronRight,
   IconKey,
   IconLanguage,
@@ -20,6 +21,7 @@ import { ScreenBar } from "@/components/screen-bar"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
+import { ScanModal } from "@/features/scan"
 import { useIsDesktop } from "@/hooks/use-is-desktop"
 import { cn } from "@/lib/utils"
 import { useEntries, useEntry } from "../hooks"
@@ -44,9 +46,11 @@ export function TopicScreen({
   onDeleteTopic: () => void
 }) {
   const t = useTranslations("learning")
+  const scanT = useTranslations("scan")
   const desktop = useIsDesktop()
   const languageName = useLanguageName()
   const [entryForm, setEntryForm] = useState<Entry | "new" | null>(null)
+  const [scanning, setScanning] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [kind, setKind] = useState<Kind>("all")
@@ -218,6 +222,14 @@ export function TopicScreen({
               />
             </div>
             <Button
+              variant="secondary"
+              onClick={() => setScanning(true)}
+              className="text-primary hidden h-10 rounded-xl px-4 text-sm font-semibold lg:inline-flex"
+            >
+              <IconCamera size={17} />
+              {scanT("open")}
+            </Button>
+            <Button
               onClick={() => setEntryForm("new")}
               className="text-primary-foreground hidden h-10 rounded-xl px-5 text-sm font-semibold lg:inline-flex"
             >
@@ -361,15 +373,30 @@ export function TopicScreen({
           </div>
 
           <BottomBar>
-            <Button
-              onClick={() => setEntryForm("new")}
-              className="h-[50px] rounded-[14px] text-base font-bold"
-            >
-              <IconPlus size={18} />
-              {t("newEntry")}
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={() => setEntryForm("new")}
+                className="h-[50px] flex-1 rounded-[14px] text-base font-bold"
+              >
+                <IconPlus size={18} />
+                {t("newEntry")}
+              </Button>
+              <Button
+                variant="secondary"
+                size="icon"
+                aria-label={scanT("open")}
+                onClick={() => setScanning(true)}
+                className="text-primary size-[50px] shrink-0 rounded-[14px]"
+              >
+                <IconCamera size={22} />
+              </Button>
+            </div>
           </BottomBar>
         </>
+      )}
+
+      {scanning && (
+        <ScanModal topicId={topic.id} onClose={() => setScanning(false)} />
       )}
 
       {entryForm && (

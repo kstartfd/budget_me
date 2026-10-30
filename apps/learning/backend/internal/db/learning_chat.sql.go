@@ -36,6 +36,38 @@ func (q *Queries) AddLearningChatUsage(ctx context.Context, arg AddLearningChatU
 	return err
 }
 
+const archiveLearningChat = `-- name: ArchiveLearningChat :exec
+UPDATE learning_chats SET archived_at = $2, updated_at = $2, busy_until = NULL WHERE id = $1
+`
+
+type ArchiveLearningChatParams struct {
+	ID         pgtype.UUID
+	ArchivedAt pgtype.Timestamptz
+}
+
+func (q *Queries) ArchiveLearningChat(ctx context.Context, arg ArchiveLearningChatParams) error {
+	_, err := q.db.Exec(ctx, archiveLearningChat, arg.ID, arg.ArchivedAt)
+	return err
+}
+
+const deleteArchivedTopicChat = `-- name: DeleteArchivedTopicChat :execrows
+DELETE FROM learning_chats
+WHERE id = $1 AND user_id = $2 AND topic_id IS NOT NULL AND archived_at IS NOT NULL
+`
+
+type DeleteArchivedTopicChatParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) DeleteArchivedTopicChat(ctx context.Context, arg DeleteArchivedTopicChatParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteArchivedTopicChat, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteLearningChatMessages = `-- name: DeleteLearningChatMessages :exec
 DELETE FROM learning_chat_messages WHERE chat_id = $1
 `
@@ -58,7 +90,7 @@ const ensureLearningChat = `-- name: EnsureLearningChat :one
 INSERT INTO learning_chats (id, user_id, entry_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $4)
 ON CONFLICT (entry_id) DO UPDATE SET entry_id = EXCLUDED.entry_id
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at
 `
 
 type EnsureLearningChatParams struct {
@@ -88,12 +120,86 @@ func (q *Queries) EnsureLearningChat(ctx context.Context, arg EnsureLearningChat
 		&i.UpdatedAt,
 		&i.SpentTokens,
 		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
+	)
+	return i, err
+}
+
+const ensureOpenTopicChat = `-- name: EnsureOpenTopicChat :one
+INSERT INTO learning_chats (id, user_id, topic_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $4)
+ON CONFLICT (topic_id) WHERE topic_id IS NOT NULL AND archived_at IS NULL
+DO UPDATE SET topic_id = EXCLUDED.topic_id
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at
+`
+
+type EnsureOpenTopicChatParams struct {
+	ID        pgtype.UUID
+	UserID    pgtype.UUID
+	TopicID   pgtype.UUID
+	CreatedAt pgtype.Timestamptz
+}
+
+func (q *Queries) EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicChatParams) (LearningChat, error) {
+	row := q.db.QueryRow(ctx, ensureOpenTopicChat,
+		arg.ID,
+		arg.UserID,
+		arg.TopicID,
+		arg.CreatedAt,
+	)
+	var i LearningChat
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.EntryID,
+		&i.Summary,
+		&i.SummaryUpto,
+		&i.ContextTokens,
+		&i.BusyUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
+	)
+	return i, err
+}
+
+const getArchivedTopicChat = `-- name: GetArchivedTopicChat :one
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at FROM learning_chats
+WHERE id = $1 AND user_id = $2 AND topic_id IS NOT NULL AND archived_at IS NOT NULL
+`
+
+type GetArchivedTopicChatParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetArchivedTopicChat(ctx context.Context, arg GetArchivedTopicChatParams) (LearningChat, error) {
+	row := q.db.QueryRow(ctx, getArchivedTopicChat, arg.ID, arg.UserID)
+	var i LearningChat
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.EntryID,
+		&i.Summary,
+		&i.SummaryUpto,
+		&i.ContextTokens,
+		&i.BusyUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
 
 const getLearningChatByEntry = `-- name: GetLearningChatByEntry :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since FROM learning_chats WHERE entry_id = $1 AND user_id = $2
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at FROM learning_chats WHERE entry_id = $1 AND user_id = $2
 `
 
 type GetLearningChatByEntryParams struct {
@@ -116,6 +222,39 @@ func (q *Queries) GetLearningChatByEntry(ctx context.Context, arg GetLearningCha
 		&i.UpdatedAt,
 		&i.SpentTokens,
 		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
+	)
+	return i, err
+}
+
+const getOpenTopicChat = `-- name: GetOpenTopicChat :one
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at FROM learning_chats
+WHERE topic_id = $1 AND user_id = $2 AND archived_at IS NULL
+`
+
+type GetOpenTopicChatParams struct {
+	TopicID pgtype.UUID
+	UserID  pgtype.UUID
+}
+
+func (q *Queries) GetOpenTopicChat(ctx context.Context, arg GetOpenTopicChatParams) (LearningChat, error) {
+	row := q.db.QueryRow(ctx, getOpenTopicChat, arg.TopicID, arg.UserID)
+	var i LearningChat
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.EntryID,
+		&i.Summary,
+		&i.SummaryUpto,
+		&i.ContextTokens,
+		&i.BusyUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
 	)
 	return i, err
 }
@@ -149,6 +288,58 @@ func (q *Queries) InsertLearningChatMessage(ctx context.Context, arg InsertLearn
 		&i.CreatedAt,
 	)
 	return i, err
+}
+
+const listArchivedTopicChats = `-- name: ListArchivedTopicChats :many
+SELECT c.id, c.created_at, c.archived_at,
+    COALESCE((
+        SELECT left(m.content, 160) FROM learning_chat_messages m
+        WHERE m.chat_id = c.id AND m.role = 'user' ORDER BY m.id LIMIT 1
+    ), '')::text AS first_message,
+    (SELECT count(*) FROM learning_chat_messages m WHERE m.chat_id = c.id)::bigint AS message_count
+FROM learning_chats c
+WHERE c.topic_id = $1 AND c.user_id = $2 AND c.archived_at IS NOT NULL
+ORDER BY c.archived_at DESC, c.id
+LIMIT 100
+`
+
+type ListArchivedTopicChatsParams struct {
+	TopicID pgtype.UUID
+	UserID  pgtype.UUID
+}
+
+type ListArchivedTopicChatsRow struct {
+	ID           pgtype.UUID
+	CreatedAt    pgtype.Timestamptz
+	ArchivedAt   pgtype.Timestamptz
+	FirstMessage string
+	MessageCount int64
+}
+
+func (q *Queries) ListArchivedTopicChats(ctx context.Context, arg ListArchivedTopicChatsParams) ([]ListArchivedTopicChatsRow, error) {
+	rows, err := q.db.Query(ctx, listArchivedTopicChats, arg.TopicID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListArchivedTopicChatsRow{}
+	for rows.Next() {
+		var i ListArchivedTopicChatsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.CreatedAt,
+			&i.ArchivedAt,
+			&i.FirstMessage,
+			&i.MessageCount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const listLearningChatMessages = `-- name: ListLearningChatMessages :many
@@ -257,7 +448,7 @@ const lockLearningChat = `-- name: LockLearningChat :one
 UPDATE learning_chats SET busy_until = $1
 WHERE id = $2 AND user_id = $3
   AND (busy_until IS NULL OR busy_until < $4)
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at
 `
 
 type LockLearningChatParams struct {
@@ -287,8 +478,38 @@ func (q *Queries) LockLearningChat(ctx context.Context, arg LockLearningChatPara
 		&i.UpdatedAt,
 		&i.SpentTokens,
 		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
 	)
 	return i, err
+}
+
+const openNextTopicChat = `-- name: OpenNextTopicChat :exec
+INSERT INTO learning_chats (id, user_id, topic_id, spent_tokens, spent_since, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $6)
+`
+
+type OpenNextTopicChatParams struct {
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
+	TopicID     pgtype.UUID
+	SpentTokens int64
+	SpentSince  pgtype.Timestamptz
+	CreatedAt   pgtype.Timestamptz
+}
+
+// The next dialog carries over what the closed one spent in its budget window,
+// so clearing a chat never gives its budget back.
+func (q *Queries) OpenNextTopicChat(ctx context.Context, arg OpenNextTopicChatParams) error {
+	_, err := q.db.Exec(ctx, openNextTopicChat,
+		arg.ID,
+		arg.UserID,
+		arg.TopicID,
+		arg.SpentTokens,
+		arg.SpentSince,
+		arg.CreatedAt,
+	)
+	return err
 }
 
 const recordLearningChatTurn = `-- name: RecordLearningChatTurn :exec

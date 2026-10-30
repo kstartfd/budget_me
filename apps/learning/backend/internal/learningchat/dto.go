@@ -98,3 +98,46 @@ func chatDTO(chat queries.Chat) chatResponse {
 func doneDTO(reply commands.Reply) doneEvent {
 	return doneEvent{Question: messageDTO(reply.Question), Answer: messageDTO(reply.Answer), Budget: budgetDTO(reply.Budget), Daily: dailyDTO(reply.Daily)}
 }
+
+// dialogResponse is a closed conversation in the history of a topic. Title is
+// how it began; the messages are read separately.
+type dialogResponse struct {
+	ID           string `json:"id"`
+	Title        string `json:"title"`
+	MessageCount int64  `json:"messageCount"`
+	StartedAt    string `json:"startedAt"`
+	ArchivedAt   string `json:"archivedAt"`
+}
+
+type transcriptResponse struct {
+	dialogResponse
+	Messages []messageResponse `json:"messages"`
+}
+
+func dialogDTO(d queries.Dialog) dialogResponse {
+	return dialogResponse{
+		ID:           d.ID.String(),
+		Title:        d.FirstMessage,
+		MessageCount: d.MessageCount,
+		StartedAt:    d.StartedAt.UTC().Format(time.RFC3339),
+		ArchivedAt:   d.ArchivedAt.UTC().Format(time.RFC3339),
+	}
+}
+
+func dialogsDTO(dialogs []queries.Dialog) []dialogResponse {
+	out := make([]dialogResponse, len(dialogs))
+	for i, d := range dialogs {
+		out[i] = dialogDTO(d)
+	}
+
+	return out
+}
+
+func transcriptDTO(t queries.Transcript) transcriptResponse {
+	out := transcriptResponse{dialogResponse: dialogDTO(t.Dialog), Messages: make([]messageResponse, len(t.Messages))}
+	for i, row := range t.Messages {
+		out.Messages[i] = messageDTO(row)
+	}
+
+	return out
+}

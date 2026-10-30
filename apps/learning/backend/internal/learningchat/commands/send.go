@@ -37,9 +37,12 @@ type Agent interface {
 	Complete(ctx context.Context, req llm.Request) (string, error)
 }
 
+// Send asks one question in a chat: the chat of an entry, or, with no EntryID,
+// the free conversation of a topic.
 type Send struct {
 	UserID  uuid.UUID
 	EntryID uuid.UUID
+	TopicID uuid.UUID
 	Text    string
 }
 
@@ -110,7 +113,59 @@ func (h SendHandler) agentFor(ctx context.Context, userID uuid.UUID) (chatAgent,
 	return chatAgent{settings: settings, profile: profile, key: string(key), fingerprint: h.vault.Fingerprint(key)}, nil
 }
 
-// Handle answers one question of the chat of an entry. Nothing is stored unless
+// target is what a chat is about: a topic, and the entry saved in it unless the
+// chat is the free conversation of the topic.
+type target struct {
+	topic db.LearningTopic
+	entry *db.LearningEntry
+}
+
+// find resolves whose chat this is before anything else is looked at: whose
+// it is must not depend on what the caller has set up.
+func (h SendHandler) find(ctx context.Context, cmd Send) (target, error) {
+	if cmd.EntryID == uuid.Nil {
+		topic, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: ids.ToPg(cmd.TopicID), UserID: ids.ToPg(cmd.UserID)})
+		if db.IsNotFound(err) {
+			return target{}, apperr.NewNotFound("topic not found")
+		}
+
+		return target{topic: topic}, err
+	}
+
+	entry, err := h.q.GetLearningEntry(ctx, db.GetLearningEntryParams{ID: ids.ToPg(cmd.EntryID), UserID: ids.ToPg(cmd.UserID)})
+	if db.IsNotFound(err) {
+		return target{}, apperr.NewNotFound("entry not found")
+	}
+
+	if err != nil {
+		return target{}, err
+	}
+
+	topic, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: entry.TopicID, UserID: entry.UserID})
+
+	return target{topic: topic, entry: &entry}, err
+}
+
+// chat is created with the first question.
+func (h SendHandler) ensureChat(ctx context.Context, t target, now time.Time) (db.LearningChat, error) {
+	if t.entry == nil {
+		return h.q.EnsureOpenTopicChat(ctx, db.EnsureOpenTopicChatParams{ID: ids.ToPg(ids.New()), UserID: t.topic.UserID, TopicID: t.topic.ID, CreatedAt: db.Time(now)})
+	}
+
+	return h.q.EnsureLearningChat(ctx, db.EnsureLearningChatParams{ID: ids.ToPg(ids.New()), UserID: t.entry.UserID, EntryID: t.entry.ID, CreatedAt: db.Time(now)})
+}
+
+// system is what the model is told before the conversation. The free chat is
+// always the teacher; a chat about an entry follows the learner's setting.
+func (t target) system(summary string, teacher bool) string {
+	if t.entry == nil {
+		return freeSystem(t.topic, summary)
+	}
+
+	return chatSystem(t.topic, *t.entry, summary, teacher)
+}
+
+// Handle answers one question of a chat. Nothing is stored unless
 // the answer arrived whole, so a failed turn leaves the chat as it was and the
 // learner can send the question again. The provider call is not tied to the
 // request: a learner who leaves mid-answer still finds it there afterwards.
@@ -120,13 +175,7 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		return apperr.NewInvalid("the message must be 1 to 2000 characters")
 	}
 
-	// The entry comes first: whose it is must not depend on what the caller
-	// has set up.
-	entry, err := h.q.GetLearningEntry(ctx, db.GetLearningEntryParams{ID: ids.ToPg(cmd.EntryID), UserID: ids.ToPg(cmd.UserID)})
-	if db.IsNotFound(err) {
-		return apperr.NewNotFound("entry not found")
-	}
-
+	subject, err := h.find(ctx, cmd)
 	if err != nil {
 		return err
 	}
@@ -136,14 +185,9 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		return err
 	}
 
-	topic, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: entry.TopicID, UserID: entry.UserID})
-	if err != nil {
-		return err
-	}
-
 	now := h.clock.Now()
 
-	chat, err := h.q.EnsureLearningChat(ctx, db.EnsureLearningChatParams{ID: ids.ToPg(ids.New()), UserID: entry.UserID, EntryID: entry.ID, CreatedAt: db.Time(now)})
+	chat, err := h.ensureChat(ctx, subject, now)
 	if err != nil {
 		return err
 	}
@@ -188,7 +232,7 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		Provider: llm.Provider(agent.settings.Provider),
 		Model:    agent.settings.Model,
 		Key:      agent.key,
-		System:   chatSystem(topic, entry, chat.Summary, agent.settings.Teacher),
+		System:   subject.system(chat.Summary, agent.settings.Teacher),
 		Messages: history(stored, question),
 	}, stream.Delta)
 	if err != nil {

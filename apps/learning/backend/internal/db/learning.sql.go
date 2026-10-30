@@ -211,7 +211,7 @@ func (q *Queries) GetLearningCaptureByKey(ctx context.Context, arg GetLearningCa
 }
 
 const getLearningEntry = `-- name: GetLearningEntry :one
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source FROM learning_entries WHERE id = $1 AND user_id = $2
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash FROM learning_entries WHERE id = $1 AND user_id = $2
 `
 
 type GetLearningEntryParams struct {
@@ -238,6 +238,7 @@ func (q *Queries) GetLearningEntry(ctx context.Context, arg GetLearningEntryPara
 		&i.UpdatedAt,
 		&i.Explanation,
 		&i.Source,
+		&i.TextHash,
 	)
 	return i, err
 }
@@ -266,10 +267,10 @@ func (q *Queries) GetLearningTopic(ctx context.Context, arg GetLearningTopicPara
 }
 
 const insertLearningEntry = `-- name: InsertLearningEntry :one
-INSERT INTO learning_entries (id, user_id, topic_id, kind, text, transcription, translation, explanation, native_usage, example, rule, source, status, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+INSERT INTO learning_entries (id, user_id, topic_id, kind, text, text_hash, transcription, translation, explanation, native_usage, example, rule, source, status, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 ON CONFLICT (id) DO UPDATE SET id = learning_entries.id
-RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source
+RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash
 `
 
 type InsertLearningEntryParams struct {
@@ -278,6 +279,7 @@ type InsertLearningEntryParams struct {
 	TopicID       pgtype.UUID
 	Kind          LearningEntryKind
 	Text          string
+	TextHash      []byte
 	Transcription string
 	Translation   string
 	Explanation   string
@@ -297,6 +299,7 @@ func (q *Queries) InsertLearningEntry(ctx context.Context, arg InsertLearningEnt
 		arg.TopicID,
 		arg.Kind,
 		arg.Text,
+		arg.TextHash,
 		arg.Transcription,
 		arg.Translation,
 		arg.Explanation,
@@ -325,6 +328,7 @@ func (q *Queries) InsertLearningEntry(ctx context.Context, arg InsertLearningEnt
 		&i.UpdatedAt,
 		&i.Explanation,
 		&i.Source,
+		&i.TextHash,
 	)
 	return i, err
 }
@@ -365,7 +369,7 @@ func (q *Queries) InsertLearningTopic(ctx context.Context, arg InsertLearningTop
 }
 
 const listLearningEntries = `-- name: ListLearningEntries :many
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source FROM learning_entries WHERE user_id = $1 AND topic_id = $2
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash FROM learning_entries WHERE user_id = $1 AND topic_id = $2
 AND ($3::text = '' OR kind::text = $3)
 AND ($4::text = '' OR status::text = $4)
 AND ($5::text = '' OR strpos(lower(text || ' ' || translation || ' ' || explanation || ' ' || rule || ' ' || source), lower($5)) > 0)
@@ -415,6 +419,7 @@ func (q *Queries) ListLearningEntries(ctx context.Context, arg ListLearningEntri
 			&i.UpdatedAt,
 			&i.Explanation,
 			&i.Source,
+			&i.TextHash,
 		); err != nil {
 			return nil, err
 		}
@@ -514,9 +519,9 @@ func (q *Queries) RetryLearningCapture(ctx context.Context, arg RetryLearningCap
 }
 
 const updateLearningEntry = `-- name: UpdateLearningEntry :one
-UPDATE learning_entries SET topic_id = $3, kind = $4, text = $5, transcription = $6,
-translation = $7, explanation = $8, native_usage = $9, example = $10, rule = $11, source = $12, status = $13, updated_at = $14
-WHERE id = $1 AND user_id = $2 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source
+UPDATE learning_entries SET topic_id = $3, kind = $4, text = $5, text_hash = $6, transcription = $7,
+translation = $8, explanation = $9, native_usage = $10, example = $11, rule = $12, source = $13, status = $14, updated_at = $15
+WHERE id = $1 AND user_id = $2 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash
 `
 
 type UpdateLearningEntryParams struct {
@@ -525,6 +530,7 @@ type UpdateLearningEntryParams struct {
 	TopicID       pgtype.UUID
 	Kind          LearningEntryKind
 	Text          string
+	TextHash      []byte
 	Transcription string
 	Translation   string
 	Explanation   string
@@ -543,6 +549,7 @@ func (q *Queries) UpdateLearningEntry(ctx context.Context, arg UpdateLearningEnt
 		arg.TopicID,
 		arg.Kind,
 		arg.Text,
+		arg.TextHash,
 		arg.Transcription,
 		arg.Translation,
 		arg.Explanation,
@@ -570,6 +577,7 @@ func (q *Queries) UpdateLearningEntry(ctx context.Context, arg UpdateLearningEnt
 		&i.UpdatedAt,
 		&i.Explanation,
 		&i.Source,
+		&i.TextHash,
 	)
 	return i, err
 }

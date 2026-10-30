@@ -12,9 +12,11 @@ import (
 
 type Querier interface {
 	AddLearningChatUsage(ctx context.Context, arg AddLearningChatUsageParams) error
+	ArchiveLearningChat(ctx context.Context, arg ArchiveLearningChatParams) error
 	AuthenticateLearningToken(ctx context.Context, arg AuthenticateLearningTokenParams) (LearningToken, error)
 	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
+	DeleteArchivedTopicChat(ctx context.Context, arg DeleteArchivedTopicChatParams) (int64, error)
 	DeleteLearningAISettings(ctx context.Context, userID pgtype.UUID) (int64, error)
 	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
 	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
@@ -23,6 +25,8 @@ type Querier interface {
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
+	EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicChatParams) (LearningChat, error)
+	GetArchivedTopicChat(ctx context.Context, arg GetArchivedTopicChatParams) (LearningChat, error)
 	GetLearningAISettings(ctx context.Context, userID pgtype.UUID) (LearningAiSetting, error)
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
@@ -30,6 +34,7 @@ type Querier interface {
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
 	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)
+	GetOpenTopicChat(ctx context.Context, arg GetOpenTopicChatParams) (LearningChat, error)
 	GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
@@ -38,6 +43,8 @@ type Querier interface {
 	InsertLearningToken(ctx context.Context, arg InsertLearningTokenParams) (LearningToken, error)
 	InsertLearningTopic(ctx context.Context, arg InsertLearningTopicParams) (LearningTopic, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
+	KnownLearningTextHashes(ctx context.Context, arg KnownLearningTextHashesParams) ([][]byte, error)
+	ListArchivedTopicChats(ctx context.Context, arg ListArchivedTopicChatsParams) ([]ListArchivedTopicChatsRow, error)
 	ListLearningChatMessages(ctx context.Context, chatID pgtype.UUID) ([]LearningChatMessage, error)
 	ListLearningChatMessagesAfter(ctx context.Context, arg ListLearningChatMessagesAfterParams) ([]LearningChatMessage, error)
 	ListLearningChatUsage(ctx context.Context, arg ListLearningChatUsageParams) ([]ListLearningChatUsageRow, error)
@@ -49,10 +56,14 @@ type Querier interface {
 	LockLearningChat(ctx context.Context, arg LockLearningChatParams) (LearningChat, error)
 	// The account is the source of truth for identity; this row keeps a copy.
 	MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error)
+	// The next dialog carries over what the closed one spent in its budget window,
+	// so clearing a chat never gives its budget back.
+	OpenNextTopicChat(ctx context.Context, arg OpenNextTopicChatParams) error
 	// Records a finished turn: the size the next one starts from, and what it cost.
 	// A budget window that has run out starts over with this turn (every SET
 	// expression reads the row as it was, so both CASEs see the same spent_since).
 	RecordLearningChatTurn(ctx context.Context, arg RecordLearningChatTurnParams) error
+	RecordLearningScan(ctx context.Context, arg RecordLearningScanParams) (int64, error)
 	ResetLearningChat(ctx context.Context, arg ResetLearningChatParams) error
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)

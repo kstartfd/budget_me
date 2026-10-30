@@ -349,6 +349,8 @@ test:learning-backend:
   stage: test
   image: golang:1.25-alpine
   script:
+    # The picture reader is the real tesseract in a couple of tests (they skip without it).
+    - apk add --no-cache tesseract-ocr tesseract-ocr-data-eng
     - cd apps/learning/backend
     - go run ./cmd/migrate up
     - go vet ./...

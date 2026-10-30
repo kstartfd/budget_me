@@ -26,14 +26,14 @@ ORDER BY created_at DESC, id DESC LIMIT sqlc.arg(page_limit) OFFSET sqlc.arg(pag
 SELECT * FROM learning_entries WHERE id = $1 AND user_id = $2;
 
 -- name: InsertLearningEntry :one
-INSERT INTO learning_entries (id, user_id, topic_id, kind, text, transcription, translation, explanation, native_usage, example, rule, source, status, created_at, updated_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
+INSERT INTO learning_entries (id, user_id, topic_id, kind, text, text_hash, transcription, translation, explanation, native_usage, example, rule, source, status, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 ON CONFLICT (id) DO UPDATE SET id = learning_entries.id
 RETURNING *;
 
 -- name: UpdateLearningEntry :one
-UPDATE learning_entries SET topic_id = $3, kind = $4, text = $5, transcription = $6,
-translation = $7, explanation = $8, native_usage = $9, example = $10, rule = $11, source = $12, status = $13, updated_at = $14
+UPDATE learning_entries SET topic_id = $3, kind = $4, text = $5, text_hash = $6, transcription = $7,
+translation = $8, explanation = $9, native_usage = $10, example = $11, rule = $12, source = $13, status = $14, updated_at = $15
 WHERE id = $1 AND user_id = $2 RETURNING *;
 
 -- name: DeleteLearningEntry :execrows

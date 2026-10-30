@@ -444,7 +444,7 @@ func TestEntryPaginationAndFilters(t *testing.T) {
 			text, kind, status = "needle%", db.LearningEntryKindWord, db.LearningEntryStatusLearning
 		}
 
-		_, err := q.InsertLearningEntry(context.Background(), db.InsertLearningEntryParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(user), TopicID: ids.ToPg(uuid.MustParse(topicID)), Text: text, Kind: kind, Status: status, CreatedAt: db.Time(now.Add(time.Duration(i) * time.Second)), UpdatedAt: db.Time(now)})
+		_, err := q.InsertLearningEntry(context.Background(), db.InsertLearningEntryParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(user), TopicID: ids.ToPg(uuid.MustParse(topicID)), Text: text, TextHash: commands.TextHash(text), Kind: kind, Status: status, CreatedAt: db.Time(now.Add(time.Duration(i) * time.Second)), UpdatedAt: db.Time(now)})
 		if err != nil {
 			t.Fatal(err)
 		}

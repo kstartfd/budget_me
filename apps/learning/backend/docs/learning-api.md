@@ -229,6 +229,66 @@ newest 8 messages is folded into `learning_chats.summary` by the cheap model
 (`deepseek-flash`, thinking off), after the answer has been delivered. The full history stays in
 `learning_chat_messages`. Chat replies use no thinking and at most 1500 tokens.
 
+## Free chat with the teacher (session only)
+
+A conversation with the user's agent that is about no entry: a lesson in the topic's language,
+opened from the app's chat tab. It is **always the teacher** (the `teacher` setting does not
+matter), speaks the topic's language, finds out the learner's level and leads the lesson, and
+corrects mistakes with the same `✏️` section. Same provider, rate, budget and daily limits as the
+chat of an entry (they are the same rows in `learning_chats`, `topic_id` set instead of `entry_id`).
+Extension tokens get **401**.
+
+A topic has one **open** dialog. Clearing it **closes** it (`archived_at`) and the next message
+opens a new one, so nothing said is lost; closed dialogs are read-only and can be deleted.
+The new dialog starts without the old one's history and summary but **inherits what the old one
+spent** of its budget window, so clearing never buys a new budget.
+
+- `GET /topics/<uuid>/chat` — same body as the chat of an entry, for the open dialog
+  (`teacher` is `true` whenever `available` is). **404** for a missing or another user's topic.
+- `POST /topics/<uuid>/chat` — body and event stream exactly as `POST /entries/<uuid>/chat`.
+- `POST /topics/<uuid>/chat/archive` — "clear chat": closes the open dialog. A dialog nobody wrote in
+  is left alone. **409** while an answer is being written.
+- `GET /topics/<uuid>/chat/history` — closed dialogs, newest first (up to 100):
+  `[{"id":"…","title":"how the dialog began (160 chars)","messageCount":4,"startedAt":"…","archivedAt":"…"}]`.
+- `GET /chat-dialogs/<uuid>` — one closed dialog with its `messages`. **404** for the open one.
+- `DELETE /chat-dialogs/<uuid>` — deletes a closed dialog for good. **404** for the open one.
+
+Deleting a topic deletes its dialogs.
+
+## Words and phrases from a picture (session only)
+
+`POST /ai/scan` — `multipart/form-data` with `topicId` and `image` (JPEG, PNG or GIF up to 6 MB and
+16 megapixels, recognized by its bytes). The picture is read **on the server** with tesseract, in the
+language of the topic (`en`, `ru`, `uk`, … see `ocr.languages`; **400** for any other); it is never
+sent to an AI agent, so reading needs no agent and costs no tokens. The response is
+
+```json
+{"items":[{"kind":"word"|"phrase","text":"…"}], "known": 2, "seen": false}
+```
+
+`items` are the words and phrases written in the topic's language, in the order they stand on the
+picture, at most 30: words tesseract was not sure of, prices, codes and text in another alphabet are
+left out, the lines of a wrapped paragraph are joined into sentences (a sentence of up to 20 words is
+a phrase, a longer one is cut at its commas), a text with a space is a phrase. No translation is given:
+the app sends the pick to `POST /captures` as `source: "photo"`, and the queue fills the card as usual
+with the learner's agent, if there is one. A page of text is tried first, scattered words (a sign) if
+the page holds none; an empty list means the picture holds nothing to learn.
+
+**Duplicates.** Each entry carries `text_hash`, the SHA-256 of its text in lower case with whitespace
+folded (`learning/commands.TextHash`). A found text whose hash an entry of the same topic has is not
+offered and is counted in `known`; the same text twice in a picture is offered once. The picture
+itself is remembered by the SHA-256 of its file (table `learning_scans`, per topic): `seen` is true
+when this very file was read for this topic before. It is a hint, not a refusal: what the picture
+holds that the topic does not have is offered again, so a learner who kept part of it can come back
+for the rest.
+
+Errors: **400** (no/invalid/too large picture, bad topic id, a language that cannot be read, a picture
+the reader could not make sense of), **404** (topic), **500** (tesseract is not installed on the
+server), **429** (`42901`, 4 pictures back to back, then one every 15 seconds, one at a time; only
+requests that get to the reader count). At most 2 pictures are read at a time on the server.
+Extension tokens get **401**. The image installs the language data named in `OCR_LANGS` of
+`infra/learning/docker/backend.Dockerfile`; `ocr.languages` must list the same ones.
+
 ## Session-only management
 
 - `POST /topics`, `PUT /topics/<uuid>` — `name`, `language`, `translationLanguage`.

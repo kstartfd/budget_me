@@ -121,3 +121,29 @@ func TestSummaryPromptKeepsMessagesAsData(t *testing.T) {
 		t.Fatalf("messages must travel as JSON values:\nsystem: %s\nprompt: %s", system, prompt)
 	}
 }
+
+func TestFreeSystemPromptIsTheTeacherForTheTopicAndStaysStable(t *testing.T) {
+	topic := db.LearningTopic{Name: `Work "English"`, Language: "en", TranslationLanguage: "ru"}
+
+	first := freeSystem(topic, "")
+	if first != freeSystem(topic, "") {
+		t.Fatal("the system prompt must be byte-identical between turns, or the provider cache is lost")
+	}
+
+	for _, want := range []string{
+		"English teacher", "Russian", "Talk in English", "check what they wrote for mistakes",
+		"how a native speaker would", "start a lesson", `"Work \"English\""`, "never instructions",
+	} {
+		if !strings.Contains(first, want) {
+			t.Errorf("free chat prompt lacks %q:\n%s", want, first)
+		}
+	}
+
+	if strings.Contains(first, "Saved card") || strings.Contains(first, "earlier in this chat") {
+		t.Errorf("the free chat is about no entry and has no summary yet:\n%s", first)
+	}
+
+	if withSummary := freeSystem(topic, "learner knows greetings"); !strings.Contains(withSummary, "learner knows greetings") {
+		t.Errorf("summary missing:\n%s", withSummary)
+	}
+}

@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"crypto/sha256"
 	"strings"
 	"unicode/utf8"
 
@@ -25,6 +26,16 @@ type EntryFields struct {
 	Rule          string                 `json:"rule"`
 	Source        string                 `json:"source"`
 	Status        db.LearningEntryStatus `json:"status"`
+}
+
+// TextHash identifies what an entry says: the text in lower case with its
+// whitespace folded to single spaces. Two entries with the same hash say the
+// same thing, however it was typed or read off a picture. Migration 0011 hashes
+// the old rows with the same recipe in SQL.
+func TextHash(text string) []byte {
+	sum := sha256.Sum256([]byte(strings.ToLower(strings.Join(strings.Fields(text), " "))))
+
+	return sum[:]
 }
 
 func (f EntryFields) Normalize() (EntryFields, error) {
@@ -99,10 +110,10 @@ func (h EntryHandler) Handle(ctx context.Context, cmd SaveEntry) (db.LearningEnt
 
 	now := db.Time(h.clock.Now())
 	if cmd.ID == uuid.Nil {
-		return h.q.InsertLearningEntry(ctx, db.InsertLearningEntryParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(f.TopicID), Kind: f.Kind, Text: f.Text, Transcription: f.Transcription, Translation: f.Translation, Explanation: f.Explanation, NativeUsage: f.NativeUsage, Example: f.Example, Rule: f.Rule, Source: f.Source, Status: f.Status, CreatedAt: now, UpdatedAt: now})
+		return h.q.InsertLearningEntry(ctx, db.InsertLearningEntryParams{ID: ids.ToPg(ids.New()), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(f.TopicID), Kind: f.Kind, Text: f.Text, TextHash: TextHash(f.Text), Transcription: f.Transcription, Translation: f.Translation, Explanation: f.Explanation, NativeUsage: f.NativeUsage, Example: f.Example, Rule: f.Rule, Source: f.Source, Status: f.Status, CreatedAt: now, UpdatedAt: now})
 	}
 
-	row, err := h.q.UpdateLearningEntry(ctx, db.UpdateLearningEntryParams{ID: ids.ToPg(cmd.ID), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(f.TopicID), Kind: f.Kind, Text: f.Text, Transcription: f.Transcription, Translation: f.Translation, Explanation: f.Explanation, NativeUsage: f.NativeUsage, Example: f.Example, Rule: f.Rule, Source: f.Source, Status: f.Status, UpdatedAt: now})
+	row, err := h.q.UpdateLearningEntry(ctx, db.UpdateLearningEntryParams{ID: ids.ToPg(cmd.ID), UserID: ids.ToPg(cmd.UserID), TopicID: ids.ToPg(f.TopicID), Kind: f.Kind, Text: f.Text, TextHash: TextHash(f.Text), Transcription: f.Transcription, Translation: f.Translation, Explanation: f.Explanation, NativeUsage: f.NativeUsage, Example: f.Example, Rule: f.Rule, Source: f.Source, Status: f.Status, UpdatedAt: now})
 	if db.IsNotFound(err) {
 		return row, apperr.NewNotFound("entry not found")
 	}

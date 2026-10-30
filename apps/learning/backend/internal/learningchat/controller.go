@@ -50,14 +50,20 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 	}
 }
 
-func entryID(ctx echo.Context) (uuid.UUID, error) {
+func idParam(ctx echo.Context, what string) (uuid.UUID, error) {
 	id, err := uuid.Parse(ctx.Param("id"))
 	if err != nil || id == uuid.Nil {
-		return uuid.Nil, apperr.NewInvalid("invalid entry id")
+		return uuid.Nil, apperr.NewInvalid("invalid " + what + " id")
 	}
 
 	return id, nil
 }
+
+func entryID(ctx echo.Context) (uuid.UUID, error) { return idParam(ctx, "entry") }
+
+func topicID(ctx echo.Context) (uuid.UUID, error) { return idParam(ctx, "topic") }
+
+func userOf(ctx echo.Context) uuid.UUID { return httpx.UserIDFromContext(ctx.Request().Context()) }
 
 func (c *Controller) get(ctx echo.Context) error {
 	id, err := entryID(ctx)
@@ -75,25 +81,38 @@ func (c *Controller) get(ctx echo.Context) error {
 	return httpx.OK(ctx, chatDTO(chat))
 }
 
-// send answers as a server-sent event stream: `delta` events with the pieces of
-// the answer, then one `done` with the stored messages, or one `error`. A
-// failure before the first piece is an ordinary error response instead, so
-// a refused question (no agent, chat busy, bad text) needs no stream parsing.
 func (c *Controller) send(ctx echo.Context) error {
 	id, err := entryID(ctx)
 	if err != nil {
 		return err
 	}
 
+	return c.stream(ctx, commands.Send{UserID: userOf(ctx), EntryID: id})
+}
+
+func (c *Controller) sendTopic(ctx echo.Context) error {
+	id, err := topicID(ctx)
+	if err != nil {
+		return err
+	}
+
+	return c.stream(ctx, commands.Send{UserID: userOf(ctx), TopicID: id})
+}
+
+// stream answers as a server-sent event stream: `delta` events with the pieces of
+// the answer, then one `done` with the stored messages, or one `error`. A
+// failure before the first piece is an ordinary error response instead, so
+// a refused question (no agent, chat busy, bad text) needs no stream parsing.
+func (c *Controller) stream(ctx echo.Context, cmd commands.Send) error {
 	var req sendRequest
 	if err := ctx.Bind(&req); err != nil {
 		return apperr.NewInvalid("invalid body")
 	}
 
-	userID := httpx.UserIDFromContext(ctx.Request().Context())
+	cmd.Text = req.Text
 
 	// Before anything else, so a flood costs as little as possible.
-	release, wait, ok := c.limit.Acquire(userID)
+	release, wait, ok := c.limit.Acquire(cmd.UserID)
 	if !ok {
 		retryAfter(ctx, wait)
 
@@ -104,7 +123,7 @@ func (c *Controller) send(ctx echo.Context) error {
 
 	out := &eventStream{ctx: ctx}
 
-	err = c.write.Handle(ctx.Request().Context(), commands.Send{UserID: userID, EntryID: id, Text: req.Text}, commands.Stream{
+	err := c.write.Handle(ctx.Request().Context(), cmd, commands.Stream{
 		Delta: func(piece string) { out.send("delta", deltaEvent{Text: piece}) },
 		Done:  func(reply commands.Reply) { out.send("done", doneDTO(reply)) },
 	})
@@ -119,6 +138,82 @@ func (c *Controller) send(ctx echo.Context) error {
 	out.send("error", streamError(err))
 
 	return nil
+}
+
+func (c *Controller) getTopic(ctx echo.Context) error {
+	id, err := topicID(ctx)
+	if err != nil {
+		return err
+	}
+
+	chat, err := c.read.GetTopic(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, chatDTO(chat))
+}
+
+// archive is "clear chat" for the free conversation: the dialog is closed and
+// kept in the history, and the next message opens a new one.
+func (c *Controller) archive(ctx echo.Context) error {
+	id, err := topicID(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err := c.write.Archive(ctx.Request().Context(), userOf(ctx), id); err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, nil)
+}
+
+func (c *Controller) history(ctx echo.Context) error {
+	id, err := topicID(ctx)
+	if err != nil {
+		return err
+	}
+
+	dialogs, err := c.read.History(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, dialogsDTO(dialogs))
+}
+
+func (c *Controller) dialog(ctx echo.Context) error {
+	id, err := idParam(ctx, "dialog")
+	if err != nil {
+		return err
+	}
+
+	transcript, err := c.read.Transcript(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, transcriptDTO(transcript))
+}
+
+func (c *Controller) deleteDialog(ctx echo.Context) error {
+	id, err := idParam(ctx, "dialog")
+	if err != nil {
+		return err
+	}
+
+	if err := c.write.DeleteDialog(ctx.Request().Context(), userOf(ctx), id); err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, nil)
 }
 
 func (c *Controller) clear(ctx echo.Context) error {

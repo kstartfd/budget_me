@@ -1,41 +1,20 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useFormatter, useTranslations } from "next-intl"
-import { IconMessageCircle, IconSend2, IconTrash } from "@tabler/icons-react"
+import { useTranslations } from "next-intl"
+import { IconMessageCircle, IconTrash } from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 
-import { ChatError, chatErrorCode } from "../api"
 import { useChat, useChatTurn, useClearChat } from "../hooks"
-import { maxQuestionLength } from "../schemas"
-
-function Bubble({
-  role,
-  children,
-}: {
-  role: "user" | "assistant"
-  children: React.ReactNode
-}) {
-  const mine = role === "user"
-
-  return (
-    <div className={cn("flex", mine ? "justify-end" : "justify-start")}>
-      <p
-        className={cn(
-          "max-w-[88%] rounded-2xl px-3.5 py-2 text-[13px] leading-[1.5] break-words whitespace-pre-wrap",
-          mine
-            ? "bg-primary text-primary-foreground rounded-br-md"
-            : "bg-secondary text-foreground rounded-bl-md",
-        )}
-      >
-        {children}
-      </p>
-    </div>
-  )
-}
+import {
+  Bubble,
+  chatLimits,
+  Composer,
+  LimitReached,
+  useChatFailure,
+} from "./chat-ui"
 
 /**
  * A conversation with the user's own AI agent about one entry. It is only
@@ -50,7 +29,7 @@ export function EntryChat({
   page?: boolean
 }) {
   const t = useTranslations("chat")
-  const format = useFormatter()
+  const failure = useChatFailure()
   const chat = useChat(entryId)
   const { turn, error, send, sending } = useChatTurn(entryId)
   const clear = useClearChat(entryId)
@@ -61,14 +40,8 @@ export function EntryChat({
 
   const messages = chat.data?.messages ?? []
   const streaming = turn?.answer.length ?? 0
-  const budget = chat.data?.budget
-  const daily = chat.data?.daily
   const teacher = !!chat.data?.teacher
-  const dailyExhausted = !!daily && daily.used >= daily.limit
-  const exhausted = (!!budget && budget.used >= budget.limit) || dailyExhausted
-  const usedPercent = budget
-    ? Math.round((budget.used / budget.limit) * 100)
-    : 0
+  const { exhausted, usedPercent } = chatLimits(chat.data)
 
   useEffect(() => {
     if (open) end.current?.scrollIntoView({ block: "nearest" })
@@ -81,32 +54,6 @@ export function EntryChat({
     if (!question || sending) return
 
     if (await send(question)) setText("")
-  }
-
-  /** When the chat's window ends, as a time of day; empty if it is not known. */
-  const resetTime = (iso?: string | null) =>
-    iso
-      ? format.dateTime(new Date(iso), { hour: "numeric", minute: "numeric" })
-      : ""
-
-  const failure = (e: ChatError) => {
-    switch (e.code) {
-      case chatErrorCode.unavailable:
-        return t("unavailable")
-      case chatErrorCode.busy:
-        return t("busy")
-      case chatErrorCode.tooMany:
-        return t("tooMany")
-      case chatErrorCode.budget:
-        return t("budgetReached", { time: resetTime(e.details[0]) })
-      case chatErrorCode.daily:
-        return t("dailyReached", { time: resetTime(e.details[0]) })
-      // The backend words these for the learner (no agent, key rejected, ...).
-      case chatErrorCode.invalid:
-        return e.message
-      default:
-        return t("failed")
-    }
   }
 
   return (
@@ -158,43 +105,15 @@ export function EntryChat({
             </p>
           )}
           {exhausted ? (
-            <p className="text-muted-foreground bg-secondary rounded-xl px-3.5 py-2.5 text-[13px] leading-[1.5]">
-              {dailyExhausted
-                ? t("dailyReached", { time: resetTime(daily?.resetsAt) })
-                : t("budgetReached", { time: resetTime(budget?.resetsAt) })}
-            </p>
+            <LimitReached chat={chat.data} />
           ) : (
-            <div className="flex items-end gap-2">
-              <Textarea
-                value={text}
-                maxLength={maxQuestionLength}
-                rows={1}
-                disabled={sending}
-                placeholder={t(teacher ? "placeholderTeacher" : "placeholder")}
-                aria-label={t(teacher ? "placeholderTeacher" : "placeholder")}
-                className="max-h-40 min-h-10 flex-1 resize-none rounded-xl px-3 py-2.5 text-[13px] md:text-[13px]"
-                onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (
-                    e.key === "Enter" &&
-                    !e.shiftKey &&
-                    !e.nativeEvent.isComposing
-                  ) {
-                    e.preventDefault()
-                    void submit()
-                  }
-                }}
-              />
-              <Button
-                size="icon"
-                aria-label={t("send")}
-                disabled={sending || text.trim() === ""}
-                className="size-10 shrink-0 rounded-xl"
-                onClick={() => void submit()}
-              >
-                <IconSend2 size={18} />
-              </Button>
-            </div>
+            <Composer
+              value={text}
+              onChange={setText}
+              onSubmit={() => void submit()}
+              sending={sending}
+              placeholder={t(teacher ? "placeholderTeacher" : "placeholder")}
+            />
           )}
           {!exhausted && usedPercent >= 70 && (
             <p className="text-faint text-xs">

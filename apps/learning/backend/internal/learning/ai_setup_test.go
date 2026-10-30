@@ -139,6 +139,13 @@ type aiEnv struct {
 func setupAI(t *testing.T) aiEnv {
 	t.Helper()
 
+	return setupAIWith(t, nil)
+}
+
+// setupAIWith is setupAI with a say in the server's configuration.
+func setupAIWith(t *testing.T, tune func(*config.Config)) aiEnv {
+	t.Helper()
+
 	pool, q := testdb.Pool(t)
 	user := testdb.NewUser(t, pool, q, time.Now().UTC(), 1)
 	raw := token.NewCodec(authSecret).Issue(user, time.Now().UTC(), time.Hour)
@@ -153,6 +160,10 @@ func setupAI(t *testing.T) aiEnv {
 	t.Cleanup(providers.Close)
 
 	cfg := config.Config{AuthSecret: authSecret, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL}}
+	if tune != nil {
+		tune(&cfg)
+	}
+
 	agent := &fakeLLM{}
 
 	return aiEnv{

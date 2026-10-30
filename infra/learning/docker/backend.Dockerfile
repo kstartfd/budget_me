@@ -10,9 +10,15 @@ COPY apps/learning/backend/ ./
 RUN CGO_ENABLED=0 go build -trimpath -o /out/server ./cmd/http_server \
  && CGO_ENABLED=0 go build -trimpath -o /out/migrate ./cmd/migrate
 
-FROM gcr.io/distroless/static:nonroot
+# Pictures are read on this machine by tesseract, never sent to an AI agent.
+# OCR_LANGS is the language data installed (each is ~20 MB); internal/ocr lists
+# the same ones, and a test keeps the two in step. Alpine matches the build
+# stage's, so the Go binaries (static) run on it as they did on distroless.
+FROM alpine:3.24
+ARG OCR_LANGS="bel ces dan deu eng fin fra ita nld nor pol por rus spa swe tur ukr"
+RUN apk add --no-cache tesseract-ocr $(for lang in $OCR_LANGS; do printf 'tesseract-ocr-data-%s ' "$lang"; done)
 COPY --from=build /out/server /server
 COPY --from=build /out/migrate /migrate
-USER nonroot
+USER 65532:65532
 EXPOSE 8080
 ENTRYPOINT ["/server"]

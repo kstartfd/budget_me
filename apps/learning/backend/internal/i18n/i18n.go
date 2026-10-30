@@ -82,6 +82,16 @@ var catalogs = map[Locale]map[string]string{
 		"the provider rejected the AI agent's API key":      "провайдер не принял API-ключ агента",
 		"the AI agent is temporarily unavailable":           "агент временно недоступен",
 		"the AI agent did not return an answer":             "агент не вернул ответ",
+		// learning picture and topic chat
+		"a picture is required":                                                 "нужна картинка",
+		"the picture must be a JPEG, PNG or GIF up to 6 MB":                     "картинка должна быть JPEG, PNG или GIF до 6 МБ",
+		"the picture is too large: send a smaller one":                          "картинка слишком большая: отправьте поменьше",
+		"the picture could not be read: try another one":                        "не удалось прочитать картинку: попробуйте другую",
+		"reading a picture is not available for the language of this topic yet": "для языка этой темы чтение фото пока недоступно",
+		"reading a picture is not available on this server":                     "чтение фото на этом сервере недоступно",
+		"invalid topic id": "некорректный id темы",
+		"topic not found":  "тема не найдена",
+		"dialog not found": "диалог не найден",
 		// auth
 		"invalid credentials":      "неверный email или пароль",
 		"invalid init data":        "не удалось подтвердить вход через Telegram",
