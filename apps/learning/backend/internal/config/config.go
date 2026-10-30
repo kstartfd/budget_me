@@ -28,6 +28,9 @@ type Config struct {
 	// LLMURLs are the provider API roots. Never read from the environment:
 	// blank means the real providers, and tests point it at fakes.
 	LLMURLs llm.URLs
+	// OCRBin is the tesseract program that reads pictures. Never read from the
+	// environment: blank means the one on PATH, and tests point it at a stand-in.
+	OCRBin string
 	// ChatRate is how fast one user may use the chat. Never read from the
 	// environment: blank means the defaults, and tests loosen or tighten it.
 	ChatRate ratelimit.Config

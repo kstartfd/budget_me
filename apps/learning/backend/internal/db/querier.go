@@ -43,6 +43,7 @@ type Querier interface {
 	InsertLearningToken(ctx context.Context, arg InsertLearningTokenParams) (LearningToken, error)
 	InsertLearningTopic(ctx context.Context, arg InsertLearningTopicParams) (LearningTopic, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
+	KnownLearningTextHashes(ctx context.Context, arg KnownLearningTextHashesParams) ([][]byte, error)
 	ListArchivedTopicChats(ctx context.Context, arg ListArchivedTopicChatsParams) ([]ListArchivedTopicChatsRow, error)
 	ListLearningChatMessages(ctx context.Context, chatID pgtype.UUID) ([]LearningChatMessage, error)
 	ListLearningChatMessagesAfter(ctx context.Context, arg ListLearningChatMessagesAfterParams) ([]LearningChatMessage, error)
@@ -62,6 +63,7 @@ type Querier interface {
 	// A budget window that has run out starts over with this turn (every SET
 	// expression reads the row as it was, so both CASEs see the same spent_since).
 	RecordLearningChatTurn(ctx context.Context, arg RecordLearningChatTurnParams) error
+	RecordLearningScan(ctx context.Context, arg RecordLearningScanParams) (int64, error)
 	ResetLearningChat(ctx context.Context, arg ResetLearningChatParams) error
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)

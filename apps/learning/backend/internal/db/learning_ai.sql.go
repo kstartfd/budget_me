@@ -43,6 +43,63 @@ func (q *Queries) GetLearningAISettings(ctx context.Context, userID pgtype.UUID)
 	return i, err
 }
 
+const knownLearningTextHashes = `-- name: KnownLearningTextHashes :many
+SELECT DISTINCT text_hash FROM learning_entries
+WHERE user_id = $1 AND topic_id = $2 AND text_hash = ANY($3::bytea[])
+`
+
+type KnownLearningTextHashesParams struct {
+	UserID  pgtype.UUID
+	TopicID pgtype.UUID
+	Hashes  [][]byte
+}
+
+func (q *Queries) KnownLearningTextHashes(ctx context.Context, arg KnownLearningTextHashesParams) ([][]byte, error) {
+	rows, err := q.db.Query(ctx, knownLearningTextHashes, arg.UserID, arg.TopicID, arg.Hashes)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := [][]byte{}
+	for rows.Next() {
+		var text_hash []byte
+		if err := rows.Scan(&text_hash); err != nil {
+			return nil, err
+		}
+		items = append(items, text_hash)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const recordLearningScan = `-- name: RecordLearningScan :execrows
+INSERT INTO learning_scans (user_id, topic_id, image_hash, created_at)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT DO NOTHING
+`
+
+type RecordLearningScanParams struct {
+	UserID    pgtype.UUID
+	TopicID   pgtype.UUID
+	ImageHash []byte
+	CreatedAt pgtype.Timestamptz
+}
+
+func (q *Queries) RecordLearningScan(ctx context.Context, arg RecordLearningScanParams) (int64, error) {
+	result, err := q.db.Exec(ctx, recordLearningScan,
+		arg.UserID,
+		arg.TopicID,
+		arg.ImageHash,
+		arg.CreatedAt,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const updateLearningAIChoice = `-- name: UpdateLearningAIChoice :one
 UPDATE learning_ai_settings SET model = $3, level = $4, teacher = $5, updated_at = $6
 WHERE user_id = $1 AND provider = $2

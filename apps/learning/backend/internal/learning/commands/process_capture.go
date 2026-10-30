@@ -112,7 +112,7 @@ func (h ProcessHandler) process(ctx context.Context, job db.LearningCapture) err
 
 	now := db.Time(h.clock.Now())
 
-	entry, err := q.InsertLearningEntry(ctx, db.InsertLearningEntryParams{ID: job.ID, UserID: job.UserID, TopicID: ids.ToPg(fields.TopicID), Kind: fields.Kind, Text: fields.Text, Transcription: fields.Transcription, Translation: fields.Translation, Explanation: fields.Explanation, NativeUsage: fields.NativeUsage, Example: fields.Example, Rule: fields.Rule, Source: fields.Source, Status: fields.Status, CreatedAt: now, UpdatedAt: now})
+	entry, err := q.InsertLearningEntry(ctx, db.InsertLearningEntryParams{ID: job.ID, UserID: job.UserID, TopicID: ids.ToPg(fields.TopicID), Kind: fields.Kind, Text: fields.Text, TextHash: TextHash(fields.Text), Transcription: fields.Transcription, Translation: fields.Translation, Explanation: fields.Explanation, NativeUsage: fields.NativeUsage, Example: fields.Example, Rule: fields.Rule, Source: fields.Source, Status: fields.Status, CreatedAt: now, UpdatedAt: now})
 	if err != nil {
 		return err
 	}

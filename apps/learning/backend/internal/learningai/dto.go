@@ -34,7 +34,11 @@ func settingsDTO(row db.LearningAiSetting) settingsResponse {
 	return settingsResponse{Provider: string(row.Provider), Model: row.Model, Level: string(row.Level), Teacher: row.Teacher, KeyHint: row.KeyHint}
 }
 
-// scanResponse is what a picture held, for the learner to pick from.
+// scanResponse is what a picture held, for the learner to pick from. Known is
+// how many of its texts the topic has already, Seen that the picture itself was
+// read before.
 type scanResponse struct {
 	Items []commands.Found `json:"items"`
+	Known int              `json:"known"`
+	Seen  bool             `json:"seen"`
 }

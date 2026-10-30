@@ -285,7 +285,7 @@
   "scan": {
     "open": "From photo",
     "title": "Words from a photo",
-    "hint": "Take a photo of a page, sign, menu or screen — the AI will find words and phrases in the language you study.",
+    "hint": "Take a photo of a page, sign, menu or screen — the words and phrases in the language you study are found on the server, no AI agent needed.",
     "takePhoto": "Take a photo",
     "choosePhoto": "Upload a picture",
     "reading": "Reading the photo…",
@@ -298,20 +298,18 @@
     "adding": "Adding…",
     "addFailed": "Some items could not be added. Try again.",
     "added": "{count, plural, one {# item added} other {# items added}}",
-    "addedHint": "They will show up in Inbox. If an AI agent is connected, it fills in the cards: transcription, examples and rules.",
+    "addedHint": "They will show up in Inbox. If an AI agent is connected, it fills in the cards: translation, transcription, examples and rules.",
     "source": "Photo",
     "another": "Another photo",
     "close": "Close",
     "retry": "Another photo",
     "notImage": "Choose an image file.",
-    "openSettings": "Open settings",
     "errors": {
       "failed": "Couldn't read the photo. Try again.",
-      "rejected": "The provider rejected the agent's API key. Enter it again in settings.",
-      "unavailable": "The AI agent isn't answering right now. Try again a bit later.",
-      "agentFailed": "The agent couldn't read this photo. Try another one.",
       "tooMany": "Too many photos in a row. Wait a moment."
     },
-    "needAgent": "Reading a photo needs an AI agent. Connect one in settings."
+    "allKnown": "Everything found in the photo is already in this topic.",
+    "known": "{count, plural, one {# more is already in this topic} other {# more are already in this topic}}",
+    "seen": "You've sent this photo before."
   }
 }

@@ -2,7 +2,6 @@ package llm
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"strings"
@@ -23,20 +22,12 @@ func (c Client) anthropicClient(key string) anthropic.Client {
 func (c Client) completeAnthropic(ctx context.Context, req Request) (string, error) {
 	client := c.anthropicClient(req.Key)
 
-	// Pictures first: the model reads the instructions with the picture in mind.
-	blocks := make([]anthropic.ContentBlockParamUnion, 0, len(req.Images)+1)
-	for _, image := range req.Images {
-		blocks = append(blocks, anthropic.NewImageBlockBase64(image.MediaType, base64.StdEncoding.EncodeToString(image.Data)))
-	}
-
-	blocks = append(blocks, anthropic.NewTextBlock(req.Prompt))
-
 	resp, err := client.Messages.New(ctx, anthropic.MessageNewParams{
 		Model:        anthropic.Model(req.Model),
 		MaxTokens:    16000,
 		System:       []anthropic.TextBlockParam{{Text: req.System}},
 		OutputConfig: anthropic.OutputConfigParam{Effort: anthropic.OutputConfigEffort(req.Level)},
-		Messages:     []anthropic.MessageParam{anthropic.NewUserMessage(blocks...)},
+		Messages:     []anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock(req.Prompt))},
 	})
 	if err != nil {
 		return "", anthropicError(err)

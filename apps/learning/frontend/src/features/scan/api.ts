@@ -1,15 +1,12 @@
 import { readToken } from "@/features/auth"
 import { call } from "@/features/learning/api"
 
-import { scanSchema, type Found } from "./schemas"
+import { scanSchema, type Found, type Scanned } from "./schemas"
 
 /** Business codes of the backend that reading a photo tells apart. */
 export const scanErrorCode = {
-  /** Wrong input or no agent set up: the message says which, in the user's language. */
+  /** Wrong input (a file that is no picture, a language that cannot be read): the message says which, in the user's language. */
   invalid: 10001,
-  rejected: 30001,
-  unavailable: 30002,
-  agentFailed: 30003,
   tooMany: 42901,
 } as const
 
@@ -23,11 +20,11 @@ export class ScanError extends Error {
   }
 }
 
-/** Asks the user's agent for the words and phrases written in a photo. */
+/** Has the backend read the words and phrases written in a photo. */
 export async function scanPicture(
   topicId: string,
   image: Blob,
-): Promise<Found[]> {
+): Promise<Scanned> {
   const token = readToken()
   const form = new FormData()
   form.set("topicId", topicId)
@@ -40,26 +37,25 @@ export async function scanPicture(
     headers: token ? { Authorization: `Bearer ${token}` } : {},
     body: form,
   }).catch(() => {
-    throw new ScanError("network", scanErrorCode.unavailable)
+    throw new ScanError("network")
   })
   const body = await res.json().catch(() => null)
 
   if (!res.ok || body?.code !== 0)
     throw new ScanError(body?.message ?? res.statusText, body?.code)
 
-  return scanSchema.parse(body.data).items
+  return scanSchema.parse(body.data)
 }
 
 /**
  * Saves a found word or phrase the way the browser extension does: as a
- * capture, which the backend turns into an entry and lets the agent fill in.
+ * capture, which the backend turns into an entry and, with an agent, fills in.
  */
 export const enqueueFound = (topicId: string, found: Found, source: string) =>
   call("/captures", "POST", () => undefined, {
     topicId,
     kind: found.kind,
     text: found.text,
-    translation: found.translation,
     source,
     status: "inbox",
   })

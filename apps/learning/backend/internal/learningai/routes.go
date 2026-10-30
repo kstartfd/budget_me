@@ -11,13 +11,16 @@ const completeBodyLimit = "192K"
 
 // The picture is sent already shrunk by the app; this leaves room for a phone's
 // own file picked as it is. maxImageBytes is the picture alone, the body limit
-// adds the form around it.
+// adds the form around it, and maxPixels is what it may unpack to: the reader
+// holds the whole picture in memory.
 const (
 	scanBodyLimit = "7M"
 	maxImageBytes = 6 << 20
+	maxPixels     = 16_000_000
+	badPicture    = "the picture must be a JPEG, PNG or GIF up to 6 MB"
 )
 
-var imageTypes = map[string]bool{"image/jpeg": true, "image/png": true, "image/gif": true, "image/webp": true}
+var imageTypes = map[string]bool{"image/jpeg": true, "image/png": true, "image/gif": true}
 
 func (c *Controller) Routes(protected *echo.Group) {
 	protected.GET("/learning/ai/settings", c.get)

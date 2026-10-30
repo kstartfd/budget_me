@@ -257,21 +257,37 @@ Deleting a topic deletes its dialogs.
 
 ## Words and phrases from a picture (session only)
 
-`POST /ai/scan` — `multipart/form-data` with `topicId` and `image` (JPEG, PNG, GIF or WebP up to
-6 MB, recognized by its bytes). The user's agent reads the picture and the response is
-`{"items":[{"kind":"word"|"phrase","text":"…","translation":"…"}]}`: the words and phrases written
-in the topic's language, in the order they appear, at most 30, tidied (spaces collapsed, duplicates
-dropped, a text with a space is always a phrase). An empty list means the picture holds nothing to
-learn. **Nothing is stored**: the app lets the learner pick and sends the pick to `POST /captures`
-as `source: "photo"`, so the queue fills the rest of the card as usual.
+`POST /ai/scan` — `multipart/form-data` with `topicId` and `image` (JPEG, PNG or GIF up to 6 MB and
+16 megapixels, recognized by its bytes). The picture is read **on the server** with tesseract, in the
+language of the topic (`en`, `ru`, `uk`, … see `ocr.languages`; **400** for any other); it is never
+sent to an AI agent, so reading needs no agent and costs no tokens. The response is
 
-The picture is read at the lowest effort of the provider (`low`, `off` for DeepSeek). A model that
-cannot see pictures (`deepseek-v4-pro`) is swapped for the provider's first one that can
-(`deepseek-flash`) on the same key, see `llm.Reader`. Errors: **400** (no agent, no/invalid
-picture or topic id), **404** (topic), **409** (unreadable key), **422/503/502** with the codes
-`30001/30002/30003` of the agent endpoints, **429** (`42901`, 4 pictures back to back, then one
-every 15 seconds, one at a time; only requests that reach the agent count). It is not counted
-against the chat's token limits. Extension tokens get **401**.
+```json
+{"items":[{"kind":"word"|"phrase","text":"…"}], "known": 2, "seen": false}
+```
+
+`items` are the words and phrases written in the topic's language, in the order they stand on the
+picture, at most 30: words tesseract was not sure of, prices, codes and text in another alphabet are
+left out, the lines of a wrapped paragraph are joined into sentences (a sentence of up to 20 words is
+a phrase, a longer one is cut at its commas), a text with a space is a phrase. No translation is given:
+the app sends the pick to `POST /captures` as `source: "photo"`, and the queue fills the card as usual
+with the learner's agent, if there is one. A page of text is tried first, scattered words (a sign) if
+the page holds none; an empty list means the picture holds nothing to learn.
+
+**Duplicates.** Each entry carries `text_hash`, the SHA-256 of its text in lower case with whitespace
+folded (`learning/commands.TextHash`). A found text whose hash an entry of the same topic has is not
+offered and is counted in `known`; the same text twice in a picture is offered once. The picture
+itself is remembered by the SHA-256 of its file (table `learning_scans`, per topic): `seen` is true
+when this very file was read for this topic before. It is a hint, not a refusal: what the picture
+holds that the topic does not have is offered again, so a learner who kept part of it can come back
+for the rest.
+
+Errors: **400** (no/invalid/too large picture, bad topic id, a language that cannot be read, a picture
+the reader could not make sense of), **404** (topic), **500** (tesseract is not installed on the
+server), **429** (`42901`, 4 pictures back to back, then one every 15 seconds, one at a time; only
+requests that get to the reader count). At most 2 pictures are read at a time on the server.
+Extension tokens get **401**. The image installs the language data named in `OCR_LANGS` of
+`infra/learning/docker/backend.Dockerfile`; `ocr.languages` must list the same ones.
 
 ## Session-only management
 

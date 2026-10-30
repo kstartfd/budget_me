@@ -389,6 +389,14 @@ type LearningEntry struct {
 	UpdatedAt     pgtype.Timestamptz
 	Explanation   string
 	Source        string
+	TextHash      []byte
+}
+
+type LearningScan struct {
+	UserID    pgtype.UUID
+	TopicID   pgtype.UUID
+	ImageHash []byte
+	CreatedAt pgtype.Timestamptz
 }
 
 type LearningToken struct {

@@ -22,6 +22,7 @@ import (
 	"learning_app/backend/internal/learningtokens"
 	learningtokenqueries "learning_app/backend/internal/learningtokens/queries"
 	"learning_app/backend/internal/llm"
+	"learning_app/backend/internal/ocr"
 	"learning_app/backend/internal/secretbox"
 	"learning_app/backend/internal/token"
 )
@@ -66,7 +67,7 @@ func New(cfg config.Config, pool, accountPool *pgxpool.Pool) *echo.Echo {
 	learning.NewController(queries, clk).Routes(group)
 	learningtokens.NewController(queries, clk, vault).Routes(protected)
 	agent := llm.New(cfg.LLMURLs)
-	learningai.NewController(queries, clk, vault, agent).Routes(protected)
+	learningai.NewController(queries, clk, vault, agent, ocr.New(cfg.OCRBin)).Routes(protected)
 	learningchat.NewController(pool, queries, clk, vault, agent, cfg.ChatRate).Routes(protected)
 	return e
 }

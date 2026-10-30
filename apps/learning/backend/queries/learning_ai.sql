@@ -21,3 +21,12 @@ RETURNING *;
 
 -- name: DeleteLearningAISettings :execrows
 DELETE FROM learning_ai_settings WHERE user_id = $1;
+
+-- name: KnownLearningTextHashes :many
+SELECT DISTINCT text_hash FROM learning_entries
+WHERE user_id = $1 AND topic_id = $2 AND text_hash = ANY(sqlc.arg(hashes)::bytea[]);
+
+-- name: RecordLearningScan :execrows
+INSERT INTO learning_scans (user_id, topic_id, image_hash, created_at)
+VALUES ($1, $2, $3, $4)
+ON CONFLICT DO NOTHING;

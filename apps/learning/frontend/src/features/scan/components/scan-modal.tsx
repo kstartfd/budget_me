@@ -1,19 +1,16 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import Link from "next/link"
 import { useTranslations } from "next-intl"
 import {
   IconCamera,
   IconCheck,
   IconLoader2,
   IconPhoto,
-  IconSettings,
 } from "@tabler/icons-react"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import { useAiSettings } from "@/features/ai"
 import { LearningModal } from "@/features/learning/components/learning-modal"
 
 import { ScanError, scanErrorCode } from "../api"
@@ -22,9 +19,10 @@ import type { Found } from "../schemas"
 
 /**
  * Words and phrases from a photo: the learner takes or uploads a picture, the
- * backend has their AI agent read it, and they keep what they want. The kept
- * items are saved as captures, so the agent fills in their cards like it does
- * for the browser extension.
+ * backend reads the text off it (no AI agent, nothing sent to one), and they
+ * keep what they want. What the topic already has is not offered again. The kept
+ * items are saved as captures, so the agent, if there is one, fills in their
+ * cards like it does for the browser extension.
  */
 export function ScanModal({
   topicId,
@@ -35,13 +33,14 @@ export function ScanModal({
 }) {
   const t = useTranslations("scan")
   const learning = useTranslations("learning")
-  const agent = useAiSettings()
   const scan = useScanPicture(topicId)
   const add = useAddFound(topicId, t("source"))
   const camera = useRef<HTMLInputElement>(null)
   const gallery = useRef<HTMLInputElement>(null)
   const [preview, setPreview] = useState<string | null>(null)
   const [items, setItems] = useState<Found[]>([])
+  const [known, setKnown] = useState(0)
+  const [seen, setSeen] = useState(false)
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [added, setAdded] = useState<number | null>(null)
   const [notImage, setNotImage] = useState(false)
@@ -53,7 +52,6 @@ export function ScanModal({
     }
   }, [preview])
 
-  const noAgent = agent.isSuccess && agent.data === null
   const reading = scan.isPending
   const chosen = scan.isSuccess && !reading
 
@@ -70,9 +68,11 @@ export function ScanModal({
     setPreview(URL.createObjectURL(file))
     add.reset()
     scan.mutate(file, {
-      onSuccess: (found) => {
-        setItems(found)
-        setSelected(new Set(found.keys()))
+      onSuccess: (scanned) => {
+        setItems(scanned.items)
+        setKnown(scanned.known)
+        setSeen(scanned.seen)
+        setSelected(new Set(scanned.items.keys()))
       },
     })
   }
@@ -81,6 +81,8 @@ export function ScanModal({
     scan.reset()
     add.reset()
     setItems([])
+    setKnown(0)
+    setSeen(false)
     setSelected(new Set())
     setAdded(null)
     setPreview(null)
@@ -115,12 +117,6 @@ export function ScanModal({
     switch (code) {
       case scanErrorCode.invalid:
         return (e as ScanError).message
-      case scanErrorCode.rejected:
-        return t("errors.rejected")
-      case scanErrorCode.unavailable:
-        return t("errors.unavailable")
-      case scanErrorCode.agentFailed:
-        return t("errors.agentFailed")
       case scanErrorCode.tooMany:
         return t("errors.tooMany")
       default:
@@ -188,10 +184,15 @@ export function ScanModal({
         </div>
       ) : chosen ? (
         <div className="space-y-3">
+          {seen && (
+            <p className="text-muted-foreground text-xs leading-snug">
+              {t("seen")}
+            </p>
+          )}
           {items.length === 0 ? (
             <>
               <p className="text-muted-foreground text-sm leading-relaxed">
-                {t("nothing")}
+                {t(known > 0 ? "allKnown" : "nothing")}
               </p>
               <Button variant="secondary" className="w-full" onClick={again}>
                 {t("retry")}
@@ -235,11 +236,6 @@ export function ScanModal({
                         <span className="block text-sm leading-snug font-semibold break-words">
                           {item.text}
                         </span>
-                        {item.translation && (
-                          <span className="text-muted-foreground mt-0.5 block text-xs leading-snug break-words">
-                            {item.translation}
-                          </span>
-                        )}
                       </span>
                       <span className="text-faint shrink-0 text-[11px]">
                         {learning(item.kind)}
@@ -248,6 +244,11 @@ export function ScanModal({
                   </li>
                 ))}
               </ul>
+              {known > 0 && (
+                <p className="text-muted-foreground text-xs leading-snug">
+                  {t("known", { count: known })}
+                </p>
+              )}
               {add.isError || (add.data && add.data.failed.length > 0) ? (
                 <p role="alert" className="text-destructive text-sm">
                   {t("addFailed")}
@@ -275,55 +276,32 @@ export function ScanModal({
           <p className="text-muted-foreground text-sm leading-relaxed">
             {t("hint")}
           </p>
-          {noAgent ? (
-            <div className="bg-secondary space-y-3 rounded-2xl p-4">
-              <p className="text-sm leading-relaxed">{t("needAgent")}</p>
-              <Button asChild variant="secondary" className="text-primary">
-                <Link href="/learning/settings">
-                  <IconSettings size={16} />
-                  {t("openSettings")}
-                </Link>
-              </Button>
-            </div>
-          ) : (
-            <div className="grid gap-2.5">
-              <Button
-                className="h-12 rounded-2xl text-[15px] font-semibold"
-                onClick={() => camera.current?.click()}
-              >
-                <IconCamera size={18} />
-                {t("takePhoto")}
-              </Button>
-              <Button
-                variant="secondary"
-                className="h-12 rounded-2xl text-[15px] font-semibold"
-                onClick={() => gallery.current?.click()}
-              >
-                <IconPhoto size={18} />
-                {t("choosePhoto")}
-              </Button>
-            </div>
-          )}
+          <div className="grid gap-2.5">
+            <Button
+              className="h-12 rounded-2xl text-[15px] font-semibold"
+              onClick={() => camera.current?.click()}
+            >
+              <IconCamera size={18} />
+              {t("takePhoto")}
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-12 rounded-2xl text-[15px] font-semibold"
+              onClick={() => gallery.current?.click()}
+            >
+              <IconPhoto size={18} />
+              {t("choosePhoto")}
+            </Button>
+          </div>
           {notImage && (
             <p role="alert" className="text-destructive text-sm">
               {t("notImage")}
             </p>
           )}
           {scan.isError && (
-            <div role="alert" className="space-y-2">
-              <p className="text-destructive text-sm">
-                {scanMessage(scan.error)}
-              </p>
-              {scan.error instanceof ScanError &&
-                scan.error.code === scanErrorCode.rejected && (
-                  <Link
-                    href="/learning/settings"
-                    className="text-primary text-sm"
-                  >
-                    {t("openSettings")}
-                  </Link>
-                )}
-            </div>
+            <p role="alert" className="text-destructive text-sm">
+              {scanMessage(scan.error)}
+            </p>
           )}
         </div>
       )}
