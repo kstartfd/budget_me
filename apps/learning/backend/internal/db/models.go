@@ -325,6 +325,20 @@ type LearningAiSetting struct {
 	Teacher       bool
 }
 
+type LearningAudioCache struct {
+	ID          pgtype.UUID
+	Language    string
+	Text        string
+	TextHash    []byte
+	ContentHash []byte
+	StoragePath string
+	ContentType string
+	ByteSize    int64
+	Provider    string
+	CreatedAt   pgtype.Timestamptz
+	LastUsedAt  pgtype.Timestamptz
+}
+
 type LearningCapture struct {
 	ID          pgtype.UUID
 	UserID      pgtype.UUID

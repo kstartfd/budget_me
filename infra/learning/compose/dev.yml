@@ -31,6 +31,9 @@ services:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN:-}
       TELEGRAM_MINIAPP_URL: http://localhost:3001
       CORS_ORIGINS: http://localhost:3001
+      AUDIO_CACHE_DIR: /data/audio
+    volumes:
+      - learning_dev_audio:/data/audio
     ports:
       - "127.0.0.1:8081:8080"
     depends_on:
@@ -66,3 +69,4 @@ services:
 
 volumes:
   learning_dev_pg_data:
+  learning_dev_audio:

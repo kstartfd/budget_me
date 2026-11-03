@@ -16,7 +16,9 @@ RUN CGO_ENABLED=0 go build -trimpath -o /out/server ./cmd/http_server \
 # stage's, so the Go binaries (static) run on it as they did on distroless.
 FROM alpine:3.24
 ARG OCR_LANGS="bel ces dan deu eng fin fra ita nld nor pol por rus spa swe tur ukr"
-RUN apk add --no-cache tesseract-ocr $(for lang in $OCR_LANGS; do printf 'tesseract-ocr-data-%s ' "$lang"; done)
+RUN apk add --no-cache tesseract-ocr $(for lang in $OCR_LANGS; do printf 'tesseract-ocr-data-%s ' "$lang"; done) \
+ && mkdir -p /data/audio \
+ && chown -R 65532:65532 /data
 COPY --from=build /out/server /server
 COPY --from=build /out/migrate /migrate
 USER 65532:65532

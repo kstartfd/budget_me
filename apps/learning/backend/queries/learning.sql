@@ -74,3 +74,13 @@ WHERE id = $1 AND lease_id = $2;
 -- name: RetryLearningCapture :exec
 UPDATE learning_captures SET status = $3, available_at = $4, locked_until = NULL,
     lease_id = NULL, error = $5, updated_at = $6 WHERE id = $1 AND lease_id = $2;
+
+-- name: GetLearningAudioCache :one
+SELECT * FROM learning_audio_cache WHERE language = $1 AND text_hash = $2;
+
+-- name: InsertLearningAudioCache :one
+INSERT INTO learning_audio_cache (id, language, text, text_hash, content_hash, storage_path,
+    content_type, byte_size, provider, created_at, last_used_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)
+ON CONFLICT (language, text_hash) DO UPDATE SET last_used_at = EXCLUDED.last_used_at
+RETURNING *;

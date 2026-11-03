@@ -150,6 +150,34 @@ func (q *Queries) EnqueueLearningCapture(ctx context.Context, arg EnqueueLearnin
 	return i, err
 }
 
+const getLearningAudioCache = `-- name: GetLearningAudioCache :one
+SELECT id, language, text, text_hash, content_hash, storage_path, content_type, byte_size, provider, created_at, last_used_at FROM learning_audio_cache WHERE language = $1 AND text_hash = $2
+`
+
+type GetLearningAudioCacheParams struct {
+	Language string
+	TextHash []byte
+}
+
+func (q *Queries) GetLearningAudioCache(ctx context.Context, arg GetLearningAudioCacheParams) (LearningAudioCache, error) {
+	row := q.db.QueryRow(ctx, getLearningAudioCache, arg.Language, arg.TextHash)
+	var i LearningAudioCache
+	err := row.Scan(
+		&i.ID,
+		&i.Language,
+		&i.Text,
+		&i.TextHash,
+		&i.ContentHash,
+		&i.StoragePath,
+		&i.ContentType,
+		&i.ByteSize,
+		&i.Provider,
+		&i.CreatedAt,
+		&i.LastUsedAt,
+	)
+	return i, err
+}
+
 const getLearningCapture = `-- name: GetLearningCapture :one
 SELECT id, user_id, request_key, payload, status, attempts, available_at, locked_until, lease_id, entry_id, error, created_at, updated_at FROM learning_captures WHERE id = $1 AND user_id = $2
 `
@@ -262,6 +290,57 @@ func (q *Queries) GetLearningTopic(ctx context.Context, arg GetLearningTopicPara
 		&i.Language,
 		&i.TranslationLanguage,
 		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const insertLearningAudioCache = `-- name: InsertLearningAudioCache :one
+INSERT INTO learning_audio_cache (id, language, text, text_hash, content_hash, storage_path,
+    content_type, byte_size, provider, created_at, last_used_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)
+ON CONFLICT (language, text_hash) DO UPDATE SET last_used_at = EXCLUDED.last_used_at
+RETURNING id, language, text, text_hash, content_hash, storage_path, content_type, byte_size, provider, created_at, last_used_at
+`
+
+type InsertLearningAudioCacheParams struct {
+	ID          pgtype.UUID
+	Language    string
+	Text        string
+	TextHash    []byte
+	ContentHash []byte
+	StoragePath string
+	ContentType string
+	ByteSize    int64
+	Provider    string
+	CreatedAt   pgtype.Timestamptz
+}
+
+func (q *Queries) InsertLearningAudioCache(ctx context.Context, arg InsertLearningAudioCacheParams) (LearningAudioCache, error) {
+	row := q.db.QueryRow(ctx, insertLearningAudioCache,
+		arg.ID,
+		arg.Language,
+		arg.Text,
+		arg.TextHash,
+		arg.ContentHash,
+		arg.StoragePath,
+		arg.ContentType,
+		arg.ByteSize,
+		arg.Provider,
+		arg.CreatedAt,
+	)
+	var i LearningAudioCache
+	err := row.Scan(
+		&i.ID,
+		&i.Language,
+		&i.Text,
+		&i.TextHash,
+		&i.ContentHash,
+		&i.StoragePath,
+		&i.ContentType,
+		&i.ByteSize,
+		&i.Provider,
+		&i.CreatedAt,
+		&i.LastUsedAt,
 	)
 	return i, err
 }

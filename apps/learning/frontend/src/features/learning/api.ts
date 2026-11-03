@@ -65,6 +65,18 @@ export const saveEntry = (input: EntryInput & { id?: string }) =>
   )
 export const fetchEntry = (id: string) =>
   call(`/entries/${id}`, "GET", (d) => entrySchema.parse(d))
+export async function fetchEntryAudio(id: string): Promise<Blob> {
+  const token = readToken()
+  const res = await fetch(`/api/v1/learning/entries/${id}/audio`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    throw new Error(body?.message ?? res.statusText)
+  }
+  return res.blob()
+}
 export const deleteEntry = (id: string) =>
   call(`/entries/${id}`, "DELETE", () => undefined)
 export const fetchTokens = () =>

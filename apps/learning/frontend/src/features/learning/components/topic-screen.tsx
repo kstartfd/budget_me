@@ -26,6 +26,7 @@ import { cn } from "@/lib/utils"
 import { useEntries, useEntry } from "../hooks"
 import { useLanguageName } from "../language"
 import type { Entry, Topic } from "../schemas"
+import { EntryAudioButton } from "./audio-button"
 import { EntryActionBar, EntryDetail } from "./entry-detail"
 import { EntryForm } from "./entry-form"
 
@@ -273,12 +274,19 @@ export function TopicScreen({
               ) : (
                 <div className="divide-rowline flex flex-col gap-2 lg:gap-0 lg:divide-y lg:overflow-hidden lg:rounded-[18px] lg:border lg:border-border lg:bg-card lg:shadow-[var(--shadow-card)]">
                   {rows.map((entry) => (
-                    <button
+                    <div
                       key={entry.id}
-                      type="button"
+                      role="button"
+                      tabIndex={0}
                       onClick={() => setSelectedId(entry.id)}
+                      onKeyDown={(event) => {
+                        if (event.key === "Enter" || event.key === " ") {
+                          event.preventDefault()
+                          setSelectedId(entry.id)
+                        }
+                      }}
                       className={cn(
-                        "bg-card border-border flex w-full min-w-0 items-start gap-3 rounded-[14px] border px-3.5 py-3 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary lg:rounded-none lg:border-0 lg:px-[18px] lg:py-3.5 lg:hover:bg-secondary/60",
+                        "bg-card border-border flex w-full min-w-0 cursor-pointer items-start gap-3 rounded-[14px] border px-3.5 py-3 text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary lg:rounded-none lg:border-0 lg:px-[18px] lg:py-3.5 lg:hover:bg-secondary/60",
                         desktop &&
                           selectedId === entry.id &&
                           "lg:bg-primary/[0.07] lg:shadow-[inset_3px_0_0_var(--primary)] lg:hover:bg-primary/[0.07]",
@@ -307,11 +315,12 @@ export function TopicScreen({
                             .join(" · ")}
                         </span>
                       </div>
+                      <EntryAudioButton entryId={entry.id} compact />
                       <IconChevronRight
                         className="text-faint mt-1 hidden shrink-0 lg:block"
                         size={16}
                       />
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}

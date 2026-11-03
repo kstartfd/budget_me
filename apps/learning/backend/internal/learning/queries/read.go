@@ -17,6 +17,15 @@ func NewReadHandler(q *db.Queries) ReadHandler { return ReadHandler{q: q} }
 func (h ReadHandler) Topics(ctx context.Context, userID uuid.UUID) ([]db.LearningTopic, error) {
 	return h.q.ListLearningTopics(ctx, ids.ToPg(userID))
 }
+func (h ReadHandler) Topic(ctx context.Context, userID, topicID uuid.UUID) (db.LearningTopic, error) {
+	row, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return row, apperr.NewNotFound("topic not found")
+	}
+
+	return row, err
+}
+
 func (h ReadHandler) Entries(ctx context.Context, userID, topicID uuid.UUID, limit, offset int32, kind, status, search string) ([]db.LearningEntry, error) {
 	if _, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: ids.ToPg(topicID), UserID: ids.ToPg(userID)}); err != nil {
 		if db.IsNotFound(err) {

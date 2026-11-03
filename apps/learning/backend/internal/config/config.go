@@ -25,6 +25,10 @@ type Config struct {
 	AuthSecret           string
 	TelegramBotToken     string
 	TelegramMiniAppURL   string
+	AudioCacheDir        string
+	// TTSURL is the text-to-speech service root. Never read from the environment:
+	// blank means Google Translate's free endpoint, and tests point it at a fake.
+	TTSURL string
 	// LLMURLs are the provider API roots. Never read from the environment:
 	// blank means the real providers, and tests point it at fakes.
 	LLMURLs llm.URLs
@@ -47,6 +51,7 @@ func Load() (Config, error) {
 		AuthSecret:           os.Getenv("AUTH_SECRET"),
 		TelegramBotToken:     os.Getenv("TELEGRAM_BOT_TOKEN"),
 		TelegramMiniAppURL:   value("TELEGRAM_MINIAPP_URL", "http://localhost:3001"),
+		AudioCacheDir:        value("AUDIO_CACHE_DIR", "/var/lib/learning/audio"),
 	}
 	if cfg.DatabaseURL == "" {
 		return cfg, errors.New("DATABASE_URL is required")

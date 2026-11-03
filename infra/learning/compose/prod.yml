@@ -42,6 +42,9 @@ x-backend: &backend
     TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
     TELEGRAM_MINIAPP_URL: https://${DOMAIN}
     CORS_ORIGINS: https://${DOMAIN}
+    AUDIO_CACHE_DIR: /data/audio
+  volumes:
+    - learning_audio_cache:/data/audio
 
 x-frontend: &frontend
   restart: unless-stopped
@@ -83,6 +86,9 @@ services:
     environment:
       DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
       ACCOUNT_DATABASE_URL: postgres://account_app:${ACCOUNT_POSTGRES_PASSWORD}@postgres:5432/account_app?sslmode=disable
+
+volumes:
+  learning_audio_cache:
 
 networks:
   default:

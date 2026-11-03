@@ -1,7 +1,10 @@
 package learning
 
 import (
+	"encoding/hex"
+	"net/http"
 	"strconv"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
@@ -13,6 +16,7 @@ import (
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/learning/commands"
 	"learning_app/backend/internal/learning/queries"
+	"learning_app/backend/internal/learningaudio"
 )
 
 type Controller struct {
@@ -20,10 +24,11 @@ type Controller struct {
 	entries  commands.EntryHandler
 	captures commands.CaptureHandler
 	read     queries.ReadHandler
+	audio    learningaudio.Service
 }
 
-func NewController(q *db.Queries, clk clock.Clock) *Controller {
-	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), read: queries.NewReadHandler(q)}
+func NewController(q *db.Queries, clk clock.Clock, audio learningaudio.Service) *Controller {
+	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), read: queries.NewReadHandler(q), audio: audio}
 }
 
 func (c *Controller) listTopics(ctx echo.Context) error {
@@ -157,6 +162,51 @@ func (c *Controller) getEntry(ctx echo.Context) error {
 	}
 
 	return httpx.OK(ctx, entryDTO(row))
+}
+func (c *Controller) getEntryAudio(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid entry id")
+	}
+
+	userID := httpx.UserIDFromContext(ctx.Request().Context())
+	entry, err := c.read.Entry(ctx.Request().Context(), userID, id)
+	if err != nil {
+		return err
+	}
+
+	if boundTopic := httpx.LearningTopicFromContext(ctx.Request().Context()); boundTopic != uuid.Nil && boundTopic != ids.FromPg(entry.TopicID) {
+		return apperr.NewForbidden("token is scoped to a different topic")
+	}
+
+	topic, err := c.read.Topic(ctx.Request().Context(), userID, ids.FromPg(entry.TopicID))
+	if err != nil {
+		return err
+	}
+
+	audio, err := c.audio.Ensure(ctx.Request().Context(), topic.Language, entry.Text)
+	if err != nil {
+		return err
+	}
+
+	file, err := c.audio.Open(ctx.Request().Context(), audio)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	etag := `"` + hex.EncodeToString(audio.ContentHash) + `"`
+	ctx.Response().Header().Set("ETag", etag)
+	ctx.Response().Header().Set(echo.HeaderCacheControl, "private, max-age=31536000, immutable")
+	ctx.Response().Header().Set(echo.HeaderContentType, audio.ContentType)
+
+	if ctx.Request().Header.Get("If-None-Match") == etag {
+		return ctx.NoContent(http.StatusNotModified)
+	}
+
+	http.ServeContent(ctx.Response(), ctx.Request(), "", time.Time{}, file)
+
+	return nil
 }
 func (c *Controller) saveEntry(ctx echo.Context) error {
 	var fields commands.EntryFields

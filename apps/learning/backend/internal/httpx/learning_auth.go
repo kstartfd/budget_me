@@ -44,7 +44,8 @@ func RequireLearningAuth(codec *token.Codec, authenticate LearningTokenAuthentic
 				topics := path == "/api/v1/learning/topics" && method == http.MethodGet
 
 				entries := (path == "/api/v1/learning/entries" || path == "/api/v1/learning/entries/:id") && method != http.MethodPost
-				if !captures && !topics && (captureOnly || !entries) {
+				audio := path == "/api/v1/learning/entries/:id/audio" && method == http.MethodGet
+				if !captures && !topics && (captureOnly || (!entries && !audio)) {
 					return apperr.NewForbidden("token scope does not allow this operation")
 				}
 			} else {

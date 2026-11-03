@@ -18,6 +18,7 @@ import (
 	"learning_app/backend/internal/httpx"
 	"learning_app/backend/internal/learning"
 	"learning_app/backend/internal/learningai"
+	"learning_app/backend/internal/learningaudio"
 	"learning_app/backend/internal/learningchat"
 	"learning_app/backend/internal/learningtokens"
 	learningtokenqueries "learning_app/backend/internal/learningtokens/queries"
@@ -64,7 +65,8 @@ func New(cfg config.Config, pool, accountPool *pgxpool.Pool) *echo.Echo {
 	account.NewController(queries, accounts, clk, cfg.AccountDeletionGrace).Routes(protected)
 	learningAuth := learningtokenqueries.NewTokenHandler(queries, clk, vault)
 	group := e.Group("/api/v1/learning", httpx.RequireLearningAuth(codec, learningAuth.Authenticate), echomw.BodyLimit("64K"))
-	learning.NewController(queries, clk).Routes(group)
+	audio := learningaudio.NewService(queries, learningaudio.NewGoogleProvider(cfg.TTSURL), cfg.AudioCacheDir, clk)
+	learning.NewController(queries, clk, audio).Routes(group)
 	learningtokens.NewController(queries, clk, vault).Routes(protected)
 	agent := llm.New(cfg.LLMURLs)
 	learningai.NewController(queries, clk, vault, agent, ocr.New(cfg.OCRBin)).Routes(protected)

@@ -135,6 +135,8 @@
     "settings": "Settings",
     "markKnown": "Mark as known",
     "markLearning": "Move back to Learning",
+    "playAudio": "Play pronunciation",
+    "audioError": "Could not play the audio. Try again.",
     "chatTab": "Chat"
   },
   "account": {

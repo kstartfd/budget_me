@@ -9,6 +9,7 @@ import { EntryChat } from "@/features/chat"
 import { cn } from "@/lib/utils"
 import { useLearning } from "../hooks"
 import type { Entry } from "../schemas"
+import { EntryAudioButton } from "./audio-button"
 import { LearningModal } from "./learning-modal"
 
 export function EntryDetail({
@@ -43,14 +44,17 @@ export function EntryDetail({
             </Button>
           </div>
         )}
-        <h2
-          className={cn(
-            "leading-[1.2] font-bold tracking-tight break-words",
-            page ? "text-2xl" : "text-[26px]",
-          )}
-        >
-          {entry.text}
-        </h2>
+        <div className="flex items-start gap-3">
+          <h2
+            className={cn(
+              "min-w-0 flex-1 leading-[1.2] font-bold tracking-tight break-words",
+              page ? "text-2xl" : "text-[26px]",
+            )}
+          >
+            {entry.text}
+          </h2>
+          <EntryAudioButton entryId={entry.id} />
+        </div>
         {entry.transcription && (
           <p className="text-muted-foreground mt-2 text-sm break-words">
             {entry.transcription}
@@ -124,7 +128,9 @@ export function EntryDetail({
               <p
                 className={cn(
                   "text-foreground/90 break-words whitespace-pre-wrap",
-                  page ? "text-[13px] leading-[1.45]" : "text-[13px] leading-[1.55]",
+                  page
+                    ? "text-[13px] leading-[1.45]"
+                    : "text-[13px] leading-[1.55]",
                 )}
               >
                 {entry[field]}
