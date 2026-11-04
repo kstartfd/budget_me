@@ -46,13 +46,15 @@ export const saveTopic = (input: TopicInput & { id?: string }) =>
   )
 export const deleteTopic = (id: string) =>
   call(`/topics/${id}`, "DELETE", () => undefined)
+export const PAGE_SIZE = 50
+
 export const fetchEntries = (
   topicId: string,
   offset: number,
   filters: { kind: string; status: string; search: string },
 ) =>
   call(
-    `/entries?${new URLSearchParams({ topicId, limit: "100", offset: String(offset), kind: filters.kind === "all" ? "" : filters.kind, status: filters.status === "all" ? "" : filters.status, search: filters.search })}`,
+    `/entries?${new URLSearchParams({ topicId, limit: String(PAGE_SIZE), offset: String(offset), kind: filters.kind === "all" ? "" : filters.kind, status: filters.status === "all" ? "" : filters.status, search: filters.search })}`,
     "GET",
     (d) => entrySchema.array().parse(d),
   )

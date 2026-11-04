@@ -50,7 +50,7 @@ export function useEntries(
     queryFn: ({ pageParam }) => api.fetchEntries(topicId, pageParam, filters),
     initialPageParam: 0,
     getNextPageParam: (last, pages) =>
-      last.length === 100 ? pages.length * 100 : undefined,
+      last.length === api.PAGE_SIZE ? pages.length * api.PAGE_SIZE : undefined,
     enabled: !!user && !!topicId,
     refetchInterval: 10000,
   })
