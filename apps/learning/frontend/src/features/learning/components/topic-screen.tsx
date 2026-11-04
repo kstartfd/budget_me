@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import {
@@ -66,6 +66,24 @@ export function TopicScreen({
   const filtered = search !== "" || kind !== "all" || status !== "all"
   const entryPage = !desktop && selectedId !== null
   useClaimFullScreen()
+
+  const { hasNextPage, isFetchingNextPage, isError, fetchNextPage } = entries
+  const sentinelRef = useRef<HTMLDivElement>(null)
+  const canLoadMore = hasNextPage && !isFetchingNextPage && !isError
+  useEffect(() => {
+    const node = sentinelRef.current
+    if (!node || !canLoadMore || typeof IntersectionObserver === "undefined") {
+      return
+    }
+    const observer = new IntersectionObserver(
+      (items) => {
+        if (items.some((item) => item.isIntersecting)) void fetchNextPage()
+      },
+      { rootMargin: "300px" },
+    )
+    observer.observe(node)
+    return () => observer.disconnect()
+  }, [canLoadMore, fetchNextPage, rows.length])
 
   return (
     <div className="anim-fade space-y-[18px] lg:pt-3">
@@ -325,7 +343,7 @@ export function TopicScreen({
                 </div>
               )}
               {entries.hasNextPage && (
-                <div className="pt-3">
+                <div className="pt-3" ref={sentinelRef}>
                   <Button
                     variant="ghost"
                     className="w-full text-sm"
