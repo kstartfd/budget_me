@@ -233,6 +233,133 @@ func TestCaptureLifecycleScopesAndOwnership(t *testing.T) {
 	}
 }
 
+func TestCaptureReplacesShortEntryWithDetailedCard(t *testing.T) {
+	e, q, user, session, processor := setup(t)
+	topicID := topic(t, e, session)
+	_, raw := apiToken(t, e, session, "capture", topicID)
+
+	code, body := request(t, e, "POST", "/api/v1/learning/captures", raw, map[string]any{
+		"topicId": topicID, "kind": "word", "text": "  Posture  ", "translation": "осанка", "source": "First source",
+	}, "short-posture")
+	if code != http.StatusAccepted {
+		t.Fatalf("enqueue short capture: %d %v", code, body)
+	}
+
+	firstCaptureID := data(t, body)["id"].(string)
+	worked, err := processor.Handle(context.Background())
+	if err != nil || !worked {
+		t.Fatalf("process short capture: %t %v", worked, err)
+	}
+
+	code, body = request(t, e, "GET", "/api/v1/learning/captures/"+firstCaptureID, raw, nil, "")
+	entryID := data(t, body)["entryId"].(string)
+	code, body = request(t, e, "GET", "/api/v1/learning/entries/"+entryID, session, nil, "")
+	original := data(t, body)
+	if code != http.StatusOK {
+		t.Fatalf("read short entry: %d %v", code, body)
+	}
+
+	detailed := map[string]any{
+		"topicId": topicID, "kind": "word", "text": "posture", "transcription": "ˈpɒstʃə",
+		"translation": "осанка; положение тела", "explanation": "The position in which someone holds their body.",
+		"nativeUsage": "Good posture can prevent back pain.", "example": "She has excellent posture.",
+		"rule": "Uncountable noun in this meaning.", "source": "https://portswigger.net/", "status": "learning",
+	}
+	code, body = request(t, e, "POST", "/api/v1/learning/captures", raw, detailed, "detailed-posture")
+	if code != http.StatusAccepted {
+		t.Fatalf("enqueue detailed capture: %d %v", code, body)
+	}
+
+	secondCaptureID := data(t, body)["id"].(string)
+	worked, err = processor.Handle(context.Background())
+	if err != nil || !worked {
+		t.Fatalf("process detailed capture: %t %v", worked, err)
+	}
+
+	code, body = request(t, e, "GET", "/api/v1/learning/captures/"+secondCaptureID, raw, nil, "")
+	if code != http.StatusOK || data(t, body)["entryId"] != entryID {
+		t.Fatalf("replacement receipt: %d %v", code, body)
+	}
+
+	code, body = request(t, e, "GET", "/api/v1/learning/entries/"+entryID, session, nil, "")
+	entry := data(t, body)
+	if code != http.StatusOK || entry["id"] != entryID || entry["createdAt"] != original["createdAt"] {
+		t.Fatalf("replacement identity: %d %v", code, entry)
+	}
+
+	for field, want := range detailed {
+		if entry[field] != want {
+			t.Errorf("replaced %s: got %v, want %v", field, entry[field], want)
+		}
+	}
+
+	code, body = request(t, e, "GET", "/api/v1/learning/captures/"+firstCaptureID, raw, nil, "")
+	if code != http.StatusOK || data(t, body)["entryId"] != entryID {
+		t.Fatalf("first capture after replacement: %d %v", code, body)
+	}
+
+	detailed["text"] = " POSTURE "
+	detailed["translation"] = "осанка, освежённая через форму"
+	detailed["source"] = "App form"
+	detailed["status"] = "known"
+	code, body = request(t, e, "POST", "/api/v1/learning/entries", session, detailed, "")
+	if code != http.StatusCreated || data(t, body)["id"] != entryID || data(t, body)["createdAt"] != original["createdAt"] {
+		t.Fatalf("form replacement: %d %v", code, body)
+	}
+
+	rows, err := q.ListLearningEntries(context.Background(), db.ListLearningEntriesParams{UserID: ids.ToPg(user), TopicID: ids.ToPg(uuid.MustParse(topicID)), PageLimit: 10})
+	if err != nil || len(rows) != 1 || rows[0].Translation != detailed["translation"] || rows[0].Source != "App form" || rows[0].Status != db.LearningEntryStatusKnown {
+		t.Fatalf("entries after replacements: %v %v", rows, err)
+	}
+}
+
+func TestConcurrentCapturesReplaceSameEntry(t *testing.T) {
+	e, q, user, session, processor := setup(t)
+	topicID := topic(t, e, session)
+	_, raw := apiToken(t, e, session, "capture", topicID)
+
+	captureIDs := make([]string, 12)
+	for i := range captureIDs {
+		code, body := request(t, e, "POST", "/api/v1/learning/captures", raw, map[string]any{
+			"topicId": topicID, "kind": "word", "text": []string{"posture", " Posture ", "POSTURE"}[i%3],
+			"translation": fmt.Sprintf("version %d", i), "source": fmt.Sprintf("source %d", i),
+		}, fmt.Sprintf("same-posture-%d", i))
+		if code != http.StatusAccepted {
+			t.Fatalf("enqueue %d: %d %v", i, code, body)
+		}
+		captureIDs[i] = data(t, body)["id"].(string)
+	}
+
+	var wg sync.WaitGroup
+	for range 4 {
+		wg.Go(func() {
+			for {
+				worked, err := processor.Handle(context.Background())
+				if err != nil {
+					t.Errorf("worker: %v", err)
+					return
+				}
+				if !worked {
+					return
+				}
+			}
+		})
+	}
+	wg.Wait()
+
+	rows, err := q.ListLearningEntries(context.Background(), db.ListLearningEntriesParams{UserID: ids.ToPg(user), TopicID: ids.ToPg(uuid.MustParse(topicID)), PageLimit: 20})
+	if err != nil || len(rows) != 1 {
+		t.Fatalf("concurrent captures created %d entries, want 1: %v", len(rows), err)
+	}
+
+	for _, id := range captureIDs {
+		capture, err := q.GetLearningCapture(context.Background(), db.GetLearningCaptureParams{ID: ids.ToPg(uuid.MustParse(id)), UserID: ids.ToPg(user)})
+		if err != nil || capture.Status != db.LearningCaptureStatusDone || capture.EntryID != rows[0].ID {
+			t.Fatalf("capture %s after replacement: %v %v", id, capture, err)
+		}
+	}
+}
+
 func TestCaptureBurstAndConcurrentWorkers(t *testing.T) {
 	e, q, user, session, processor := setup(t)
 	topicID := topic(t, e, session)
@@ -439,7 +566,7 @@ func TestEntryPaginationAndFilters(t *testing.T) {
 	now := time.Now().UTC()
 
 	for i := range 105 {
-		text, kind, status := "ordinary phrase", db.LearningEntryKindPhrase, db.LearningEntryStatusKnown
+		text, kind, status := fmt.Sprintf("ordinary phrase %d", i), db.LearningEntryKindPhrase, db.LearningEntryStatusKnown
 		if i == 0 {
 			text, kind, status = "needle%", db.LearningEntryKindWord, db.LearningEntryStatusLearning
 		}

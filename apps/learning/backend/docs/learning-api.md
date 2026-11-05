@@ -70,6 +70,12 @@ explanations before queueing the capture; the API persists the supplied fields. 
 user has chosen an AI agent (see below), the queue writes the fields the capture left
 empty, and never overwrites a supplied one.
 
+A capture with the same normalized text (case-insensitive, whitespace folded) in the
+same topic replaces the existing card instead of adding a duplicate. The new card's
+fields, including `source` and `status`, replace the old ones even when the source is
+different; the existing entry UUID and `createdAt` stay unchanged. This also applies
+to `POST /entries` from the app form.
+
 Generate a new idempotency key for each intentional selection and **reuse it on
 network retries**. Keys are scoped to your account, not to one token.
 The same key and normalized payload return the same receipt; a different payload
@@ -313,8 +319,9 @@ runs a consumer automatically; no broker or cron setup is required.
 Consumers claim jobs with `FOR UPDATE SKIP LOCKED`; a one-minute lease
 allows recovery after a crash. Each attempt has a 55-second processing timeout, so the
 lease outlives it.
-Entry creation and receipt completion commit in one transaction. The capture ID
-is also the entry ID, so retries cannot create additional entries.
+Entry creation or replacement and receipt completion commit in one transaction.
+A new entry initially uses the capture ID; a replacement keeps the existing entry ID
+and returns it as `entryId`. Reusing an idempotency key cannot create additional jobs.
 Temporary failures retry with exponential delays, up to five attempts; permanent
 errors (such as a deleted topic) finish as `failed`.
 

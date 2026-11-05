@@ -406,6 +406,18 @@ type LearningEntry struct {
 	TextHash      []byte
 }
 
+type LearningEntryChatMerge struct {
+	ChatID pgtype.UUID
+	KeepID interface{}
+	Rank   int64
+}
+
+type LearningEntryMerge struct {
+	ID     pgtype.UUID
+	KeepID interface{}
+	Rank   int64
+}
+
 type LearningScan struct {
 	UserID    pgtype.UUID
 	TopicID   pgtype.UUID

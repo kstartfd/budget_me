@@ -348,7 +348,11 @@ func (q *Queries) InsertLearningAudioCache(ctx context.Context, arg InsertLearni
 const insertLearningEntry = `-- name: InsertLearningEntry :one
 INSERT INTO learning_entries (id, user_id, topic_id, kind, text, text_hash, transcription, translation, explanation, native_usage, example, rule, source, status, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
-ON CONFLICT (id) DO UPDATE SET id = learning_entries.id
+ON CONFLICT (user_id, topic_id, text_hash) DO UPDATE SET
+kind = EXCLUDED.kind, text = EXCLUDED.text, transcription = EXCLUDED.transcription,
+translation = EXCLUDED.translation, explanation = EXCLUDED.explanation, native_usage = EXCLUDED.native_usage,
+example = EXCLUDED.example, rule = EXCLUDED.rule, source = EXCLUDED.source, status = EXCLUDED.status,
+updated_at = EXCLUDED.updated_at
 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash
 `
 
