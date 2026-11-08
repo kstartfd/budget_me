@@ -12,7 +12,9 @@ import (
 
 type Querier interface {
 	AddLearningChatUsage(ctx context.Context, arg AddLearningChatUsageParams) error
+	AdvanceLearningPathTest(ctx context.Context, arg AdvanceLearningPathTestParams) error
 	ArchiveLearningChat(ctx context.Context, arg ArchiveLearningChatParams) error
+	ArchiveLearningPath(ctx context.Context, arg ArchiveLearningPathParams) (int64, error)
 	AuthenticateLearningToken(ctx context.Context, arg AuthenticateLearningTokenParams) (LearningToken, error)
 	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
@@ -20,12 +22,15 @@ type Querier interface {
 	DeleteLearningAISettings(ctx context.Context, userID pgtype.UUID) (int64, error)
 	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
 	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
+	DeleteLearningPathExercises(ctx context.Context, topicID pgtype.UUID) error
 	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
 	DeleteOldLearningChatUsage(ctx context.Context, day pgtype.Date) error
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
 	EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicChatParams) (LearningChat, error)
+	FinishLearningPathTest(ctx context.Context, arg FinishLearningPathTestParams) error
+	GetActiveLearningPath(ctx context.Context, arg GetActiveLearningPathParams) (LearningPath, error)
 	GetArchivedTopicChat(ctx context.Context, arg GetArchivedTopicChatParams) (LearningChat, error)
 	GetLearningAISettings(ctx context.Context, userID pgtype.UUID) (LearningAiSetting, error)
 	GetLearningAudioCache(ctx context.Context, arg GetLearningAudioCacheParams) (LearningAudioCache, error)
@@ -33,8 +38,14 @@ type Querier interface {
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
 	GetLearningChatByEntry(ctx context.Context, arg GetLearningChatByEntryParams) (LearningChat, error)
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
+	GetLearningPath(ctx context.Context, arg GetLearningPathParams) (LearningPath, error)
+	GetLearningPathByTest(ctx context.Context, placementTestID pgtype.UUID) (LearningPath, error)
+	GetLearningPathExercise(ctx context.Context, arg GetLearningPathExerciseParams) (LearningPathExercise, error)
+	GetLearningPathTest(ctx context.Context, arg GetLearningPathTestParams) (LearningPathTest, error)
+	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
 	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)
+	GetOpenLearningPathTest(ctx context.Context, arg GetOpenLearningPathTestParams) (LearningPathTest, error)
 	GetOpenTopicChat(ctx context.Context, arg GetOpenTopicChatParams) (LearningChat, error)
 	GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
@@ -42,6 +53,12 @@ type Querier interface {
 	InsertLearningAudioCache(ctx context.Context, arg InsertLearningAudioCacheParams) (LearningAudioCache, error)
 	InsertLearningChatMessage(ctx context.Context, arg InsertLearningChatMessageParams) (LearningChatMessage, error)
 	InsertLearningEntry(ctx context.Context, arg InsertLearningEntryParams) (LearningEntry, error)
+	InsertLearningPath(ctx context.Context, arg InsertLearningPathParams) (LearningPath, error)
+	InsertLearningPathAttempt(ctx context.Context, arg InsertLearningPathAttemptParams) (LearningPathAttempt, error)
+	InsertLearningPathExercise(ctx context.Context, arg InsertLearningPathExerciseParams) (LearningPathExercise, error)
+	InsertLearningPathTest(ctx context.Context, arg InsertLearningPathTestParams) (LearningPathTest, error)
+	InsertLearningPathTestAnswer(ctx context.Context, arg InsertLearningPathTestAnswerParams) (int64, error)
+	InsertLearningPathTopic(ctx context.Context, arg InsertLearningPathTopicParams) (LearningPathTopic, error)
 	InsertLearningToken(ctx context.Context, arg InsertLearningTokenParams) (LearningToken, error)
 	InsertLearningTopic(ctx context.Context, arg InsertLearningTopicParams) (LearningTopic, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
@@ -51,6 +68,11 @@ type Querier interface {
 	ListLearningChatMessagesAfter(ctx context.Context, arg ListLearningChatMessagesAfterParams) ([]LearningChatMessage, error)
 	ListLearningChatUsage(ctx context.Context, arg ListLearningChatUsageParams) ([]ListLearningChatUsageRow, error)
 	ListLearningEntries(ctx context.Context, arg ListLearningEntriesParams) ([]LearningEntry, error)
+	ListLearningPathAttemptsByTopic(ctx context.Context, arg ListLearningPathAttemptsByTopicParams) ([]LearningPathAttempt, error)
+	ListLearningPathExercises(ctx context.Context, topicID pgtype.UUID) ([]LearningPathExercise, error)
+	ListLearningPathHistory(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error)
+	ListLearningPathTestAnswers(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestAnswer, error)
+	ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID) ([]LearningPathTopic, error)
 	ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error)
 	ListLearningTopics(ctx context.Context, userID pgtype.UUID) ([]LearningTopic, error)
 	ListUsersWithoutAccount(ctx context.Context) ([]User, error)
@@ -74,6 +96,7 @@ type Querier interface {
 	UnlockLearningChat(ctx context.Context, id pgtype.UUID) error
 	UpdateLearningAIChoice(ctx context.Context, arg UpdateLearningAIChoiceParams) (LearningAiSetting, error)
 	UpdateLearningEntry(ctx context.Context, arg UpdateLearningEntryParams) (LearningEntry, error)
+	UpdateLearningPathTopicStatus(ctx context.Context, arg UpdateLearningPathTopicStatusParams) (int64, error)
 	UpdateLearningTopic(ctx context.Context, arg UpdateLearningTopicParams) (LearningTopic, error)
 	UpsertLearningAISettings(ctx context.Context, arg UpsertLearningAISettingsParams) (LearningAiSetting, error)
 }

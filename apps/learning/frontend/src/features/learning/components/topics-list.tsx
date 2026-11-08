@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconChevronRight, IconPlus } from "@tabler/icons-react"
+import { IconChevronRight, IconPlus, IconSchool } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { useProvideAddAction } from "@/components/add-action"
 import { languageBadge, useLanguageName } from "../language"
@@ -33,6 +33,23 @@ export function TopicsList({
       </header>
 
       <div className="grid gap-2.5 lg:grid-cols-3 lg:gap-3.5">
+        <Link
+          href="/learning/path"
+          className="bg-card border-border hover:border-primary/30 flex min-w-0 items-center gap-3.5 rounded-[18px] border p-4 shadow-[var(--shadow-card)] transition-colors lg:p-[18px]"
+        >
+          <span className="bg-[color:var(--primary-wash)] text-primary flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold">
+            <IconSchool size={20} />
+          </span>
+          <div className="min-w-0 flex-1">
+            <h2 className="text-base leading-snug font-semibold break-words">
+              {t("pathTab")}
+            </h2>
+            <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed break-words">
+              {t("pathTabHint")}
+            </p>
+          </div>
+          <IconChevronRight size={17} className="text-faint shrink-0" />
+        </Link>
         {topics.map((item) => (
           <Link
             key={item.id}

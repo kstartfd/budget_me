@@ -1,0 +1,149 @@
+package commands
+
+import (
+	"context"
+
+	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
+
+	"learning_app/backend/internal/apperr"
+	"learning_app/backend/internal/clock"
+	"learning_app/backend/internal/db"
+	"learning_app/backend/internal/ids"
+	learningcommands "learning_app/backend/internal/learning/commands"
+	"learning_app/backend/internal/learningpath/placement"
+)
+
+// Analyze reads a finished placement test and has the learner's agent turn it
+// into a program: the level, a summary of what the test showed, and the
+// ordered topics. The program is saved before it is returned; a re-analysis
+// after a reset keeps the old one in the history, since archiving never
+// deletes.
+type Analyze struct {
+	UserID uuid.UUID
+	TestID uuid.UUID
+}
+
+type AnalyzeHandler struct {
+	pool  *pgxpool.Pool
+	q     *db.Queries
+	clock clock.Clock
+	agent Agent
+}
+
+func NewAnalyzeHandler(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, agent Agent) AnalyzeHandler {
+	return AnalyzeHandler{pool: pool, q: q, clock: clk, agent: agent}
+}
+
+func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPath, []db.LearningPathTopic, error) {
+	test, err := h.q.GetLearningPathTest(ctx, db.GetLearningPathTestParams{ID: ids.ToPg(cmd.TestID), UserID: ids.ToPg(cmd.UserID)})
+	if db.IsNotFound(err) {
+		return db.LearningPath{}, nil, apperr.NewNotFound("test not found")
+	}
+
+	if err != nil {
+		return db.LearningPath{}, nil, err
+	}
+
+	if test.Kind != db.LearningPathTestKindPlacement {
+		return db.LearningPath{}, nil, apperr.NewInvalid("only a placement test builds a program")
+	}
+
+	if test.Status != db.LearningPathTestStatusDone {
+		return db.LearningPath{}, nil, apperr.NewConflict("finish the test first")
+	}
+
+	if _, err := h.q.GetActiveLearningPath(ctx, db.GetActiveLearningPathParams{UserID: test.UserID, Language: test.Language}); err == nil {
+		return db.LearningPath{}, nil, apperr.NewConflict("a program for this language is already running: finish it or reset it first")
+	} else if !db.IsNotFound(err) {
+		return db.LearningPath{}, nil, err
+	}
+
+	answers, err := h.q.ListLearningPathTestAnswers(ctx, test.ID)
+	if err != nil {
+		return db.LearningPath{}, nil, err
+	}
+
+	var asked, correct int
+	var wrong []wrongAnswer
+
+	for _, a := range answers {
+		q, _, ok := placement.Find(test.Language, a.QuestionKey)
+		if !ok {
+			continue
+		}
+
+		asked++
+
+		if a.Correct {
+			correct++
+		} else {
+			wrong = append(wrong, wrongAnswer{question: q, chosen: a.Answer})
+		}
+	}
+
+	learned := learningcommands.LanguageName(test.Language)
+	native := learningcommands.LanguageName(test.TranslationLanguage)
+
+	system, prompt := analyzePrompt(learned, native, placement.Level(test.LevelReached), asked, correct, wrong)
+
+	var plan program
+	if err := h.agent.completeJSON(ctx, cmd.UserID, system, prompt, &plan, func() error {
+		return validateProgram(&plan)
+	}); err != nil {
+		return db.LearningPath{}, nil, err
+	}
+
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		return db.LearningPath{}, nil, err
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	tq := h.q.WithTx(tx)
+	now := h.clock.Now()
+
+	path, err := tq.InsertLearningPath(ctx, db.InsertLearningPathParams{
+		ID:                  ids.ToPg(ids.New()),
+		UserID:              test.UserID,
+		Language:            test.Language,
+		TranslationLanguage: test.TranslationLanguage,
+		Level:               test.LevelReached,
+		Summary:             plan.Summary,
+		Source:              h.sourceOf(ctx, test),
+		PlacementTestID:     test.ID,
+		CreatedAt:           db.Time(now),
+	})
+	if err != nil {
+		return db.LearningPath{}, nil, err
+	}
+
+	topics := make([]db.LearningPathTopic, len(plan.Topics))
+	for i, t := range plan.Topics {
+		topics[i], err = tq.InsertLearningPathTopic(ctx, db.InsertLearningPathTopicParams{
+			ID:        ids.ToPg(ids.New()),
+			PathID:    path.ID,
+			Position:  int32(i),
+			Skill:     t.Skill,
+			Title:     t.Title,
+			Goal:      t.Goal,
+			CreatedAt: db.Time(now),
+		})
+		if err != nil {
+			return db.LearningPath{}, nil, err
+		}
+	}
+
+	return path, topics, tx.Commit(ctx)
+}
+
+// sourceOf calls the first program of a language a placement and every later
+// one a reset, so the history shows how each program came to be.
+func (h AnalyzeHandler) sourceOf(ctx context.Context, test db.LearningPathTest) string {
+	if _, err := h.q.GetLearningPathByTest(ctx, test.ID); err == nil {
+		return "reset"
+	}
+
+	return "placement"
+}

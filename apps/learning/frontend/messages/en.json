@@ -137,7 +137,9 @@
     "markLearning": "Move back to Learning",
     "playAudio": "Play pronunciation",
     "audioError": "Could not play the audio. Try again.",
-    "chatTab": "Chat"
+    "chatTab": "Chat",
+    "pathTab": "Teacher's program",
+    "pathTabHint": "Test → AI-built program → level by level"
   },
   "account": {
     "kicker": "Account",
@@ -313,5 +315,78 @@
     "allKnown": "Everything found in the photo is already in this topic.",
     "known": "{count, plural, one {# more is already in this topic} other {# more are already in this topic}}",
     "seen": "You've sent this photo before."
+  },
+  "path": {
+    "back": "Back to topics",
+    "title": "Teacher",
+    "subtitle": "A test finds your level, the AI teacher builds the program, you work through it level by level.",
+    "language": "Learning language",
+    "nativeLanguage": "Your language",
+    "placementIntro": "The level test climbs from A1 upward until a batch of questions stops it. Wrong answers do not fail you — they tell the teacher what to build the program from.",
+    "startPlacement": "Start the level test",
+    "starting": "Starting…",
+    "programTitle": "Program · level {level}",
+    "progressTopics": "{done} of {total} topics",
+    "finalTest": "Take the final test",
+    "reset": "Reset the level",
+    "resetConfirm": "Yes, start over",
+    "cancel": "Cancel",
+    "level": "Level",
+    "history": "History",
+    "status": {
+      "active": "in progress",
+      "finished": "finished",
+      "abandoned": "reset"
+    },
+    "source": {
+      "placement": "first analysis",
+      "reset": "re-analysis"
+    },
+    "topicStatus": {
+      "not_started": "not started",
+      "in_progress": "in progress",
+      "completed": "completed"
+    },
+    "skill": {
+      "grammar": "Grammar",
+      "vocabulary": "Vocabulary",
+      "reading": "Reading",
+      "writing": "Writing"
+    },
+    "test": {
+      "loading": "Loading the test…",
+      "exit": "Exit",
+      "sending": "Checking…",
+      "send": "Answer",
+      "progress": "{correct} of {asked} right · need {needed}",
+      "placementTitle": "Level test",
+      "finalTitle": "Final test · {level}",
+      "placed": "Your level: {level}",
+      "placedHint": "Now the teacher reads the test — the wrong answers above all — and writes your program.",
+      "analyze": "Build my program",
+      "analyzing": "The teacher is writing the program…",
+      "finalPassed": "Level {level} confirmed",
+      "finalPassedHint": "The program is finished. Start the next level whenever you are ready.",
+      "finalFailed": "Not confirmed yet",
+      "finalFailedHint": "The level needs a little more work — the program stays open, retake the final test when it feels solid.",
+      "skill": {
+        "grammar": "grammar",
+        "vocabulary": "vocabulary",
+        "reading": "reading"
+      }
+    },
+    "topic": {
+      "loading": "Loading…",
+      "generate": "Generate exercises",
+      "generating": "The teacher is writing exercises…",
+      "complete": "Complete the topic",
+      "completing": "Completing…",
+      "correct": "Correct",
+      "wrong": "Mistake",
+      "check": "Check",
+      "fillPlaceholder": "Type the missing word",
+      "translatePlaceholder": "Type your translation",
+      "solved": "done"
+    }
   }
 }

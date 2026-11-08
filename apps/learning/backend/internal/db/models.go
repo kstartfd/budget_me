@@ -272,6 +272,219 @@ func (ns NullLearningEntryStatus) Value() (driver.Value, error) {
 	return string(ns.LearningEntryStatus), nil
 }
 
+type LearningPathExerciseKind string
+
+const (
+	LearningPathExerciseKindChoice    LearningPathExerciseKind = "choice"
+	LearningPathExerciseKindFill      LearningPathExerciseKind = "fill"
+	LearningPathExerciseKindTranslate LearningPathExerciseKind = "translate"
+)
+
+func (e *LearningPathExerciseKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningPathExerciseKind(s)
+	case string:
+		*e = LearningPathExerciseKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningPathExerciseKind: %T", src)
+	}
+	return nil
+}
+
+type NullLearningPathExerciseKind struct {
+	LearningPathExerciseKind LearningPathExerciseKind
+	Valid                    bool // Valid is true if LearningPathExerciseKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningPathExerciseKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningPathExerciseKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningPathExerciseKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningPathExerciseKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningPathExerciseKind), nil
+}
+
+type LearningPathStatus string
+
+const (
+	LearningPathStatusActive    LearningPathStatus = "active"
+	LearningPathStatusFinished  LearningPathStatus = "finished"
+	LearningPathStatusAbandoned LearningPathStatus = "abandoned"
+)
+
+func (e *LearningPathStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningPathStatus(s)
+	case string:
+		*e = LearningPathStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningPathStatus: %T", src)
+	}
+	return nil
+}
+
+type NullLearningPathStatus struct {
+	LearningPathStatus LearningPathStatus
+	Valid              bool // Valid is true if LearningPathStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningPathStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningPathStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningPathStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningPathStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningPathStatus), nil
+}
+
+type LearningPathTestKind string
+
+const (
+	LearningPathTestKindPlacement LearningPathTestKind = "placement"
+	LearningPathTestKindFinal     LearningPathTestKind = "final"
+)
+
+func (e *LearningPathTestKind) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningPathTestKind(s)
+	case string:
+		*e = LearningPathTestKind(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningPathTestKind: %T", src)
+	}
+	return nil
+}
+
+type NullLearningPathTestKind struct {
+	LearningPathTestKind LearningPathTestKind
+	Valid                bool // Valid is true if LearningPathTestKind is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningPathTestKind) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningPathTestKind, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningPathTestKind.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningPathTestKind) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningPathTestKind), nil
+}
+
+type LearningPathTestStatus string
+
+const (
+	LearningPathTestStatusInProgress LearningPathTestStatus = "in_progress"
+	LearningPathTestStatusDone       LearningPathTestStatus = "done"
+)
+
+func (e *LearningPathTestStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningPathTestStatus(s)
+	case string:
+		*e = LearningPathTestStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningPathTestStatus: %T", src)
+	}
+	return nil
+}
+
+type NullLearningPathTestStatus struct {
+	LearningPathTestStatus LearningPathTestStatus
+	Valid                  bool // Valid is true if LearningPathTestStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningPathTestStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningPathTestStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningPathTestStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningPathTestStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningPathTestStatus), nil
+}
+
+type LearningPathTopicStatus string
+
+const (
+	LearningPathTopicStatusNotStarted LearningPathTopicStatus = "not_started"
+	LearningPathTopicStatusInProgress LearningPathTopicStatus = "in_progress"
+	LearningPathTopicStatusCompleted  LearningPathTopicStatus = "completed"
+)
+
+func (e *LearningPathTopicStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningPathTopicStatus(s)
+	case string:
+		*e = LearningPathTopicStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningPathTopicStatus: %T", src)
+	}
+	return nil
+}
+
+type NullLearningPathTopicStatus struct {
+	LearningPathTopicStatus LearningPathTopicStatus
+	Valid                   bool // Valid is true if LearningPathTopicStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningPathTopicStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningPathTopicStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningPathTopicStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningPathTopicStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningPathTopicStatus), nil
+}
+
 type LearningTokenScope string
 
 const (
@@ -416,6 +629,76 @@ type LearningEntryMerge struct {
 	ID     pgtype.UUID
 	KeepID interface{}
 	Rank   int64
+}
+
+type LearningPath struct {
+	ID                  pgtype.UUID
+	UserID              pgtype.UUID
+	Language            string
+	TranslationLanguage string
+	Level               string
+	Summary             string
+	Status              LearningPathStatus
+	Source              string
+	PlacementTestID     pgtype.UUID
+	CreatedAt           pgtype.Timestamptz
+	ArchivedAt          pgtype.Timestamptz
+}
+
+type LearningPathAttempt struct {
+	ID         pgtype.UUID
+	ExerciseID pgtype.UUID
+	UserID     pgtype.UUID
+	Answer     string
+	Correct    bool
+	Feedback   string
+	CreatedAt  pgtype.Timestamptz
+}
+
+type LearningPathExercise struct {
+	ID        pgtype.UUID
+	TopicID   pgtype.UUID
+	Position  int32
+	Kind      LearningPathExerciseKind
+	Text      string
+	Prompt    string
+	Options   []byte
+	Answer    string
+	CreatedAt pgtype.Timestamptz
+}
+
+type LearningPathTest struct {
+	ID                  pgtype.UUID
+	UserID              pgtype.UUID
+	PathID              pgtype.UUID
+	Kind                LearningPathTestKind
+	Language            string
+	TranslationLanguage string
+	Level               string
+	LevelReached        string
+	Passed              bool
+	Status              LearningPathTestStatus
+	CreatedAt           pgtype.Timestamptz
+	CompletedAt         pgtype.Timestamptz
+}
+
+type LearningPathTestAnswer struct {
+	TestID      pgtype.UUID
+	QuestionKey string
+	Answer      string
+	Correct     bool
+}
+
+type LearningPathTopic struct {
+	ID          pgtype.UUID
+	PathID      pgtype.UUID
+	Position    int32
+	Skill       string
+	Title       string
+	Goal        string
+	Status      LearningPathTopicStatus
+	CreatedAt   pgtype.Timestamptz
+	CompletedAt pgtype.Timestamptz
 }
 
 type LearningScan struct {
