@@ -23,6 +23,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { useLearning } from "@/features/learning/hooks"
 import { useLanguageName } from "@/features/learning/language"
+import { PathScreen } from "@/features/path"
 import { cn } from "@/lib/utils"
 
 import {
@@ -78,6 +79,8 @@ export function TeacherChatScreen() {
 
   const topic =
     topics.data?.find((item) => item.id === picked) ?? topics.data?.[0]
+  // A level test owns the screen while it runs: the conversation waits out.
+  const [programBusy, setProgramBusy] = useState(false)
 
   return (
     <div className="anim-fade -mb-44 flex flex-1 flex-col gap-3 lg:mx-auto lg:-mb-16 lg:w-full lg:max-w-[760px] lg:pt-3">
@@ -113,41 +116,51 @@ export function TeacherChatScreen() {
           </Button>
         </div>
       ) : (
-        <Conversation
-          key={topic.id}
-          topicId={topic.id}
-          picker={
-            <Select
-              value={topic.id}
-              onValueChange={(id) => {
-                setPicked(id)
-                remember(id)
-              }}
-            >
-              <SelectTrigger
-                aria-label={t("topic")}
-                className="bg-card border-border h-10 min-w-0 flex-1 rounded-xl px-3.5 text-sm"
-              >
-                <SelectValue>
-                  <span className="truncate">
-                    {topic.name}
-                    <span className="text-faint">
-                      {" · "}
-                      {languageName(topic.language)}
-                    </span>
-                  </span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {topics.data.map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {item.name} · {languageName(item.language)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          }
-        />
+        <>
+          <PathScreen
+            language={topic.language}
+            translationLanguage={topic.translationLanguage}
+            embedded
+            onTestChange={setProgramBusy}
+          />
+          {!programBusy && (
+            <Conversation
+              key={topic.id}
+              topicId={topic.id}
+              picker={
+                <Select
+                  value={topic.id}
+                  onValueChange={(id) => {
+                    setPicked(id)
+                    remember(id)
+                  }}
+                >
+                  <SelectTrigger
+                    aria-label={t("topic")}
+                    className="bg-card border-border h-10 min-w-0 flex-1 rounded-xl px-3.5 text-sm"
+                  >
+                    <SelectValue>
+                      <span className="truncate">
+                        {topic.name}
+                        <span className="text-faint">
+                          {" · "}
+                          {languageName(topic.language)}
+                        </span>
+                      </span>
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {topics.data.map((item) => (
+                      <SelectItem key={item.id} value={item.id}>
+                        {item.name} · {languageName(item.language)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              }
+            />
+          )}
+        </>
       )}
     </div>
   )

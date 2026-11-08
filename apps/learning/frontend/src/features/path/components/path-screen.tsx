@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import {
@@ -32,16 +32,40 @@ const languages = [
   "tr",
 ]
 
-/** The teacher tab: a test, a program built from it, level by level. */
-export function PathScreen() {
+/**
+ * The teacher's program: a test, a program built from it, level by level.
+ * Stands alone as a page, or embeds above the teacher chat: then the language
+ * pair comes from the picked topic, the selectors and the page header are
+ * left out, and onTestChange tells the host to get out of the way while a
+ * test runs.
+ */
+export function PathScreen({
+  language: fixedLanguage,
+  translationLanguage: fixedNative,
+  embedded = false,
+  onTestChange,
+}: {
+  language?: string
+  translationLanguage?: string
+  embedded?: boolean
+  onTestChange?: (testActive: boolean) => void
+}) {
   const t = useTranslations("path")
   const locale = useLocale()
-  const [language, setLanguage] = useState("en")
-  const [nativeLanguage, setNativeLanguage] = useState("ru")
+  const [pickedLanguage, setPickedLanguage] = useState(fixedLanguage ?? "en")
+  const [pickedNative, setPickedNative] = useState(fixedNative ?? "ru")
+  // Embedded, the pair comes from the picked topic and the props win; alone,
+  // the user picks and the state is the source.
+  const language = fixedLanguage ?? pickedLanguage
+  const nativeLanguage = fixedNative ?? pickedNative
   const [testId, setTestId] = useState<string | null>(null)
   const path = usePath(language, nativeLanguage)
   const languageNames = new Intl.DisplayNames([locale], { type: "language" })
   const active = path.active.data
+
+  useEffect(() => {
+    onTestChange?.(testId !== null)
+  }, [testId, onTestChange])
 
   if (testId) {
     return (
@@ -56,44 +80,54 @@ export function PathScreen() {
   }
 
   return (
-    <div className="anim-fade space-y-[18px] lg:mx-auto lg:max-w-[760px] lg:space-y-[22px] lg:pt-5">
-      <header className="space-y-1.5">
-        <h1 className="text-[26px] font-bold tracking-[-0.02em] lg:text-[28px]">
-          {t("title")}
-        </h1>
-        <p className="text-muted-foreground text-[13px] leading-relaxed lg:text-sm">
-          {t("subtitle")}
-        </p>
-      </header>
+    <div
+      className={
+        embedded
+          ? "anim-fade space-y-[18px]"
+          : "anim-fade space-y-[18px] lg:mx-auto lg:max-w-[760px] lg:space-y-[22px] lg:pt-5"
+      }
+    >
+      {!embedded && (
+        <header className="space-y-1.5">
+          <h1 className="text-[26px] font-bold tracking-[-0.02em] lg:text-[28px]">
+            {t("title")}
+          </h1>
+          <p className="text-muted-foreground text-[13px] leading-relaxed lg:text-sm">
+            {t("subtitle")}
+          </p>
+        </header>
+      )}
 
-      <div className="grid gap-3 sm:grid-cols-2">
-        {(
-          [
-            [language, setLanguage, "language"],
-            [nativeLanguage, setNativeLanguage, "nativeLanguage"],
-          ] as const
-        ).map(([value, setValue, name]) => (
-          <label key={name} className="space-y-2 text-sm font-medium">
-            <span>{t(name)}</span>
-            <Select
-              value={value}
-              onValueChange={setValue}
-              disabled={!!active}
-            >
-              <SelectTrigger className="bg-secondary border-border focus-visible:border-primary h-12 w-full rounded-2xl px-4 text-sm focus-visible:ring-0">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {languages.map((code) => (
-                  <SelectItem key={code} value={code}>
-                    {languageNames.of(code) ?? code}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </label>
-        ))}
-      </div>
+      {!embedded && (
+        <div className="grid gap-3 sm:grid-cols-2">
+          {(
+            [
+              [language, setPickedLanguage, "language"],
+              [nativeLanguage, setPickedNative, "nativeLanguage"],
+            ] as const
+          ).map(([value, setValue, name]) => (
+            <label key={name} className="space-y-2 text-sm font-medium">
+              <span>{t(name)}</span>
+              <Select
+                value={value}
+                onValueChange={setValue}
+                disabled={!!active}
+              >
+                <SelectTrigger className="bg-secondary border-border focus-visible:border-primary h-12 w-full rounded-2xl px-4 text-sm focus-visible:ring-0">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {languages.map((code) => (
+                    <SelectItem key={code} value={code}>
+                      {languageNames.of(code) ?? code}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </label>
+          ))}
+        </div>
+      )}
 
       {path.active.isPending ? (
         <div className="space-y-3">
