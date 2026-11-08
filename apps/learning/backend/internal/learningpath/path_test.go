@@ -182,6 +182,14 @@ func chooseAgent(t *testing.T, e env) {
 // startPlacement opens a placement test and returns its id and first batch.
 func startPlacement(t *testing.T, e env) (string, []any) {
 	t.Helper()
+	id, state := startPlacementState(t, e)
+	return id, state["questions"].([]any)
+}
+
+// startPlacementState opens a placement test and returns its id and whole DTO,
+// level included.
+func startPlacementState(t *testing.T, e env) (string, map[string]any) {
+	t.Helper()
 	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests", e.session, map[string]any{
 		"language": "en", "translationLanguage": "ru",
 	})
@@ -193,7 +201,7 @@ func startPlacement(t *testing.T, e env) (string, []any) {
 	if len(questions) == 0 {
 		t.Fatalf("no questions in the batch: %v", d)
 	}
-	return d["id"].(string), questions
+	return d["id"].(string), d
 }
 
 // answerBatch posts one answer per question; right=false picks a wrong option.
@@ -232,23 +240,35 @@ func answerBatch(t *testing.T, e env, testID string, questions []any, right bool
 	return data(t, body)
 }
 
-// climb finishes a placement: batches are answered right until the ladder
-// stops at wantReached.
+// climb finishes a placement at wantReached: batches are answered right up to
+// the level above it, and that level's batch is failed on purpose — failing a
+// level lands the result one rung under it.
 func climb(t *testing.T, e env, wantReached string) string {
 	t.Helper()
 
-	testID, questions := startPlacement(t, e)
+	testID, state := startPlacementState(t, e)
+	failAt := aboveLevel(wantReached)
 
 	for {
-		state := answerBatch(t, e, testID, questions, true)
+		right := state["level"].(string) != failAt
+		state = answerBatch(t, e, testID, state["questions"].([]any), right)
 		if state["status"] == "done" {
 			if state["levelReached"] != wantReached {
 				t.Fatalf("reached %v, want %s", state["levelReached"], wantReached)
 			}
 			return testID
 		}
-		questions = state["questions"].([]any)
 	}
+}
+
+// aboveLevel is the rung over, named by where failing IT lands: failing A2
+// places the learner at A1. C2 has none — climbing to it never fails.
+func aboveLevel(reached string) string {
+	if next, ok := placement.Next(placement.Level(reached)); ok {
+		return string(next)
+	}
+
+	return ""
 }
 
 const programReply = `{"summary":"Solid A1 with clear A2 gaps.","topics":[

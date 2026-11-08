@@ -139,10 +139,18 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 }
 
 // sourceOf calls the first program of a language a placement and every later
-// one a reset, so the history shows how each program came to be.
+// one a re-analysis after a reset, so the history shows how each program came
+// to be.
 func (h AnalyzeHandler) sourceOf(ctx context.Context, test db.LearningPathTest) string {
-	if _, err := h.q.GetLearningPathByTest(ctx, test.ID); err == nil {
-		return "reset"
+	history, err := h.q.ListLearningPathHistory(ctx, test.UserID)
+	if err != nil {
+		return "placement"
+	}
+
+	for _, path := range history {
+		if path.Language == test.Language {
+			return "reset"
+		}
 	}
 
 	return "placement"

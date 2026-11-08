@@ -36,9 +36,6 @@ SELECT * FROM learning_paths WHERE user_id = $1 AND language = $2 AND status = '
 -- name: GetLearningPath :one
 SELECT * FROM learning_paths WHERE id = $1 AND user_id = $2;
 
--- name: GetLearningPathByTest :one
-SELECT * FROM learning_paths WHERE placement_test_id = $1;
-
 -- name: ArchiveLearningPath :execrows
 UPDATE learning_paths SET status = $3, archived_at = $4
 WHERE id = $1 AND user_id = $2 AND status = 'active';

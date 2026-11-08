@@ -141,29 +141,6 @@ func (q *Queries) GetLearningPath(ctx context.Context, arg GetLearningPathParams
 	return i, err
 }
 
-const getLearningPathByTest = `-- name: GetLearningPathByTest :one
-SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at FROM learning_paths WHERE placement_test_id = $1
-`
-
-func (q *Queries) GetLearningPathByTest(ctx context.Context, placementTestID pgtype.UUID) (LearningPath, error) {
-	row := q.db.QueryRow(ctx, getLearningPathByTest, placementTestID)
-	var i LearningPath
-	err := row.Scan(
-		&i.ID,
-		&i.UserID,
-		&i.Language,
-		&i.TranslationLanguage,
-		&i.Level,
-		&i.Summary,
-		&i.Status,
-		&i.Source,
-		&i.PlacementTestID,
-		&i.CreatedAt,
-		&i.ArchivedAt,
-	)
-	return i, err
-}
-
 const getLearningPathExercise = `-- name: GetLearningPathExercise :one
 SELECT e.id, e.topic_id, e.position, e.kind, e.text, e.prompt, e.options, e.answer, e.created_at FROM learning_path_exercises e
 JOIN learning_path_topics t ON t.id = e.topic_id

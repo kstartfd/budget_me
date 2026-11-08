@@ -39,7 +39,6 @@ type Querier interface {
 	GetLearningChatByEntry(ctx context.Context, arg GetLearningChatByEntryParams) (LearningChat, error)
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
 	GetLearningPath(ctx context.Context, arg GetLearningPathParams) (LearningPath, error)
-	GetLearningPathByTest(ctx context.Context, placementTestID pgtype.UUID) (LearningPath, error)
 	GetLearningPathExercise(ctx context.Context, arg GetLearningPathExerciseParams) (LearningPathExercise, error)
 	GetLearningPathTest(ctx context.Context, arg GetLearningPathTestParams) (LearningPathTest, error)
 	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
