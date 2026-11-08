@@ -407,12 +407,12 @@ func TestTopicExercisesAndAttempts(t *testing.T) {
 	e := setup(t)
 	chooseAgent(t, e)
 	e.provider.setDefault(programReply)
-	e.provider.enqueue(exercisesReply)
 
 	path := analyze(t, e, climb(t, e, "A1"))
 	topic := path["topics"].([]any)[0].(map[string]any)
 	topicID := topic["id"].(string)
 
+	e.provider.enqueue(exercisesReply)
 	exercises := generateExercises(t, e, topicID)
 
 	// Reopening the topic hands back the same set, with no new agent call.
@@ -619,11 +619,11 @@ func TestRegenerateRefusedAfterAttempts(t *testing.T) {
 	e := setup(t)
 	chooseAgent(t, e)
 	e.provider.setDefault(programReply)
-	e.provider.enqueue(exercisesReply)
 
 	path := analyze(t, e, climb(t, e, "A1"))
 	topicID := path["topics"].([]any)[0].(map[string]any)["id"].(string)
 
+	e.provider.enqueue(exercisesReply)
 	generateExercises(t, e, topicID)
 
 	// No attempts yet: regenerating works.
