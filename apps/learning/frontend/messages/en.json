@@ -137,9 +137,7 @@
     "markLearning": "Move back to Learning",
     "playAudio": "Play pronunciation",
     "audioError": "Could not play the audio. Try again.",
-    "chatTab": "Chat",
-    "pathTab": "Teacher's program",
-    "pathTabHint": "Test → AI-built program → level by level"
+    "chatTab": "Chat"
   },
   "account": {
     "kicker": "Account",
@@ -317,7 +315,6 @@
     "seen": "You've sent this photo before."
   },
   "path": {
-    "back": "Back to topics",
     "title": "Teacher",
     "subtitle": "A test finds your level, the AI teacher builds the program, you work through it level by level.",
     "language": "Learning language",

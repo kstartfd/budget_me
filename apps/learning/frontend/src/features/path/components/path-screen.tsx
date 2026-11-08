@@ -1,9 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import Link from "next/link"
 import { useLocale, useTranslations } from "next-intl"
-import { IconChevronLeft } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -60,13 +58,6 @@ export function PathScreen() {
   return (
     <div className="anim-fade space-y-[18px] lg:mx-auto lg:max-w-[760px] lg:space-y-[22px] lg:pt-5">
       <header className="space-y-1.5">
-        <Link
-          href="/learning"
-          className="text-muted-foreground inline-flex items-center gap-1 text-sm"
-        >
-          <IconChevronLeft size={15} />
-          {t("back")}
-        </Link>
         <h1 className="text-[26px] font-bold tracking-[-0.02em] lg:text-[28px]">
           {t("title")}
         </h1>
