@@ -406,7 +406,8 @@ func toAny(list []map[string]any) []any {
 func TestTopicExercisesAndAttempts(t *testing.T) {
 	e := setup(t)
 	chooseAgent(t, e)
-	e.provider.setDefault(exercisesReply)
+	e.provider.setDefault(programReply)
+	e.provider.enqueue(exercisesReply)
 
 	path := analyze(t, e, climb(t, e, "A1"))
 	topic := path["topics"].([]any)[0].(map[string]any)
@@ -576,16 +577,14 @@ func TestSecondProgramIsMarkedAsReset(t *testing.T) {
 
 	analyze(t, e, climb(t, e, "A2"))
 
-	code, body = request(t, e.e, "GET", "/api/v1/learning/path/history", e.session, nil)
+	// The re-analysis is the active program now; the history only holds closed
+	// ones, where the first program sits marked as a placement.
+	code, body = request(t, e.e, "GET", "/api/v1/learning/path?language=en", e.session, nil)
 	if code != http.StatusOK {
-		t.Fatalf("history: %d %v", code, body)
+		t.Fatalf("active path: %d %v", code, body)
 	}
-	paths := listPayload(t, body)
-	if len(paths) == 0 {
-		t.Fatal("history is empty")
-	}
-	if paths[0]["source"] != "reset" {
-		t.Fatalf("the re-analysis must be marked as a reset: %v", paths[0])
+	if data(t, body)["source"] != "reset" {
+		t.Fatalf("the re-analysis must be marked as a reset: %v", data(t, body))
 	}
 }
 
@@ -619,7 +618,8 @@ func TestUnknownAnswerKeyIsRefused(t *testing.T) {
 func TestRegenerateRefusedAfterAttempts(t *testing.T) {
 	e := setup(t)
 	chooseAgent(t, e)
-	e.provider.setDefault(exercisesReply)
+	e.provider.setDefault(programReply)
+	e.provider.enqueue(exercisesReply)
 
 	path := analyze(t, e, climb(t, e, "A1"))
 	topicID := path["topics"].([]any)[0].(map[string]any)["id"].(string)
