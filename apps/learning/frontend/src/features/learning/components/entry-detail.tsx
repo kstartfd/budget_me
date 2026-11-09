@@ -4,6 +4,7 @@ import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { IconPencil, IconTrash } from "@tabler/icons-react"
 import { BottomBar } from "@/components/bottom-bar"
+import { InlineMarkdown } from "@/components/inline-markdown"
 import { Button } from "@/components/ui/button"
 import { EntryChat } from "@/features/chat"
 import { cn } from "@/lib/utils"
@@ -133,7 +134,7 @@ export function EntryDetail({
                     : "text-[13px] leading-[1.55]",
                 )}
               >
-                {entry[field]}
+                <InlineMarkdown text={entry[field]} />
               </p>
             </section>
           ),
