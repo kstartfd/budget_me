@@ -643,7 +643,7 @@ func TestRegenerateKeepsAttemptHistory(t *testing.T) {
 		t.Fatalf("regenerate after attempts: %d %v", code, body)
 	}
 	newSet := listPayload(t, body)
-	if len(newSet) == 0 || newSet[0].(map[string]any)["id"] == exerciseID {
+	if len(newSet) == 0 || newSet[0]["id"] == exerciseID {
 		t.Fatalf("regeneration did not replace the current set: %v", newSet)
 	}
 	detail := topicDetail(t, e, topicID)
