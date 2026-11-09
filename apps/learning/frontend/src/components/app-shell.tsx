@@ -18,8 +18,8 @@ function Frame({ children }: { children: React.ReactNode }) {
   return (
     <div className="lg:flex">
       <aside className="border-border bg-background sticky top-0 hidden h-dvh w-56 shrink-0 flex-col border-r px-3.5 py-5 lg:flex">
-        <Link href="/learning" className="px-2 pb-6 text-[15px] font-bold">topics</Link>
-        <Link href="/learning" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconBook2 size={18} />topics</Link>
+        <Link href="/learning" className="px-2 pb-6 text-[15px] font-bold">{t("topics")}</Link>
+        <Link href="/learning" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconBook2 size={18} />{t("topics")}</Link>
         <Link href="/learning/path" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconRoute size={18} />{t("pathTab")}</Link>
         <Link href="/learning/chat" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconMessageCircle size={18} />{t("chatTab")}</Link>
         <Link href="/learning/settings" className="text-muted-foreground flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm"><IconSettings size={18} />{t("settings")}</Link>

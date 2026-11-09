@@ -34,6 +34,7 @@
   },
   "learning": {
     "title": "Learning",
+    "topics": "Топики",
     "subtitle": "Слова и фразы, к которым хочется вернуться.",
     "newTopic": "Новая тема",
     "editTopic": "Настройки темы",

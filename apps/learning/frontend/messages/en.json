@@ -34,6 +34,7 @@
   },
   "learning": {
     "title": "Learning",
+    "topics": "Topics",
     "subtitle": "Words and phrases worth coming back to.",
     "newTopic": "New topic",
     "editTopic": "Topic settings",

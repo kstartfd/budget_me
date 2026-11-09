@@ -3,6 +3,7 @@
 import { useFormatter, useTranslations } from "next-intl"
 import { IconSend2 } from "@tabler/icons-react"
 
+import { InlineMarkdown } from "@/components/inline-markdown"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
@@ -29,7 +30,11 @@ export function Bubble({
             : "bg-secondary text-foreground rounded-bl-md",
         )}
       >
-        {children}
+        {!mine && typeof children === "string" ? (
+          <InlineMarkdown text={children} />
+        ) : (
+          children
+        )}
       </p>
     </div>
   )
