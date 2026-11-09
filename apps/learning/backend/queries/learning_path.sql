@@ -58,9 +58,10 @@ JOIN learning_paths p ON p.id = t.path_id
 WHERE t.id = $1 AND p.user_id = $2;
 
 -- name: UpdateLearningPathTopicStatus :execrows
-UPDATE learning_path_topics
-SET status = $3,
-    completed_at = CASE WHEN $3 = 'completed'::learning_path_topic_status THEN $4 ELSE NULL END
+UPDATE learning_path_topics SET status = $3, completed_at = $4 WHERE id = $1 AND path_id = $2;
+
+-- name: StartLearningPathTopic :execrows
+UPDATE learning_path_topics SET status = 'in_progress', completed_at = NULL
 WHERE id = $1 AND path_id = $2;
 
 -- name: CompleteLearningPathTopicIfExercisesPassed :execrows

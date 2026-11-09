@@ -130,8 +130,7 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 	}
 
 	if topic.Status == db.LearningPathTopicStatusNotStarted || topic.Status == db.LearningPathTopicStatusCompleted {
-		// In progress has no completion time; the zero timestamptz is NULL.
-		if _, err := tq.UpdateLearningPathTopicStatus(ctx, db.UpdateLearningPathTopicStatusParams{ID: topic.ID, PathID: topic.PathID, Status: db.LearningPathTopicStatusInProgress}); err != nil {
+		if _, err := tq.StartLearningPathTopic(ctx, db.StartLearningPathTopicParams{ID: topic.ID, PathID: topic.PathID}); err != nil {
 			return nil, err
 		}
 	}

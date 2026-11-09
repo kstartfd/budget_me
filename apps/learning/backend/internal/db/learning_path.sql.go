@@ -732,10 +732,7 @@ func (q *Queries) ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID
 }
 
 const updateLearningPathTopicStatus = `-- name: UpdateLearningPathTopicStatus :execrows
-UPDATE learning_path_topics
-SET status = $3,
-    completed_at = CASE WHEN $3 = 'completed'::learning_path_topic_status THEN $4 ELSE NULL END
-WHERE id = $1 AND path_id = $2
+UPDATE learning_path_topics SET status = $3, completed_at = $4 WHERE id = $1 AND path_id = $2
 `
 
 type UpdateLearningPathTopicStatusParams struct {
@@ -752,6 +749,24 @@ func (q *Queries) UpdateLearningPathTopicStatus(ctx context.Context, arg UpdateL
 		arg.Status,
 		arg.CompletedAt,
 	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const startLearningPathTopic = `-- name: StartLearningPathTopic :execrows
+UPDATE learning_path_topics SET status = 'in_progress', completed_at = NULL
+WHERE id = $1 AND path_id = $2
+`
+
+type StartLearningPathTopicParams struct {
+	ID     pgtype.UUID
+	PathID pgtype.UUID
+}
+
+func (q *Queries) StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error) {
+	result, err := q.db.Exec(ctx, startLearningPathTopic, arg.ID, arg.PathID)
 	if err != nil {
 		return 0, err
 	}
