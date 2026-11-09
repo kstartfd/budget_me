@@ -1,4 +1,6 @@
-const emphasisPattern = /(\*\*\*[^*]+\*\*\*|\*\*[^*]+\*\*|\*[^*]+\*)/g
+// Assistant replies can wrap emphasis across lines. Keep this deliberately
+// small (the chat does not need a full Markdown renderer), but allow that.
+const emphasisPattern = /(\*\*\*[\s\S]+?\*\*\*|\*\*[\s\S]+?\*\*|\*[^*\n]+?\*)/g
 
 export function InlineMarkdown({ text }: { text: string }) {
   return (
@@ -12,10 +14,10 @@ export function InlineMarkdown({ text }: { text: string }) {
           )
         }
         if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
-          return <em key={index}>{part.slice(2, -2)}</em>
+          return <strong key={index}>{part.slice(2, -2)}</strong>
         }
         if (part.startsWith("*") && part.endsWith("*") && part.length > 2) {
-          return <strong key={index}>{part.slice(1, -1)}</strong>
+          return <em key={index}>{part.slice(1, -1)}</em>
         }
         return part
       })}
