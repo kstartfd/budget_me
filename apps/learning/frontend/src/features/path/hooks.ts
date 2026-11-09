@@ -65,22 +65,40 @@ export function useTopicDetail(topicId: string | null) {
     enabled: !!user && !!topicId,
   })
 
+  const refresh = () =>
+    Promise.all([
+      client.invalidateQueries({ queryKey: key }),
+      client.invalidateQueries({ queryKey: ["path", user?.id] }),
+    ])
+
   const generate = useMutation({
     mutationFn: (regenerate: boolean) =>
       api.generateExercises(topicId!, regenerate),
-    onSuccess: () => client.invalidateQueries({ queryKey: key }),
-  })
-
-  const attempt = useMutation({
-    mutationFn: ({ exerciseId, answer }: { exerciseId: string; answer: string }) =>
-      api.submitAttempt(exerciseId, answer),
-    onSuccess: () => client.invalidateQueries({ queryKey: key }),
+    onSuccess: refresh,
   })
 
   const complete = useMutation({
     mutationFn: () => api.completeTopic(topicId!),
-    onSuccess: () => client.invalidateQueries({ queryKey: key }),
+    onSuccess: refresh,
   })
 
-  return { detail, generate, attempt, complete }
+  return { detail, generate, complete }
+}
+
+export function useTopicExerciseAttempt(topicId: string) {
+  const client = useQueryClient()
+  return useMutation({
+    mutationFn: ({
+      exerciseId,
+      answer,
+    }: {
+      exerciseId: string
+      answer: string
+    }) => api.submitAttempt(exerciseId, answer),
+    onSuccess: () =>
+      Promise.all([
+        client.invalidateQueries({ queryKey: ["path", "topic", topicId] }),
+        client.invalidateQueries({ queryKey: ["path"] }),
+      ]),
+  })
 }

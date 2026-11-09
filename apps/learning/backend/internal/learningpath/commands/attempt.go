@@ -94,6 +94,15 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 	if err != nil {
 		return AttemptResult{}, err
 	}
+	if correct {
+		if _, err := h.q.CompleteLearningPathTopicIfExercisesPassed(ctx, db.CompleteLearningPathTopicIfExercisesPassedParams{
+			ID:          topic.ID,
+			UserID:      ids.ToPg(cmd.UserID),
+			CompletedAt: db.Time(h.clock.Now()),
+		}); err != nil {
+			return AttemptResult{}, err
+		}
+	}
 
 	return AttemptResult{Attempt: attempt, Feedback: feedback}, nil
 }

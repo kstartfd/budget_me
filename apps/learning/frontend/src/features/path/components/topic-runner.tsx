@@ -1,27 +1,24 @@
 "use client"
 
 import { useState } from "react"
-import type { UseMutationResult } from "@tanstack/react-query"
 import { useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useTopicDetail } from "../hooks"
+import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import type { PathAttempt, PathExercise } from "../schemas"
-
-type AttemptMutation = UseMutationResult<
-  PathAttempt,
-  Error,
-  { exerciseId: string; answer: string }
->
 
 /** TopicRunner is the study screen of one topic: its exercises, checked one
  * answer at a time, with the agent's explanation when an answer is wrong. */
 export function TopicRunner({ topicId }: { topicId: string }) {
   const t = useTranslations("path.topic")
-  const { detail, generate, attempt, complete } = useTopicDetail(topicId)
+  const { detail, generate, complete } = useTopicDetail(topicId)
 
   if (detail.isPending)
-    return <p className="text-muted-foreground py-6 text-center text-sm">{t("loading")}</p>
+    return (
+      <p className="text-muted-foreground py-6 text-center text-sm">
+        {t("loading")}
+      </p>
+    )
   if (detail.isError)
     return (
       <p role="alert" className="text-destructive py-6 text-center text-sm">
@@ -33,72 +30,121 @@ export function TopicRunner({ topicId }: { topicId: string }) {
   const solved = new Set(
     attempts.filter((a) => a.correct).map((a) => a.exerciseId),
   )
+  const currentExerciseIds = new Set(exercises.map((exercise) => exercise.id))
+  const pastAttempts = attempts.filter(
+    (attempt) => !currentExerciseIds.has(attempt.exerciseId),
+  )
 
   return (
     <div className="bg-secondary/40 space-y-3 rounded-[22px] border border-transparent p-4">
       <p className="text-muted-foreground text-sm leading-relaxed">
         {topic.goal}
       </p>
+      {pastAttempts.length > 0 && (
+        <p className="text-muted-foreground text-xs">
+          {t("pastAttempts", {
+            count: pastAttempts.length,
+            correct: pastAttempts.filter((attempt) => attempt.correct).length,
+          })}
+        </p>
+      )}
 
-      {exercises.length === 0 ? (
-        <div className="space-y-2">
-          {generate.isError && (
-            <p role="alert" className="text-destructive text-sm">
-              {generate.error.message}
-            </p>
-          )}
-          <Button
-            onClick={() => generate.mutate(false)}
-            disabled={generate.isPending || topic.status === "completed"}
-            className="text-primary-foreground h-auto w-full rounded-[18px] py-3 text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
-          >
-            {t(generate.isPending ? "generating" : "generate")}
-          </Button>
-        </div>
-      ) : (
+      {generate.isError && (
+        <p role="alert" className="text-destructive text-sm">
+          {generate.error.message}
+        </p>
+      )}
+
+      {exercises.length === 0 ? null : (
         <>
           {exercises.map((exercise) => (
             <ExerciseCard
               key={exercise.id}
+              topicId={topicId}
               exercise={exercise}
               solved={solved.has(exercise.id)}
-              attempt={attempt}
             />
           ))}
 
-          {topic.status !== "completed" && (
-            <div className="space-y-2 pt-1">
-              {complete.isError && (
-                <p role="alert" className="text-destructive text-sm">
-                  {complete.error.message}
-                </p>
-              )}
-              <Button
-                variant="outline"
-                onClick={() => complete.mutate()}
-                disabled={complete.isPending}
-                className="border-primary/30 text-primary h-auto w-full rounded-[18px] py-3 text-sm font-semibold"
-              >
-                {t(complete.isPending ? "completing" : "complete")}
-              </Button>
-            </div>
-          )}
+          <div className="space-y-2 pt-1">
+            <TopicActions
+              hasExercises
+              generating={generate.isPending}
+              onGenerate={() => generate.mutate(false)}
+              onReset={() => generate.mutate(true)}
+            />
+            {topic.status !== "completed" && (
+              <>
+                {complete.isError && (
+                  <p role="alert" className="text-destructive text-sm">
+                    {complete.error.message}
+                  </p>
+                )}
+                <Button
+                  variant="outline"
+                  onClick={() => complete.mutate()}
+                  disabled={complete.isPending || generate.isPending}
+                  className="border-primary/30 text-primary h-auto w-full rounded-[18px] py-3 text-sm font-semibold"
+                >
+                  {t(complete.isPending ? "completing" : "complete")}
+                </Button>
+              </>
+            )}
+          </div>
         </>
       )}
+      {exercises.length === 0 && (
+        <TopicActions
+          generating={generate.isPending}
+          onGenerate={() => generate.mutate(false)}
+          onReset={() => generate.mutate(true)}
+        />
+      )}
     </div>
+  )
+}
+
+function TopicActions({
+  hasExercises = false,
+  generating,
+  onGenerate,
+  onReset,
+}: {
+  hasExercises?: boolean
+  generating: boolean
+  onGenerate: () => void
+  onReset: () => void
+}) {
+  const t = useTranslations("path.topic")
+  return (
+    <Button
+      variant={hasExercises ? "outline" : "default"}
+      onClick={hasExercises ? onReset : onGenerate}
+      disabled={generating}
+      className={`${hasExercises ? "text-primary" : "text-primary-foreground"} h-auto w-full rounded-[18px] py-3 text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]`}
+    >
+      {t(
+        generating
+          ? "generating"
+          : hasExercises
+            ? "resetExercises"
+            : "generate",
+      )}
+    </Button>
   )
 }
 
 function ExerciseCard({
   exercise,
   solved,
-  attempt,
+  topicId,
 }: {
+  topicId: string
   exercise: PathExercise
   solved: boolean
-  attempt: AttemptMutation
 }) {
   const t = useTranslations("path.topic")
+  const attempt = useTopicExerciseAttempt(topicId)
   const [value, setValue] = useState("")
   const [last, setLast] = useState<PathAttempt | null>(null)
 
@@ -155,7 +201,11 @@ function ExerciseCard({
           <Input
             value={value}
             onChange={(e) => setValue(e.target.value)}
-            placeholder={t(exercise.kind === "fill" ? "fillPlaceholder" : "translatePlaceholder")}
+            placeholder={t(
+              exercise.kind === "fill"
+                ? "fillPlaceholder"
+                : "translatePlaceholder",
+            )}
             aria-label={exercise.prompt}
             className="bg-secondary border-border focus-visible:border-primary h-auto rounded-2xl px-4 py-3 text-[15px] focus-visible:ring-0"
           />
@@ -164,7 +214,7 @@ function ExerciseCard({
             disabled={attempt.isPending || !value.trim()}
             className="text-primary-foreground h-auto rounded-2xl px-5 text-sm font-bold"
           >
-            {t("check")}
+            {t(attempt.isPending ? "checking" : "check")}
           </Button>
         </form>
       )}
@@ -186,10 +236,25 @@ function ExerciseCard({
             {last.correct ? t("correct") : t("wrong")}
           </p>
           {!last.correct && last.feedback && (
-            <p className="text-foreground leading-relaxed">{last.feedback}</p>
+            <p className="text-foreground leading-relaxed">
+              <QuotedEmphasis text={last.feedback} />
+            </p>
           )}
         </div>
       )}
     </section>
+  )
+}
+
+function QuotedEmphasis({ text }: { text: string }) {
+  const parts = text.split(/(["“«])([^"”»\n]+)(["”»])/g)
+
+  return (
+    <>
+      {parts.map((part, index) => {
+        if (index % 4 === 2) return <strong key={index}>{part}</strong>
+        return part
+      })}
+    </>
   )
 }

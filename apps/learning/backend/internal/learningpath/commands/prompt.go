@@ -40,7 +40,7 @@ const analyzeSystem = "You are an experienced language teacher building a study 
 
 // exercisesSystem is the exercise writer for one topic of the program.
 const exercisesSystem = "You write practice exercises for one topic of a language study program.\n\n" +
-	"You receive the language pair, the learner's CEFR level, and the topic: its skill, title and goal. Write a set of exercises that practice exactly that topic at that level.\n\n" +
+	"You receive the language pair, the learner's CEFR level, and the topic: its skill, title and goal. You may also receive the learner's results on previous exercises for this topic. Use those results to reinforce weak areas and tune the difficulty, while keeping the set appropriate for the stated CEFR level. Write a set of exercises that practice exactly that topic.\n\n" +
 	"Reply with one JSON object and nothing else: no markdown, no code fence. Its exact shape:\n" +
 	`{"exercises": [{"kind": string, "text": string, "prompt": string, "options": [string], "answer": string}]}` + "\n" +
 	"kind is one of choice (pick one of four options), fill (write the missing word or phrase into the gap marked with ...), translate (translate the given sentence into the learned language).\n" +
@@ -85,14 +85,19 @@ func analyzePrompt(learned, native string, reached placement.Level, asked, corre
 }
 
 // exercisesPrompt packs the topic into one JSON user prompt.
-func exercisesPrompt(learned, native string, level, skill, title, goal string) (string, string) {
-	prompt, _ := json.Marshal(map[string]any{
+func exercisesPrompt(learned, native string, level, skill, title, goal string, answered, correct int) (string, string) {
+	data := map[string]any{
 		"learnedLanguage": learned,
 		"nativeLanguage":  native,
 		"level":           level,
 		"topic":           map[string]string{"skill": skill, "title": title, "goal": goal},
 		"exerciseCount":   exerciseBatch,
-	})
+	}
+	if answered > 0 {
+		data["previousResults"] = map[string]int{"answered": answered, "correct": correct}
+	}
+
+	prompt, _ := json.Marshal(data)
 
 	return exercisesSystem, string(prompt)
 }

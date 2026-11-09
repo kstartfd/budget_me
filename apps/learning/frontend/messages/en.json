@@ -383,9 +383,12 @@
       "correct": "Correct",
       "wrong": "Mistake",
       "check": "Check",
+      "checking": "Checking…",
       "fillPlaceholder": "Type the missing word",
       "translatePlaceholder": "Type your translation",
-      "solved": "done"
+      "solved": "done",
+      "resetExercises": "Reset exercises",
+      "pastAttempts": "Previous exercises: {count} attempts, {correct} correct"
     }
   }
 }

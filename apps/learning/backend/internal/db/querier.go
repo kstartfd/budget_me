@@ -18,6 +18,7 @@ type Querier interface {
 	AuthenticateLearningToken(ctx context.Context, arg AuthenticateLearningTokenParams) (LearningToken, error)
 	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
+	CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error)
 	DeleteArchivedTopicChat(ctx context.Context, arg DeleteArchivedTopicChatParams) (int64, error)
 	DeleteLearningAISettings(ctx context.Context, userID pgtype.UUID) (int64, error)
 	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
@@ -44,6 +45,7 @@ type Querier interface {
 	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
 	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)
+	GetNextLearningPathExerciseGeneration(ctx context.Context, topicID pgtype.UUID) (int32, error)
 	GetOpenLearningPathTest(ctx context.Context, arg GetOpenLearningPathTestParams) (LearningPathTest, error)
 	GetOpenTopicChat(ctx context.Context, arg GetOpenTopicChatParams) (LearningChat, error)
 	GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error)
@@ -55,6 +57,7 @@ type Querier interface {
 	InsertLearningPath(ctx context.Context, arg InsertLearningPathParams) (LearningPath, error)
 	InsertLearningPathAttempt(ctx context.Context, arg InsertLearningPathAttemptParams) (LearningPathAttempt, error)
 	InsertLearningPathExercise(ctx context.Context, arg InsertLearningPathExerciseParams) (LearningPathExercise, error)
+	InsertLearningPathExerciseVersion(ctx context.Context, arg InsertLearningPathExerciseVersionParams) error
 	InsertLearningPathTest(ctx context.Context, arg InsertLearningPathTestParams) (LearningPathTest, error)
 	InsertLearningPathTestAnswer(ctx context.Context, arg InsertLearningPathTestAnswerParams) (int64, error)
 	InsertLearningPathTopic(ctx context.Context, arg InsertLearningPathTopicParams) (LearningPathTopic, error)
@@ -77,6 +80,7 @@ type Querier interface {
 	ListUsersWithoutAccount(ctx context.Context) ([]User, error)
 	LockLearningCaptureLease(ctx context.Context, arg LockLearningCaptureLeaseParams) (LearningCapture, error)
 	LockLearningChat(ctx context.Context, arg LockLearningChatParams) (LearningChat, error)
+	LockLearningPathTopic(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
 	// The account is the source of truth for identity; this row keeps a copy.
 	MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error)
 	// The next dialog carries over what the closed one spent in its budget window,

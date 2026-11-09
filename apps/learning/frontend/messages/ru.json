@@ -383,9 +383,12 @@
       "correct": "Верно",
       "wrong": "Ошибка",
       "check": "Проверить",
+      "checking": "Проверяем…",
       "fillPlaceholder": "Впишите пропущенное слово",
       "translatePlaceholder": "Напишите ваш перевод",
-      "solved": "готово"
+      "solved": "готово",
+      "resetExercises": "Сбросить упражнения",
+      "pastAttempts": "В прошлых упражнениях: попыток — {count}, правильных — {correct}"
     }
   }
 }

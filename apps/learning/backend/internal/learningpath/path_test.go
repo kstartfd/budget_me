@@ -613,9 +613,9 @@ func TestUnknownAnswerKeyIsRefused(t *testing.T) {
 	}
 }
 
-// TestRegenerateRefusedAfterAttempts: exercises are rewriteable until the
-// learner has tried them.
-func TestRegenerateRefusedAfterAttempts(t *testing.T) {
+// TestRegenerateKeepsAttemptHistory: new exercises replace the active set,
+// while attempts on earlier sets remain available in the topic history.
+func TestRegenerateKeepsAttemptHistory(t *testing.T) {
 	e := setup(t)
 	chooseAgent(t, e)
 	e.provider.setDefault(programReply)
@@ -633,13 +633,22 @@ func TestRegenerateRefusedAfterAttempts(t *testing.T) {
 		t.Fatalf("regenerate before attempts: %d", code)
 	}
 
-	// One attempt: the set stays.
+	// One attempt is retained when a new set is generated.
 	e.provider.enqueue(`{"correct":false,"feedback":"no"}`)
 	exerciseID := generateExercises(t, e, topicID)[0].(map[string]any)["id"].(string)
 	attempt(t, e, exerciseID, "wrong answer here", false, "")
-	code, _ = request(t, e.e, "POST", "/api/v1/learning/path/topics/"+topicID+"/exercises?regenerate=1", e.session, nil)
-	if code != http.StatusConflict {
-		t.Fatalf("regenerate after attempts: %d", code)
+	e.provider.enqueue(exercisesReply)
+	code, body := request(t, e.e, "POST", "/api/v1/learning/path/topics/"+topicID+"/exercises?regenerate=1", e.session, nil)
+	if code != http.StatusOK {
+		t.Fatalf("regenerate after attempts: %d %v", code, body)
+	}
+	newSet := listPayload(t, body)
+	if len(newSet) == 0 || newSet[0].(map[string]any)["id"] == exerciseID {
+		t.Fatalf("regeneration did not replace the current set: %v", newSet)
+	}
+	detail := topicDetail(t, e, topicID)
+	if history := detail["attempts"].([]any); len(history) != 1 || history[0].(map[string]any)["exerciseId"] != exerciseID {
+		t.Fatalf("past attempt was lost: %v", history)
 	}
 }
 
