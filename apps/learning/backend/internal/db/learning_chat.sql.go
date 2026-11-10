@@ -90,7 +90,7 @@ const ensureLearningChat = `-- name: EnsureLearningChat :one
 INSERT INTO learning_chats (id, user_id, entry_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $4)
 ON CONFLICT (entry_id) DO UPDATE SET entry_id = EXCLUDED.entry_id
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id
 `
 
 type EnsureLearningChatParams struct {
@@ -122,6 +122,48 @@ func (q *Queries) EnsureLearningChat(ctx context.Context, arg EnsureLearningChat
 		&i.SpentSince,
 		&i.TopicID,
 		&i.ArchivedAt,
+		&i.PathTopicID,
+	)
+	return i, err
+}
+
+const ensureLearningChatForPathTopic = `-- name: EnsureLearningChatForPathTopic :one
+INSERT INTO learning_chats (id, user_id, path_topic_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $4)
+ON CONFLICT (path_topic_id) WHERE path_topic_id IS NOT NULL DO UPDATE SET path_topic_id = EXCLUDED.path_topic_id
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id
+`
+
+type EnsureLearningChatForPathTopicParams struct {
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
+	PathTopicID pgtype.UUID
+	CreatedAt   pgtype.Timestamptz
+}
+
+func (q *Queries) EnsureLearningChatForPathTopic(ctx context.Context, arg EnsureLearningChatForPathTopicParams) (LearningChat, error) {
+	row := q.db.QueryRow(ctx, ensureLearningChatForPathTopic,
+		arg.ID,
+		arg.UserID,
+		arg.PathTopicID,
+		arg.CreatedAt,
+	)
+	var i LearningChat
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.EntryID,
+		&i.Summary,
+		&i.SummaryUpto,
+		&i.ContextTokens,
+		&i.BusyUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
+		&i.PathTopicID,
 	)
 	return i, err
 }
@@ -131,7 +173,7 @@ INSERT INTO learning_chats (id, user_id, topic_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $4)
 ON CONFLICT (topic_id) WHERE topic_id IS NOT NULL AND archived_at IS NULL
 DO UPDATE SET topic_id = EXCLUDED.topic_id
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id
 `
 
 type EnsureOpenTopicChatParams struct {
@@ -163,12 +205,13 @@ func (q *Queries) EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicCh
 		&i.SpentSince,
 		&i.TopicID,
 		&i.ArchivedAt,
+		&i.PathTopicID,
 	)
 	return i, err
 }
 
 const getArchivedTopicChat = `-- name: GetArchivedTopicChat :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at FROM learning_chats
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id FROM learning_chats
 WHERE id = $1 AND user_id = $2 AND topic_id IS NOT NULL AND archived_at IS NOT NULL
 `
 
@@ -194,12 +237,13 @@ func (q *Queries) GetArchivedTopicChat(ctx context.Context, arg GetArchivedTopic
 		&i.SpentSince,
 		&i.TopicID,
 		&i.ArchivedAt,
+		&i.PathTopicID,
 	)
 	return i, err
 }
 
 const getLearningChatByEntry = `-- name: GetLearningChatByEntry :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at FROM learning_chats WHERE entry_id = $1 AND user_id = $2
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id FROM learning_chats WHERE entry_id = $1 AND user_id = $2
 `
 
 type GetLearningChatByEntryParams struct {
@@ -224,12 +268,44 @@ func (q *Queries) GetLearningChatByEntry(ctx context.Context, arg GetLearningCha
 		&i.SpentSince,
 		&i.TopicID,
 		&i.ArchivedAt,
+		&i.PathTopicID,
+	)
+	return i, err
+}
+
+const getLearningChatByPathTopic = `-- name: GetLearningChatByPathTopic :one
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id FROM learning_chats WHERE path_topic_id = $1 AND user_id = $2
+`
+
+type GetLearningChatByPathTopicParams struct {
+	PathTopicID pgtype.UUID
+	UserID      pgtype.UUID
+}
+
+func (q *Queries) GetLearningChatByPathTopic(ctx context.Context, arg GetLearningChatByPathTopicParams) (LearningChat, error) {
+	row := q.db.QueryRow(ctx, getLearningChatByPathTopic, arg.PathTopicID, arg.UserID)
+	var i LearningChat
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.EntryID,
+		&i.Summary,
+		&i.SummaryUpto,
+		&i.ContextTokens,
+		&i.BusyUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
+		&i.PathTopicID,
 	)
 	return i, err
 }
 
 const getOpenTopicChat = `-- name: GetOpenTopicChat :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at FROM learning_chats
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id FROM learning_chats
 WHERE topic_id = $1 AND user_id = $2 AND archived_at IS NULL
 `
 
@@ -255,6 +331,7 @@ func (q *Queries) GetOpenTopicChat(ctx context.Context, arg GetOpenTopicChatPara
 		&i.SpentSince,
 		&i.TopicID,
 		&i.ArchivedAt,
+		&i.PathTopicID,
 	)
 	return i, err
 }
@@ -448,7 +525,7 @@ const lockLearningChat = `-- name: LockLearningChat :one
 UPDATE learning_chats SET busy_until = $1
 WHERE id = $2 AND user_id = $3
   AND (busy_until IS NULL OR busy_until < $4)
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id
 `
 
 type LockLearningChatParams struct {
@@ -480,6 +557,7 @@ func (q *Queries) LockLearningChat(ctx context.Context, arg LockLearningChatPara
 		&i.SpentSince,
 		&i.TopicID,
 		&i.ArchivedAt,
+		&i.PathTopicID,
 	)
 	return i, err
 }

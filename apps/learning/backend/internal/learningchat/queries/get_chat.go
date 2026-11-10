@@ -73,6 +73,26 @@ func (h ChatHandler) GetTopic(ctx context.Context, userID, topicID uuid.UUID) (C
 	return h.state(ctx, userID, chat, err == nil, true)
 }
 
+// GetPathTopic returns the conversation of a program topic, empty until the
+// first question. It is always the teacher.
+func (h ChatHandler) GetPathTopic(ctx context.Context, userID, topicID uuid.UUID) (Chat, error) {
+	_, err := h.q.GetLearningPathTopic(ctx, db.GetLearningPathTopicParams{ID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return Chat{}, apperr.NewNotFound("topic not found")
+	}
+
+	if err != nil {
+		return Chat{}, err
+	}
+
+	chat, err := h.q.GetLearningChatByPathTopic(ctx, db.GetLearningChatByPathTopicParams{PathTopicID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if err != nil && !db.IsNotFound(err) {
+		return Chat{}, err
+	}
+
+	return h.state(ctx, userID, chat, err == nil, true)
+}
+
 // state is a chat as the learner sees it. `found` is false for a chat not
 // started yet, whose zero row stands for the whole budget.
 func (h ChatHandler) state(ctx context.Context, userID uuid.UUID, chat db.LearningChat, found, teaches bool) (Chat, error) {

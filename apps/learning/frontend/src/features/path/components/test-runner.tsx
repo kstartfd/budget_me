@@ -4,10 +4,11 @@ import { useState } from "react"
 import { useTranslations } from "next-intl"
 import { IconChevronLeft } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { useMutation } from "@tanstack/react-query"
 import { analyzeTest, answerBatch } from "../api"
 import { usePathTest } from "../hooks"
-import type { PathTest } from "../schemas"
+import type { PathTest, Preferences } from "../schemas"
 
 /**
  * Runs one level test batch by batch: the ladder climbs while the batches
@@ -173,8 +174,9 @@ function Done({
   onAnalyzed: () => void
 }) {
   const t = useTranslations("path.test")
+  const [prefs, setPrefs] = useState<Preferences>({})
   const analyze = useMutation({
-    mutationFn: () => analyzeTest(test.id),
+    mutationFn: () => analyzeTest(test.id, prefs),
     onSuccess: () => {
       onAnalyzed()
       onClose(true)
@@ -195,6 +197,9 @@ function Done({
           ? t(test.passed ? "finalPassedHint" : "finalFailedHint")
           : t("placedHint")}
       </p>
+      {test.kind === "placement" && (
+        <Survey value={prefs} onChange={setPrefs} disabled={analyze.isPending} />
+      )}
       {analyze.isError && (
         <p role="alert" className="text-destructive text-sm">
           {analyze.error.message}
@@ -219,3 +224,76 @@ function Done({
   )
 }
 
+
+const minuteOptions = [15, 30, 45, 60]
+const dayOptions = [3, 5, 7]
+
+/** Survey is the short questionnaire the program is built around. */
+function Survey({
+  value,
+  onChange,
+  disabled,
+}: {
+  value: Preferences
+  onChange: (value: Preferences) => void
+  disabled: boolean
+}) {
+  const t = useTranslations("path.survey")
+  const set = (patch: Preferences) => onChange({ ...value, ...patch })
+
+  const chips = (
+    options: number[],
+    current: number | undefined,
+    pick: (n: number | undefined) => void,
+    label: (n: number) => string,
+  ) => (
+    <div className="flex flex-wrap justify-center gap-2">
+      {options.map((n) => (
+        <Button
+          key={n}
+          type="button"
+          size="sm"
+          disabled={disabled}
+          variant={current === n ? "default" : "outline"}
+          aria-pressed={current === n}
+          onClick={() => pick(current === n ? undefined : n)}
+          className="h-auto rounded-full px-3 py-1 text-xs"
+        >
+          {label(n)}
+        </Button>
+      ))}
+    </div>
+  )
+
+  return (
+    <div className="border-border bg-background space-y-4 rounded-lg border p-4 text-left">
+      <div>
+        <p className="text-sm font-semibold">{t("title")}</p>
+        <p className="text-muted-foreground text-xs leading-relaxed">
+          {t("hint")}
+        </p>
+      </div>
+      {(["interests", "goal", "variant"] as const).map((name) => (
+        <label key={name} className="block space-y-1.5 text-[13px] font-medium">
+          <span>{t(name)}</span>
+          <Input
+            value={value[name] ?? ""}
+            maxLength={name === "variant" ? 60 : 200}
+            disabled={disabled}
+            placeholder={t(`${name}Placeholder`)}
+            onChange={(e) => set({ [name]: e.target.value })}
+            className="bg-background h-10 text-sm md:text-sm"
+          />
+        </label>
+      ))}
+      <div className="space-y-1.5 text-center">
+        <p className="text-[13px] font-medium">{t("minutes")}</p>
+        {chips(minuteOptions, value.minutesPerDay, (n) => set({ minutesPerDay: n }), (n) => t("minutesValue", { n }))}
+      </div>
+      <div className="space-y-1.5 text-center">
+        <p className="text-[13px] font-medium">{t("days")}</p>
+        {chips(dayOptions, value.daysPerWeek, (n) => set({ daysPerWeek: n }), (n) => t("daysValue", { n }))}
+      </div>
+    </div>
+  )
+}

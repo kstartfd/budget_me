@@ -43,7 +43,10 @@ type Send struct {
 	UserID  uuid.UUID
 	EntryID uuid.UUID
 	TopicID uuid.UUID
-	Text    string
+	// PathTopicID is a topic of the learner's program: its own chat with the
+	// teacher, about what that topic teaches.
+	PathTopicID uuid.UUID
+	Text        string
 }
 
 type Reply struct {
@@ -118,11 +121,25 @@ func (h SendHandler) agentFor(ctx context.Context, userID uuid.UUID) (chatAgent,
 type target struct {
 	topic db.LearningTopic
 	entry *db.LearningEntry
+	// lesson is set for the chat of a program topic, which has no notebook.
+	lesson *lessonSubject
+}
+
+// lessonSubject is a program topic and the program it belongs to.
+type lessonSubject struct {
+	topic db.LearningPathTopic
+	path  db.LearningPath
 }
 
 // find resolves whose chat this is before anything else is looked at: whose
 // it is must not depend on what the caller has set up.
 func (h SendHandler) find(ctx context.Context, cmd Send) (target, error) {
+	if cmd.PathTopicID != uuid.Nil {
+		subject, err := h.lessonSubject(ctx, cmd.UserID, cmd.PathTopicID)
+
+		return target{lesson: subject}, err
+	}
+
 	if cmd.EntryID == uuid.Nil {
 		topic, err := h.q.GetLearningTopic(ctx, db.GetLearningTopicParams{ID: ids.ToPg(cmd.TopicID), UserID: ids.ToPg(cmd.UserID)})
 		if db.IsNotFound(err) {
@@ -148,6 +165,10 @@ func (h SendHandler) find(ctx context.Context, cmd Send) (target, error) {
 
 // chat is created with the first question.
 func (h SendHandler) ensureChat(ctx context.Context, t target, now time.Time) (db.LearningChat, error) {
+	if t.lesson != nil {
+		return h.q.EnsureLearningChatForPathTopic(ctx, db.EnsureLearningChatForPathTopicParams{ID: ids.ToPg(ids.New()), UserID: t.lesson.path.UserID, PathTopicID: t.lesson.topic.ID, CreatedAt: db.Time(now)})
+	}
+
 	if t.entry == nil {
 		return h.q.EnsureOpenTopicChat(ctx, db.EnsureOpenTopicChatParams{ID: ids.ToPg(ids.New()), UserID: t.topic.UserID, TopicID: t.topic.ID, CreatedAt: db.Time(now)})
 	}
@@ -158,6 +179,10 @@ func (h SendHandler) ensureChat(ctx context.Context, t target, now time.Time) (d
 // system is what the model is told before the conversation. The free chat is
 // always the teacher; a chat about an entry follows the learner's setting.
 func (t target) system(summary string, teacher bool) string {
+	if t.lesson != nil {
+		return lessonSystem(t.lesson.path, t.lesson.topic, summary)
+	}
+
 	if t.entry == nil {
 		return freeSystem(t.topic, summary)
 	}
@@ -395,9 +420,14 @@ func (h SendHandler) Clear(ctx context.Context, userID, entryID uuid.UUID) error
 		return err
 	}
 
+	return h.forget(ctx, chat)
+}
+
+// forget deletes the messages and the summary of a chat under its lease.
+func (h SendHandler) forget(ctx context.Context, chat db.LearningChat) error {
 	now := h.clock.Now()
 
-	chat, err = h.lock(ctx, chat, now)
+	chat, err := h.lock(ctx, chat, now)
 	if err != nil {
 		return err
 	}
@@ -422,4 +452,37 @@ func (h SendHandler) Clear(ctx context.Context, userID, entryID uuid.UUID) error
 	}
 
 	return tx.Commit(ctx)
+}
+
+// lessonSubject loads a program topic the learner owns, with its program.
+func (h SendHandler) lessonSubject(ctx context.Context, userID, topicID uuid.UUID) (*lessonSubject, error) {
+	topic, err := h.q.GetLearningPathTopic(ctx, db.GetLearningPathTopicParams{ID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return nil, apperr.NewNotFound("topic not found")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	path, err := h.q.GetLearningPath(ctx, db.GetLearningPathParams{ID: topic.PathID, UserID: ids.ToPg(userID)})
+	if err != nil {
+		return nil, err
+	}
+
+	return &lessonSubject{topic: topic, path: path}, nil
+}
+
+// ClearLesson forgets the whole conversation of a program topic.
+func (h SendHandler) ClearLesson(ctx context.Context, userID, topicID uuid.UUID) error {
+	chat, err := h.q.GetLearningChatByPathTopic(ctx, db.GetLearningChatByPathTopicParams{PathTopicID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return nil
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return h.forget(ctx, chat)
 }

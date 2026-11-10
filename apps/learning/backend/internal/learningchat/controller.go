@@ -99,6 +99,44 @@ func (c *Controller) sendTopic(ctx echo.Context) error {
 	return c.stream(ctx, commands.Send{UserID: userOf(ctx), TopicID: id})
 }
 
+func (c *Controller) getPathTopic(ctx echo.Context) error {
+	id, err := topicID(ctx)
+	if err != nil {
+		return err
+	}
+
+	chat, err := c.read.GetPathTopic(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, chatDTO(chat))
+}
+
+func (c *Controller) sendPathTopic(ctx echo.Context) error {
+	id, err := topicID(ctx)
+	if err != nil {
+		return err
+	}
+
+	return c.stream(ctx, commands.Send{UserID: userOf(ctx), PathTopicID: id})
+}
+
+func (c *Controller) clearPathTopic(ctx echo.Context) error {
+	id, err := topicID(ctx)
+	if err != nil {
+		return err
+	}
+
+	if err := c.write.ClearLesson(ctx.Request().Context(), userOf(ctx), id); err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, nil)
+}
+
 // stream answers as a server-sent event stream: `delta` events with the pieces of
 // the answer, then one `done` with the stored messages, or one `error`. A
 // failure before the first piece is an ordinary error response instead, so

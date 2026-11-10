@@ -18,3 +18,12 @@ type answersRequest struct {
 type attemptRequest struct {
 	Answer string `json:"answer"`
 }
+
+// analyzeRequest carries the survey answers the program is built around.
+type analyzeRequest struct {
+	Interests     string `json:"interests"`
+	Variant       string `json:"variant"`
+	Goal          string `json:"goal"`
+	MinutesPerDay int    `json:"minutesPerDay"`
+	DaysPerWeek   int    `json:"daysPerWeek"`
+}

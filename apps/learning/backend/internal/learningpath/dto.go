@@ -81,13 +81,22 @@ func testDTO(p commands.TestProgress) testResponse {
 
 // topicResponse is one step of the program.
 type topicResponse struct {
-	ID          string     `json:"id"`
-	Position    int        `json:"position"`
-	Skill       string     `json:"skill"`
-	Title       string     `json:"title"`
-	Goal        string     `json:"goal"`
-	Status      string     `json:"status"`
-	CompletedAt *time.Time `json:"completedAt"`
+	ID          string         `json:"id"`
+	Position    int            `json:"position"`
+	Skill       string         `json:"skill"`
+	Title       string         `json:"title"`
+	Goal        string         `json:"goal"`
+	Unit        string         `json:"unit"`
+	Theory      string         `json:"theory"`
+	Vocabulary  []wordResponse `json:"vocabulary"`
+	Status      string         `json:"status"`
+	CompletedAt *time.Time     `json:"completedAt"`
+}
+
+// wordResponse is one key word of a topic.
+type wordResponse struct {
+	Word        string `json:"word"`
+	Translation string `json:"translation"`
 }
 
 func topicDTO(t db.LearningPathTopic) topicResponse {
@@ -97,7 +106,14 @@ func topicDTO(t db.LearningPathTopic) topicResponse {
 		Skill:    t.Skill,
 		Title:    t.Title,
 		Goal:     t.Goal,
+		Unit:     t.Unit,
+		Theory:   t.Theory,
 		Status:   string(t.Status),
+	}
+
+	out.Vocabulary = []wordResponse{}
+	if len(t.Vocabulary) > 0 {
+		_ = json.Unmarshal(t.Vocabulary, &out.Vocabulary)
 	}
 
 	if t.CompletedAt.Valid {
@@ -126,6 +142,7 @@ type pathResponse struct {
 	Summary             string          `json:"summary"`
 	Status              string          `json:"status"`
 	Source              string          `json:"source"`
+	Preferences         map[string]any  `json:"preferences"`
 	Topics              []topicResponse `json:"topics"`
 	CreatedAt           time.Time       `json:"createdAt"`
 	ArchivedAt          *time.Time      `json:"archivedAt"`
@@ -142,6 +159,11 @@ func pathDTO(p queries.PathWithTopics) pathResponse {
 		Source:              p.Path.Source,
 		Topics:              topicsDTO(p.Topics),
 		CreatedAt:           p.Path.CreatedAt.Time,
+		Preferences:         map[string]any{},
+	}
+
+	if len(p.Path.Preferences) > 0 {
+		_ = json.Unmarshal(p.Path.Preferences, &out.Preferences)
 	}
 
 	if p.Path.ArchivedAt.Valid {
@@ -237,4 +259,46 @@ func topicDetailDTO(d queries.TopicDetail) topicDetailResponse {
 		Exercises: exercisesDTO(d.Exercises),
 		Attempts:  attemptsDTO(d.Attempts),
 	}
+}
+
+// lessonResponse is a timed lesson. The clock is the server's: the client
+// counts down to endsAt, so a reload or another device shows the same time.
+type lessonResponse struct {
+	ID            string     `json:"id"`
+	TopicID       string     `json:"topicId"`
+	Status        string     `json:"status"`
+	StartedAt     time.Time  `json:"startedAt"`
+	EndsAt        time.Time  `json:"endsAt"`
+	FinishedAt    *time.Time `json:"finishedAt"`
+	PausedAt      *time.Time `json:"pausedAt"`
+	PausedSeconds int        `json:"pausedSeconds"`
+	PauseCount    int        `json:"pauseCount"`
+	Attempts      int        `json:"attempts"`
+	Correct       int        `json:"correct"`
+}
+
+func lessonDTO(l db.LearningPathLesson, s commands.Stats) lessonResponse {
+	out := lessonResponse{
+		ID:            ids.FromPg(l.ID).String(),
+		TopicID:       ids.FromPg(l.TopicID).String(),
+		Status:        string(l.Status),
+		StartedAt:     l.StartedAt.Time,
+		EndsAt:        l.EndsAt.Time,
+		PausedSeconds: int(l.PausedSeconds),
+		PauseCount:    int(l.PauseCount),
+		Attempts:      s.Attempts,
+		Correct:       s.Correct,
+	}
+
+	if l.FinishedAt.Valid {
+		at := l.FinishedAt.Time
+		out.FinishedAt = &at
+	}
+
+	if l.PausedAt.Valid {
+		at := l.PausedAt.Time
+		out.PausedAt = &at
+	}
+
+	return out
 }

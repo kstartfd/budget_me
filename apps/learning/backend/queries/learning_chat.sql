@@ -105,3 +105,12 @@ WHERE id = $1 AND user_id = $2 AND topic_id IS NOT NULL AND archived_at IS NOT N
 -- name: DeleteArchivedTopicChat :execrows
 DELETE FROM learning_chats
 WHERE id = $1 AND user_id = $2 AND topic_id IS NOT NULL AND archived_at IS NOT NULL;
+
+-- name: GetLearningChatByPathTopic :one
+SELECT * FROM learning_chats WHERE path_topic_id = $1 AND user_id = $2;
+
+-- name: EnsureLearningChatForPathTopic :one
+INSERT INTO learning_chats (id, user_id, path_topic_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $4)
+ON CONFLICT (path_topic_id) WHERE path_topic_id IS NOT NULL DO UPDATE SET path_topic_id = EXCLUDED.path_topic_id
+RETURNING *;

@@ -110,6 +110,44 @@ func (q *Queries) DeleteLearningPathExercises(ctx context.Context, topicID pgtyp
 	return err
 }
 
+const finishLearningPathLesson = `-- name: FinishLearningPathLesson :one
+UPDATE learning_path_lessons SET
+    status = 'finished',
+    finished_at = $1,
+    paused_seconds = paused_seconds + CASE
+        WHEN paused_at IS NULL THEN 0
+        ELSE GREATEST(0, EXTRACT(EPOCH FROM ($1::timestamptz - paused_at)))::integer END,
+    paused_at = NULL
+WHERE id = $2 AND user_id = $3 AND status = 'active'
+RETURNING id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count
+`
+
+type FinishLearningPathLessonParams struct {
+	FinishedAt pgtype.Timestamptz
+	ID         pgtype.UUID
+	UserID     pgtype.UUID
+}
+
+// Closing a lesson also closes a pause that was still open, so the paused
+// time is never lost.
+func (q *Queries) FinishLearningPathLesson(ctx context.Context, arg FinishLearningPathLessonParams) (LearningPathLesson, error) {
+	row := q.db.QueryRow(ctx, finishLearningPathLesson, arg.FinishedAt, arg.ID, arg.UserID)
+	var i LearningPathLesson
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TopicID,
+		&i.Status,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.FinishedAt,
+		&i.PausedAt,
+		&i.PausedSeconds,
+		&i.PauseCount,
+	)
+	return i, err
+}
+
 const finishLearningPathTest = `-- name: FinishLearningPathTest :exec
 UPDATE learning_path_tests SET status = 'done', level_reached = $3, passed = $4, completed_at = $5
 WHERE id = $1 AND user_id = $2 AND status = 'in_progress'
@@ -135,7 +173,7 @@ func (q *Queries) FinishLearningPathTest(ctx context.Context, arg FinishLearning
 }
 
 const getActiveLearningPath = `-- name: GetActiveLearningPath :one
-SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at FROM learning_paths WHERE user_id = $1 AND language = $2 AND status = 'active'
+SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at, preferences FROM learning_paths WHERE user_id = $1 AND language = $2 AND status = 'active'
 `
 
 type GetActiveLearningPathParams struct {
@@ -158,12 +196,35 @@ func (q *Queries) GetActiveLearningPath(ctx context.Context, arg GetActiveLearni
 		&i.PlacementTestID,
 		&i.CreatedAt,
 		&i.ArchivedAt,
+		&i.Preferences,
+	)
+	return i, err
+}
+
+const getActiveLearningPathLesson = `-- name: GetActiveLearningPathLesson :one
+SELECT id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count FROM learning_path_lessons WHERE user_id = $1 AND status = 'active'
+`
+
+func (q *Queries) GetActiveLearningPathLesson(ctx context.Context, userID pgtype.UUID) (LearningPathLesson, error) {
+	row := q.db.QueryRow(ctx, getActiveLearningPathLesson, userID)
+	var i LearningPathLesson
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TopicID,
+		&i.Status,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.FinishedAt,
+		&i.PausedAt,
+		&i.PausedSeconds,
+		&i.PauseCount,
 	)
 	return i, err
 }
 
 const getLearningPath = `-- name: GetLearningPath :one
-SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at FROM learning_paths WHERE id = $1 AND user_id = $2
+SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at, preferences FROM learning_paths WHERE id = $1 AND user_id = $2
 `
 
 type GetLearningPathParams struct {
@@ -186,6 +247,7 @@ func (q *Queries) GetLearningPath(ctx context.Context, arg GetLearningPathParams
 		&i.PlacementTestID,
 		&i.CreatedAt,
 		&i.ArchivedAt,
+		&i.Preferences,
 	)
 	return i, err
 }
@@ -226,6 +288,33 @@ func (q *Queries) GetLearningPathExercise(ctx context.Context, arg GetLearningPa
 	return i, err
 }
 
+const getLearningPathLesson = `-- name: GetLearningPathLesson :one
+SELECT id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count FROM learning_path_lessons WHERE id = $1 AND user_id = $2
+`
+
+type GetLearningPathLessonParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetLearningPathLesson(ctx context.Context, arg GetLearningPathLessonParams) (LearningPathLesson, error) {
+	row := q.db.QueryRow(ctx, getLearningPathLesson, arg.ID, arg.UserID)
+	var i LearningPathLesson
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TopicID,
+		&i.Status,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.FinishedAt,
+		&i.PausedAt,
+		&i.PausedSeconds,
+		&i.PauseCount,
+	)
+	return i, err
+}
+
 const getLearningPathTest = `-- name: GetLearningPathTest :one
 SELECT id, user_id, path_id, kind, language, translation_language, level, level_reached, passed, status, created_at, completed_at FROM learning_path_tests WHERE id = $1 AND user_id = $2
 `
@@ -256,7 +345,7 @@ func (q *Queries) GetLearningPathTest(ctx context.Context, arg GetLearningPathTe
 }
 
 const getLearningPathTopic = `-- name: GetLearningPathTopic :one
-SELECT t.id, t.path_id, t.position, t.skill, t.title, t.goal, t.status, t.created_at, t.completed_at FROM learning_path_topics t
+SELECT t.id, t.path_id, t.position, t.skill, t.title, t.goal, t.status, t.created_at, t.completed_at, t.unit, t.theory, t.vocabulary FROM learning_path_topics t
 JOIN learning_paths p ON p.id = t.path_id
 WHERE t.id = $1 AND p.user_id = $2
 `
@@ -279,6 +368,9 @@ func (q *Queries) GetLearningPathTopic(ctx context.Context, arg GetLearningPathT
 		&i.Status,
 		&i.CreatedAt,
 		&i.CompletedAt,
+		&i.Unit,
+		&i.Theory,
+		&i.Vocabulary,
 	)
 	return i, err
 }
@@ -328,8 +420,8 @@ func (q *Queries) GetOpenLearningPathTest(ctx context.Context, arg GetOpenLearni
 }
 
 const insertLearningPath = `-- name: InsertLearningPath :one
-INSERT INTO learning_paths (id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, $8, $9) RETURNING id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at
+INSERT INTO learning_paths (id, user_id, language, translation_language, level, summary, status, source, placement_test_id, preferences, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, $8, $9, $10) RETURNING id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at, preferences
 `
 
 type InsertLearningPathParams struct {
@@ -341,6 +433,7 @@ type InsertLearningPathParams struct {
 	Summary             string
 	Source              string
 	PlacementTestID     pgtype.UUID
+	Preferences         []byte
 	CreatedAt           pgtype.Timestamptz
 }
 
@@ -354,6 +447,7 @@ func (q *Queries) InsertLearningPath(ctx context.Context, arg InsertLearningPath
 		arg.Summary,
 		arg.Source,
 		arg.PlacementTestID,
+		arg.Preferences,
 		arg.CreatedAt,
 	)
 	var i LearningPath
@@ -369,13 +463,14 @@ func (q *Queries) InsertLearningPath(ctx context.Context, arg InsertLearningPath
 		&i.PlacementTestID,
 		&i.CreatedAt,
 		&i.ArchivedAt,
+		&i.Preferences,
 	)
 	return i, err
 }
 
 const insertLearningPathAttempt = `-- name: InsertLearningPathAttempt :one
-INSERT INTO learning_path_attempts (id, exercise_id, user_id, answer, correct, feedback, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id, exercise_id, user_id, answer, correct, feedback, created_at
+INSERT INTO learning_path_attempts (id, exercise_id, user_id, answer, correct, feedback, lesson_id, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, exercise_id, user_id, answer, correct, feedback, created_at, lesson_id
 `
 
 type InsertLearningPathAttemptParams struct {
@@ -385,6 +480,7 @@ type InsertLearningPathAttemptParams struct {
 	Answer     string
 	Correct    bool
 	Feedback   string
+	LessonID   pgtype.UUID
 	CreatedAt  pgtype.Timestamptz
 }
 
@@ -396,6 +492,7 @@ func (q *Queries) InsertLearningPathAttempt(ctx context.Context, arg InsertLearn
 		arg.Answer,
 		arg.Correct,
 		arg.Feedback,
+		arg.LessonID,
 		arg.CreatedAt,
 	)
 	var i LearningPathAttempt
@@ -407,6 +504,7 @@ func (q *Queries) InsertLearningPathAttempt(ctx context.Context, arg InsertLearn
 		&i.Correct,
 		&i.Feedback,
 		&i.CreatedAt,
+		&i.LessonID,
 	)
 	return i, err
 }
@@ -472,6 +570,43 @@ type InsertLearningPathExerciseVersionParams struct {
 func (q *Queries) InsertLearningPathExerciseVersion(ctx context.Context, arg InsertLearningPathExerciseVersionParams) error {
 	_, err := q.db.Exec(ctx, insertLearningPathExerciseVersion, arg.ExerciseID, arg.TopicID, arg.Generation)
 	return err
+}
+
+const insertLearningPathLesson = `-- name: InsertLearningPathLesson :one
+INSERT INTO learning_path_lessons (id, user_id, topic_id, status, started_at, ends_at)
+VALUES ($1, $2, $3, 'active', $4, $5) RETURNING id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count
+`
+
+type InsertLearningPathLessonParams struct {
+	ID        pgtype.UUID
+	UserID    pgtype.UUID
+	TopicID   pgtype.UUID
+	StartedAt pgtype.Timestamptz
+	EndsAt    pgtype.Timestamptz
+}
+
+func (q *Queries) InsertLearningPathLesson(ctx context.Context, arg InsertLearningPathLessonParams) (LearningPathLesson, error) {
+	row := q.db.QueryRow(ctx, insertLearningPathLesson,
+		arg.ID,
+		arg.UserID,
+		arg.TopicID,
+		arg.StartedAt,
+		arg.EndsAt,
+	)
+	var i LearningPathLesson
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TopicID,
+		&i.Status,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.FinishedAt,
+		&i.PausedAt,
+		&i.PausedSeconds,
+		&i.PauseCount,
+	)
+	return i, err
 }
 
 const insertLearningPathTest = `-- name: InsertLearningPathTest :one
@@ -546,18 +681,21 @@ func (q *Queries) InsertLearningPathTestAnswer(ctx context.Context, arg InsertLe
 }
 
 const insertLearningPathTopic = `-- name: InsertLearningPathTopic :one
-INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, status, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, 'not_started', $7) RETURNING id, path_id, position, skill, title, goal, status, created_at, completed_at
+INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, unit, theory, vocabulary, status, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'not_started', $10) RETURNING id, path_id, position, skill, title, goal, status, created_at, completed_at, unit, theory, vocabulary
 `
 
 type InsertLearningPathTopicParams struct {
-	ID        pgtype.UUID
-	PathID    pgtype.UUID
-	Position  int32
-	Skill     string
-	Title     string
-	Goal      string
-	CreatedAt pgtype.Timestamptz
+	ID         pgtype.UUID
+	PathID     pgtype.UUID
+	Position   int32
+	Skill      string
+	Title      string
+	Goal       string
+	Unit       string
+	Theory     string
+	Vocabulary []byte
+	CreatedAt  pgtype.Timestamptz
 }
 
 func (q *Queries) InsertLearningPathTopic(ctx context.Context, arg InsertLearningPathTopicParams) (LearningPathTopic, error) {
@@ -568,6 +706,9 @@ func (q *Queries) InsertLearningPathTopic(ctx context.Context, arg InsertLearnin
 		arg.Skill,
 		arg.Title,
 		arg.Goal,
+		arg.Unit,
+		arg.Theory,
+		arg.Vocabulary,
 		arg.CreatedAt,
 	)
 	var i LearningPathTopic
@@ -581,12 +722,15 @@ func (q *Queries) InsertLearningPathTopic(ctx context.Context, arg InsertLearnin
 		&i.Status,
 		&i.CreatedAt,
 		&i.CompletedAt,
+		&i.Unit,
+		&i.Theory,
+		&i.Vocabulary,
 	)
 	return i, err
 }
 
 const listLearningPathAttemptsByTopic = `-- name: ListLearningPathAttemptsByTopic :many
-SELECT a.id, a.exercise_id, a.user_id, a.answer, a.correct, a.feedback, a.created_at FROM learning_path_attempts a
+SELECT a.id, a.exercise_id, a.user_id, a.answer, a.correct, a.feedback, a.created_at, a.lesson_id FROM learning_path_attempts a
 JOIN learning_path_exercises e ON e.id = a.exercise_id
 WHERE e.topic_id = $1 AND a.user_id = $2
 ORDER BY a.created_at, a.id
@@ -614,6 +758,7 @@ func (q *Queries) ListLearningPathAttemptsByTopic(ctx context.Context, arg ListL
 			&i.Correct,
 			&i.Feedback,
 			&i.CreatedAt,
+			&i.LessonID,
 		); err != nil {
 			return nil, err
 		}
@@ -669,7 +814,7 @@ func (q *Queries) ListLearningPathExercises(ctx context.Context, topicID pgtype.
 }
 
 const listLearningPathHistory = `-- name: ListLearningPathHistory :many
-SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at FROM learning_paths
+SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at, preferences FROM learning_paths
 WHERE user_id = $1 AND status <> 'active'
 ORDER BY created_at DESC, id DESC
 `
@@ -695,6 +840,85 @@ func (q *Queries) ListLearningPathHistory(ctx context.Context, userID pgtype.UUI
 			&i.PlacementTestID,
 			&i.CreatedAt,
 			&i.ArchivedAt,
+			&i.Preferences,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLearningPathLessonStats = `-- name: ListLearningPathLessonStats :many
+SELECT lesson_id::uuid AS lesson_id,
+    count(*)::integer AS attempts,
+    (count(*) FILTER (WHERE correct))::integer AS correct
+FROM learning_path_attempts
+WHERE lesson_id = ANY($1::uuid[])
+GROUP BY lesson_id
+`
+
+type ListLearningPathLessonStatsRow struct {
+	LessonID pgtype.UUID
+	Attempts int32
+	Correct  int32
+}
+
+func (q *Queries) ListLearningPathLessonStats(ctx context.Context, lessonIds []pgtype.UUID) ([]ListLearningPathLessonStatsRow, error) {
+	rows, err := q.db.Query(ctx, listLearningPathLessonStats, lessonIds)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListLearningPathLessonStatsRow{}
+	for rows.Next() {
+		var i ListLearningPathLessonStatsRow
+		if err := rows.Scan(&i.LessonID, &i.Attempts, &i.Correct); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLearningPathLessons = `-- name: ListLearningPathLessons :many
+SELECT id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count FROM learning_path_lessons
+WHERE user_id = $1 AND topic_id = $2
+ORDER BY started_at DESC, id DESC
+LIMIT 30
+`
+
+type ListLearningPathLessonsParams struct {
+	UserID  pgtype.UUID
+	TopicID pgtype.UUID
+}
+
+func (q *Queries) ListLearningPathLessons(ctx context.Context, arg ListLearningPathLessonsParams) ([]LearningPathLesson, error) {
+	rows, err := q.db.Query(ctx, listLearningPathLessons, arg.UserID, arg.TopicID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LearningPathLesson{}
+	for rows.Next() {
+		var i LearningPathLesson
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.TopicID,
+			&i.Status,
+			&i.StartedAt,
+			&i.EndsAt,
+			&i.FinishedAt,
+			&i.PausedAt,
+			&i.PausedSeconds,
+			&i.PauseCount,
 		); err != nil {
 			return nil, err
 		}
@@ -736,7 +960,7 @@ func (q *Queries) ListLearningPathTestAnswers(ctx context.Context, testID pgtype
 }
 
 const listLearningPathTopics = `-- name: ListLearningPathTopics :many
-SELECT id, path_id, position, skill, title, goal, status, created_at, completed_at FROM learning_path_topics WHERE path_id = $1 ORDER BY position, id
+SELECT id, path_id, position, skill, title, goal, status, created_at, completed_at, unit, theory, vocabulary FROM learning_path_topics WHERE path_id = $1 ORDER BY position, id
 `
 
 func (q *Queries) ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID) ([]LearningPathTopic, error) {
@@ -758,6 +982,9 @@ func (q *Queries) ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID
 			&i.Status,
 			&i.CreatedAt,
 			&i.CompletedAt,
+			&i.Unit,
+			&i.Theory,
+			&i.Vocabulary,
 		); err != nil {
 			return nil, err
 		}
@@ -778,6 +1005,68 @@ func (q *Queries) LockLearningPathTopic(ctx context.Context, id pgtype.UUID) (pg
 	var id_2 pgtype.UUID
 	err := row.Scan(&id_2)
 	return id_2, err
+}
+
+const pauseLearningPathLesson = `-- name: PauseLearningPathLesson :one
+UPDATE learning_path_lessons SET paused_at = $3, pause_count = pause_count + 1
+WHERE id = $1 AND user_id = $2 AND status = 'active' AND paused_at IS NULL
+RETURNING id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count
+`
+
+type PauseLearningPathLessonParams struct {
+	ID       pgtype.UUID
+	UserID   pgtype.UUID
+	PausedAt pgtype.Timestamptz
+}
+
+func (q *Queries) PauseLearningPathLesson(ctx context.Context, arg PauseLearningPathLessonParams) (LearningPathLesson, error) {
+	row := q.db.QueryRow(ctx, pauseLearningPathLesson, arg.ID, arg.UserID, arg.PausedAt)
+	var i LearningPathLesson
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TopicID,
+		&i.Status,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.FinishedAt,
+		&i.PausedAt,
+		&i.PausedSeconds,
+		&i.PauseCount,
+	)
+	return i, err
+}
+
+const resumeLearningPathLesson = `-- name: ResumeLearningPathLesson :one
+UPDATE learning_path_lessons SET
+    paused_seconds = paused_seconds + GREATEST(0, EXTRACT(EPOCH FROM ($3::timestamptz - paused_at)))::integer,
+    paused_at = NULL
+WHERE id = $1 AND user_id = $2 AND status = 'active' AND paused_at IS NOT NULL
+RETURNING id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count
+`
+
+type ResumeLearningPathLessonParams struct {
+	ID      pgtype.UUID
+	UserID  pgtype.UUID
+	Column3 pgtype.Timestamptz
+}
+
+func (q *Queries) ResumeLearningPathLesson(ctx context.Context, arg ResumeLearningPathLessonParams) (LearningPathLesson, error) {
+	row := q.db.QueryRow(ctx, resumeLearningPathLesson, arg.ID, arg.UserID, arg.Column3)
+	var i LearningPathLesson
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TopicID,
+		&i.Status,
+		&i.StartedAt,
+		&i.EndsAt,
+		&i.FinishedAt,
+		&i.PausedAt,
+		&i.PausedSeconds,
+		&i.PauseCount,
+	)
+	return i, err
 }
 
 const startLearningPathTopic = `-- name: StartLearningPathTopic :execrows

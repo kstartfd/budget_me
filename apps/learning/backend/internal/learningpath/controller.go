@@ -1,6 +1,7 @@
 package learningpath
 
 import (
+	"context"
 	"errors"
 	"math"
 	"net/http"
@@ -38,6 +39,7 @@ type Controller struct {
 	exercises commands.ExerciseHandler
 	attempts  commands.AttemptHandler
 	topics    commands.TopicHandler
+	lessons   commands.LessonHandler
 	resets    commands.ResetHandler
 	read      queries.ReadHandler
 	limit     *ratelimit.Limiter
@@ -50,6 +52,7 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 		exercises: commands.NewExerciseHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
 		attempts:  commands.NewAttemptHandler(q, clk, commands.NewAgent(q, vault, agent), ratelimit.New(aiRate)),
 		topics:    commands.NewTopicHandler(q, clk),
+		lessons:   commands.NewLessonHandler(q, clk),
 		resets:    commands.NewResetHandler(q, clk),
 		read:      queries.NewReadHandler(q),
 		limit:     ratelimit.New(aiRate),
@@ -189,6 +192,14 @@ func (c *Controller) analyze(ctx echo.Context) error {
 		return err
 	}
 
+	// The survey is optional: an empty body means no preferences.
+	var req analyzeRequest
+	if ctx.Request().ContentLength != 0 {
+		if err := ctx.Bind(&req); err != nil {
+			return apperr.NewInvalid("invalid body")
+		}
+	}
+
 	release, wait, ok := c.limit.Acquire(userOf(ctx))
 	if !ok {
 		return tooManyRequests(ctx, wait)
@@ -196,7 +207,7 @@ func (c *Controller) analyze(ctx echo.Context) error {
 
 	defer release()
 
-	path, topics, err := c.analysis.Handle(ctx.Request().Context(), commands.Analyze{UserID: userOf(ctx), TestID: id})
+	path, topics, err := c.analysis.Handle(ctx.Request().Context(), commands.Analyze{UserID: userOf(ctx), TestID: id, Preferences: commands.Preferences(req)})
 	if err = agentError(err); err != nil {
 		return err
 	}
@@ -332,4 +343,100 @@ func (c *Controller) attempt(ctx echo.Context) error {
 	ctx.Response().Header().Set("Cache-Control", "no-store")
 
 	return httpx.OK(ctx, attemptDTO(result.Attempt))
+}
+
+// lessonReply answers with a lesson and what has been done in it.
+func (c *Controller) lessonReply(ctx echo.Context, lesson db.LearningPathLesson, created bool) error {
+	stats, err := c.lessons.Stats(ctx.Request().Context(), []db.LearningPathLesson{lesson})
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	body := lessonDTO(lesson, stats[ids.FromPg(lesson.ID)])
+	if created {
+		return httpx.Created(ctx, body)
+	}
+
+	return httpx.OK(ctx, body)
+}
+
+// startLesson opens the 30-minute lesson of a topic, or hands back the one running.
+func (c *Controller) startLesson(ctx echo.Context) error {
+	id, err := idParam(ctx, "topic")
+	if err != nil {
+		return err
+	}
+
+	lesson, err := c.lessons.Start(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	return c.lessonReply(ctx, lesson, false)
+}
+
+// listLessons lists the lessons held on a topic, newest first.
+func (c *Controller) listLessons(ctx echo.Context) error {
+	id, err := idParam(ctx, "topic")
+	if err != nil {
+		return err
+	}
+
+	list, stats, err := c.lessons.List(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	out := make([]lessonResponse, len(list))
+	for i, l := range list {
+		out[i] = lessonDTO(l, stats[ids.FromPg(l.ID)])
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, out)
+}
+
+// activeLesson is the running lesson of the learner, or null.
+func (c *Controller) activeLesson(ctx echo.Context) error {
+	lesson, err := c.lessons.Active(ctx.Request().Context(), userOf(ctx))
+	if err != nil {
+		return err
+	}
+
+	if lesson == nil {
+		ctx.Response().Header().Set("Cache-Control", "no-store")
+
+		return httpx.OK(ctx, nil)
+	}
+
+	return c.lessonReply(ctx, *lesson, false)
+}
+
+func (c *Controller) pauseLesson(ctx echo.Context) error {
+	return c.changeLesson(ctx, c.lessons.Pause)
+}
+
+func (c *Controller) resumeLesson(ctx echo.Context) error {
+	return c.changeLesson(ctx, c.lessons.Resume)
+}
+
+func (c *Controller) finishLesson(ctx echo.Context) error {
+	return c.changeLesson(ctx, c.lessons.Finish)
+}
+
+func (c *Controller) changeLesson(ctx echo.Context, change func(context.Context, uuid.UUID, uuid.UUID) (db.LearningPathLesson, error)) error {
+	id, err := idParam(ctx, "lesson")
+	if err != nil {
+		return err
+	}
+
+	lesson, err := change(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	return c.lessonReply(ctx, lesson, false)
 }

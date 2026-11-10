@@ -30,19 +30,26 @@ type Querier interface {
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
+	EnsureLearningChatForPathTopic(ctx context.Context, arg EnsureLearningChatForPathTopicParams) (LearningChat, error)
 	EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicChatParams) (LearningChat, error)
+	// Closing a lesson also closes a pause that was still open, so the paused
+	// time is never lost.
+	FinishLearningPathLesson(ctx context.Context, arg FinishLearningPathLessonParams) (LearningPathLesson, error)
 	FinishLearningPathTest(ctx context.Context, arg FinishLearningPathTestParams) error
 	GetActiveLearningPath(ctx context.Context, arg GetActiveLearningPathParams) (LearningPath, error)
+	GetActiveLearningPathLesson(ctx context.Context, userID pgtype.UUID) (LearningPathLesson, error)
 	GetArchivedTopicChat(ctx context.Context, arg GetArchivedTopicChatParams) (LearningChat, error)
 	GetLearningAISettings(ctx context.Context, userID pgtype.UUID) (LearningAiSetting, error)
 	GetLearningAudioCache(ctx context.Context, arg GetLearningAudioCacheParams) (LearningAudioCache, error)
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
 	GetLearningChatByEntry(ctx context.Context, arg GetLearningChatByEntryParams) (LearningChat, error)
+	GetLearningChatByPathTopic(ctx context.Context, arg GetLearningChatByPathTopicParams) (LearningChat, error)
 	GetLearningChatMarks(ctx context.Context, userID pgtype.UUID) (LearningChatMark, error)
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
 	GetLearningPath(ctx context.Context, arg GetLearningPathParams) (LearningPath, error)
 	GetLearningPathExercise(ctx context.Context, arg GetLearningPathExerciseParams) (LearningPathExercise, error)
+	GetLearningPathLesson(ctx context.Context, arg GetLearningPathLessonParams) (LearningPathLesson, error)
 	GetLearningPathTest(ctx context.Context, arg GetLearningPathTestParams) (LearningPathTest, error)
 	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
@@ -60,6 +67,7 @@ type Querier interface {
 	InsertLearningPathAttempt(ctx context.Context, arg InsertLearningPathAttemptParams) (LearningPathAttempt, error)
 	InsertLearningPathExercise(ctx context.Context, arg InsertLearningPathExerciseParams) (LearningPathExercise, error)
 	InsertLearningPathExerciseVersion(ctx context.Context, arg InsertLearningPathExerciseVersionParams) error
+	InsertLearningPathLesson(ctx context.Context, arg InsertLearningPathLessonParams) (LearningPathLesson, error)
 	InsertLearningPathTest(ctx context.Context, arg InsertLearningPathTestParams) (LearningPathTest, error)
 	InsertLearningPathTestAnswer(ctx context.Context, arg InsertLearningPathTestAnswerParams) (int64, error)
 	InsertLearningPathTopic(ctx context.Context, arg InsertLearningPathTopicParams) (LearningPathTopic, error)
@@ -75,6 +83,8 @@ type Querier interface {
 	ListLearningPathAttemptsByTopic(ctx context.Context, arg ListLearningPathAttemptsByTopicParams) ([]LearningPathAttempt, error)
 	ListLearningPathExercises(ctx context.Context, topicID pgtype.UUID) ([]LearningPathExercise, error)
 	ListLearningPathHistory(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error)
+	ListLearningPathLessonStats(ctx context.Context, lessonIds []pgtype.UUID) ([]ListLearningPathLessonStatsRow, error)
+	ListLearningPathLessons(ctx context.Context, arg ListLearningPathLessonsParams) ([]LearningPathLesson, error)
 	ListLearningPathTestAnswers(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestAnswer, error)
 	ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID) ([]LearningPathTopic, error)
 	ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error)
@@ -88,12 +98,14 @@ type Querier interface {
 	// The next dialog carries over what the closed one spent in its budget window,
 	// so clearing a chat never gives its budget back.
 	OpenNextTopicChat(ctx context.Context, arg OpenNextTopicChatParams) error
+	PauseLearningPathLesson(ctx context.Context, arg PauseLearningPathLessonParams) (LearningPathLesson, error)
 	// Records a finished turn: the size the next one starts from, and what it cost.
 	// A budget window that has run out starts over with this turn (every SET
 	// expression reads the row as it was, so both CASEs see the same spent_since).
 	RecordLearningChatTurn(ctx context.Context, arg RecordLearningChatTurnParams) error
 	RecordLearningScan(ctx context.Context, arg RecordLearningScanParams) (int64, error)
 	ResetLearningChat(ctx context.Context, arg ResetLearningChatParams) error
+	ResumeLearningPathLesson(ctx context.Context, arg ResumeLearningPathLessonParams) (LearningPathLesson, error)
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
 	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error

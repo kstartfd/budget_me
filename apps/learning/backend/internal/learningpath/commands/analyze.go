@@ -2,6 +2,7 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -20,8 +21,9 @@ import (
 // after a reset keeps the old one in the history, since archiving never
 // deletes.
 type Analyze struct {
-	UserID uuid.UUID
-	TestID uuid.UUID
+	UserID      uuid.UUID
+	TestID      uuid.UUID
+	Preferences Preferences
 }
 
 type AnalyzeHandler struct {
@@ -82,15 +84,22 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 		}
 	}
 
+	prefs := cmd.Preferences.Clean()
+
 	learned := learningcommands.LanguageName(test.Language)
 	native := learningcommands.LanguageName(test.TranslationLanguage)
 
-	system, prompt := analyzePrompt(learned, native, placement.Level(test.LevelReached), asked, correct, wrong)
+	system, prompt := analyzePrompt(learned, native, placement.Level(test.LevelReached), asked, correct, wrong, prefs)
 
 	var plan program
 	if err := h.agent.completeJSON(ctx, cmd.UserID, system, prompt, &plan, func() error {
 		return validateProgram(&plan)
 	}); err != nil {
+		return db.LearningPath{}, nil, err
+	}
+
+	prefsJSON, err := json.Marshal(prefs)
+	if err != nil {
 		return db.LearningPath{}, nil, err
 	}
 
@@ -113,6 +122,7 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 		Summary:             plan.Summary,
 		Source:              h.sourceOf(ctx, test),
 		PlacementTestID:     test.ID,
+		Preferences:         prefsJSON,
 		CreatedAt:           db.Time(now),
 	})
 	if err != nil {
@@ -121,14 +131,22 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 
 	topics := make([]db.LearningPathTopic, len(plan.Topics))
 	for i, t := range plan.Topics {
+		vocabulary, err := json.Marshal(t.Vocabulary)
+		if err != nil {
+			return db.LearningPath{}, nil, err
+		}
+
 		topics[i], err = tq.InsertLearningPathTopic(ctx, db.InsertLearningPathTopicParams{
-			ID:        ids.ToPg(ids.New()),
-			PathID:    path.ID,
-			Position:  int32(i),
-			Skill:     t.Skill,
-			Title:     t.Title,
-			Goal:      t.Goal,
-			CreatedAt: db.Time(now),
+			ID:         ids.ToPg(ids.New()),
+			PathID:     path.ID,
+			Position:   int32(i),
+			Skill:      t.Skill,
+			Title:      t.Title,
+			Goal:       t.Goal,
+			Unit:       t.Unit,
+			Theory:     t.Theory,
+			Vocabulary: vocabulary,
+			CreatedAt:  db.Time(now),
 		})
 		if err != nil {
 			return db.LearningPath{}, nil, err

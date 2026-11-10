@@ -36,6 +36,9 @@ export const pathTopicSchema = z.object({
   skill: z.string(),
   title: z.string(),
   goal: z.string(),
+  unit: z.string(),
+  theory: z.string(),
+  vocabulary: z.array(z.object({ word: z.string(), translation: z.string() })),
   status: z.enum(["not_started", "in_progress", "completed"]),
   completedAt: z.string().nullable(),
 })
@@ -49,6 +52,15 @@ export const pathSchema = z.object({
   summary: z.string(),
   status: z.enum(["active", "finished", "abandoned"]),
   source: z.string(),
+  preferences: z
+    .object({
+      interests: z.string().optional(),
+      variant: z.string().optional(),
+      goal: z.string().optional(),
+      minutesPerDay: z.number().optional(),
+      daysPerWeek: z.number().optional(),
+    })
+    .default({}),
   topics: z.array(pathTopicSchema),
   createdAt: z.string(),
   archivedAt: z.string().nullable(),
@@ -85,3 +97,28 @@ export const pathTopicDetailSchema = z.object({
   attempts: z.array(pathAttemptSchema),
 })
 export type PathTopicDetail = z.infer<typeof pathTopicDetailSchema>
+
+/** A timed lesson on one topic. The clock is the server's: count down to endsAt. */
+export const pathLessonSchema = z.object({
+  id: z.string(),
+  topicId: z.string(),
+  status: z.enum(["active", "finished"]),
+  startedAt: z.string(),
+  endsAt: z.string(),
+  finishedAt: z.string().nullable(),
+  pausedAt: z.string().nullable(),
+  pausedSeconds: z.number(),
+  pauseCount: z.number(),
+  attempts: z.number(),
+  correct: z.number(),
+})
+export type PathLesson = z.infer<typeof pathLessonSchema>
+
+/** The survey answered before the program is built; every part is optional. */
+export interface Preferences {
+  interests?: string
+  variant?: string
+  goal?: string
+  minutesPerDay?: number
+  daysPerWeek?: number
+}

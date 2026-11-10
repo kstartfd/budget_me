@@ -94,12 +94,19 @@ export function ProgramView({
       </section>
 
       <section className="space-y-3">
-        {path.topics.map((topic) => {
+        {path.topics.map((topic, index) => {
           const open = openTopic === topic.id
+          const newUnit =
+            !!topic.unit && topic.unit !== path.topics[index - 1]?.unit
 
           return (
+            <div key={topic.id} className="space-y-3">
+              {newUnit && (
+                <h2 className="text-muted-foreground pt-2 text-xs font-semibold tracking-wider uppercase">
+                  {topic.unit}
+                </h2>
+              )}
             <div
-              key={topic.id}
               className={cn(
                 "bg-background min-w-0 overflow-hidden rounded-lg border",
                 topic.status === "in_progress"
@@ -145,6 +152,7 @@ export function ProgramView({
                 )}
               </button>
               {open && <TopicRunner topicId={topic.id} />}
+            </div>
             </div>
           )
         })}

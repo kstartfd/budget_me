@@ -27,8 +27,8 @@ ON CONFLICT (test_id, question_key) DO NOTHING;
 SELECT * FROM learning_path_test_answers WHERE test_id = $1;
 
 -- name: InsertLearningPath :one
-INSERT INTO learning_paths (id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, $8, $9) RETURNING *;
+INSERT INTO learning_paths (id, user_id, language, translation_language, level, summary, status, source, placement_test_id, preferences, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, $8, $9, $10) RETURNING *;
 
 -- name: GetActiveLearningPath :one
 SELECT * FROM learning_paths WHERE user_id = $1 AND language = $2 AND status = 'active';
@@ -46,8 +46,8 @@ WHERE user_id = $1 AND status <> 'active'
 ORDER BY created_at DESC, id DESC;
 
 -- name: InsertLearningPathTopic :one
-INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, status, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, 'not_started', $7) RETURNING *;
+INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, unit, theory, vocabulary, status, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'not_started', $10) RETURNING *;
 
 -- name: ListLearningPathTopics :many
 SELECT * FROM learning_path_topics WHERE path_id = $1 ORDER BY position, id;
@@ -140,11 +140,60 @@ WHERE e.id = $1 AND p.user_id = $2
   );
 
 -- name: InsertLearningPathAttempt :one
-INSERT INTO learning_path_attempts (id, exercise_id, user_id, answer, correct, feedback, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *;
+INSERT INTO learning_path_attempts (id, exercise_id, user_id, answer, correct, feedback, lesson_id, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
 
 -- name: ListLearningPathAttemptsByTopic :many
 SELECT a.* FROM learning_path_attempts a
 JOIN learning_path_exercises e ON e.id = a.exercise_id
 WHERE e.topic_id = $1 AND a.user_id = $2
 ORDER BY a.created_at, a.id;
+
+-- name: InsertLearningPathLesson :one
+INSERT INTO learning_path_lessons (id, user_id, topic_id, status, started_at, ends_at)
+VALUES ($1, $2, $3, 'active', $4, $5) RETURNING *;
+
+-- name: GetActiveLearningPathLesson :one
+SELECT * FROM learning_path_lessons WHERE user_id = $1 AND status = 'active';
+
+-- name: GetLearningPathLesson :one
+SELECT * FROM learning_path_lessons WHERE id = $1 AND user_id = $2;
+
+-- name: ListLearningPathLessons :many
+SELECT * FROM learning_path_lessons
+WHERE user_id = $1 AND topic_id = $2
+ORDER BY started_at DESC, id DESC
+LIMIT 30;
+
+-- Closing a lesson also closes a pause that was still open, so the paused
+-- time is never lost.
+-- name: FinishLearningPathLesson :one
+UPDATE learning_path_lessons SET
+    status = 'finished',
+    finished_at = sqlc.arg(finished_at),
+    paused_seconds = paused_seconds + CASE
+        WHEN paused_at IS NULL THEN 0
+        ELSE GREATEST(0, EXTRACT(EPOCH FROM (sqlc.arg(finished_at)::timestamptz - paused_at)))::integer END,
+    paused_at = NULL
+WHERE id = sqlc.arg(id) AND user_id = sqlc.arg(user_id) AND status = 'active'
+RETURNING *;
+
+-- name: PauseLearningPathLesson :one
+UPDATE learning_path_lessons SET paused_at = $3, pause_count = pause_count + 1
+WHERE id = $1 AND user_id = $2 AND status = 'active' AND paused_at IS NULL
+RETURNING *;
+
+-- name: ResumeLearningPathLesson :one
+UPDATE learning_path_lessons SET
+    paused_seconds = paused_seconds + GREATEST(0, EXTRACT(EPOCH FROM ($3::timestamptz - paused_at)))::integer,
+    paused_at = NULL
+WHERE id = $1 AND user_id = $2 AND status = 'active' AND paused_at IS NOT NULL
+RETURNING *;
+
+-- name: ListLearningPathLessonStats :many
+SELECT lesson_id::uuid AS lesson_id,
+    count(*)::integer AS attempts,
+    (count(*) FILTER (WHERE correct))::integer AS correct
+FROM learning_path_attempts
+WHERE lesson_id = ANY(sqlc.arg(lesson_ids)::uuid[])
+GROUP BY lesson_id;

@@ -9,12 +9,15 @@ import {
   archiveTopicChat,
   ChatError,
   clearChat,
+  clearPathTopicChat,
   deleteDialog,
   fetchChat,
   fetchDialog,
   fetchDialogs,
+  fetchPathTopicChat,
   fetchTopicChat,
   streamChat,
+  streamPathTopicChat,
   streamTopicChat,
 } from "./api"
 import type { Chat, ChatDone } from "./schemas"
@@ -208,5 +211,49 @@ export function useDeleteDialog(topicId: string) {
       client.invalidateQueries({
         queryKey: [...topicChatKey(user?.id, topicId), "history"],
       }),
+  })
+}
+
+export function pathTopicChatKey(userId: string | undefined, topicId: string) {
+  return ["learning", userId, "path-topic-chat", topicId] as const
+}
+
+/** The chat of one topic of the program; always the teacher. */
+export function usePathTopicChat(topicId: string) {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: pathTopicChatKey(user?.id, topicId),
+    queryFn: () => fetchPathTopicChat(topicId),
+    enabled: !!user,
+  })
+}
+
+export function usePathTopicChatTurn(topicId: string) {
+  const { user } = useAuth()
+  const key = useMemo(
+    () => pathTopicChatKey(user?.id, topicId),
+    [user?.id, topicId],
+  )
+  const stream = useCallback(
+    (text: string, onDelta: (piece: string) => void) =>
+      streamPathTopicChat(topicId, text, onDelta),
+    [topicId],
+  )
+
+  return useTurn(key, stream)
+}
+
+export function useClearPathTopicChat(topicId: string) {
+  const { user } = useAuth()
+  const client = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => clearPathTopicChat(topicId),
+    onSuccess: () =>
+      client.setQueryData<Chat>(
+        pathTopicChatKey(user?.id, topicId),
+        (old) => old && { ...old, messages: [] },
+      ),
   })
 }

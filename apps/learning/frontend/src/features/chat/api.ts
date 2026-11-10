@@ -60,6 +60,13 @@ export const fetchDialog = (id: string) =>
 export const deleteDialog = (id: string) =>
   call(`/chat-dialogs/${id}`, "DELETE", () => undefined)
 
+/** The chat of a topic of the learner's program. */
+export const fetchPathTopicChat = (topicId: string) =>
+  call(`/path/topics/${topicId}/chat`, "GET", (d) => chatSchema.parse(d))
+
+export const clearPathTopicChat = (topicId: string) =>
+  call(`/path/topics/${topicId}/chat`, "DELETE", () => undefined)
+
 type StreamEvent = { name: string; data: unknown }
 
 /** One server-sent event: `event: name` and `data: {json}` lines. */
@@ -99,6 +106,12 @@ export const streamTopicChat = (
   text: string,
   onDelta: (piece: string) => void,
 ) => streamAnswer(`/topics/${topicId}/chat`, text, onDelta)
+
+export const streamPathTopicChat = (
+  topicId: string,
+  text: string,
+  onDelta: (piece: string) => void,
+) => streamAnswer(`/path/topics/${topicId}/chat`, text, onDelta)
 
 async function streamAnswer(
   path: string,

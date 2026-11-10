@@ -437,7 +437,68 @@
       "askTeacher": "Discuss with the teacher",
       "chatQuestion": "Help me with this exercise from the topic \"{topic}\":\n\n{prompt}\n\nExplain the rule behind it, but do not give me the answer.",
       "resetExercises": "Reset exercises",
-      "pastAttempts": "Previous exercises: {count} attempts, {correct} correct"
+      "pastAttempts": "Previous exercises: {count} attempts, {correct} correct",
+      "away": "You are paused. The lesson clock keeps running: press Resume to get back to the exercises.",
+      "vocabulary": "Words of the topic",
+      "saveAll": "Save all to the notebook",
+      "save": "Save to the notebook"
+    },
+    "lesson": {
+      "start": "Start a lesson (30 minutes)",
+      "starting": "Opening the lesson…",
+      "running": "Lesson in progress",
+      "paused": "Paused",
+      "left": "Time left",
+      "pause": "Pause",
+      "resume": "Resume",
+      "finish": "Finish lesson",
+      "pausedNote": "The lesson clock does not stop: a pause only marks that you stepped away.",
+      "finished": "Lesson finished",
+      "result": "Studied {minutes} min, answers: {attempts}, correct: {correct}. The result is saved.",
+      "history": "Lessons held: {count}",
+      "historyRow": "{minutes} min · {correct}/{attempts}"
+    },
+    "chat": {
+      "open": "Topic chat",
+      "hide": "Hide chat",
+      "general": "General chat",
+      "hint": "The teacher knows this topic and its rule. Ask about it or pick a mode below.",
+      "mode": {
+        "dialogue": {
+          "label": "Dialogue",
+          "prompt": "Simulate a dialogue on the topic \"{topic}\". Start simple and correct my answers as we go."
+        },
+        "natural": {
+          "label": "Like a native",
+          "prompt": "Teach me to build natural phrases on the topic \"{topic}\": how a native speaker would say it in real life."
+        },
+        "pronounce": {
+          "label": "Pronunciation",
+          "prompt": "Help me pronounce the words of the topic \"{topic}\": explain by sounds where and how to place the tongue."
+        },
+        "cards": {
+          "label": "Word cards",
+          "prompt": "Make a set of the 30 most useful words for the topic \"{topic}\" with an example sentence for each, for everyday speech."
+        },
+        "quick": {
+          "label": "5 minutes",
+          "prompt": "Give me three short 5-minute exercises on the topic \"{topic}\", one at a time, and check my answers."
+        }
+      }
+    },
+    "survey": {
+      "title": "Tell us about yourself",
+      "hint": "The program is built around you. Everything is optional.",
+      "interests": "Interests",
+      "interestsPlaceholder": "technology, travel, work…",
+      "goal": "Goal",
+      "goalPlaceholder": "moving abroad, work, an exam, chatting…",
+      "variant": "Variant of the language",
+      "variantPlaceholder": "British, American or any",
+      "minutes": "Minutes per day",
+      "minutesValue": "{n} min",
+      "days": "Days per week",
+      "daysValue": "{n} days"
     }
   }
 }

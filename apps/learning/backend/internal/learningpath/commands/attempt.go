@@ -8,6 +8,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"learning_app/backend/internal/apperr"
 	"learning_app/backend/internal/clock"
@@ -89,6 +90,7 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 		Answer:     answer,
 		Correct:    correct,
 		Feedback:   feedback,
+		LessonID:   h.lessonOf(ctx, cmd.UserID, topic.ID),
 		CreatedAt:  db.Time(h.clock.Now()),
 	})
 	if err != nil {
@@ -194,4 +196,16 @@ func (h AttemptHandler) exercise(ctx context.Context, userID, exerciseID uuid.UU
 	}
 
 	return exercise, topic, path, nil
+}
+
+// lessonOf is the lesson an attempt belongs to: the learner's running lesson,
+// when it is on this very topic and its time is not up. Otherwise the attempt
+// is simply a free one.
+func (h AttemptHandler) lessonOf(ctx context.Context, userID uuid.UUID, topicID pgtype.UUID) pgtype.UUID {
+	lesson, err := h.q.GetActiveLearningPathLesson(ctx, ids.ToPg(userID))
+	if err != nil || lesson.TopicID != topicID || !h.clock.Now().Before(lesson.EndsAt.Time) {
+		return pgtype.UUID{}
+	}
+
+	return lesson.ID
 }

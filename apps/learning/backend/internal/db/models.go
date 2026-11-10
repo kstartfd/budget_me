@@ -315,6 +315,48 @@ func (ns NullLearningPathExerciseKind) Value() (driver.Value, error) {
 	return string(ns.LearningPathExerciseKind), nil
 }
 
+type LearningPathLessonStatus string
+
+const (
+	LearningPathLessonStatusActive   LearningPathLessonStatus = "active"
+	LearningPathLessonStatusFinished LearningPathLessonStatus = "finished"
+)
+
+func (e *LearningPathLessonStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningPathLessonStatus(s)
+	case string:
+		*e = LearningPathLessonStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningPathLessonStatus: %T", src)
+	}
+	return nil
+}
+
+type NullLearningPathLessonStatus struct {
+	LearningPathLessonStatus LearningPathLessonStatus
+	Valid                    bool // Valid is true if LearningPathLessonStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningPathLessonStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningPathLessonStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningPathLessonStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningPathLessonStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningPathLessonStatus), nil
+}
+
 type LearningPathStatus string
 
 const (
@@ -582,6 +624,7 @@ type LearningChat struct {
 	SpentSince    pgtype.Timestamptz
 	TopicID       pgtype.UUID
 	ArchivedAt    pgtype.Timestamptz
+	PathTopicID   pgtype.UUID
 }
 
 type LearningChatMark struct {
@@ -651,6 +694,7 @@ type LearningPath struct {
 	PlacementTestID     pgtype.UUID
 	CreatedAt           pgtype.Timestamptz
 	ArchivedAt          pgtype.Timestamptz
+	Preferences         []byte
 }
 
 type LearningPathAttempt struct {
@@ -661,6 +705,7 @@ type LearningPathAttempt struct {
 	Correct    bool
 	Feedback   string
 	CreatedAt  pgtype.Timestamptz
+	LessonID   pgtype.UUID
 }
 
 type LearningPathExercise struct {
@@ -680,6 +725,19 @@ type LearningPathExerciseVersion struct {
 	ExerciseID pgtype.UUID
 	TopicID    pgtype.UUID
 	Generation int32
+}
+
+type LearningPathLesson struct {
+	ID            pgtype.UUID
+	UserID        pgtype.UUID
+	TopicID       pgtype.UUID
+	Status        LearningPathLessonStatus
+	StartedAt     pgtype.Timestamptz
+	EndsAt        pgtype.Timestamptz
+	FinishedAt    pgtype.Timestamptz
+	PausedAt      pgtype.Timestamptz
+	PausedSeconds int32
+	PauseCount    int32
 }
 
 type LearningPathTest struct {
@@ -714,6 +772,9 @@ type LearningPathTopic struct {
 	Status      LearningPathTopicStatus
 	CreatedAt   pgtype.Timestamptz
 	CompletedAt pgtype.Timestamptz
+	Unit        string
+	Theory      string
+	Vocabulary  []byte
 }
 
 type LearningScan struct {

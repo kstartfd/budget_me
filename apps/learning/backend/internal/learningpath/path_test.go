@@ -685,3 +685,130 @@ func TestClimbToTheTop(t *testing.T) {
 	}
 	_ = fmt.Sprint(climbs)
 }
+
+func lessonCall(t *testing.T, e env, method, path string, want int) map[string]any {
+	t.Helper()
+	code, body := request(t, e.e, method, "/api/v1/learning/path/"+path, e.session, nil)
+	if code != want {
+		t.Fatalf("%s %s: %d %v", method, path, code, body)
+	}
+	if body["data"] == nil {
+		return nil
+	}
+	return data(t, body)
+}
+
+// TestLessonTimerKeepsRunning: a lesson is 30 minutes from its start, pausing
+// does not move the end, the attempts made in it are counted, and a lesson
+// past its end is closed at that end.
+func TestLessonTimerKeepsRunning(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	path := analyze(t, e, climb(t, e, "A1"))
+	topics := path["topics"].([]any)
+	topicID := topics[0].(map[string]any)["id"].(string)
+	otherID := topics[1].(map[string]any)["id"].(string)
+
+	e.provider.enqueue(exercisesReply)
+	exercises := generateExercises(t, e, topicID)
+
+	lesson := lessonCall(t, e, "POST", "topics/"+topicID+"/lessons", http.StatusOK)
+	lessonID := lesson["id"].(string)
+	started, _ := time.Parse(time.RFC3339Nano, lesson["startedAt"].(string))
+	ends, _ := time.Parse(time.RFC3339Nano, lesson["endsAt"].(string))
+	if ends.Sub(started) != 30*time.Minute || lesson["status"] != "active" {
+		t.Fatalf("lesson: %v", lesson)
+	}
+
+	// Starting again on the same topic hands the same lesson back.
+	if again := lessonCall(t, e, "POST", "topics/"+topicID+"/lessons", http.StatusOK); again["id"] != lessonID {
+		t.Fatalf("a second lesson opened: %v", again)
+	}
+
+	paused := lessonCall(t, e, "POST", "lessons/"+lessonID+"/pause", http.StatusOK)
+	if paused["pausedAt"] == nil || paused["endsAt"] != lesson["endsAt"] || paused["pauseCount"] != float64(1) {
+		t.Fatalf("pause: %v", paused)
+	}
+	resumed := lessonCall(t, e, "POST", "lessons/"+lessonID+"/resume", http.StatusOK)
+	if resumed["pausedAt"] != nil || resumed["endsAt"] != lesson["endsAt"] {
+		t.Fatalf("resume: %v", resumed)
+	}
+
+	right := exercises[0].(map[string]any)["answer"].(string)
+	attempt(t, e, exercises[0].(map[string]any)["id"].(string), right, true, "")
+
+	active := lessonCall(t, e, "GET", "lessons/active", http.StatusOK)
+	if active["id"] != lessonID || active["attempts"] != float64(1) || active["correct"] != float64(1) {
+		t.Fatalf("active: %v", active)
+	}
+
+	// Another topic's lesson closes this one.
+	next := lessonCall(t, e, "POST", "topics/"+otherID+"/lessons", http.StatusOK)
+	if next["id"] == lessonID {
+		t.Fatal("the lesson of another topic reused the first")
+	}
+	list := lessonCall(t, e, "GET", "topics/"+topicID+"/lessons", http.StatusOK)
+	_ = list
+
+	// Time running out closes it at the end moment.
+	if _, err := e.pool.Exec(t.Context(), "UPDATE learning_path_lessons SET ends_at = now() - interval '1 minute' WHERE id = $1", next["id"]); err != nil {
+		t.Fatal(err)
+	}
+	if got := lessonCall(t, e, "GET", "lessons/active", http.StatusOK); got != nil {
+		t.Fatalf("an expired lesson is still active: %v", got)
+	}
+	finished := lessonCall(t, e, "POST", "lessons/"+next["id"].(string)+"/finish", http.StatusOK)
+	if finished["status"] != "finished" || finished["finishedAt"] == nil {
+		t.Fatalf("finish: %v", finished)
+	}
+}
+
+// TestPathTopicChat: every program topic has a chat of its own, which only its
+// owner can read and which can be cleared.
+func TestPathTopicChat(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	path := analyze(t, e, climb(t, e, "A1"))
+	topicID := path["topics"].([]any)[0].(map[string]any)["id"].(string)
+
+	code, body := request(t, e.e, "GET", "/api/v1/learning/path/topics/"+topicID+"/chat", e.session, nil)
+	if code != http.StatusOK {
+		t.Fatalf("get chat: %d %v", code, body)
+	}
+	if d := data(t, body); d["available"] != true || len(d["messages"].([]any)) != 0 {
+		t.Fatalf("chat: %v", d)
+	}
+
+	e.provider.setDefault("Presente simple: yo hablo.")
+	code, _ = request(t, e.e, "POST", "/api/v1/learning/path/topics/"+topicID+"/chat", e.session, map[string]any{"text": "explain this topic"})
+	if code != http.StatusOK {
+		t.Fatalf("send: %d", code)
+	}
+	prompts := e.provider.requests()
+	if last := prompts[len(prompts)-1]; !strings.Contains(last, "study program") {
+		t.Fatalf("the teacher was not told about the topic: %s", last)
+	}
+
+	_, body = request(t, e.e, "GET", "/api/v1/learning/path/topics/"+topicID+"/chat", e.session, nil)
+	if msgs := data(t, body)["messages"].([]any); len(msgs) != 2 {
+		t.Fatalf("messages: %v", msgs)
+	}
+
+	code, _ = request(t, e.e, "DELETE", "/api/v1/learning/path/topics/"+topicID+"/chat", e.session, nil)
+	if code != http.StatusOK {
+		t.Fatalf("clear: %d", code)
+	}
+	_, body = request(t, e.e, "GET", "/api/v1/learning/path/topics/"+topicID+"/chat", e.session, nil)
+	if msgs := data(t, body)["messages"].([]any); len(msgs) != 0 {
+		t.Fatalf("not cleared: %v", msgs)
+	}
+
+	code, _ = request(t, e.e, "GET", "/api/v1/learning/path/topics/"+uuid.NewString()+"/chat", e.session, nil)
+	if code != http.StatusNotFound {
+		t.Fatalf("a stranger's topic: %d", code)
+	}
+}

@@ -2,6 +2,7 @@ import { readToken } from "@/features/auth"
 import {
   pathAttemptSchema,
   pathExerciseSchema,
+  pathLessonSchema,
   pathSchema,
   pathTestSchema,
   pathTopicDetailSchema,
@@ -9,9 +10,11 @@ import {
   type Path,
   type PathAttempt,
   type PathExercise,
+  type PathLesson,
   type PathTest,
   type PathTopic,
   type PathTopicDetail,
+  type Preferences,
 } from "./schemas"
 
 /** ApiError carries the HTTP status so a 404 can mean "none yet". */
@@ -74,8 +77,16 @@ export const answerBatch = (
   })
 
 /** Builds the program from a finished placement test. */
-export const analyzeTest = (id: string): Promise<Path> =>
-  request(`/path/tests/${id}/analyze`, "POST", (d) => pathSchema.parse(d))
+export const analyzeTest = (
+  id: string,
+  preferences: Preferences = {},
+): Promise<Path> =>
+  request(
+    `/path/tests/${id}/analyze`,
+    "POST",
+    (d) => pathSchema.parse(d),
+    preferences,
+  )
 
 /** The active program of a language, or null when there is none. */
 export const fetchActivePath = async (language: string): Promise<Path | null> => {
@@ -122,4 +133,28 @@ export const submitAttempt = (
 export const completeTopic = (topicId: string): Promise<PathTopic> =>
   request(`/path/topics/${topicId}/complete`, "POST", (d) =>
     pathTopicSchema.parse(d),
+  )
+
+export const startLesson = (topicId: string): Promise<PathLesson> =>
+  request(`/path/topics/${topicId}/lessons`, "POST", (d) =>
+    pathLessonSchema.parse(d),
+  )
+
+/** The running lesson of the learner, or null when none is running. */
+export const fetchActiveLesson = (): Promise<PathLesson | null> =>
+  request("/path/lessons/active", "GET", (d) =>
+    d === null ? null : pathLessonSchema.parse(d),
+  )
+
+export const fetchLessons = (topicId: string): Promise<PathLesson[]> =>
+  request(`/path/topics/${topicId}/lessons`, "GET", (d) =>
+    pathLessonSchema.array().parse(d),
+  )
+
+export const changeLesson = (
+  id: string,
+  action: "pause" | "resume" | "finish",
+): Promise<PathLesson> =>
+  request(`/path/lessons/${id}/${action}`, "POST", (d) =>
+    pathLessonSchema.parse(d),
   )

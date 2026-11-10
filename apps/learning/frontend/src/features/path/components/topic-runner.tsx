@@ -1,15 +1,17 @@
 "use client"
 
-import { useState } from "react"
+import { useCallback, useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconCheck, IconMessageCircle, IconX } from "@tabler/icons-react"
+import { IconBookmarkPlus, IconCheck, IconMessageCircle, IconX } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
+import { PathTopicChat } from "@/features/chat/components/path-topic-chat"
 import { useLearning } from "@/features/learning/hooks"
-import type { Topic } from "@/features/learning/schemas"
+import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
+import { LessonPanel } from "./lesson-panel"
 import type { PathAttempt, PathExercise } from "../schemas"
 
 const baseLanguage = (code: string) => code.split("-")[0].toLowerCase()
@@ -39,7 +41,9 @@ function chatTopicFor(
 export function TopicRunner({ topicId }: { topicId: string }) {
   const t = useTranslations("path.topic")
   const { detail, generate, complete } = useTopicDetail(topicId)
-  const { topics } = useLearning()
+  const { topics, saveEntry } = useLearning()
+  const [away, setAway] = useState(false)
+  const onPausedChange = useCallback((paused: boolean) => setAway(paused), [])
 
   if (detail.isPending)
     return (
@@ -74,12 +78,28 @@ export function TopicRunner({ topicId }: { topicId: string }) {
 
   return (
     <div className="space-y-3 p-4 pt-4">
+      {topic.status !== "completed" && (
+        <LessonPanel topicId={topicId} onPausedChange={onPausedChange} />
+      )}
       <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3">
         <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
           {t("rule")}
         </p>
         <p className="text-[13px] leading-relaxed">{topic.goal}</p>
+        {topic.theory && (
+          <p className="text-[13px] leading-relaxed whitespace-pre-line">
+            {topic.theory}
+          </p>
+        )}
       </div>
+      {topic.vocabulary.length > 0 && (
+        <Vocabulary
+          words={topic.vocabulary}
+          topicTitle={topic.title}
+          notebookId={chatTopic?.id}
+          saveEntry={saveEntry}
+        />
+      )}
       {pastAttempts.length > 0 && (
         <p className="text-muted-foreground text-xs">
           {t("pastAttempts", {
@@ -95,7 +115,11 @@ export function TopicRunner({ topicId }: { topicId: string }) {
         </p>
       )}
 
-      {exercises.length === 0 ? null : (
+      {away ? (
+        <p className="text-muted-foreground bg-muted rounded-lg px-3.5 py-3 text-[13px]">
+          {t("away")}
+        </p>
+      ) : exercises.length === 0 ? null : (
         <>
           {exercises.map((exercise, index) => (
             <ExerciseCard
@@ -139,13 +163,20 @@ export function TopicRunner({ topicId }: { topicId: string }) {
           </div>
         </>
       )}
-      {exercises.length === 0 && (
+      {!away && exercises.length === 0 && (
         <TopicActions
           generating={generate.isPending}
           onGenerate={() => generate.mutate(false)}
           onReset={() => generate.mutate(true)}
         />
       )}
+      <PathTopicChat
+        topicId={topicId}
+        topicTitle={topic.title}
+        generalHref={
+          chatTopic ? `/learning/chat?topic=${chatTopic.id}` : "/learning/chat"
+        }
+      />
     </div>
   )
 }
@@ -377,4 +408,108 @@ function QuotedEmphasis({ text }: { text: string }) {
       })}
     </>
   )
+}
+
+type SaveEntry = ReturnType<typeof useLearning>["saveEntry"]
+
+/** Vocabulary lists the key words of a topic; each goes to the notebook of
+ * the language pair in one tap, and the whole list in one more. */
+function Vocabulary({
+  words,
+  topicTitle,
+  notebookId,
+  saveEntry,
+}: {
+  words: { word: string; translation: string }[]
+  topicTitle: string
+  notebookId?: string
+  saveEntry: SaveEntry
+}) {
+  const t = useTranslations("path.topic")
+  const [saved, setSaved] = useState<Set<string>>(new Set())
+
+  const save = async (word: { word: string; translation: string }) => {
+    if (!notebookId || saved.has(word.word)) return
+    await saveEntry.mutateAsync(entryOf(word, topicTitle, notebookId))
+    setSaved((old) => new Set(old).add(word.word))
+  }
+
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+          {t("vocabulary")}
+        </p>
+        {notebookId && (
+          <Button
+            variant="ghost"
+            size="sm"
+            disabled={
+              saveEntry.isPending || words.every((w) => saved.has(w.word))
+            }
+            onClick={async () => {
+              for (const word of words) await save(word)
+            }}
+            className="h-auto px-0 py-0 text-xs"
+          >
+            {t("saveAll")}
+          </Button>
+        )}
+      </div>
+      <ul className="space-y-1">
+        {words.map((word) => (
+          <li
+            key={word.word}
+            className="border-border flex items-center gap-2 rounded-md border px-3 py-1.5 text-[13px]"
+          >
+            <span className="font-medium">{word.word}</span>
+            <span className="text-muted-foreground min-w-0 flex-1 truncate">
+              {word.translation}
+            </span>
+            {notebookId && (
+              <button
+                type="button"
+                aria-label={t("save")}
+                disabled={saveEntry.isPending || saved.has(word.word)}
+                onClick={() => void save(word)}
+                className="text-muted-foreground hover:text-foreground cursor-pointer disabled:opacity-40"
+              >
+                {saved.has(word.word) ? (
+                  <IconCheck size={15} />
+                ) : (
+                  <IconBookmarkPlus size={15} />
+                )}
+              </button>
+            )}
+          </li>
+        ))}
+      </ul>
+      {saveEntry.isError && (
+        <p role="alert" className="text-destructive text-xs">
+          {saveEntry.error.message}
+        </p>
+      )}
+    </div>
+  )
+}
+
+/** The notebook entry of a word: new, in the inbox, remembering where it came from. */
+function entryOf(
+  word: { word: string; translation: string },
+  topicTitle: string,
+  topicId: string,
+): EntryInput {
+  return {
+    topicId,
+    kind: word.word.trim().includes(" ") ? "phrase" : "word",
+    text: word.word,
+    transcription: "",
+    translation: word.translation,
+    explanation: "",
+    nativeUsage: "",
+    example: "",
+    rule: "",
+    source: topicTitle,
+    status: "inbox",
+  }
 }
