@@ -1,0 +1,308 @@
+# budget_me — CI/CD (budget + learning, one repo, one VPS)
+#
+# push to main -> tests -> images in GHCR -> deploy over SSH (blue-green,
+# scripts/bluegreen.sh). An app is tested, built and deployed only when what it
+# is made of changed (paths filter); the shared account module and this file
+# count for both. Deploys of BOTH apps share one lock (see deploy.yml), so the
+# one small VPS never runs two at once.
+# Rollback: Actions -> Rollback -> Run workflow.
+#
+# Secrets (Settings -> Secrets and variables -> Actions), see deploy.yml.
+
+name: CI
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  GO_VERSION: "1.25"
+  NODE_VERSION: "22"
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      budget: ${{ steps.f.outputs.budget }}
+      learning: ${{ steps.f.outputs.learning }}
+      account: ${{ steps.f.outputs.account }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: f
+        with:
+          filters: |
+            account:
+              - 'libs/account/**'
+            budget:
+              - 'apps/budget/**'
+              - 'libs/account/**'
+              - 'infra/budget/**'
+              - 'infra/edge/**'
+              - '.github/workflows/**'
+            learning:
+              - 'apps/learning/**'
+              - 'libs/account/**'
+              - 'infra/learning/**'
+              - 'infra/edge/**'
+              - '.github/workflows/**'
+
+  # ── tests ──────────────────────────────────────────────────────────────────
+  test-account:
+    needs: changes
+    if: needs.changes.outputs.account == 'true' || needs.changes.outputs.budget == 'true' || needs.changes.outputs.learning == 'true'
+    runs-on: ubuntu-latest
+    services:
+      pg:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: ci, POSTGRES_PASSWORD: ci, POSTGRES_DB: app }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      pgaccount:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: ci, POSTGRES_PASSWORD: ci, POSTGRES_DB: account }
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://ci:ci@localhost:5432/app?sslmode=disable
+      ACCOUNT_DATABASE_URL: postgres://ci:ci@localhost:5433/account?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: libs/account/go.sum
+      - working-directory: libs/account
+        run: go vet ./... && go test ./...
+
+  test-backend:
+    needs: changes
+    if: needs.changes.outputs.budget == 'true'
+    runs-on: ubuntu-latest
+    services:
+      pg:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: ci, POSTGRES_PASSWORD: ci, POSTGRES_DB: app }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      pgaccount:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: ci, POSTGRES_PASSWORD: ci, POSTGRES_DB: account }
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://ci:ci@localhost:5432/app?sslmode=disable
+      ACCOUNT_DATABASE_URL: postgres://ci:ci@localhost:5433/account?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: |
+            apps/budget/backend/go.sum
+            libs/account/go.sum
+      - working-directory: apps/budget/backend
+        run: |
+          go run ./cmd/migrate up
+          go vet ./...
+          go test ./...
+
+  test-frontend:
+    needs: changes
+    if: needs.changes.outputs.budget == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/budget/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/budget/frontend/pnpm-lock.yaml
+      # --ignore-scripts: pnpm 10 fails install in CI on unapproved dependency
+      # build scripts; lint and typecheck do not need them built.
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+  test-learning-backend:
+    needs: changes
+    if: needs.changes.outputs.learning == 'true'
+    runs-on: ubuntu-latest
+    services:
+      pg:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: ci, POSTGRES_PASSWORD: ci, POSTGRES_DB: app }
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+      pgaccount:
+        image: postgres:16-alpine
+        env: { POSTGRES_USER: ci, POSTGRES_PASSWORD: ci, POSTGRES_DB: account }
+        ports: ["5433:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ci" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DATABASE_URL: postgres://ci:ci@localhost:5432/app?sslmode=disable
+      ACCOUNT_DATABASE_URL: postgres://ci:ci@localhost:5433/account?sslmode=disable
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: |
+            apps/learning/backend/go.sum
+            libs/account/go.sum
+      # The picture reader is the real tesseract in a couple of tests.
+      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng
+      - working-directory: apps/learning/backend
+        run: |
+          go run ./cmd/migrate up
+          go vet ./...
+          go test ./...
+
+  test-learning-frontend:
+    needs: changes
+    if: needs.changes.outputs.learning == 'true'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: apps/learning/frontend
+    steps:
+      - uses: actions/checkout@v4
+      - run: corepack enable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: pnpm
+          cache-dependency-path: apps/learning/frontend/pnpm-lock.yaml
+      - run: pnpm install --frozen-lockfile --ignore-scripts
+      - run: pnpm lint
+      - run: pnpm typecheck
+
+  # ── images ─────────────────────────────────────────────────────────────────
+  build-budget:
+    needs: [changes, test-account, test-backend, test-frontend]
+    if: github.event_name != 'pull_request' && needs.changes.outputs.budget == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.names.outputs.backend }}
+      frontend: ${{ steps.names.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: names
+        run: |
+          repo="ghcr.io/$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+          echo "repo=$repo" >> "$GITHUB_OUTPUT"
+          echo "backend=$repo/backend:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "frontend=$repo/frontend:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      # Context is the repo root: the Dockerfile COPYs apps/budget/backend and
+      # the shared libs/account.
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/budget/docker/backend.Dockerfile
+          push: true
+          tags: |
+            ${{ steps.names.outputs.backend }}
+            ${{ steps.names.outputs.repo }}/backend:latest
+          cache-from: type=gha,scope=budget-backend
+          cache-to: type=gha,scope=budget-backend,mode=max
+      - uses: docker/build-push-action@v6
+        with:
+          context: apps/budget/frontend
+          file: infra/budget/docker/frontend.Dockerfile
+          push: true
+          tags: |
+            ${{ steps.names.outputs.frontend }}
+            ${{ steps.names.outputs.repo }}/frontend:latest
+          cache-from: type=gha,scope=budget-frontend
+          cache-to: type=gha,scope=budget-frontend,mode=max
+
+  build-learning:
+    needs: [changes, test-account, test-learning-backend, test-learning-frontend]
+    if: github.event_name != 'pull_request' && needs.changes.outputs.learning == 'true'
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.names.outputs.backend }}
+      frontend: ${{ steps.names.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: names
+        run: |
+          repo="ghcr.io/$(echo "$GITHUB_REPOSITORY" | tr '[:upper:]' '[:lower:]')"
+          echo "backend=$repo/learning-backend:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+          echo "frontend=$repo/learning-frontend:${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: infra/learning/docker/backend.Dockerfile
+          push: true
+          tags: ${{ steps.names.outputs.backend }}
+          cache-from: type=gha,scope=learning-backend
+          cache-to: type=gha,scope=learning-backend,mode=max
+      - uses: docker/build-push-action@v6
+        with:
+          context: apps/learning/frontend
+          file: infra/learning/docker/frontend.Dockerfile
+          push: true
+          tags: ${{ steps.names.outputs.frontend }}
+          build-args: |
+            NEXT_PUBLIC_LEARNING_BOT_URL=${{ vars.LEARNING_BOT_URL || 'https://t.me/nexyrium_bot' }}
+          cache-from: type=gha,scope=learning-frontend
+          cache-to: type=gha,scope=learning-frontend,mode=max
+
+  # ── deploy ─────────────────────────────────────────────────────────────────
+  # Both deploys wait for each other (one lock inside deploy.yml). Learning goes
+  # first when both changed; the account database migrations are idempotent.
+  deploy-learning:
+    needs: [build-learning]
+    if: github.ref == 'refs/heads/main'
+    uses: ./.github/workflows/deploy.yml
+    with:
+      app: learning
+      backend_image: ${{ needs.build-learning.outputs.backend }}
+      frontend_image: ${{ needs.build-learning.outputs.frontend }}
+    secrets: inherit
+
+  deploy-budget:
+    needs: [build-budget, deploy-learning]
+    # Run even when learning was skipped (it did not change); never when it failed.
+    if: ${{ !cancelled() && !failure() && github.ref == 'refs/heads/main' && needs.build-budget.result == 'success' }}
+    uses: ./.github/workflows/deploy.yml
+    with:
+      app: budget
+      backend_image: ${{ needs.build-budget.outputs.backend }}
+      frontend_image: ${{ needs.build-budget.outputs.frontend }}
+    secrets: inherit

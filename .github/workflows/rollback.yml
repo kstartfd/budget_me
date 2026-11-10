@@ -1,0 +1,63 @@
+# Rollback of one app: a button (Actions -> Rollback -> Run workflow).
+# steps counts successful deploys back from the last one (releases-<app>.log):
+#   1 — the previous release, usually still running in the idle colour: a health
+#       check and a Caddy switch, seconds, no pull.
+#   2 — the release before that: the idle colour is redeployed from the registry.
+# After the switch the schema is migrated DOWN to the version that release was
+# deployed with (backup first). keep_schema keeps the schema and the data written
+# since (additive migrations only).
+
+name: Rollback
+
+on:
+  workflow_dispatch:
+    inputs:
+      app:
+        description: App
+        type: choice
+        options: [learning, budget]
+        required: true
+      steps:
+        description: Deploys to go back
+        default: "1"
+        required: true
+      keep_schema:
+        description: Keep the schema (do not migrate down)
+        type: boolean
+        default: false
+
+jobs:
+  rollback:
+    runs-on: ubuntu-latest
+    # The same lock as deploy.yml: one operation on the server at a time.
+    concurrency:
+      group: production-server
+      cancel-in-progress: false
+    environment: ${{ inputs.app == 'budget' && 'production' || 'learning' }}
+    env:
+      APP: ${{ inputs.app }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      GHCR_PULL_USER: ${{ secrets.GHCR_PULL_USER }}
+      GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
+      ROLLBACK_STEPS: ${{ inputs.steps }}
+      ROLLBACK_KEEP_SCHEMA: ${{ inputs.keep_schema && '1' || '' }}
+    steps:
+      - name: ssh setup
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy && chmod 400 ~/.ssh/id_deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf 'Host *\n  IdentityFile ~/.ssh/id_deploy\n  IdentitiesOnly yes\n' > ~/.ssh/config
+      - name: rollback
+        run: |
+          case "$ROLLBACK_STEPS" in ''|*[!0-9]*) echo "steps must be a number"; exit 1;; esac
+          ssh "deploy@$SSH_HOST" 'bash -s' <<EOF
+          set -e
+          cd ~/budget_me
+          echo '$GHCR_PULL_TOKEN' | docker login ghcr.io -u '$GHCR_PULL_USER' --password-stdin
+          ROLLBACK_KEEP_SCHEMA='$ROLLBACK_KEEP_SCHEMA' ./scripts/bluegreen.sh $APP rollback $ROLLBACK_STEPS
+          ./scripts/bluegreen.sh $APP status
+          EOF

@@ -1,0 +1,183 @@
+# Reusable deploy of one app to the VPS (blue-green via scripts/bluegreen.sh).
+#
+#   backup -> migrate up (new image) -> start the IDLE colour -> health ->
+#   switch Caddy (reload, zero downtime) -> watch the public URL -> record the
+#   release in releases-<app>.log
+#
+# Any failure before the release is recorded puts traffic back on the colour
+# that was live and the schema back where it was, and reds the run. The previous
+# colour keeps running: Rollback is a switch, not a redeploy.
+#
+# ONE lock for the whole server: budget and learning share the box, the Caddy
+# files, the crontab and the scripts, so their deploys (and rollbacks) queue.
+#
+# Secrets (Settings -> Secrets and variables -> Actions):
+#   all:      SSH_PRIVATE_KEY  SSH_HOST  SSH_KNOWN_HOSTS
+#             GHCR_PULL_USER  GHCR_PULL_TOKEN   (PAT, read:packages: the VPS pulls with it)
+#             ACCOUNT_POSTGRES_PASSWORD         (ONE value for both apps)
+#   budget:   DOMAIN  POSTGRES_PASSWORD  AUTH_SECRET  TELEGRAM_BOT_TOKEN
+#             AI_API_KEY  BACKUP_CHAT_ID  BACKUP_PASSPHRASE  ALERT_CHAT_ID
+#   learning: LEARNING_DOMAIN  LEARNING_POSTGRES_PASSWORD  LEARNING_AUTH_SECRET
+#             LEARNING_TELEGRAM_BOT_TOKEN
+# Variables (optional): ACCOUNT_DELETION_GRACE  AI_MODEL  AI_BASE_URL  LEARNING_BOT_URL
+# An app's secrets may live on the server instead — ~/budget_me/.env.local
+# (budget), ~/budget_me/.env.learning.local (learning): CI wins when it has a
+# value, the file fills what CI left empty.
+
+name: Deploy
+
+on:
+  workflow_call:
+    inputs:
+      app:
+        type: string
+        required: true
+      backend_image:
+        type: string
+        required: true
+      frontend_image:
+        type: string
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    concurrency:
+      group: production-server
+      cancel-in-progress: false
+    environment:
+      name: ${{ inputs.app == 'budget' && 'production' || 'learning' }}
+    env:
+      APP: ${{ inputs.app }}
+      APP_ENV: ${{ inputs.app == 'budget' && '.env' || '.env.learning' }}
+      REQUIRED_KEYS: ${{ inputs.app == 'budget' && 'DOMAIN POSTGRES_PASSWORD ACCOUNT_POSTGRES_PASSWORD AUTH_SECRET' || 'DOMAIN POSTGRES_PASSWORD ACCOUNT_POSTGRES_PASSWORD AUTH_SECRET TELEGRAM_BOT_TOKEN' }}
+      NEW_BACKEND: ${{ inputs.backend_image }}
+      NEW_FRONTEND: ${{ inputs.frontend_image }}
+      SSH_HOST: ${{ secrets.SSH_HOST }}
+      GHCR_PULL_USER: ${{ secrets.GHCR_PULL_USER }}
+      GHCR_PULL_TOKEN: ${{ secrets.GHCR_PULL_TOKEN }}
+      ACCOUNT_POSTGRES_PASSWORD: ${{ secrets.ACCOUNT_POSTGRES_PASSWORD }}
+      ACCOUNT_DELETION_GRACE: ${{ vars.ACCOUNT_DELETION_GRACE }}
+      DOMAIN: ${{ secrets.DOMAIN }}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      AUTH_SECRET: ${{ secrets.AUTH_SECRET }}
+      TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+      AI_API_KEY: ${{ secrets.AI_API_KEY }}
+      AI_MODEL: ${{ vars.AI_MODEL }}
+      AI_BASE_URL: ${{ vars.AI_BASE_URL }}
+      BACKUP_CHAT_ID: ${{ secrets.BACKUP_CHAT_ID }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      ALERT_CHAT_ID: ${{ secrets.ALERT_CHAT_ID }}
+      LEARNING_DOMAIN: ${{ secrets.LEARNING_DOMAIN }}
+      LEARNING_POSTGRES_PASSWORD: ${{ secrets.LEARNING_POSTGRES_PASSWORD }}
+      LEARNING_AUTH_SECRET: ${{ secrets.LEARNING_AUTH_SECRET }}
+      LEARNING_TELEGRAM_BOT_TOKEN: ${{ secrets.LEARNING_TELEGRAM_BOT_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ssh setup
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          mkdir -p ~/.ssh && chmod 700 ~/.ssh
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_deploy && chmod 400 ~/.ssh/id_deploy
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          printf 'Host *\n  IdentityFile ~/.ssh/id_deploy\n  IdentitiesOnly yes\n' > ~/.ssh/config
+
+      # Everything the server needs besides the env files. The *.active.caddy
+      # files are NOT shipped: on the server bluegreen.sh owns them, and copying
+      # the repo defaults over would silently switch colours.
+      - name: ship files
+        run: |
+          ssh "deploy@$SSH_HOST" "mkdir -p ~/budget_me/infra/edge ~/budget_me/scripts"
+          scp infra/budget/compose/prod.yml "deploy@$SSH_HOST:~/budget_me/prod.yml"
+          scp infra/learning/compose/prod.yml "deploy@$SSH_HOST:~/budget_me/learning.yml"
+          scp infra/edge/Caddyfile "deploy@$SSH_HOST:~/budget_me/infra/edge/Caddyfile"
+          scp infra/budget/scripts/backup.sh infra/budget/scripts/healthcheck.sh infra/budget/scripts/merge-env.sh infra/budget/scripts/bluegreen.sh "deploy@$SSH_HOST:~/budget_me/scripts/"
+          ssh "deploy@$SSH_HOST" "chmod +x ~/budget_me/scripts/*.sh"
+          # The crons are owned by the repo: a missing line is planted, an
+          # existing one is left alone.
+          ssh "deploy@$SSH_HOST" 'bash -s' < infra/budget/cron/install-crons.sh
+          if [ -z "$BACKUP_PASSPHRASE" ] || [ -z "$BACKUP_CHAT_ID" ]; then
+            echo "NOTE: BACKUP_* not in CI — expecting them in ~/budget_me/.env.local on the server."
+          fi
+
+      # Stage the NEW env as <env>.new (NOT the live one); merge-env fills what
+      # CI left empty from the operator's .local file on the server.
+      - name: render env (budget)
+        if: inputs.app == 'budget'
+        run: |
+          ssh "deploy@$SSH_HOST" "cat > ~/budget_me/.env.new && chmod 600 ~/budget_me/.env.new" <<EOF
+          DOMAIN=$DOMAIN
+          LEARNING_DOMAIN=$LEARNING_DOMAIN
+          POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+          AUTH_SECRET=$AUTH_SECRET
+          TELEGRAM_BOT_TOKEN=$TELEGRAM_BOT_TOKEN
+          ACCOUNT_POSTGRES_PASSWORD=$ACCOUNT_POSTGRES_PASSWORD
+          ACCOUNT_DELETION_GRACE=${ACCOUNT_DELETION_GRACE:-720h}
+          AI_API_KEY=$AI_API_KEY
+          AI_MODEL=${AI_MODEL:-glm-4.5-flash}
+          AI_BASE_URL=${AI_BASE_URL:-https://api.z.ai/api/paas/v4}
+          BACKUP_CHAT_ID=$BACKUP_CHAT_ID
+          BACKUP_PASSPHRASE=$BACKUP_PASSPHRASE
+          ALERT_CHAT_ID=$ALERT_CHAT_ID
+          EOF
+          ssh "deploy@$SSH_HOST" "cd ~/budget_me && ./scripts/merge-env.sh .env.new .env.local"
+
+      - name: render env (learning)
+        if: inputs.app == 'learning'
+        run: |
+          ssh "deploy@$SSH_HOST" "cat > ~/budget_me/.env.learning.new && chmod 600 ~/budget_me/.env.learning.new" <<EOF
+          DOMAIN=$LEARNING_DOMAIN
+          POSTGRES_PASSWORD=$LEARNING_POSTGRES_PASSWORD
+          AUTH_SECRET=$LEARNING_AUTH_SECRET
+          TELEGRAM_BOT_TOKEN=$LEARNING_TELEGRAM_BOT_TOKEN
+          ACCOUNT_POSTGRES_PASSWORD=$ACCOUNT_POSTGRES_PASSWORD
+          ACCOUNT_DELETION_GRACE=${ACCOUNT_DELETION_GRACE:-720h}
+          EOF
+          ssh "deploy@$SSH_HOST" "cd ~/budget_me && ./scripts/merge-env.sh .env.learning.new .env.learning.local"
+
+      # Runner-side $vars expand in this unquoted heredoc; remote-only ones are \$.
+      - name: blue-green deploy
+        run: |
+          ssh "deploy@$SSH_HOST" 'bash -s' <<EOF
+          set -e
+          cd ~/budget_me
+          echo '$GHCR_PULL_TOKEN' | docker login ghcr.io -u '$GHCR_PULL_USER' --password-stdin
+
+          # An empty secret renders fine and only fails later (a backend that
+          # will not start, a database role with no password). Say which one,
+          # before anything live is touched.
+          missing=""
+          for k in $REQUIRED_KEYS; do
+            grep -qE "^\$k=." $APP_ENV.new || missing="\$missing \$k"
+          done
+          if [ -n "\$missing" ]; then
+            echo "deploy $APP: no values in $APP_ENV.new:\$missing"
+            echo "set them in GitHub Secrets or in ~/budget_me/$APP_ENV.local on the server"
+            exit 1
+          fi
+
+          # The render above only knows CI values. The blue-green state and the
+          # LIVE release come from the current env; the new images go to
+          # bluegreen.sh as arguments.
+          cp -f $APP_ENV $APP_ENV.prev 2>/dev/null || touch $APP_ENV.prev
+          grep -E '^(ACTIVE_COLOR|BACKEND_IMAGE|FRONTEND_IMAGE|(BLUE|GREEN)_(BACKEND|FRONTEND)_IMAGE)=' $APP_ENV.prev >> $APP_ENV.new || true
+          # First deploy of an app: nothing live yet — the new release is the fallback.
+          grep -q '^BACKEND_IMAGE=.' $APP_ENV.new || echo 'BACKEND_IMAGE=$NEW_BACKEND' >> $APP_ENV.new
+          grep -q '^FRONTEND_IMAGE=.' $APP_ENV.new || echo 'FRONTEND_IMAGE=$NEW_FRONTEND' >> $APP_ENV.new
+          mv -f $APP_ENV.new $APP_ENV
+          chmod 600 $APP_ENV
+
+          if ! ./scripts/bluegreen.sh $APP deploy '$NEW_BACKEND' '$NEW_FRONTEND'; then
+            # bluegreen.sh already put traffic and schema back; restore the env too.
+            mv -f $APP_ENV.prev $APP_ENV
+            exit 1
+          fi
+          rm -f $APP_ENV.prev
+
+          # Dangling layers only: tagged per-SHA images stay for a rollback.
+          docker image prune -f >/dev/null 2>&1 || true
+          ./scripts/bluegreen.sh $APP status
+          EOF
