@@ -12,6 +12,11 @@
  * mode, so .dark is the same zinc scale inverted. Token names keep the
  * shadcn contract; extras (faint, rowline, washes, nav-bg, status hues) keep
  * their names so existing classes resolve.
+ *
+ * Readability palette (shadcn/ui "читабельность"): zinc-500 muted-foreground
+ * gave only 4.4:1 on --muted, so it is darker in both themes, and --input (the
+ * field border) is a visible 4.8:1 / 5.8:1 instead of the hairline --border.
+ * Accent/secondary, sidebar and the dark border follow the same sheet.
  */
 :root {
     --background: #ffffff;
@@ -21,16 +26,16 @@
     --popover: #ffffff;
     --popover-foreground: #09090b;
     --primary: #18181b;
-    --primary-foreground: #ffffff;
-    --secondary: #f4f4f5;
-    --secondary-foreground: #09090b;
+    --primary-foreground: #fafafa;
+    --secondary: #e4e4e7;
+    --secondary-foreground: #18181b;
     --muted: #f4f4f5;
-    --muted-foreground: #71717a;
-    --accent: #f4f4f5;
-    --accent-foreground: #09090b;
+    --muted-foreground: #52525b;
+    --accent: #e4e4e7;
+    --accent-foreground: #18181b;
     --destructive: #dc2626;
     --border: #e4e4e7;
-    --input: #e4e4e7;
+    --input: #71717a;
     --ring: #a1a1aa;
     --radius: 0.5rem;
     /* design extras */
@@ -52,12 +57,12 @@
     --chart-3: #71717a;
     --chart-4: #2563eb;
     --chart-5: #db2777;
-    --sidebar: #ffffff;
-    --sidebar-foreground: #09090b;
+    --sidebar: #fafafa;
+    --sidebar-foreground: #27272a;
     --sidebar-primary: #18181b;
-    --sidebar-primary-foreground: #ffffff;
-    --sidebar-accent: #f4f4f5;
-    --sidebar-accent-foreground: #09090b;
+    --sidebar-primary-foreground: #fafafa;
+    --sidebar-accent: #e4e4e7;
+    --sidebar-accent-foreground: #18181b;
     --sidebar-border: #e4e4e7;
     --sidebar-ring: #a1a1aa;
 }
@@ -71,15 +76,15 @@
     --popover-foreground: #fafafa;
     --primary: #fafafa;
     --primary-foreground: #18181b;
-    --secondary: #27272a;
+    --secondary: #3f3f46;
     --secondary-foreground: #fafafa;
     --muted: #27272a;
-    --muted-foreground: #a1a1aa;
-    --accent: #27272a;
+    --muted-foreground: #b4b4bc;
+    --accent: #3f3f46;
     --accent-foreground: #fafafa;
     --destructive: #ef4444;
-    --border: #27272a;
-    --input: #3f3f46;
+    --border: #3f3f46;
+    --input: #8a8a93;
     --ring: #71717a;
     /* design extras */
     --faint: #71717a;
@@ -100,13 +105,13 @@
     --chart-3: #a1a1aa;
     --chart-4: #3b82f6;
     --chart-5: #ec4899;
-    --sidebar: #09090b;
-    --sidebar-foreground: #fafafa;
+    --sidebar: #111113;
+    --sidebar-foreground: #e4e4e7;
     --sidebar-primary: #fafafa;
     --sidebar-primary-foreground: #18181b;
-    --sidebar-accent: #27272a;
+    --sidebar-accent: #3f3f46;
     --sidebar-accent-foreground: #fafafa;
-    --sidebar-border: #27272a;
+    --sidebar-border: #3f3f46;
     --sidebar-ring: #71717a;
 }
 

@@ -34,7 +34,7 @@ export function Bubble({
       )}
       <p
         className={cn(
-          "max-w-[88%] rounded-lg px-4 py-3 text-sm leading-relaxed break-words whitespace-pre-wrap lg:max-w-[640px]",
+          "max-w-[88%] rounded-xl px-4 py-3 text-sm leading-relaxed break-words whitespace-pre-wrap lg:max-w-[640px]",
           mine
             ? "bg-primary text-primary-foreground"
             : "bg-muted text-foreground",

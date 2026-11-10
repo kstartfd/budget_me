@@ -62,7 +62,7 @@ function Sidebar() {
   const name = user?.first_name ?? ""
 
   return (
-    <aside className="border-border bg-background sticky top-0 hidden h-dvh w-[272px] shrink-0 flex-col gap-4 border-r px-4 py-5 lg:flex">
+    <aside className="border-sidebar-border bg-sidebar text-sidebar-foreground sticky top-0 hidden h-dvh w-[272px] shrink-0 flex-col gap-4 border-r px-4 py-5 lg:flex">
       <div className="px-2 py-1">
         <Logo />
       </div>
@@ -78,8 +78,8 @@ function Sidebar() {
               className={cn(
                 "flex h-9 items-center gap-2.5 rounded-md px-3 text-sm font-medium transition-colors",
                 active
-                  ? "bg-muted text-foreground"
-                  : "text-muted-foreground hover:bg-muted/60 hover:text-foreground",
+                  ? "bg-sidebar-accent text-sidebar-accent-foreground"
+                  : "text-muted-foreground hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground",
               )}
             >
               <Icon size={16} />
@@ -91,7 +91,7 @@ function Sidebar() {
       <div className="mt-auto flex flex-col gap-3">
         <LocaleSwitch />
         <div className="flex items-center gap-2.5 px-2 py-1">
-          <span className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
+          <span className="bg-sidebar-accent text-sidebar-accent-foreground flex size-8 shrink-0 items-center justify-center rounded-full text-xs font-semibold">
             {initials(name)}
           </span>
           <span className="min-w-0 flex-1 truncate text-sm font-medium">

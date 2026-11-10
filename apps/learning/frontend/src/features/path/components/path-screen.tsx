@@ -84,7 +84,7 @@ export function PathScreen({
       className={
         embedded
           ? "anim-fade space-y-4"
-          : "anim-fade space-y-4 lg:max-w-[704px]"
+          : "anim-fade space-y-4 lg:mx-auto lg:w-full lg:max-w-[704px]"
       }
     >
       {!embedded && (
@@ -113,7 +113,7 @@ export function PathScreen({
                 onValueChange={setValue}
                 disabled={!!active}
               >
-                <SelectTrigger className="bg-background h-10 w-full px-3 text-sm">
+                <SelectTrigger className="bg-background h-10 w-full px-3 text-sm disabled:opacity-100">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>

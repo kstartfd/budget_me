@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   IconBook2,
@@ -47,6 +48,8 @@ const starters = [
   { id: "grammar", icon: IconBook2 },
 ] as const;
 
+const quickReplies = ["explain", "hint"] as const;
+
 const lastTopicKey = "learning:chat-topic";
 
 function rememberedTopic(): string | null {
@@ -54,15 +57,6 @@ function rememberedTopic(): string | null {
     return window.localStorage.getItem(lastTopicKey);
   } catch {
     return null;
-  }
-}
-
-/** A question carried here from another learning screen, if there is one. */
-function forwardedQuestion(): string {
-  try {
-    return new URLSearchParams(window.location.search).get("question") ?? "";
-  } catch {
-    return "";
   }
 }
 
@@ -86,28 +80,36 @@ export function TeacherChatScreen() {
   const learning = useTranslations("learning");
   const languageName = useLanguageName();
   const { topics } = useLearning();
+  // A guided exercise links here with the notebook and the question to ask.
+  // window.location is still the previous page while a client-side navigation
+  // renders, so these come from the router, not from the address bar.
+  const params = useSearchParams();
   // Read once. Nothing that depends on it is drawn before the topics have
   // loaded, so the server and the first client render still agree.
-  const [picked, setPicked] = useState<string | null>(rememberedTopic);
-  const [draftQuestion, setDraftQuestion] = useState(forwardedQuestion);
+  const [picked, setPicked] = useState<string | null>(
+    () => params.get("topic") ?? rememberedTopic(),
+  );
+  const [draftQuestion, setDraftQuestion] = useState(
+    () => params.get("question") ?? "",
+  );
   useClaimFullScreen();
 
   const topic =
     topics.data?.find((item) => item.id === picked) ?? topics.data?.[0];
 
   const heading = (
-    <header className="hidden lg:block">
+    <header className="hidden min-w-0 flex-1 lg:block">
       <h1 className="text-2xl font-semibold tracking-[-0.01em]">
         {t("teacherTitle")}
       </h1>
-      <p className="text-muted-foreground mt-1 max-w-xl text-sm">
+      <p className="text-muted-foreground mt-1 max-w-[280px] text-sm">
         {t("teacherSubtitle")}
       </p>
     </header>
   );
 
   return (
-    <div className="anim-fade -mb-44 flex flex-1 flex-col gap-3 lg:-mb-16 lg:w-full lg:gap-5">
+    <div className="anim-fade -mb-44 flex flex-1 flex-col gap-3 lg:-mb-16 lg:mx-auto lg:w-full lg:max-w-[720px] lg:gap-5">
       <ScreenBar
         className="lg:hidden"
         backLabel={learning("title")}
@@ -157,7 +159,7 @@ export function TeacherChatScreen() {
             >
               <SelectTrigger
                 aria-label={t("topic")}
-                className="border-border bg-background h-9 min-w-0 flex-1 justify-start gap-2 rounded-md px-3 text-sm font-medium lg:w-72 lg:flex-none *:data-[slot=select-value]:flex-1 *:data-[slot=select-value]:text-left"
+                className="border-border bg-background h-9 min-w-0 flex-1 justify-start gap-2 rounded-md px-3 text-sm font-medium lg:w-60 lg:flex-none *:data-[slot=select-value]:flex-1 *:data-[slot=select-value]:text-left"
               >
                 <IconWorld
                   size={14}
@@ -240,7 +242,7 @@ function Conversation({
   };
 
   const toolbar = (
-    <div className="flex items-center gap-2">
+    <div className="flex shrink-0 items-center gap-2">
       {picker}
       <Button
         variant="outline"
@@ -252,11 +254,10 @@ function Conversation({
         <IconHistory size={15} />
       </Button>
       <Button
-        variant="outline"
         size="lg"
         aria-label={t("newLesson")}
         disabled={sending || messages.length === 0}
-        className="border-border bg-background size-9 shrink-0 rounded-md border p-0 lg:size-auto lg:px-3.5"
+        className="size-9 shrink-0 p-0 lg:h-9 lg:w-auto lg:px-3.5 lg:text-sm"
         onClick={() => setConfirmClear(true)}
       >
         <IconPlus size={14} />
@@ -267,12 +268,12 @@ function Conversation({
 
   return (
     <>
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-4">
+      <div className="border-border flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between lg:gap-4 lg:border-b lg:pb-5">
         {heading}
         {toolbar}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 lg:mx-auto lg:w-full lg:max-w-[720px] lg:gap-5">
+      <div className="flex flex-1 flex-col gap-3 lg:w-full lg:gap-5">
         {confirmClear && (
           <div className="bg-card border-border space-y-3 rounded-lg border p-4">
             <p className="text-sm leading-relaxed">{t("clearDialogConfirm")}</p>
@@ -395,6 +396,23 @@ function Conversation({
                   {failure(error)}
                 </p>
               )}
+              {!exhausted &&
+                !turn &&
+                !sending &&
+                messages.at(-1)?.role === "assistant" && (
+                  <div className="flex flex-wrap gap-2">
+                    {quickReplies.map((id) => (
+                      <button
+                        key={id}
+                        type="button"
+                        className="border-input bg-background hover:bg-muted rounded-full border px-3 py-1.5 text-xs font-medium transition-colors"
+                        onClick={() => void submit(t(`quick.${id}`))}
+                      >
+                        {t(`quick.${id}`)}
+                      </button>
+                    ))}
+                  </div>
+                )}
               {exhausted ? (
                 <LimitReached chat={chat.data} />
               ) : (

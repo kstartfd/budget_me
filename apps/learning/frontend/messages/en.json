@@ -196,6 +196,10 @@
     "typing": "…",
     "clear": "Clear chat",
     "newLesson": "New lesson",
+    "quick": {
+      "explain": "Explain once more",
+      "hint": "Give me a hint"
+    },
     "clearConfirm": "Delete this conversation?",
     "cancel": "Cancel",
     "clearFailed": "Couldn't clear the chat. Please try again.",
@@ -395,11 +399,11 @@
       "fillPlaceholder": "Type the missing word",
       "translatePlaceholder": "Type your translation",
       "solved": "done",
-      "myAnswer": "My answer",
-      "correctAnswer": "Correct answer",
       "rule": "Rule",
+      "failed": "error",
+      "myAnswer": "Your answer",
       "askTeacher": "Discuss with the teacher",
-      "chatQuestion": "Please go through this rule and explain how to apply it to this exercise.\\n\\nRule: {rule}\\nExercise: {prompt}",
+      "chatQuestion": "Help me with this exercise from the topic \"{topic}\":\n\n{prompt}\n\nExplain the rule behind it, but do not give me the answer.",
       "resetExercises": "Reset exercises",
       "pastAttempts": "Previous exercises: {count} attempts, {correct} correct"
     }

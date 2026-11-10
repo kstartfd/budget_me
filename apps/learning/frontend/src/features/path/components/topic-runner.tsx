@@ -3,17 +3,43 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconCheck, IconMessageCircle } from "@tabler/icons-react"
+import { IconCheck, IconMessageCircle, IconX } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { cn } from "@/lib/utils"
+import { useLearning } from "@/features/learning/hooks"
+import type { Topic } from "@/features/learning/schemas"
 import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import type { PathAttempt, PathExercise } from "../schemas"
+
+const baseLanguage = (code: string) => code.split("-")[0].toLowerCase()
+
+/** The notebook whose language pair is the program's: the chat with the
+ * teacher is kept per notebook, so this is the one to open it on. */
+function chatTopicFor(
+  topics: Topic[] | undefined,
+  language: string,
+  translationLanguage: string,
+): Topic | undefined {
+  const sameLanguage = topics?.filter(
+    (item) => baseLanguage(item.language) === baseLanguage(language),
+  )
+
+  return (
+    sameLanguage?.find(
+      (item) =>
+        baseLanguage(item.translationLanguage) ===
+        baseLanguage(translationLanguage),
+    ) ?? sameLanguage?.[0]
+  )
+}
 
 /** TopicRunner is the study screen of one topic: its exercises, checked one
  * answer at a time, with the agent's explanation when an answer is wrong. */
 export function TopicRunner({ topicId }: { topicId: string }) {
   const t = useTranslations("path.topic")
   const { detail, generate, complete } = useTopicDetail(topicId)
+  const { topics } = useLearning()
 
   if (detail.isPending)
     return (
@@ -28,7 +54,12 @@ export function TopicRunner({ topicId }: { topicId: string }) {
       </p>
     )
 
-  const { topic, exercises, attempts } = detail.data
+  const { path, topic, exercises, attempts } = detail.data
+  const chatTopic = chatTopicFor(
+    topics.data,
+    path.language,
+    path.translationLanguage,
+  )
   const solved = new Set(
     attempts.filter((a) => a.correct).map((a) => a.exerciseId),
   )
@@ -43,9 +74,12 @@ export function TopicRunner({ topicId }: { topicId: string }) {
 
   return (
     <div className="space-y-3 p-4 pt-4">
-      <p className="text-muted-foreground text-[13px] leading-relaxed">
-        {topic.goal}
-      </p>
+      <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3">
+        <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+          {t("rule")}
+        </p>
+        <p className="text-[13px] leading-relaxed">{topic.goal}</p>
+      </div>
       {pastAttempts.length > 0 && (
         <p className="text-muted-foreground text-xs">
           {t("pastAttempts", {
@@ -63,12 +97,15 @@ export function TopicRunner({ topicId }: { topicId: string }) {
 
       {exercises.length === 0 ? null : (
         <>
-          {exercises.map((exercise) => (
+          {exercises.map((exercise, index) => (
             <ExerciseCard
               key={exercise.id}
               topicId={topicId}
               exercise={exercise}
-              topicGoal={topic.goal}
+              index={index + 1}
+              total={exercises.length}
+              topicTitle={topic.title}
+              chatTopicId={chatTopic?.id}
               solved={solved.has(exercise.id)}
               latestAttempt={latestAttempts.get(exercise.id)}
             />
@@ -146,14 +183,20 @@ function TopicActions({
 
 function ExerciseCard({
   exercise,
-  topicGoal,
+  index,
+  total,
+  topicTitle,
+  chatTopicId,
   solved,
   topicId,
   latestAttempt,
 }: {
   topicId: string
   exercise: PathExercise
-  topicGoal: string
+  index: number
+  total: number
+  topicTitle: string
+  chatTopicId?: string
   solved: boolean
   latestAttempt?: PathAttempt
 }) {
@@ -162,11 +205,10 @@ function ExerciseCard({
   const [value, setValue] = useState("")
   const [last, setLast] = useState<PathAttempt | null>(null)
   const result = last ?? latestAttempt
-  const rule = exercise.rule || topicGoal
-  const chatQuestion = t("chatQuestion", {
-    rule,
-    prompt: exercise.prompt,
+  const chat = new URLSearchParams({
+    question: t("chatQuestion", { topic: topicTitle, prompt: exercise.prompt }),
   })
+  if (chatTopicId) chat.set("topic", chatTopicId)
 
   const submit = (answer: string) => {
     if (!answer.trim()) return
@@ -176,71 +218,74 @@ function ExerciseCard({
     )
   }
 
+  const done = result ? result.correct : solved
+  const failed = !!result && !result.correct
+
   return (
     <section className="border-border space-y-3 border-t pt-4 first-of-type:border-t-0 first-of-type:pt-0">
-      <aside className="bg-muted space-y-2.5 rounded-lg p-4">
-        <div className="space-y-1">
-          <p className="text-muted-foreground text-xs font-semibold">
-            {t("rule")}
-          </p>
-          <p className="text-[13px] leading-relaxed">{rule}</p>
-        </div>
-        {result?.correct && (
-          <div className="border-border space-y-1 border-t pt-2.5">
-            <p className="text-muted-foreground text-xs font-semibold">
-              {t("correctAnswer")}
-            </p>
-            <p className="text-success text-sm font-semibold">
-              {result.answer}
-            </p>
-          </div>
-        )}
-        <Button
-          asChild
-          variant="outline"
-          size="lg"
-          className="bg-background h-8 px-3 text-xs"
-        >
-          <Link href={`/learning/chat?question=${encodeURIComponent(chatQuestion)}`}>
-            <IconMessageCircle size={13} />
-            {t("askTeacher")}
-          </Link>
-        </Button>
-      </aside>
       {exercise.text && (
         <p className="text-muted-foreground text-sm leading-relaxed italic">
           {exercise.text}
         </p>
       )}
-      <p className="text-sm leading-snug font-semibold">
-        {exercise.prompt}
-        {solved && (
-          <span className="bg-success/10 text-success ml-2 rounded-md px-2 py-0.5 align-middle text-[11px] font-semibold">
-            {t("solved")}
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
+        <span className="text-muted-foreground text-xs tabular-nums">
+          {index} / {total}
+        </span>
+        <p className="text-sm leading-snug font-semibold">{exercise.prompt}</p>
+        {(done || failed) && (
+          <span
+            className={cn(
+              "rounded-full border px-2 py-0.5 text-[11px] font-medium",
+              done
+                ? "border-success/30 bg-success/10 text-success"
+                : "border-destructive/30 bg-destructive/10 text-destructive",
+            )}
+          >
+            {t(done ? "solved" : "failed")}
           </span>
         )}
-      </p>
+      </div>
 
       {exercise.kind === "choice" ? (
         <div className="grid gap-2">
-          {exercise.options.map((option) => (
-            <button
-              key={option}
-              type="button"
-              onClick={() => submit(option)}
-              disabled={attempt.isPending}
-              className={`border-border hover:bg-muted/50 flex min-h-10 cursor-pointer items-center justify-between gap-3 rounded-md border px-3.5 py-2 text-left text-sm transition-colors disabled:cursor-not-allowed ${
-                result?.answer === option && result.correct
-                  ? "bg-muted font-semibold"
-                  : "bg-background"
-              }`}
-            >
-              {option}
-              {result?.answer === option && result.correct && (
-                <IconCheck size={13} className="text-success shrink-0" />
-              )}
-            </button>
-          ))}
+          {exercise.options.map((option) => {
+            const picked = result?.answer === option
+            const right = picked && result.correct
+            const wrong = picked && !result.correct
+            const reveal =
+              failed && !!exercise.answer && option === exercise.answer
+
+            return (
+              <button
+                key={option}
+                type="button"
+                onClick={() => submit(option)}
+                disabled={attempt.isPending}
+                className={cn(
+                  "border-input bg-background hover:bg-muted/50 flex min-h-10 w-full cursor-pointer items-center gap-3 rounded-md border px-3.5 py-2 text-left text-sm transition-colors disabled:cursor-not-allowed",
+                  right && "border-success bg-success/10 text-success font-semibold",
+                  wrong &&
+                    "border-destructive bg-destructive/10 text-destructive font-semibold",
+                  reveal && "border-success text-success border-dashed font-semibold",
+                )}
+              >
+                <span
+                  className={cn(
+                    "border-input size-4 shrink-0 rounded-full border",
+                    right && "border-success bg-success",
+                    wrong && "border-destructive bg-destructive",
+                    reveal && "border-success",
+                  )}
+                />
+                <span className="min-w-0 flex-1">{option}</span>
+                {(right || reveal) && (
+                  <IconCheck size={14} className="shrink-0" />
+                )}
+                {wrong && <IconX size={14} className="shrink-0" />}
+              </button>
+            )
+          })}
         </div>
       ) : (
         <form
@@ -278,25 +323,42 @@ function ExerciseCard({
       )}
       {result && (
         <div
-          className={`space-y-2 rounded-lg px-4 py-3 text-sm ${
+          className={cn(
+            "space-y-1 rounded-lg border px-3.5 py-3 text-sm",
             result.correct
-              ? "bg-success/10 text-success"
-              : "bg-destructive/10 text-destructive"
-          }`}
+              ? "border-success/30 bg-success/10"
+              : "border-destructive/30 bg-destructive/10",
+          )}
         >
-          <p className="font-semibold">
+          <p
+            className={cn(
+              "font-semibold",
+              result.correct ? "text-success" : "text-destructive",
+            )}
+          >
             {result.correct ? t("correct") : t("wrong")}
           </p>
-          <div>
-            <p className="text-xs font-semibold">{t("myAnswer")}</p>
-            <p className="text-foreground mt-0.5 leading-relaxed">
-              {result.answer}
-            </p>
-          </div>
-          {!result.correct && result.feedback && (
-            <p className="text-foreground leading-relaxed">
-              <QuotedEmphasis text={result.feedback} />
-            </p>
+          <p className="text-foreground text-[13px] leading-relaxed">
+            {t("myAnswer")}: {result.answer}.
+            {!result.correct && result.feedback && (
+              <>
+                {" "}
+                <QuotedEmphasis text={result.feedback} />
+              </>
+            )}
+          </p>
+          {!result.correct && (
+            <Button
+              asChild
+              variant="outline"
+              size="lg"
+              className="bg-background mt-2 text-[13px]"
+            >
+              <Link href={`/learning/chat?${chat}`}>
+                <IconMessageCircle size={14} />
+                {t("askTeacher")}
+              </Link>
+            </Button>
           )}
         </div>
       )}

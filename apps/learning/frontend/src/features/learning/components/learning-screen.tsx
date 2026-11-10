@@ -59,6 +59,7 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
         <TopicsList
           topics={topics.data ?? []}
           onNewTopic={() => setTopicForm("new")}
+          onEditTopic={setTopicForm}
         />
       )}
       {topicForm && (

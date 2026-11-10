@@ -2,20 +2,26 @@
 
 import { useState } from "react"
 import { useTranslations } from "next-intl"
-import { IconChevronDown, IconChevronRight } from "@tabler/icons-react"
+import { IconChevronRight, IconChevronUp } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { Path } from "../schemas"
 import { TopicRunner } from "./topic-runner"
 
-const statusVariant: Record<string, "secondary" | "default" | "outline"> = {
-  not_started: "outline",
-  in_progress: "default",
-  completed: "outline",
+const statusBadge: Record<
+  string,
+  { variant: "default" | "outline"; className?: string }
+> = {
+  not_started: { variant: "outline" },
+  in_progress: { variant: "default" },
+  completed: {
+    variant: "outline",
+    className: "bg-success/10 text-success border-transparent",
+  },
 }
 
-const badgeShape = "h-auto rounded-md px-2.5 py-[3px] text-xs"
+const badgeShape = "h-auto rounded-full px-2.5 py-[3px] text-xs"
 
 /** ProgramView is the active program: level, summary, topics, actions. */
 export function ProgramView({
@@ -94,7 +100,12 @@ export function ProgramView({
           return (
             <div
               key={topic.id}
-              className="bg-background border-border min-w-0 overflow-hidden rounded-lg border"
+              className={cn(
+                "bg-background min-w-0 overflow-hidden rounded-lg border",
+                topic.status === "in_progress"
+                  ? "border-foreground"
+                  : "border-border",
+              )}
             >
               <button
                 type="button"
@@ -102,10 +113,11 @@ export function ProgramView({
                 onClick={() => setOpenTopic(open ? null : topic.id)}
                 className={cn(
                   "hover:bg-muted/50 flex w-full min-w-0 cursor-pointer items-center gap-3 px-4 py-3.5 text-left transition-colors",
+                  topic.status === "in_progress" && "bg-muted",
                   open && "border-border border-b",
                 )}
               >
-                <span className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold">
+                <span className="bg-secondary flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold">
                   {topic.position + 1}
                 </span>
                 <div className="min-w-0 flex-1">
@@ -117,13 +129,17 @@ export function ProgramView({
                   </p>
                 </div>
                 <Badge
-                  variant={statusVariant[topic.status]}
-                  className={cn(badgeShape, "font-medium")}
+                  variant={statusBadge[topic.status].variant}
+                  className={cn(
+                    badgeShape,
+                    "font-medium",
+                    statusBadge[topic.status].className,
+                  )}
                 >
                   {t(`topicStatus.${topic.status}`)}
                 </Badge>
                 {open ? (
-                  <IconChevronDown size={13} className="text-faint shrink-0" />
+                  <IconChevronUp size={13} className="text-faint shrink-0" />
                 ) : (
                   <IconChevronRight size={13} className="text-faint shrink-0" />
                 )}

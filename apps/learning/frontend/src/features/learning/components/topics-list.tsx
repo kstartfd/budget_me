@@ -3,21 +3,28 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconChevronRight, IconPlus, IconSearch } from "@tabler/icons-react"
+import {
+  IconChevronRight,
+  IconPlus,
+  IconSearch,
+  IconSettings,
+} from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { languageBadge, useLanguageName } from "../language"
 import type { Topic } from "../schemas"
 
 const columns =
-  "grid grid-cols-[minmax(0,1fr)_16px] items-center gap-3 px-4 lg:grid-cols-[minmax(0,1fr)_220px_16px]"
+  "grid grid-cols-[minmax(0,1fr)_28px_16px] items-center gap-3 px-4 lg:grid-cols-[minmax(0,1fr)_220px_28px_16px]"
 
 export function TopicsList({
   topics,
   onNewTopic,
+  onEditTopic,
 }: {
   topics: Topic[]
   onNewTopic: () => void
+  onEditTopic: (topic: Topic) => void
 }) {
   const t = useTranslations("learning")
   const languageName = useLanguageName()
@@ -42,7 +49,7 @@ export function TopicsList({
           size="lg"
           aria-label={t("newTopic")}
           onClick={onNewTopic}
-          className="size-9 shrink-0 p-0 lg:size-auto lg:px-4 lg:text-sm"
+          className="size-9 shrink-0 p-0 lg:h-9 lg:w-auto lg:px-4 lg:text-sm"
         >
           <IconPlus size={14} />
           <span className="hidden lg:inline">{t("newTopic")}</span>
@@ -74,12 +81,12 @@ export function TopicsList({
             <span>{t("colTopic")}</span>
             <span>{t("colLanguages")}</span>
             <span />
+            <span />
           </div>
           {shown.map((item) => (
-            <Link
+            <div
               key={item.id}
-              href={`/learning/${item.id}`}
-              className={`${columns} border-border hover:bg-muted/50 min-h-14 border-b py-3 transition-colors last:border-b-0`}
+              className={`${columns} border-border hover:bg-muted/50 relative min-h-14 border-b py-3 transition-colors last:border-b-0`}
             >
               <div className="flex min-w-0 items-center gap-3">
                 <span className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-semibold">
@@ -87,7 +94,12 @@ export function TopicsList({
                 </span>
                 <div className="min-w-0">
                   <h2 className="line-clamp-2 text-sm leading-snug font-medium break-words">
-                    {item.name}
+                    <Link
+                      href={`/learning/${item.id}`}
+                      className="after:absolute after:inset-0"
+                    >
+                      {item.name}
+                    </Link>
                   </h2>
                   <p className="text-muted-foreground mt-0.5 text-xs break-words lg:hidden">
                     {languageName(item.language)} →{" "}
@@ -99,8 +111,17 @@ export function TopicsList({
                 {languageName(item.language)} →{" "}
                 {languageName(item.translationLanguage)}
               </p>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("editTopic")}
+                onClick={() => onEditTopic(item)}
+                className="text-muted-foreground relative z-10"
+              >
+                <IconSettings size={15} />
+              </Button>
               <IconChevronRight size={14} className="text-faint" />
-            </Link>
+            </div>
           ))}
         </div>
       )}
