@@ -251,7 +251,39 @@
     "dialog": "Dialog",
     "deleteDialog": "Delete dialog",
     "deleteDialogConfirm": "Delete for good?",
-    "deleteDialogFailed": "Couldn't delete the dialog. Try again."
+    "deleteDialogFailed": "Couldn't delete the dialog. Try again.",
+    "triggers": {
+      "title": "Chat highlights",
+      "hint": "Words the chat marks in the teacher's replies, saved to your account. A word followed by a colon at the start of a paragraph marks the whole paragraph; elsewhere only the word.",
+      "style": "How to mark",
+      "color": "Colour",
+      "remove": "Remove",
+      "placeholder": "New trigger word",
+      "add": "Add",
+      "anyLabel": "Any short label with a colon becomes a frame",
+      "dialogue": "Show A: / B: lines as a dialogue",
+      "reset": "Restore defaults",
+      "styles": {
+        "frame": "Frame",
+        "bar": "Side bar",
+        "marker": "Marker",
+        "chip": "Chip",
+        "bold": "Bold",
+        "underline": "Underline"
+      },
+      "colors": {
+        "neutral": "Neutral",
+        "blue": "Blue",
+        "green": "Green",
+        "amber": "Amber",
+        "red": "Red"
+      },
+      "word": "Word",
+      "look": "Look",
+      "lookText": "sample text",
+      "empty": "No trigger words yet",
+      "saveFailed": "Could not save. Try again."
+    }
   },
   "ai": {
     "kicker": "AI agent",

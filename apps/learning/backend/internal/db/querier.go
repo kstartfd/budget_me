@@ -21,6 +21,7 @@ type Querier interface {
 	CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error)
 	DeleteArchivedTopicChat(ctx context.Context, arg DeleteArchivedTopicChatParams) (int64, error)
 	DeleteLearningAISettings(ctx context.Context, userID pgtype.UUID) (int64, error)
+	DeleteLearningChatMarks(ctx context.Context, userID pgtype.UUID) (int64, error)
 	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
 	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
 	DeleteLearningPathExercises(ctx context.Context, topicID pgtype.UUID) error
@@ -38,6 +39,7 @@ type Querier interface {
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
 	GetLearningChatByEntry(ctx context.Context, arg GetLearningChatByEntryParams) (LearningChat, error)
+	GetLearningChatMarks(ctx context.Context, userID pgtype.UUID) (LearningChatMark, error)
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
 	GetLearningPath(ctx context.Context, arg GetLearningPathParams) (LearningPath, error)
 	GetLearningPathExercise(ctx context.Context, arg GetLearningPathExerciseParams) (LearningPathExercise, error)
@@ -103,6 +105,7 @@ type Querier interface {
 	UpdateLearningPathTopicStatus(ctx context.Context, arg UpdateLearningPathTopicStatusParams) (int64, error)
 	UpdateLearningTopic(ctx context.Context, arg UpdateLearningTopicParams) (LearningTopic, error)
 	UpsertLearningAISettings(ctx context.Context, arg UpsertLearningAISettingsParams) (LearningAiSetting, error)
+	UpsertLearningChatMarks(ctx context.Context, arg UpsertLearningChatMarksParams) (LearningChatMark, error)
 }
 
 var _ Querier = (*Queries)(nil)

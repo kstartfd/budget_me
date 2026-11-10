@@ -1,109 +1,107 @@
-"use client"
+"use client";
 
-import { useFormatter, useTranslations } from "next-intl"
-import { IconArrowUp, IconSchool } from "@tabler/icons-react"
+import { useFormatter, useTranslations } from "next-intl";
+import { IconArrowUp, IconSchool } from "@tabler/icons-react";
 
-import { InlineMarkdown } from "@/components/inline-markdown"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { cn } from "@/lib/utils"
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
 
-import { ChatError, chatErrorCode } from "../api"
-import { maxQuestionLength, type Chat } from "../schemas"
+import { ChatError, chatErrorCode } from "../api";
+import { MessageBody } from "./message-body";
+import { maxQuestionLength, type Chat } from "../schemas";
 
 export function Bubble({
   role,
   children,
 }: {
-  role: "user" | "assistant"
-  children: React.ReactNode
+  role: "user" | "assistant";
+  children: React.ReactNode;
 }) {
-  const mine = role === "user"
+  const mine = role === "user";
 
   return (
-    <div
-      className={cn("flex gap-2.5", mine ? "justify-end" : "justify-start")}
-    >
+    <div className={cn("flex gap-2.5", mine ? "justify-end" : "justify-start")}>
       {!mine && (
         <span
           aria-hidden
-          className="bg-primary text-primary-foreground flex size-7 shrink-0 items-center justify-center rounded-full"
+          className="bg-primary text-primary-foreground flex size-8 shrink-0 items-center justify-center rounded-full"
         >
-          <IconSchool size={13} />
+          <IconSchool size={16} />
         </span>
       )}
-      <p
+      <div
         className={cn(
-          "max-w-[88%] rounded-xl px-4 py-3 text-sm leading-relaxed break-words whitespace-pre-wrap lg:max-w-[640px]",
+          "max-w-[88%] px-4 py-3 text-[15px] leading-relaxed break-words lg:max-w-[680px]",
           mine
-            ? "bg-primary text-primary-foreground"
-            : "bg-muted text-foreground",
+            ? "bg-primary text-primary-foreground rounded-2xl rounded-br-sm whitespace-pre-wrap"
+            : "bg-muted text-foreground border-border/60 rounded-2xl rounded-tl-sm border",
         )}
       >
         {!mine && typeof children === "string" ? (
-          <InlineMarkdown text={children} />
+          <MessageBody text={children} />
         ) : (
           children
         )}
-      </p>
+      </div>
     </div>
-  )
+  );
 }
 
 /** When a window ends, as a time of day; empty if it is not known. */
 function useResetTime() {
-  const format = useFormatter()
+  const format = useFormatter();
 
   return (iso?: string | null) =>
     iso
       ? format.dateTime(new Date(iso), { hour: "numeric", minute: "numeric" })
-      : ""
+      : "";
 }
 
 /** The words for a refused or failed turn. */
 export function useChatFailure() {
-  const t = useTranslations("chat")
-  const resetTime = useResetTime()
+  const t = useTranslations("chat");
+  const resetTime = useResetTime();
 
   return (e: ChatError) => {
     switch (e.code) {
       case chatErrorCode.unavailable:
-        return t("unavailable")
+        return t("unavailable");
       case chatErrorCode.busy:
-        return t("busy")
+        return t("busy");
       case chatErrorCode.tooMany:
-        return t("tooMany")
+        return t("tooMany");
       case chatErrorCode.budget:
-        return t("budgetReached", { time: resetTime(e.details[0]) })
+        return t("budgetReached", { time: resetTime(e.details[0]) });
       case chatErrorCode.daily:
-        return t("dailyReached", { time: resetTime(e.details[0]) })
+        return t("dailyReached", { time: resetTime(e.details[0]) });
       // The backend words these for the learner (no agent, key rejected, ...).
       case chatErrorCode.invalid:
-        return e.message
+        return e.message;
       default:
-        return t("failed")
+        return t("failed");
     }
-  }
+  };
 }
 
 /** How much of the chat's and the day's tokens are used. */
 export function chatLimits(chat: Chat | undefined) {
-  const budget = chat?.budget
-  const daily = chat?.daily
-  const dailyExhausted = !!daily && daily.used >= daily.limit
-  const exhausted = (!!budget && budget.used >= budget.limit) || dailyExhausted
+  const budget = chat?.budget;
+  const daily = chat?.daily;
+  const dailyExhausted = !!daily && daily.used >= daily.limit;
+  const exhausted = (!!budget && budget.used >= budget.limit) || dailyExhausted;
   const usedPercent = budget
     ? Math.round((budget.used / budget.limit) * 100)
-    : 0
+    : 0;
 
-  return { budget, daily, dailyExhausted, exhausted, usedPercent }
+  return { budget, daily, dailyExhausted, exhausted, usedPercent };
 }
 
 /** Replaces the composer once the chat or the day has no tokens left. */
 export function LimitReached({ chat }: { chat: Chat | undefined }) {
-  const t = useTranslations("chat")
-  const resetTime = useResetTime()
-  const { budget, daily, dailyExhausted } = chatLimits(chat)
+  const t = useTranslations("chat");
+  const resetTime = useResetTime();
+  const { budget, daily, dailyExhausted } = chatLimits(chat);
 
   return (
     <p className="text-muted-foreground bg-muted rounded-lg px-4 py-3 text-sm leading-relaxed">
@@ -111,7 +109,7 @@ export function LimitReached({ chat }: { chat: Chat | undefined }) {
         ? t("dailyReached", { time: resetTime(daily?.resetsAt) })
         : t("budgetReached", { time: resetTime(budget?.resetsAt) })}
     </p>
-  )
+  );
 }
 
 export function Composer({
@@ -121,13 +119,13 @@ export function Composer({
   sending,
   placeholder,
 }: {
-  value: string
-  onChange: (value: string) => void
-  onSubmit: () => void
-  sending: boolean
-  placeholder: string
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  sending: boolean;
+  placeholder: string;
 }) {
-  const t = useTranslations("chat")
+  const t = useTranslations("chat");
 
   return (
     <div className="border-input bg-background focus-within:border-ring flex items-end gap-2 rounded-lg border py-2 pr-2 pl-4 transition-colors">
@@ -142,8 +140,8 @@ export function Composer({
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-            e.preventDefault()
-            onSubmit()
+            e.preventDefault();
+            onSubmit();
           }
         }}
       />
@@ -157,5 +155,5 @@ export function Composer({
         <IconArrowUp size={16} />
       </Button>
     </div>
-  )
+  );
 }

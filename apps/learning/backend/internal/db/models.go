@@ -584,6 +584,14 @@ type LearningChat struct {
 	ArchivedAt    pgtype.Timestamptz
 }
 
+type LearningChatMark struct {
+	UserID    pgtype.UUID
+	AnyLabel  bool
+	Dialogue  bool
+	Triggers  []byte
+	UpdatedAt pgtype.Timestamptz
+}
+
 type LearningChatMessage struct {
 	ID        int64
 	ChatID    pgtype.UUID

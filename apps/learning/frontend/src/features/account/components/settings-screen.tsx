@@ -1,17 +1,18 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import { useTranslations } from "next-intl"
-import { IconArrowLeft } from "@tabler/icons-react"
+import Link from "next/link";
+import { useTranslations } from "next-intl";
+import { IconArrowLeft } from "@tabler/icons-react";
 
-import { AiSection } from "@/features/ai"
+import { AiSection } from "@/features/ai";
+import { TriggersSection } from "@/features/chat/components/triggers-section";
 
-import { AccountSection } from "./account-section"
-import { DeleteAccountSection } from "./delete-account-section"
-import { ExtensionSection } from "./extension-section"
+import { AccountSection } from "./account-section";
+import { DeleteAccountSection } from "./delete-account-section";
+import { ExtensionSection } from "./extension-section";
 
 export function SettingsScreen() {
-  const t = useTranslations("learning")
+  const t = useTranslations("learning");
 
   return (
     <div className="anim-fade max-w-2xl space-y-[18px]">
@@ -23,13 +24,16 @@ export function SettingsScreen() {
           <IconArrowLeft size={14} />
           {t("title")}
         </Link>
-        <h1 className="text-[22px] font-bold tracking-tight">{t("settings")}</h1>
+        <h1 className="text-[22px] font-bold tracking-tight">
+          {t("settings")}
+        </h1>
       </header>
 
       <AccountSection />
       <AiSection />
+      <TriggersSection />
       <ExtensionSection />
       <DeleteAccountSection />
     </div>
-  )
+  );
 }

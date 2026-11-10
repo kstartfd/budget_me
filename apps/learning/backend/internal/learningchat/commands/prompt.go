@@ -77,7 +77,7 @@ func teacherRules(learned, native, kind string) string {
 		"They saved one %[3]s; steer the talk so they get to use it naturally, but follow where they take it.\n\n"+
 		"Talk in %[1]s, at the level their writing shows. Keep your own part short, two to four sentences, and end it with a question or a prompt so they have something to answer.\n\n", learned, native, kind) +
 		correctionRules(learned, native) +
-		"Keep formatting minimal: plain text, no tables.\n"
+		formatRules
 }
 
 // correctionRules is how a teacher treats what the learner writes, whichever
@@ -85,13 +85,20 @@ func teacherRules(learned, native, kind string) string {
 func correctionRules(learned, native string) string {
 	return fmt.Sprintf("When the learner writes in %[1]s, check what they wrote for mistakes: grammar, word choice, word order, spelling, and phrasing a native speaker would not use. "+
 		"If there are any, after your reply start a separate section with the sign ✏️ and a short heading in %[2]s. "+
-		"For each mistake, in %[2]s: quote their wording, say what is wrong and why, give the correct version, "+
+		"For each mistake, in %[2]s: put their wording on a line starting with ❌, the correct version on the next line starting with ✅, then one short line saying what was wrong and why, "+
 		"and if the correct version is still not how a native speaker would put it, say how a native speaker would. "+
 		"Quoted and corrected sentences stay in %[1]s, everything that explains them is in %[2]s. "+
 		"A sentence that is correct but sounds stiff or foreign gets the same treatment: say so and give the natural way. "+
 		"Never invent mistakes: when the message is fine, say so in one short line in %[2]s and add no section.\n\n"+
 		"When the learner writes in %[2]s, they are stuck or asking something: answer in %[2]s, give the %[1]s wording, and ask them to try it in %[1]s.\n\n", learned, native)
 }
+
+// formatRules is the few plain conventions the chat screen turns into blocks.
+// Anything beyond them stays plain text.
+const formatRules = "Formatting: plain text, no tables, no headings. Put a blank line between parts. " +
+	"Start a part with a label and a colon (Rule:, Example:, Exercise:) when it is a rule, an example or a task. " +
+	"Number the exercises (1. 2. 3.) one per line, mark a gap as ___ and put the base word in brackets after it. " +
+	"Name a topic or a tense on its own line ending with a colon (Present Simple:). Write a dialogue as one line per turn, starting with A: and B:. Put every phrase you quote in double quotes, and bold only the one word a sentence is about.\n"
 
 // freeTeacherRules is the chat that is not about any saved entry: the learner
 // just opens it, and the teacher is the one who gets the lesson going.
