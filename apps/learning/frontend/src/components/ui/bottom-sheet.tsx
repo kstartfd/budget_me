@@ -38,7 +38,7 @@ export function BottomSheet({
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className="anim-sheet bg-card relative mx-auto w-full max-w-md rounded-t-[28px] px-5 pt-2.5 pb-[max(env(safe-area-inset-bottom),1.625rem)] shadow-[0_-10px_40px_rgba(0,0,0,0.3)]"
+        className="anim-sheet bg-background border-border relative mx-auto w-full max-w-md rounded-t-xl border-t px-4 pt-2.5 pb-[max(env(safe-area-inset-bottom),1.25rem)]"
       >
         <div className="bg-faint mx-auto mt-1.5 mb-3.5 h-1 w-9 rounded-full opacity-40" />
         <div className="flex items-center justify-between gap-2">
@@ -48,12 +48,12 @@ export function BottomSheet({
                 type="button"
                 aria-label="‹"
                 onClick={onBack}
-                className="border-border bg-secondary text-foreground flex size-[30px] items-center justify-center rounded-full border text-base leading-none"
+                className="border-border text-foreground flex size-8 items-center justify-center rounded-md border text-base leading-none"
               >
                 ‹
               </button>
             )}
-            <span className="text-lg font-bold tracking-[-0.02em]">
+            <span className="text-base font-semibold">
               {title}
             </span>
           </div>
@@ -61,7 +61,7 @@ export function BottomSheet({
             type="button"
             aria-label="✕"
             onClick={onClose}
-            className="bg-secondary text-muted-foreground size-[30px] rounded-full text-base"
+            className="border-border text-muted-foreground size-8 rounded-md border text-sm"
           >
             ✕
           </button>

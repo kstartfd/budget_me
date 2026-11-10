@@ -415,6 +415,14 @@ func TestTopicExercisesAndAttempts(t *testing.T) {
 	e.provider.enqueue(exercisesReply)
 	exercises := generateExercises(t, e, topicID)
 
+	prompts := e.provider.requests()
+	exercisePrompt := prompts[len(prompts)-1]
+	for _, want := range []string{"what the rule is", "how to apply it", "why the given answer is correct"} {
+		if !strings.Contains(exercisePrompt, want) {
+			t.Fatalf("the exercise writer was not asked for %s:\n%s", want, exercisePrompt)
+		}
+	}
+
 	// Reopening the topic hands back the same set, with no new agent call.
 	before := len(e.provider.requests())
 	code, body := request(t, e.e, "POST", "/api/v1/learning/path/topics/"+topicID+"/exercises", e.session, nil)

@@ -1,35 +1,25 @@
 "use client"
 
 import { useTransition } from "react"
-import Link from "next/link"
-import { usePathname, useRouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useTheme } from "next-themes"
 import { useLocale, useTranslations } from "next-intl"
+import { IconLogout, IconMoon, IconSun } from "@tabler/icons-react"
 
-import { GearIcon } from "@/components/app-icons"
 import { useAuth } from "@/features/auth"
 import { useMounted } from "@/hooks/use-mounted"
 import type { Locale } from "@/i18n/config"
 import { setUserLocale } from "@/i18n/locale"
 import { cn } from "@/lib/utils"
 
-/**
- * RU/EN toggle, theme toggle and (web accounts only) sign-out. Shared by the
- * mobile header and the desktop top bar so both stay in sync.
- */
-export function HeaderControls() {
-  const t = useTranslations("app")
-  const tLearning = useTranslations("learning")
+const iconButton =
+  "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground flex size-9 shrink-0 items-center justify-center rounded-md border transition-colors"
+
+/** RU/EN segmented control: a muted track with the active language raised. */
+export function LocaleSwitch({ className }: { className?: string }) {
   const locale = useLocale()
-  const pathname = usePathname()
   const router = useRouter()
   const [, startTransition] = useTransition()
-  const { resolvedTheme, setTheme } = useTheme()
-  const mounted = useMounted()
-  const { user, logout } = useAuth()
-  // Telegram sessions re-auth on every open — sign-out only makes sense for
-  // web accounts.
-  const webAccount = user != null && user.telegram_id == null
 
   function switchLocale(next: Locale) {
     if (next === locale) return
@@ -40,72 +30,76 @@ export function HeaderControls() {
   }
 
   return (
-    // flex-wrap: the desktop sidebar (components/desktop-nav.tsx) is only
-    // ~196px wide where this renders — the locale pill + gear + theme + (for
-    // a web account) logout can come right up against that width, and a
-    // strict one-row flex would rather clip the last button than shrink it.
-    // Wrapping to a second row keeps every control reachable; the mobile
-    // header has plenty of room and never needs the second row.
-    <div className="flex flex-wrap items-center justify-center gap-2">
-      <div className="border-border bg-secondary flex h-[30px] items-center rounded-full border px-1 font-mono">
-        {(["ru", "en"] as const).map((l) => (
-          <button
-            key={l}
-            type="button"
-            aria-pressed={locale === l}
-            onClick={() => switchLocale(l)}
-            className={cn(
-              "rounded-full px-[9px] py-1 text-[11px] font-semibold uppercase",
-              locale === l
-                ? "bg-primary text-primary-foreground"
-                : "text-faint",
-            )}
-          >
-            {l}
-          </button>
-        ))}
-      </div>
-      <Link
-        href="/learning/settings"
-        aria-label={tLearning("settings")}
-        aria-current={pathname === "/learning/settings" ? "page" : undefined}
-        className={cn(
-          "border-border bg-secondary flex size-[30px] items-center justify-center rounded-full border",
-          pathname === "/learning/settings" ? "text-primary" : "text-muted-foreground",
-        )}
-      >
-        <GearIcon />
-      </Link>
-      <button
-        type="button"
-        aria-label={t("toggleTheme")}
-        onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
-        className="border-border bg-secondary flex size-[30px] items-center justify-center rounded-full border text-[15px]"
-      >
-        {mounted ? (resolvedTheme === "dark" ? "☾" : "☀") : "☾"}
-      </button>
-      {webAccount && (
-        <button
-          type="button"
-          aria-label={t("logout")}
-          onClick={logout}
-          className="border-border bg-secondary text-muted-foreground flex size-[30px] items-center justify-center rounded-full border"
-        >
-          <svg
-            width="15"
-            height="15"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-            <path d="M16 17l5-5-5-5M21 12H9" />
-          </svg>
-        </button>
+    <div
+      className={cn(
+        "bg-muted flex h-9 items-center gap-0.5 rounded-md p-1",
+        className,
       )}
+    >
+      {(["ru", "en"] as const).map((l) => (
+        <button
+          key={l}
+          type="button"
+          aria-pressed={locale === l}
+          onClick={() => switchLocale(l)}
+          className={cn(
+            "h-full flex-1 rounded-sm px-3 text-[13px] font-medium uppercase transition-colors",
+            locale === l
+              ? "bg-background text-foreground"
+              : "text-muted-foreground hover:text-foreground",
+          )}
+        >
+          {l}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+export function ThemeButton({ className }: { className?: string }) {
+  const t = useTranslations("app")
+  const { resolvedTheme, setTheme } = useTheme()
+  const mounted = useMounted()
+  const dark = mounted && resolvedTheme === "dark"
+
+  return (
+    <button
+      type="button"
+      aria-label={t("toggleTheme")}
+      onClick={() => setTheme(dark ? "light" : "dark")}
+      className={cn(iconButton, className)}
+    >
+      {dark ? <IconMoon size={16} /> : <IconSun size={16} />}
+    </button>
+  )
+}
+
+/** Sign-out for web accounts; Telegram sessions re-auth on every open. */
+export function LogoutButton({ className }: { className?: string }) {
+  const t = useTranslations("app")
+  const { user, logout } = useAuth()
+
+  if (user == null || user.telegram_id != null) return null
+
+  return (
+    <button
+      type="button"
+      aria-label={t("logout")}
+      onClick={logout}
+      className={cn(iconButton, className)}
+    >
+      <IconLogout size={16} />
+    </button>
+  )
+}
+
+/** Mobile header controls; the desktop sidebar lays the same pieces out itself. */
+export function HeaderControls() {
+  return (
+    <div className="flex items-center gap-2">
+      <LocaleSwitch />
+      <ThemeButton />
+      <LogoutButton />
     </div>
   )
 }

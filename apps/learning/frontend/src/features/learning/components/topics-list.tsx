@@ -1,12 +1,16 @@
 "use client"
 
+import { useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconChevronRight, IconPlus } from "@tabler/icons-react"
+import { IconChevronRight, IconPlus, IconSearch } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
-import { useProvideAddAction } from "@/components/add-action"
+import { Input } from "@/components/ui/input"
 import { languageBadge, useLanguageName } from "../language"
 import type { Topic } from "../schemas"
+
+const columns =
+  "grid grid-cols-[minmax(0,1fr)_16px] items-center gap-3 px-4 lg:grid-cols-[minmax(0,1fr)_220px_16px]"
 
 export function TopicsList({
   topics,
@@ -17,57 +21,97 @@ export function TopicsList({
 }) {
   const t = useTranslations("learning")
   const languageName = useLanguageName()
-  useProvideAddAction(onNewTopic)
+  const [query, setQuery] = useState("")
+  const needle = query.trim().toLowerCase()
+  const shown = needle
+    ? topics.filter((item) => item.name.toLowerCase().includes(needle))
+    : topics
 
   return (
-    <div className="anim-fade space-y-[18px] lg:mx-auto lg:max-w-[760px] lg:space-y-[22px] lg:pt-5">
+    <div className="anim-fade space-y-4 lg:space-y-5">
       <header className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <h1 className="text-[26px] font-bold tracking-[-0.02em] break-words lg:text-[28px]">
+          <h1 className="text-[22px] font-semibold tracking-[-0.01em] break-words lg:text-2xl">
             {t("title")}
           </h1>
-          <p className="text-muted-foreground mt-1.5 text-[13px] leading-relaxed lg:text-sm">
+          <p className="text-muted-foreground mt-1 text-xs leading-relaxed lg:text-sm">
             {t("subtitle")}
           </p>
         </div>
+        <Button
+          size="lg"
+          aria-label={t("newTopic")}
+          onClick={onNewTopic}
+          className="size-9 shrink-0 p-0 lg:size-auto lg:px-4 lg:text-sm"
+        >
+          <IconPlus size={14} />
+          <span className="hidden lg:inline">{t("newTopic")}</span>
+        </Button>
       </header>
 
-      <div className="grid gap-2.5 lg:grid-cols-3 lg:gap-3.5">
-        {topics.map((item) => (
-          <Link
-            key={item.id}
-            href={`/learning/${item.id}`}
-            className="bg-card border-border hover:border-primary/30 flex min-w-0 items-center gap-3.5 rounded-[18px] border p-4 shadow-[var(--shadow-card)] transition-colors lg:p-[18px]"
+      {topics.length > 0 && (
+        <div className="relative lg:max-w-80">
+          <IconSearch
+            size={15}
+            className="text-faint pointer-events-none absolute top-1/2 left-3 -translate-y-1/2"
+          />
+          <Input
+            type="search"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder={t("searchTopics")}
+            aria-label={t("searchTopics")}
+            className="h-9 pl-9 text-sm md:text-sm"
+          />
+        </div>
+      )}
+
+      {shown.length > 0 && (
+        <div className="border-border bg-background overflow-hidden rounded-lg border">
+          <div
+            className={`${columns} border-border text-muted-foreground hidden h-10 border-b text-[13px] font-medium lg:grid`}
           >
-            <span className="bg-[color:var(--primary-wash)] text-primary flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold">
-              {languageBadge(item.language)}
-            </span>
-            <div className="min-w-0 flex-1">
-              <h2 className="line-clamp-2 text-base leading-snug font-semibold break-words">
-                {item.name}
-              </h2>
-              <p className="text-muted-foreground mt-0.5 text-xs leading-relaxed break-words">
+            <span>{t("colTopic")}</span>
+            <span>{t("colLanguages")}</span>
+            <span />
+          </div>
+          {shown.map((item) => (
+            <Link
+              key={item.id}
+              href={`/learning/${item.id}`}
+              className={`${columns} border-border hover:bg-muted/50 min-h-14 border-b py-3 transition-colors last:border-b-0`}
+            >
+              <div className="flex min-w-0 items-center gap-3">
+                <span className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-md text-xs font-semibold">
+                  {languageBadge(item.language)}
+                </span>
+                <div className="min-w-0">
+                  <h2 className="line-clamp-2 text-sm leading-snug font-medium break-words">
+                    {item.name}
+                  </h2>
+                  <p className="text-muted-foreground mt-0.5 text-xs break-words lg:hidden">
+                    {languageName(item.language)} →{" "}
+                    {languageName(item.translationLanguage)}
+                  </p>
+                </div>
+              </div>
+              <p className="text-muted-foreground hidden text-sm lg:block">
                 {languageName(item.language)} →{" "}
                 {languageName(item.translationLanguage)}
               </p>
-            </div>
-            <IconChevronRight size={17} className="text-faint shrink-0" />
-          </Link>
-        ))}
-        <Button
-          variant="outline"
-          onClick={onNewTopic}
-          className="text-primary border-primary/30 h-auto min-h-14 rounded-[18px] border-dashed bg-transparent p-[18px] text-sm font-semibold"
-        >
-          <IconPlus size={18} />
-          {t("newTopic")}
-        </Button>
-      </div>
+              <IconChevronRight size={14} className="text-faint" />
+            </Link>
+          ))}
+        </div>
+      )}
 
       {topics.length === 0 && (
         <p className="text-muted-foreground max-w-lg text-sm leading-relaxed">
           {t("topicsEmpty")}
         </p>
+      )}
+      {topics.length > 0 && shown.length === 0 && (
+        <p className="text-muted-foreground text-sm">{t("noMatches")}</p>
       )}
     </div>
   )

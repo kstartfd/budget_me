@@ -37,6 +37,10 @@
     "topics": "Topics",
     "subtitle": "Words and phrases worth coming back to.",
     "newTopic": "New topic",
+    "searchTopics": "Search topics...",
+    "colTopic": "Topic",
+    "colLanguages": "Languages",
+    "noMatches": "No matches",
     "editTopic": "Topic settings",
     "topicName": "Topic name",
     "topicPlaceholder": "For example, English for work",
@@ -80,7 +84,6 @@
     "entries": "Words and phrases",
     "entriesEmpty": "No entries yet",
     "entriesEmptyHint": "Save your first word or phrase. To add entries from an extension, create a token in settings.",
-    "noMatches": "No matches",
     "noMatchesHint": "Change the search or filters.",
     "unfilled": "No translation yet",
     "unfilledHint": "Entry saved. Add a translation, example or rule when you have time.",
@@ -192,6 +195,7 @@
     "send": "Send",
     "typing": "…",
     "clear": "Clear chat",
+    "newLesson": "New lesson",
     "clearConfirm": "Delete this conversation?",
     "cancel": "Cancel",
     "clearFailed": "Couldn't clear the chat. Please try again.",
@@ -214,19 +218,23 @@
     "welcomeHint": "Write anything or pick a way to begin. The teacher will find your level.",
     "starters": {
       "beginner": {
-        "label": "I'm a beginner, start with the basics",
+        "title": "I'm a beginner",
+        "hint": "Start with the basics",
         "message": "I'm a beginner. Start a lesson with me from the very basics."
       },
       "talk": {
-        "label": "Let's just chat",
+        "title": "Let's just chat",
+        "hint": "Casual conversation on any topic",
         "message": "Let's just chat about simple things, and you correct my mistakes."
       },
       "check": {
-        "label": "Check my sentences",
+        "title": "Check my sentences",
+        "hint": "Corrections with clear explanations",
         "message": "I'll write sentences in the language I'm learning, and you go through my mistakes."
       },
       "grammar": {
-        "label": "Go through grammar",
+        "title": "Go through grammar",
+        "hint": "Structured practice with rules",
         "message": "Explain one useful grammar rule and give me exercises for it."
       }
     },
@@ -387,11 +395,11 @@
       "fillPlaceholder": "Type the missing word",
       "translatePlaceholder": "Type your translation",
       "solved": "done",
-      "hint": "Exercise hint",
+      "myAnswer": "My answer",
+      "correctAnswer": "Correct answer",
       "rule": "Rule",
-      "answer": "Correct answer",
       "askTeacher": "Discuss with the teacher",
-      "chatQuestion": "Please go through this rule and explain why this is the correct answer.\\n\\nRule: {rule}\\nExercise: {prompt}\\nCorrect answer: {answer}",
+      "chatQuestion": "Please go through this rule and explain how to apply it to this exercise.\\n\\nRule: {rule}\\nExercise: {prompt}",
       "resetExercises": "Reset exercises",
       "pastAttempts": "Previous exercises: {count} attempts, {correct} correct"
     }

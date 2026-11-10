@@ -134,7 +134,7 @@ export function DialogHistory({
               <button
                 type="button"
                 onClick={() => setOpenId(d.id)}
-                className="bg-secondary focus-visible:ring-primary flex w-full items-center gap-3 rounded-2xl px-3.5 py-3 text-left outline-none focus-visible:ring-2"
+                className="border-border hover:bg-muted/50 focus-visible:ring-ring flex w-full items-center gap-3 rounded-lg border px-3.5 py-3 text-left transition-colors outline-none focus-visible:ring-2"
               >
                 <span className="min-w-0 flex-1">
                   <span className="line-clamp-2 text-sm leading-snug font-medium break-words">

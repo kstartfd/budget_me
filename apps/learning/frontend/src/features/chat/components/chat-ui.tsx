@@ -1,7 +1,7 @@
 "use client"
 
 import { useFormatter, useTranslations } from "next-intl"
-import { IconSend2 } from "@tabler/icons-react"
+import { IconArrowUp, IconSchool } from "@tabler/icons-react"
 
 import { InlineMarkdown } from "@/components/inline-markdown"
 import { Button } from "@/components/ui/button"
@@ -21,13 +21,23 @@ export function Bubble({
   const mine = role === "user"
 
   return (
-    <div className={cn("flex", mine ? "justify-end" : "justify-start")}>
+    <div
+      className={cn("flex gap-2.5", mine ? "justify-end" : "justify-start")}
+    >
+      {!mine && (
+        <span
+          aria-hidden
+          className="bg-primary text-primary-foreground flex size-7 shrink-0 items-center justify-center rounded-full"
+        >
+          <IconSchool size={13} />
+        </span>
+      )}
       <p
         className={cn(
-          "max-w-[88%] rounded-2xl px-3.5 py-2 text-[13px] leading-[1.5] break-words whitespace-pre-wrap",
+          "max-w-[88%] rounded-lg px-4 py-3 text-sm leading-relaxed break-words whitespace-pre-wrap lg:max-w-[640px]",
           mine
-            ? "bg-primary text-primary-foreground rounded-br-md"
-            : "bg-secondary text-foreground rounded-bl-md",
+            ? "bg-primary text-primary-foreground"
+            : "bg-muted text-foreground",
         )}
       >
         {!mine && typeof children === "string" ? (
@@ -96,7 +106,7 @@ export function LimitReached({ chat }: { chat: Chat | undefined }) {
   const { budget, daily, dailyExhausted } = chatLimits(chat)
 
   return (
-    <p className="text-muted-foreground bg-secondary rounded-xl px-3.5 py-2.5 text-[13px] leading-[1.5]">
+    <p className="text-muted-foreground bg-muted rounded-lg px-4 py-3 text-sm leading-relaxed">
       {dailyExhausted
         ? t("dailyReached", { time: resetTime(daily?.resetsAt) })
         : t("budgetReached", { time: resetTime(budget?.resetsAt) })}
@@ -120,7 +130,7 @@ export function Composer({
   const t = useTranslations("chat")
 
   return (
-    <div className="flex items-end gap-2">
+    <div className="border-input bg-background focus-within:border-ring flex items-end gap-2 rounded-lg border py-2 pr-2 pl-4 transition-colors">
       <Textarea
         value={value}
         maxLength={maxQuestionLength}
@@ -128,7 +138,7 @@ export function Composer({
         disabled={sending}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="max-h-40 min-h-10 flex-1 resize-none rounded-xl px-3 py-2.5 text-[13px] md:text-[13px]"
+        className="max-h-40 min-h-9 flex-1 resize-none border-0 bg-transparent px-0 py-2 text-sm shadow-none focus-visible:ring-0 disabled:bg-transparent md:text-sm dark:bg-transparent dark:disabled:bg-transparent"
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
@@ -138,13 +148,13 @@ export function Composer({
         }}
       />
       <Button
-        size="icon"
+        size="icon-lg"
         aria-label={t("send")}
         disabled={sending || value.trim() === ""}
-        className="size-10 shrink-0 rounded-xl"
+        className="shrink-0"
         onClick={onSubmit}
       >
-        <IconSend2 size={18} />
+        <IconArrowUp size={16} />
       </Button>
     </div>
   )

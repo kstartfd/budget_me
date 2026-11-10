@@ -33,23 +33,25 @@ export function EntryDetail({
       <div>
         {!page && (
           <div className="mb-2 flex items-center justify-between gap-2">
-            <span className="text-faint text-xs">{t(entry.kind)}</span>
+            <span className="bg-muted rounded-md px-2.5 py-[3px] text-xs font-semibold">
+              {t(entry.kind)}
+            </span>
             <Button
-              variant="ghost"
+              variant="outline"
               size="icon"
               aria-label={t("editEntry")}
               onClick={onEdit}
-              className="bg-secondary size-[30px] rounded-full"
+              className="text-muted-foreground size-8"
             >
-              <IconPencil size={15} />
+              <IconPencil size={13} />
             </Button>
           </div>
         )}
         <div className="flex items-start gap-3">
           <h2
             className={cn(
-              "min-w-0 flex-1 leading-[1.2] font-bold tracking-tight break-words",
-              page ? "text-2xl" : "text-[26px]",
+              "min-w-0 flex-1 leading-tight font-semibold tracking-[-0.01em] break-words",
+              page ? "text-xl" : "text-2xl",
             )}
           >
             {entry.text}
@@ -64,8 +66,8 @@ export function EntryDetail({
         {entry.translation && (
           <p
             className={cn(
-              "text-primary mt-3 leading-[1.45] break-words whitespace-pre-wrap",
-              page ? "text-[15px]" : "text-base",
+              "text-foreground mt-2 leading-snug font-semibold break-words whitespace-pre-wrap",
+              page ? "text-sm" : "text-[13px]",
             )}
           >
             {entry.translation}
@@ -85,16 +87,14 @@ export function EntryDetail({
         {(["inbox", "learning", "known"] as const).map((status) => (
           <Button
             key={status}
-            variant="secondary"
+            variant="outline"
             size="sm"
             disabled={saveEntry.isPending}
             aria-pressed={entry.status === status}
             className={cn(
-              "h-auto rounded-full font-medium",
-              page ? "px-4 py-2 text-[13px]" : "px-3 py-1.5 text-xs",
-              entry.status === status
-                ? "bg-primary/15 text-primary"
-                : "text-foreground/75",
+              "h-7 px-3 text-xs font-medium",
+              entry.status === status &&
+                "bg-primary text-primary-foreground hover:bg-primary border-transparent hover:text-primary-foreground",
             )}
             onClick={() => saveEntry.mutate({ ...entry, status })}
           >
@@ -114,14 +114,13 @@ export function EntryDetail({
               key={field}
               className={
                 page
-                  ? "bg-card border-border rounded-[14px] border p-3.5"
+                  ? "border-border rounded-lg border p-3.5"
                   : "border-border border-t pt-3.5"
               }
             >
               <h3
                 className={cn(
-                  "text-faint mb-1.5",
-                  page ? "text-[11px] tracking-[0.06em]" : "text-xs",
+                  "text-faint mb-1.5 text-xs font-medium",
                 )}
               >
                 {t(field)}
@@ -145,13 +144,13 @@ export function EntryDetail({
         !entry.example &&
         !entry.rule &&
         !entry.source && (
-          <div className="bg-secondary rounded-2xl p-4">
+          <div className="bg-muted rounded-lg p-4">
             <p className="text-muted-foreground text-sm leading-relaxed">
               {t("unfilledHint")}
             </p>
             <Button
               variant="ghost"
-              className="text-primary mt-2 px-0"
+              className="mt-2 px-0 underline underline-offset-4"
               onClick={onEdit}
             >
               {t("fillEntry")}
@@ -166,7 +165,8 @@ export function EntryDetail({
               <p className="text-sm">{t("deleteEntryWarning")}</p>
               <div className="flex gap-2">
                 <Button
-                  variant="secondary"
+                  variant="outline"
+                  size="lg"
                   disabled={deleteEntry.isPending}
                   onClick={() => setConfirm(false)}
                 >
@@ -174,6 +174,7 @@ export function EntryDetail({
                 </Button>
                 <Button
                   variant="destructive"
+                  size="lg"
                   disabled={deleteEntry.isPending}
                   onClick={() =>
                     deleteEntry.mutate(entry.id, { onSuccess: onDelete })
@@ -186,7 +187,7 @@ export function EntryDetail({
           ) : (
             <Button
               variant="ghost"
-              className="text-destructive px-0 text-xs"
+              className="text-destructive hover:text-destructive px-0 text-xs"
               onClick={() => setConfirm(true)}
             >
               <IconTrash size={15} />
@@ -227,7 +228,7 @@ export function EntryActionBar({
         <div className="flex gap-2.5">
           <Button
             disabled={saveEntry.isPending}
-            className="h-[50px] flex-1 rounded-[14px] text-[15px] font-bold"
+            className="h-11 flex-1 text-sm"
             onClick={() =>
               saveEntry.mutate({
                 ...entry,
@@ -241,10 +242,10 @@ export function EntryActionBar({
             variant="destructive"
             size="icon"
             aria-label={t("deleteEntry")}
-            className="size-[50px] rounded-[14px]"
+            className="size-11"
             onClick={() => setConfirm(true)}
           >
-            <IconTrash size={20} />
+            <IconTrash size={18} />
           </Button>
         </div>
       </BottomBar>
@@ -256,8 +257,8 @@ export function EntryActionBar({
         >
           <div className="flex gap-3">
             <Button
-              variant="secondary"
-              className="flex-1"
+              variant="outline"
+              className="h-9 flex-1"
               disabled={deleteEntry.isPending}
               onClick={() => setConfirm(false)}
             >
@@ -265,7 +266,7 @@ export function EntryActionBar({
             </Button>
             <Button
               variant="destructive"
-              className="flex-1"
+              className="h-9 flex-1"
               disabled={deleteEntry.isPending}
               onClick={() =>
                 deleteEntry.mutate(entry.id, { onSuccess: onDelete })

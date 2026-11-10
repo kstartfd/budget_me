@@ -60,7 +60,7 @@ export function EntryChat({
     <section
       className={cn(
         page
-          ? "bg-card border-border rounded-[14px] border p-3.5"
+          ? "border-border rounded-lg border p-3.5"
           : "border-border border-t pt-3.5",
       )}
     >

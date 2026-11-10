@@ -83,16 +83,16 @@ export function PathScreen({
     <div
       className={
         embedded
-          ? "anim-fade space-y-[18px]"
-          : "anim-fade space-y-[18px] lg:mx-auto lg:max-w-[760px] lg:space-y-[22px] lg:pt-5"
+          ? "anim-fade space-y-4"
+          : "anim-fade space-y-4 lg:max-w-[704px]"
       }
     >
       {!embedded && (
-        <header className="space-y-1.5">
-          <h1 className="text-[26px] font-bold tracking-[-0.02em] lg:text-[28px]">
+        <header className="space-y-1">
+          <h1 className="text-[22px] font-semibold tracking-[-0.01em] lg:text-2xl">
             {t("title")}
           </h1>
-          <p className="text-muted-foreground text-[13px] leading-relaxed lg:text-sm">
+          <p className="text-muted-foreground text-xs leading-relaxed lg:text-sm">
             {t("subtitle")}
           </p>
         </header>
@@ -106,14 +106,14 @@ export function PathScreen({
               [nativeLanguage, setPickedNative, "nativeLanguage"],
             ] as const
           ).map(([value, setValue, name]) => (
-            <label key={name} className="space-y-2 text-sm font-medium">
+            <label key={name} className="block space-y-1.5 text-[13px] font-medium">
               <span>{t(name)}</span>
               <Select
                 value={value}
                 onValueChange={setValue}
                 disabled={!!active}
               >
-                <SelectTrigger className="bg-secondary border-border focus-visible:border-primary h-12 w-full rounded-2xl px-4 text-sm focus-visible:ring-0">
+                <SelectTrigger className="bg-background h-10 w-full px-3 text-sm">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -131,8 +131,8 @@ export function PathScreen({
 
       {path.active.isPending ? (
         <div className="space-y-3">
-          <Skeleton className="h-28 w-full rounded-[22px]" />
-          <Skeleton className="h-40 w-full rounded-[22px]" />
+          <Skeleton className="h-28 w-full rounded-lg" />
+          <Skeleton className="h-40 w-full rounded-lg" />
         </div>
       ) : active ? (
         <ProgramView
@@ -145,7 +145,7 @@ export function PathScreen({
           onReset={() => path.reset.mutate()}
         />
       ) : (
-        <section className="bg-card border-border space-y-3 rounded-[22px] border p-5 shadow-[var(--shadow-card)]">
+        <section className="bg-background border-border space-y-3 rounded-lg border p-5">
           <p className="text-sm leading-relaxed">{t("placementIntro")}</p>
           {path.startPlacement.isError && (
             <p role="alert" className="text-destructive text-sm">
@@ -159,7 +159,8 @@ export function PathScreen({
               })
             }
             disabled={path.startPlacement.isPending}
-            className="text-primary-foreground h-auto rounded-[18px] px-5 py-3 text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
+            size="lg"
+            className="px-4 text-[13px]"
           >
             {t(path.startPlacement.isPending ? "starting" : "startPlacement")}
           </Button>
@@ -181,12 +182,12 @@ function History() {
 
   return (
     <section className="space-y-2.5">
-      <h2 className="text-base font-semibold">{t("history")}</h2>
+      <h2 className="text-sm font-semibold">{t("history")}</h2>
       <ul className="space-y-2">
         {history.data.map((item) => (
           <li
             key={item.id}
-            className="bg-card border-border flex items-center gap-3 rounded-[18px] border p-4"
+            className="bg-background border-border flex items-center gap-3 rounded-lg border p-4"
           >
             <div className="min-w-0 flex-1">
               <p className="text-sm font-semibold">

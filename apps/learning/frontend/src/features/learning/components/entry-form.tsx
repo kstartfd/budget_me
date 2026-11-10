@@ -65,7 +65,7 @@ export function EntryForm({
           name="kind"
           render={({ field }) => (
             <div
-              className="bg-secondary flex gap-1 rounded-2xl p-1"
+              className="bg-muted flex h-9 gap-0.5 rounded-md p-1"
               role="group"
               aria-label={t("kind")}
             >
@@ -77,8 +77,10 @@ export function EntryForm({
                   aria-pressed={field.value === k}
                   onClick={() => field.onChange(k)}
                   className={cn(
-                    "h-10 flex-1 rounded-xl text-sm font-semibold",
-                    field.value === k && "bg-card text-primary shadow-sm",
+                    "h-full flex-1 rounded-sm text-[13px] font-medium",
+                    field.value === k
+                      ? "bg-background text-foreground hover:bg-background"
+                      : "text-muted-foreground",
                   )}
                 >
                   {t(k)}
@@ -91,7 +93,7 @@ export function EntryForm({
           <span>{t("text")}</span>
           <Textarea
             autoFocus
-            className="bg-secondary border-border focus-visible:border-primary min-h-20 rounded-2xl text-base focus-visible:ring-0 md:text-base"
+            className="bg-background min-h-20 text-sm md:text-sm"
             maxLength={1000}
             placeholder={t("textPlaceholder")}
             aria-invalid={!!errors.text}
@@ -101,18 +103,18 @@ export function EntryForm({
         <label className="block space-y-2 text-sm font-medium">
           <span>{t("transcription")}</span>
           <Input
-            className="bg-secondary border-border focus-visible:border-primary h-auto rounded-xl px-3.5 py-3 text-sm focus-visible:ring-0"
+            className="bg-background h-9 text-sm md:text-sm"
             maxLength={4000}
             placeholder="/hɪt ðə rəʊd/"
             {...register("transcription")}
           />
         </label>
-        {(["translation", "explanation", "rule", "nativeUsage", "example", "source"] as const).map(
+        {(["translation", "explanation", "rule", "nativeUsage", "example"] as const).map(
           (name) => (
             <label key={name} className="block space-y-2 text-sm font-medium">
               <span>{t(name)}</span>
               <Textarea
-                className="bg-secondary border-border focus-visible:border-primary min-h-16 rounded-xl text-sm focus-visible:ring-0 md:text-sm"
+                className="bg-background min-h-16 text-sm md:text-sm"
                 maxLength={4000}
                 placeholder={t(`${name}Placeholder`)}
                 {...register(name)}
@@ -123,7 +125,7 @@ export function EntryForm({
         <label className="block space-y-2 text-sm font-medium">
           <span>{t("source")}</span>
           <Input
-            className="bg-secondary border-border focus-visible:border-primary h-auto rounded-xl px-3.5 py-3 text-sm focus-visible:ring-0"
+            className="bg-background h-9 text-sm md:text-sm"
             maxLength={1000}
             placeholder={t("sourcePlaceholder")}
             {...register("source")}
@@ -142,13 +144,13 @@ export function EntryForm({
                 <Button
                   key={status}
                   type="button"
-                  variant="secondary"
+                  variant="outline"
                   aria-pressed={field.value === status}
                   onClick={() => field.onChange(status)}
                   className={cn(
-                    "h-9 rounded-full px-4 text-xs",
+                    "h-7 px-3 text-xs font-medium",
                     field.value === status &&
-                      "bg-primary/15 text-primary ring-primary/30 ring-1",
+                      "bg-primary text-primary-foreground hover:bg-primary hover:text-primary-foreground border-transparent",
                   )}
                 >
                   {t(status)}
@@ -170,7 +172,7 @@ export function EntryForm({
         <Button
           type="submit"
           disabled={saveEntry.isPending}
-          className="text-primary-foreground h-auto w-full rounded-[18px] p-[15px] text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
+          className="h-10 w-full text-sm"
         >
           {t(saveEntry.isPending ? "saving" : "save")}
         </Button>

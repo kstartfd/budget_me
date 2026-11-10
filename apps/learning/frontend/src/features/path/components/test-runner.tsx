@@ -66,9 +66,9 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
   const allAnswered = current.questions.every((q) => picked[q.key])
 
   return (
-    <div className="anim-fade space-y-[18px] lg:mx-auto lg:max-w-[760px] lg:pt-5">
-      <header className="space-y-1.5">
-        <h1 className="text-[26px] font-bold tracking-[-0.02em] lg:text-[28px]">
+    <div className="anim-fade space-y-4 lg:max-w-[704px]">
+      <header className="space-y-1">
+        <h1 className="text-[22px] font-semibold tracking-[-0.01em] lg:text-2xl">
           {t(current.kind === "final" ? "finalTitle" : "placementTitle", {
             level: current.level,
           })}
@@ -107,8 +107,9 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
         </Button>
         <Button
           onClick={() => submit.mutate()}
+          size="lg"
           disabled={!allAnswered || submit.isPending}
-          className="text-primary-foreground h-auto flex-1 rounded-[18px] py-3 text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
+          className="flex-1 text-[13px]"
         >
           {t(submit.isPending ? "sending" : "send")}
         </Button>
@@ -130,13 +131,13 @@ function QuestionCard({
 }) {
   const t = useTranslations("path.test")
   return (
-    <section className="bg-card border-border space-y-3 rounded-[22px] border p-5 shadow-[var(--shadow-card)]">
+    <section className="bg-background border-border space-y-3 rounded-lg border p-5">
       {question.text && (
         <p className="text-muted-foreground text-sm leading-relaxed italic">
           {question.text}
         </p>
       )}
-      <p className="text-[15px] leading-snug font-semibold">
+      <p className="text-sm leading-snug font-semibold">
         {index + 1}. {question.prompt}
       </p>
       <div className="grid gap-2">
@@ -146,10 +147,10 @@ function QuestionCard({
             type="button"
             onClick={() => onPick(option)}
             aria-pressed={picked === option}
-            className={`border-border hover:border-primary/40 cursor-pointer rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
+            className={`border-border hover:bg-muted/50 min-h-10 cursor-pointer rounded-md border px-3.5 py-2 text-left text-sm transition-colors ${
               picked === option
-                ? "border-primary bg-[color:var(--primary-wash)] text-primary font-semibold"
-                : "bg-secondary"
+                ? "bg-muted font-semibold"
+                : "bg-background"
             }`}
           >
             {option}
@@ -182,7 +183,7 @@ function Done({
 
   return (
     <div className="anim-fade mx-auto max-w-[560px] space-y-4 py-10 text-center lg:pt-16">
-      <h1 className="text-2xl font-bold">
+      <h1 className="text-2xl font-semibold tracking-[-0.01em]">
         {test.kind === "final"
           ? t(test.passed ? "finalPassed" : "finalFailed", {
               level: test.levelReached,
@@ -206,8 +207,9 @@ function Done({
         {test.kind === "placement" && (
           <Button
             onClick={() => analyze.mutate()}
+            size="lg"
             disabled={analyze.isPending}
-            className="text-primary-foreground h-auto rounded-[18px] px-5 py-3 text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
+            className="px-4 text-[13px]"
           >
             {t(analyze.isPending ? "analyzing" : "analyze")}
           </Button>

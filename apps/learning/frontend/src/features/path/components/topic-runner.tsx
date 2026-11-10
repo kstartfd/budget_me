@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconMessageCircle } from "@tabler/icons-react"
+import { IconCheck, IconMessageCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
@@ -36,10 +36,14 @@ export function TopicRunner({ topicId }: { topicId: string }) {
   const pastAttempts = attempts.filter(
     (attempt) => !currentExerciseIds.has(attempt.exerciseId),
   )
+  const latestAttempts = new Map<string, PathAttempt>()
+  for (const attempt of attempts) {
+    latestAttempts.set(attempt.exerciseId, attempt)
+  }
 
   return (
-    <div className="bg-secondary/40 space-y-3 rounded-[22px] border border-transparent p-4">
-      <p className="text-muted-foreground text-sm leading-relaxed">
+    <div className="space-y-3 p-4 pt-4">
+      <p className="text-muted-foreground text-[13px] leading-relaxed">
         {topic.goal}
       </p>
       {pastAttempts.length > 0 && (
@@ -66,6 +70,7 @@ export function TopicRunner({ topicId }: { topicId: string }) {
               exercise={exercise}
               topicGoal={topic.goal}
               solved={solved.has(exercise.id)}
+              latestAttempt={latestAttempts.get(exercise.id)}
             />
           ))}
 
@@ -85,9 +90,10 @@ export function TopicRunner({ topicId }: { topicId: string }) {
                 )}
                 <Button
                   variant="outline"
+                  size="lg"
                   onClick={() => complete.mutate()}
                   disabled={complete.isPending || generate.isPending}
-                  className="border-primary/30 text-primary h-auto w-full rounded-[18px] py-3 text-sm font-semibold"
+                  className="w-full text-[13px]"
                 >
                   {t(complete.isPending ? "completing" : "complete")}
                 </Button>
@@ -122,9 +128,10 @@ function TopicActions({
   return (
     <Button
       variant={hasExercises ? "outline" : "default"}
+      size="lg"
       onClick={hasExercises ? onReset : onGenerate}
       disabled={generating}
-      className={`${hasExercises ? "text-primary" : "text-primary-foreground"} h-auto w-full rounded-[18px] py-3 text-[15px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]`}
+      className="w-full text-[13px]"
     >
       {t(
         generating
@@ -142,21 +149,23 @@ function ExerciseCard({
   topicGoal,
   solved,
   topicId,
+  latestAttempt,
 }: {
   topicId: string
   exercise: PathExercise
   topicGoal: string
   solved: boolean
+  latestAttempt?: PathAttempt
 }) {
   const t = useTranslations("path.topic")
   const attempt = useTopicExerciseAttempt(topicId)
   const [value, setValue] = useState("")
   const [last, setLast] = useState<PathAttempt | null>(null)
+  const result = last ?? latestAttempt
   const rule = exercise.rule || topicGoal
   const chatQuestion = t("chatQuestion", {
     rule,
     prompt: exercise.prompt,
-    answer: exercise.answer,
   })
 
   const submit = (answer: string) => {
@@ -168,27 +177,32 @@ function ExerciseCard({
   }
 
   return (
-    <section className="bg-card border-border space-y-3 rounded-[18px] border p-4">
-      <aside className="border-primary/20 bg-primary/5 space-y-3 rounded-2xl border px-4 py-3.5">
+    <section className="border-border space-y-3 border-t pt-4 first-of-type:border-t-0 first-of-type:pt-0">
+      <aside className="bg-muted space-y-2.5 rounded-lg p-4">
         <div className="space-y-1">
-          <p className="text-primary text-xs font-semibold">{t("hint")}</p>
-          <p className="text-sm leading-relaxed">{rule}</p>
-        </div>
-        <div className="border-primary/15 border-t pt-3">
-          <p className="text-muted-foreground text-xs font-medium">
-            {t("answer")}
+          <p className="text-muted-foreground text-xs font-semibold">
+            {t("rule")}
           </p>
-          <p className="text-primary mt-0.5 text-sm font-semibold">
-            {exercise.answer}
-          </p>
+          <p className="text-[13px] leading-relaxed">{rule}</p>
         </div>
+        {result?.correct && (
+          <div className="border-border space-y-1 border-t pt-2.5">
+            <p className="text-muted-foreground text-xs font-semibold">
+              {t("correctAnswer")}
+            </p>
+            <p className="text-success text-sm font-semibold">
+              {result.answer}
+            </p>
+          </div>
+        )}
         <Button
           asChild
-          variant="secondary"
-          className="h-auto rounded-xl px-3 py-2 text-xs font-semibold"
+          variant="outline"
+          size="lg"
+          className="bg-background h-8 px-3 text-xs"
         >
           <Link href={`/learning/chat?question=${encodeURIComponent(chatQuestion)}`}>
-            <IconMessageCircle size={15} />
+            <IconMessageCircle size={13} />
             {t("askTeacher")}
           </Link>
         </Button>
@@ -198,10 +212,10 @@ function ExerciseCard({
           {exercise.text}
         </p>
       )}
-      <p className="text-[15px] leading-snug font-semibold">
+      <p className="text-sm leading-snug font-semibold">
         {exercise.prompt}
         {solved && (
-          <span className="text-primary ml-2 text-xs font-bold">
+          <span className="bg-success/10 text-success ml-2 rounded-md px-2 py-0.5 align-middle text-[11px] font-semibold">
             {t("solved")}
           </span>
         )}
@@ -215,13 +229,16 @@ function ExerciseCard({
               type="button"
               onClick={() => submit(option)}
               disabled={attempt.isPending}
-              className={`border-border hover:border-primary/40 cursor-pointer rounded-2xl border px-4 py-3 text-left text-sm transition-colors disabled:cursor-not-allowed ${
-                last?.answer === option && last.correct
-                  ? "border-primary bg-[color:var(--primary-wash)] text-primary font-semibold"
-                  : "bg-secondary"
+              className={`border-border hover:bg-muted/50 flex min-h-10 cursor-pointer items-center justify-between gap-3 rounded-md border px-3.5 py-2 text-left text-sm transition-colors disabled:cursor-not-allowed ${
+                result?.answer === option && result.correct
+                  ? "bg-muted font-semibold"
+                  : "bg-background"
               }`}
             >
               {option}
+              {result?.answer === option && result.correct && (
+                <IconCheck size={13} className="text-success shrink-0" />
+              )}
             </button>
           ))}
         </div>
@@ -242,12 +259,12 @@ function ExerciseCard({
                 : "translatePlaceholder",
             )}
             aria-label={exercise.prompt}
-            className="bg-secondary border-border focus-visible:border-primary h-auto rounded-2xl px-4 py-3 text-[15px] focus-visible:ring-0"
+            className="bg-background h-10 text-sm md:text-sm"
           />
           <Button
             type="submit"
             disabled={attempt.isPending || !value.trim()}
-            className="text-primary-foreground h-auto rounded-2xl px-5 text-sm font-bold"
+            className="h-10 px-5 text-sm"
           >
             {t(attempt.isPending ? "checking" : "check")}
           </Button>
@@ -259,20 +276,26 @@ function ExerciseCard({
           {attempt.error.message}
         </p>
       )}
-      {last && (
+      {result && (
         <div
-          className={`space-y-1 rounded-2xl px-4 py-3 text-sm ${
-            last.correct
-              ? "bg-[color:var(--primary-wash)] text-primary"
+          className={`space-y-2 rounded-lg px-4 py-3 text-sm ${
+            result.correct
+              ? "bg-success/10 text-success"
               : "bg-destructive/10 text-destructive"
           }`}
         >
           <p className="font-semibold">
-            {last.correct ? t("correct") : t("wrong")}
+            {result.correct ? t("correct") : t("wrong")}
           </p>
-          {!last.correct && last.feedback && (
+          <div>
+            <p className="text-xs font-semibold">{t("myAnswer")}</p>
+            <p className="text-foreground mt-0.5 leading-relaxed">
+              {result.answer}
+            </p>
+          </div>
+          {!result.correct && result.feedback && (
             <p className="text-foreground leading-relaxed">
-              <QuotedEmphasis text={last.feedback} />
+              <QuotedEmphasis text={result.feedback} />
             </p>
           )}
         </div>

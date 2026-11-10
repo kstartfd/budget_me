@@ -1,0 +1,35 @@
+version: v1
+name: AI Teacher Redesign
+
+tokens:
+  bg:
+    type: color
+    values: "#FFFFFF"
+  muted:
+    type: color
+    values: "#F4F4F5"
+  border:
+    type: color
+    values: "#E4E4E7"
+  primary:
+    type: color
+    values: "#18181B"
+  text.primary:
+    type: color
+    values: "#09090B"
+  text.secondary:
+    type: color
+    values: "#71717A"
+  text.tertiary:
+    type: color
+    values: "#A1A1AA"
+  destructive:
+    type: color
+    values: "#DC2626"
+  success:
+    type: color
+    values: "#16A34A"
+
+pages:
+  - pages/teacher.uipage
+  - pages/mobile.uipage

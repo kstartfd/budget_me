@@ -1,0 +1,4527 @@
+name: AI Teacher Mobile
+
+children:
+  - id: note.m1
+    type: text
+    position: [ 40, 24 ]
+    size: [ hug, hug ]
+    fontSize: 36
+    fontWeight: 700
+    color: "#000000"
+    content: Chat
+
+  - id: m.start
+    type: frame
+    position: [ 40, 88 ]
+    size: [ 390, 844 ]
+    fill: $bg
+    layout:
+      type: flex
+      direction: column
+      overflow: hidden
+    children:
+      - id: m1.header
+        type: frame
+        size: [ fill, hug ]
+        layout:
+          {
+            type: flex,
+            direction: row,
+            justifyContent: spaceBetween,
+            alignItems: center,
+            padding: [ 14, 16 ]
+          }
+        children:
+          - id: m1.header.left
+            type: frame
+            size: [ hug, hug ]
+            layout: { type: flex, direction: row, gap: 10, alignItems: center }
+            children:
+              - id: m1.logo.mark
+                type: frame
+                size: [ 28, 28 ]
+                cornerRadius: 6
+                fill: $primary
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m1.logo.icon,
+                      type: svg,
+                      size: [ 13, 13 ],
+                      icon: fas:graduation-cap,
+                      fill: "#FFFFFF"
+                    }
+              - {
+                  id: m1.logo.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: AI Teacher,
+                  fontSize: 17,
+                  fontWeight: 600,
+                  letterSpacing: -0.3,
+                  color: $text.primary
+                }
+          - id: m1.header.actions
+            type: frame
+            size: [ hug, hug ]
+            layout: { type: flex, direction: row, gap: 8 }
+            children:
+              - id: m1.header.lang
+                type: frame
+                size: [ 34, 34 ]
+                cornerRadius: 6
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m1.header.lang.icon,
+                      type: svg,
+                      size: [ 14, 14 ],
+                      icon: fas:globe,
+                      fill: $text.secondary
+                    }
+              - id: m1.header.history
+                type: frame
+                size: [ 34, 34 ]
+                cornerRadius: 6
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m1.header.history.icon,
+                      type: svg,
+                      size: [ 14, 14 ],
+                      icon: fas:clock-rotate-left,
+                      fill: $text.secondary
+                    }
+      - id: m1.hero
+        type: frame
+        size: [ fill, fill ]
+        layout:
+          {
+            type: flex,
+            direction: column,
+            alignItems: center,
+            justifyContent: center,
+            padding: [ 0, 24 ]
+          }
+        children:
+          - id: m1.hero.icon
+            type: frame
+            size: [ 44, 44 ]
+            cornerRadius: 10
+            fill: $muted
+            margin: [ 0, 0, 14, 0 ]
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m1.hero.icon.svg,
+                  type: svg,
+                  size: [ 20, 20 ],
+                  icon: fas:graduation-cap,
+                  fill: $text.primary
+                }
+          - {
+              id: m1.hero.title,
+              type: text,
+              size: [ hug, hug ],
+              content: Let's start a lesson,
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: -0.4,
+              color: $text.primary,
+              margin: [ 0, 0, 6, 0 ]
+            }
+          - {
+              id: m1.hero.subtitle,
+              type: text,
+              size: [ 280, hug ],
+              content: Write anything or pick a way to begin. The teacher finds your level and
+                leads the lesson.,
+              fontSize: 13,
+              lineHeight: 19,
+              align: [ center, top ],
+              color: $text.secondary,
+              margin: [ 0, 0, 20, 0 ]
+            }
+          - id: m1.hero.cards
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 8 }
+            children:
+              - id: m1.card.beginner
+                type: frame
+                size: [ fill, hug ]
+                cornerRadius: 10
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, direction: row, gap: 10, alignItems: center, padding: 12 }
+                children:
+                  - id: m1.card.beginner.icon
+                    type: frame
+                    size: [ 32, 32 ]
+                    cornerRadius: 6
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m1.card.beginner.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:seedling,
+                          fill: $text.primary
+                        }
+                  - id: m1.card.beginner.text
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m1.card.beginner.title,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: I'm a beginner,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary
+                        }
+                      - {
+                          id: m1.card.beginner.desc,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Start with the basics,
+                          fontSize: 11,
+                          color: $text.secondary
+                        }
+              - id: m1.card.chat
+                type: frame
+                size: [ fill, hug ]
+                cornerRadius: 10
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, direction: row, gap: 10, alignItems: center, padding: 12 }
+                children:
+                  - id: m1.card.chat.icon
+                    type: frame
+                    size: [ 32, 32 ]
+                    cornerRadius: 6
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m1.card.chat.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:comments,
+                          fill: $text.primary
+                        }
+                  - id: m1.card.chat.text
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m1.card.chat.title,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Let's just chat,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary
+                        }
+                      - {
+                          id: m1.card.chat.desc,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Casual conversation on any topic,
+                          fontSize: 11,
+                          color: $text.secondary
+                        }
+              - id: m1.card.check
+                type: frame
+                size: [ fill, hug ]
+                cornerRadius: 10
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, direction: row, gap: 10, alignItems: center, padding: 12 }
+                children:
+                  - id: m1.card.check.icon
+                    type: frame
+                    size: [ 32, 32 ]
+                    cornerRadius: 6
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m1.card.check.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:spell-check,
+                          fill: $text.primary
+                        }
+                  - id: m1.card.check.text
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m1.card.check.title,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Check my sentences,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary
+                        }
+                      - {
+                          id: m1.card.check.desc,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Corrections with clear explanations,
+                          fontSize: 11,
+                          color: $text.secondary
+                        }
+              - id: m1.card.grammar
+                type: frame
+                size: [ fill, hug ]
+                cornerRadius: 10
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, direction: row, gap: 10, alignItems: center, padding: 12 }
+                children:
+                  - id: m1.card.grammar.icon
+                    type: frame
+                    size: [ 32, 32 ]
+                    cornerRadius: 6
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m1.card.grammar.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:book-open,
+                          fill: $text.primary
+                        }
+                  - id: m1.card.grammar.text
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m1.card.grammar.title,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Go through grammar,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary
+                        }
+                      - {
+                          id: m1.card.grammar.desc,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Structured practice with rules,
+                          fontSize: 11,
+                          color: $text.secondary
+                        }
+      - id: m1.composer
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 10, 12 ] }
+        children:
+          - id: m1.composer.bar
+            type: frame
+            size: [ fill, 46 ]
+            cornerRadius: 10
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                alignItems: center,
+                gap: 6,
+                padding: [ 0, 6, 0, 14 ]
+              }
+            children:
+              - {
+                  id: m1.composer.placeholder,
+                  type: text,
+                  size: [ fill, hug ],
+                  content: Write a message...,
+                  fontSize: 14,
+                  color: $text.tertiary
+                }
+              - id: m1.composer.mic
+                type: frame
+                size: [ 34, 34 ]
+                cornerRadius: 8
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m1.composer.mic.icon,
+                      type: svg,
+                      size: [ 14, 14 ],
+                      icon: fas:microphone,
+                      fill: $text.secondary
+                    }
+              - id: m1.composer.send
+                type: frame
+                size: [ 34, 34 ]
+                cornerRadius: 8
+                fill: $primary
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m1.composer.send.icon,
+                      type: svg,
+                      size: [ 13, 13 ],
+                      icon: fas:arrow-up,
+                      fill: "#FFFFFF"
+                    }
+      - id: m1.tabs
+        type: frame
+        size: [ fill, 62 ]
+        fill: $bg
+        stroke: { color: $border, width: [ 1, 0, 0, 0 ], alignment: inside }
+        layout: { type: flex, direction: row, padding: [ 6, 8, 14, 8 ] }
+        children:
+          - id: m1.tab.topics
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m1.tab.topics.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:layer-group,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m1.tab.topics.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m1.tab.teacher
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m1.tab.teacher.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:chalkboard-user,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m1.tab.teacher.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Teacher,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m1.tab.chat
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m1.tab.chat.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:comment-dots,
+                  fill: $text.primary
+                }
+              - {
+                  id: m1.tab.chat.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Chat,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+          - id: m1.tab.settings
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m1.tab.settings.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:gear,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m1.tab.settings.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Settings,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+
+  - id: note.m2
+    type: text
+    position: [ 510, 24 ]
+    size: [ hug, hug ]
+    fontSize: 36
+    fontWeight: 700
+    color: "#000000"
+    content: Lesson
+
+  - id: m.lesson
+    type: frame
+    position: [ 510, 88 ]
+    size: [ 390, 844 ]
+    fill: $bg
+    layout:
+      type: flex
+      direction: column
+      overflow: hidden
+    children:
+      - id: m2.header
+        type: frame
+        size: [ fill, hug ]
+        layout:
+          {
+            type: flex,
+            direction: row,
+            gap: 10,
+            alignItems: center,
+            padding: [ 12, 16 ]
+          }
+        children:
+          - id: m2.back
+            type: frame
+            size: [ 34, 34 ]
+            cornerRadius: 6
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m2.back.icon,
+                  type: svg,
+                  size: [ 13, 13 ],
+                  icon: fas:chevron-left,
+                  fill: $text.primary
+                }
+          - id: m2.header.texts
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 1 }
+            children:
+              - {
+                  id: m2.header.title,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: AI Teacher,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+              - {
+                  id: m2.header.subtitle,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Lesson 4 · Talking about the weekend,
+                  fontSize: 11,
+                  color: $text.tertiary
+                }
+          - id: m2.header.history
+            type: frame
+            size: [ 34, 34 ]
+            cornerRadius: 6
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m2.header.history.icon,
+                  type: svg,
+                  size: [ 13, 13 ],
+                  icon: fas:clock-rotate-left,
+                  fill: $text.secondary
+                }
+      - id: m2.chat
+        type: frame
+        size: [ fill, fill ]
+        layout:
+          {
+            type: flex,
+            direction: column,
+            justifyContent: end,
+            gap: 12,
+            padding: [ 8, 16 ]
+          }
+        children:
+          - id: m2.msg.t1
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: row, gap: 8, alignItems: start }
+            children:
+              - id: m2.msg.t1.avatar
+                type: frame
+                size: [ 22, 22 ]
+                cornerRadius: 11
+                fill: $primary
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m2.msg.t1.avatar.icon,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:graduation-cap,
+                      fill: "#FFFFFF"
+                    }
+              - id: m2.msg.t1.bubble
+                type: frame
+                size: [ 300, hug ]
+                cornerRadius: 12
+                fill: $muted
+                layout: { type: flex, padding: [ 10, 12 ] }
+                children:
+                  - {
+                      id: m2.msg.t1.text,
+                      type: text,
+                      size: [ 276, hug ],
+                      content: "Hi Alex! Let's warm up. Tell me about your last weekend. What did you
+                        do?",
+                      fontSize: 13,
+                      lineHeight: 18,
+                      color: $text.primary
+                    }
+          - id: m2.msg.u1
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: row, justifyContent: end }
+            children:
+              - id: m2.msg.u1.bubble
+                type: frame
+                size: [ 300, hug ]
+                cornerRadius: 12
+                fill: $primary
+                layout: { type: flex, padding: [ 10, 12 ] }
+                children:
+                  - {
+                      id: m2.msg.u1.text,
+                      type: text,
+                      size: [ 276, hug ],
+                      content: "I go to the cinema with my friends on Saturday. We watch a new film.",
+                      fontSize: 13,
+                      lineHeight: 18,
+                      color: "#FFFFFF"
+                    }
+          - id: m2.msg.c1
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: row, gap: 8, alignItems: start }
+            children:
+              - id: m2.msg.c1.avatar
+                type: frame
+                size: [ 22, 22 ]
+                cornerRadius: 11
+                fill: $primary
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m2.msg.c1.avatar.icon,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:graduation-cap,
+                      fill: "#FFFFFF"
+                    }
+              - id: m2.msg.c1.card
+                type: frame
+                size: [ fill, hug ]
+                cornerRadius: 12
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, direction: column, gap: 8, padding: 12 }
+                children:
+                  - id: m2.c1.badge
+                    type: frame
+                    size: [ hug, hug ]
+                    cornerRadius: 6
+                    fill: $muted
+                    layout:
+                      {
+                        type: flex,
+                        direction: row,
+                        gap: 5,
+                        alignItems: center,
+                        padding: [ 3, 8 ]
+                      }
+                    children:
+                      - {
+                          id: m2.c1.badge.icon,
+                          type: svg,
+                          size: [ 10, 10 ],
+                          icon: fas:pencil,
+                          fill: $text.primary
+                        }
+                      - {
+                          id: m2.c1.badge.text,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Correction,
+                          fontSize: 11,
+                          fontWeight: 600,
+                          color: $text.primary
+                        }
+                  - id: m2.c1.wrong
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: row, gap: 8, alignItems: start }
+                    children:
+                      - {
+                          id: m2.c1.wrong.icon,
+                          type: svg,
+                          size: [ 10, 10 ],
+                          icon: fas:xmark,
+                          fill: $destructive,
+                          margin: [ 4, 0, 0, 0 ]
+                        }
+                      - id: m2.c1.wrong.text
+                        type: text
+                        size: [ 286, hug ]
+                        fontSize: 13
+                        lineHeight: 18
+                        color: $text.secondary
+                        content: |
+                          I <s>go</s> to the cinema with my friends on Saturday. We <s>watch</s> a new film.
+                  - id: m2.c1.right
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: row, gap: 8, alignItems: start }
+                    children:
+                      - {
+                          id: m2.c1.right.icon,
+                          type: svg,
+                          size: [ 10, 10 ],
+                          icon: fas:check,
+                          fill: $success,
+                          margin: [ 4, 0, 0, 0 ]
+                        }
+                      - id: m2.c1.right.text
+                        type: text
+                        size: [ 286, hug ]
+                        fontSize: 13
+                        lineHeight: 18
+                        color: $text.primary
+                        content: |
+                          I <strong>went</strong> to the cinema with my friends on Saturday. We <strong>watched</strong> a new film.
+                  - {
+                      id: m2.c1.why,
+                      type: text,
+                      size: [ 304, hug ],
+                      content: "Both actions finished in the past, so use Past Simple: go → went,
+                        watch → watched.",
+                      fontSize: 12,
+                      lineHeight: 17,
+                      color: $text.secondary
+                    }
+                  - id: m2.c1.actions
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: row, alignItems: center }
+                    children:
+                      - {
+                          id: m2.c1.whyLink,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Why?,
+                          fontSize: 12,
+                          fontWeight: 500,
+                          color: $text.primary,
+                          decoration: underline
+                        }
+                      - { id: m2.c1.spacer, type: frame, size: [ fill, 1 ] }
+                      - id: m2.c1.tryAgain
+                        type: frame
+                        size: [ hug, 28 ]
+                        cornerRadius: 6
+                        stroke: { color: $border, width: 1, alignment: inside }
+                        layout:
+                          {
+                            type: flex,
+                            direction: row,
+                            gap: 5,
+                            alignItems: center,
+                            padding: [ 0, 10 ]
+                          }
+                        children:
+                          - {
+                              id: m2.c1.tryAgain.icon,
+                              type: svg,
+                              size: [ 10, 10 ],
+                              icon: fas:rotate-left,
+                              fill: $text.primary
+                            }
+                          - {
+                              id: m2.c1.tryAgain.text,
+                              type: text,
+                              size: [ hug, hug ],
+                              content: Try again,
+                              fontSize: 11,
+                              fontWeight: 500,
+                              color: $text.primary
+                            }
+          - id: m2.msg.t2
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: row, gap: 8, alignItems: start }
+            children:
+              - id: m2.msg.t2.avatar
+                type: frame
+                size: [ 22, 22 ]
+                cornerRadius: 11
+                fill: $primary
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m2.msg.t2.avatar.icon,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:graduation-cap,
+                      fill: "#FFFFFF"
+                    }
+              - id: m2.msg.t2.bubble
+                type: frame
+                size: [ 300, hug ]
+                cornerRadius: 12
+                fill: $muted
+                layout: { type: flex, padding: [ 10, 12 ] }
+                children:
+                  - {
+                      id: m2.msg.t2.text,
+                      type: text,
+                      size: [ 276, hug ],
+                      content: "Exactly. What was the film about?",
+                      fontSize: 13,
+                      lineHeight: 18,
+                      color: $text.primary
+                    }
+      - id: m2.composer
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 10, 12 ] }
+        children:
+          - id: m2.composer.bar
+            type: frame
+            size: [ fill, 46 ]
+            cornerRadius: 10
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                alignItems: center,
+                gap: 6,
+                padding: [ 0, 6, 0, 14 ]
+              }
+            children:
+              - {
+                  id: m2.composer.placeholder,
+                  type: text,
+                  size: [ fill, hug ],
+                  content: Write a message...,
+                  fontSize: 14,
+                  color: $text.tertiary
+                }
+              - id: m2.composer.mic
+                type: frame
+                size: [ 34, 34 ]
+                cornerRadius: 8
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m2.composer.mic.icon,
+                      type: svg,
+                      size: [ 14, 14 ],
+                      icon: fas:microphone,
+                      fill: $text.secondary
+                    }
+              - id: m2.composer.send
+                type: frame
+                size: [ 34, 34 ]
+                cornerRadius: 8
+                fill: $primary
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m2.composer.send.icon,
+                      type: svg,
+                      size: [ 13, 13 ],
+                      icon: fas:arrow-up,
+                      fill: "#FFFFFF"
+                    }
+      - id: m2.tabs
+        type: frame
+        size: [ fill, 62 ]
+        fill: $bg
+        stroke: { color: $border, width: [ 1, 0, 0, 0 ], alignment: inside }
+        layout: { type: flex, direction: row, padding: [ 6, 8, 14, 8 ] }
+        children:
+          - id: m2.tab.topics
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m2.tab.topics.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:layer-group,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m2.tab.topics.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m2.tab.teacher
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m2.tab.teacher.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:chalkboard-user,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m2.tab.teacher.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Teacher,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m2.tab.chat
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m2.tab.chat.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:comment-dots,
+                  fill: $text.primary
+                }
+              - {
+                  id: m2.tab.chat.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Chat,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+          - id: m2.tab.settings
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m2.tab.settings.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:gear,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m2.tab.settings.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Settings,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+
+  - id: note.m3
+    type: text
+    position: [ 980, 24 ]
+    size: [ hug, hug ]
+    fontSize: 36
+    fontWeight: 700
+    color: "#000000"
+    content: Topics
+
+  - id: m.topics
+    type: frame
+    position: [ 980, 88 ]
+    size: [ 390, 844 ]
+    fill: $bg
+    layout:
+      type: flex
+      direction: column
+      overflow: hidden
+    children:
+      - id: m3.header
+        type: frame
+        size: [ fill, hug ]
+        layout:
+          {
+            type: flex,
+            direction: row,
+            justifyContent: spaceBetween,
+            alignItems: center,
+            padding: [ 16, 16, 4, 16 ]
+          }
+        children:
+          - id: m3.header.texts
+            type: frame
+            size: [ hug, hug ]
+            layout: { type: flex, direction: column, gap: 2 }
+            children:
+              - {
+                  id: m3.header.title,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 22,
+                  fontWeight: 600,
+                  letterSpacing: -0.4,
+                  color: $text.primary
+                }
+              - {
+                  id: m3.header.subtitle,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Pick a topic and practice speaking.,
+                  fontSize: 12,
+                  color: $text.secondary
+                }
+          - id: m3.add
+            type: frame
+            size: [ 36, 36 ]
+            cornerRadius: 8
+            fill: $primary
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m3.add.icon,
+                  type: svg,
+                  size: [ 13, 13 ],
+                  icon: fas:plus,
+                  fill: "#FFFFFF"
+                }
+      - id: m3.seg
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 12, 16 ] }
+        children:
+          - id: m3.seg.track
+            type: frame
+            size: [ fill, 34 ]
+            cornerRadius: 8
+            fill: $muted
+            layout: { type: flex, direction: row, padding: 3, gap: 2 }
+            children:
+              - id: m3.seg.all
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                fill: $bg
+                effects: { type: shadow, color: "#0000000F", offset: [ 0, 1 ], blur: 2 }
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m3.seg.all.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: All,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.primary
+                    }
+              - id: m3.seg.beginner
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m3.seg.beginner.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Beginner,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m3.seg.inter
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m3.seg.inter.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Intermediate,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m3.seg.advanced
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m3.seg.advanced.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Advanced,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+      - id: m3.list
+        type: frame
+        size: [ fill, fill ]
+        layout: { type: flex, direction: column, padding: [ 0, 16 ], alignItems: start }
+        children:
+          - id: m3.list.card
+            type: frame
+            size: [ fill, hug ]
+            cornerRadius: 12
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              type: flex
+              direction: column
+              overflow: hidden
+            children:
+              - id: m3.topic.1
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - id: m3.topic.1.icon
+                    type: frame
+                    size: [ 34, 34 ]
+                    cornerRadius: 8
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m3.topic.1.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:mug-hot,
+                          fill: $text.primary
+                        }
+                  - id: m3.topic.1.texts
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m3.topic.1.title,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Ordering food in a cafe,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m3.topic.1.meta,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Beginner · 2 lessons · 2 days ago,
+                          fontSize: 11,
+                          color: $text.tertiary
+                        }
+                  - {
+                      id: m3.topic.1.chevron,
+                      type: svg,
+                      size: [ 11, 11 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m3.topic.2
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - id: m3.topic.2.icon
+                    type: frame
+                    size: [ 34, 34 ]
+                    cornerRadius: 8
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m3.topic.2.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:briefcase,
+                          fill: $text.primary
+                        }
+                  - id: m3.topic.2.texts
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m3.topic.2.title,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Job interview practice,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m3.topic.2.meta,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Intermediate · 5 lessons · Yesterday,
+                          fontSize: 11,
+                          color: $text.tertiary
+                        }
+                  - {
+                      id: m3.topic.2.chevron,
+                      type: svg,
+                      size: [ 11, 11 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m3.topic.3
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - id: m3.topic.3.icon
+                    type: frame
+                    size: [ 34, 34 ]
+                    cornerRadius: 8
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m3.topic.3.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:plane,
+                          fill: $text.primary
+                        }
+                  - id: m3.topic.3.texts
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m3.topic.3.title,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Travel and directions,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m3.topic.3.meta,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Beginner · 3 lessons · 3 days ago,
+                          fontSize: 11,
+                          color: $text.tertiary
+                        }
+                  - {
+                      id: m3.topic.3.chevron,
+                      type: svg,
+                      size: [ 11, 11 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m3.topic.4
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - id: m3.topic.4.icon
+                    type: frame
+                    size: [ 34, 34 ]
+                    cornerRadius: 8
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m3.topic.4.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:futbol,
+                          fill: $text.primary
+                        }
+                  - id: m3.topic.4.texts
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m3.topic.4.title,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Talking about hobbies,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m3.topic.4.meta,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Beginner · 2 lessons · Last week,
+                          fontSize: 11,
+                          color: $text.tertiary
+                        }
+                  - {
+                      id: m3.topic.4.chevron,
+                      type: svg,
+                      size: [ 11, 11 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m3.topic.5
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - id: m3.topic.5.icon
+                    type: frame
+                    size: [ 34, 34 ]
+                    cornerRadius: 8
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m3.topic.5.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:envelope,
+                          fill: $text.primary
+                        }
+                  - id: m3.topic.5.texts
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m3.topic.5.title,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Business email writing,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m3.topic.5.meta,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Advanced · 4 lessons · Last week,
+                          fontSize: 11,
+                          color: $text.tertiary
+                        }
+                  - {
+                      id: m3.topic.5.chevron,
+                      type: svg,
+                      size: [ 11, 11 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m3.topic.6
+                type: frame
+                size: [ fill, hug ]
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - id: m3.topic.6.icon
+                    type: frame
+                    size: [ 34, 34 ]
+                    cornerRadius: 8
+                    fill: $muted
+                    layout: { type: flex, alignItems: center, justifyContent: center }
+                    children:
+                      - {
+                          id: m3.topic.6.icon.svg,
+                          type: svg,
+                          size: [ 14, 14 ],
+                          icon: fas:clock-rotate-left,
+                          fill: $text.primary
+                        }
+                  - id: m3.topic.6.texts
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m3.topic.6.title,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: Past Simple review,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m3.topic.6.meta,
+                          type: text,
+                          size: [ hug, hug ],
+                          content: Intermediate · 1 lesson · 2 weeks ago,
+                          fontSize: 11,
+                          color: $text.tertiary
+                        }
+                  - {
+                      id: m3.topic.6.chevron,
+                      type: svg,
+                      size: [ 11, 11 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+      - id: m3.tabs
+        type: frame
+        size: [ fill, 62 ]
+        fill: $bg
+        stroke: { color: $border, width: [ 1, 0, 0, 0 ], alignment: inside }
+        layout: { type: flex, direction: row, padding: [ 6, 8, 14, 8 ] }
+        children:
+          - id: m3.tab.topics
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m3.tab.topics.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:layer-group,
+                  fill: $text.primary
+                }
+              - {
+                  id: m3.tab.topics.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+          - id: m3.tab.teacher
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m3.tab.teacher.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:chalkboard-user,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m3.tab.teacher.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Teacher,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m3.tab.chat
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m3.tab.chat.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:comment-dots,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m3.tab.chat.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Chat,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m3.tab.settings
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m3.tab.settings.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:gear,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m3.tab.settings.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Settings,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+
+  - id: note.m4
+    type: text
+    position: [ 1450, 24 ]
+    size: [ hug, hug ]
+    fontSize: 36
+    fontWeight: 700
+    color: "#000000"
+    content: Teacher
+
+  - id: m.teacher
+    type: frame
+    position: [ 1450, 88 ]
+    size: [ 390, 844 ]
+    fill: $bg
+    layout:
+      type: flex
+      direction: column
+      overflow: hidden
+    children:
+      - id: m4.header
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, direction: column, gap: 2, padding: [ 16, 16, 4, 16 ] }
+        children:
+          - {
+              id: m4.header.title,
+              type: text,
+              size: [ hug, hug ],
+              content: Teacher,
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: -0.4,
+              color: $text.primary
+            }
+          - {
+              id: m4.header.subtitle,
+              type: text,
+              size: [ fill, hug ],
+              content: "A test finds your level, the AI builds the program.",
+              fontSize: 12,
+              color: $text.secondary
+            }
+      - id: m4.langs
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, direction: column, gap: 10, padding: [ 12, 16 ] }
+        children:
+          - id: m4.lang.learn
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 6 }
+            children:
+              - {
+                  id: m4.lang.learn.label,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Learning language,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: $text.primary
+                }
+              - id: m4.lang.learn.select
+                type: frame
+                size: [ fill, 42 ]
+                cornerRadius: 8
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    justifyContent: spaceBetween,
+                    alignItems: center,
+                    padding: [ 0, 12 ]
+                  }
+                children:
+                  - {
+                      id: m4.lang.learn.value,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: English,
+                      fontSize: 14,
+                      color: $text.primary
+                    }
+                  - {
+                      id: m4.lang.learn.chevron,
+                      type: svg,
+                      size: [ 11, 11 ],
+                      icon: fas:chevron-down,
+                      fill: $text.tertiary
+                    }
+          - id: m4.lang.own
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 6 }
+            children:
+              - {
+                  id: m4.lang.own.label,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Your language,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: $text.primary
+                }
+              - id: m4.lang.own.select
+                type: frame
+                size: [ fill, 42 ]
+                cornerRadius: 8
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    justifyContent: spaceBetween,
+                    alignItems: center,
+                    padding: [ 0, 12 ]
+                  }
+                children:
+                  - {
+                      id: m4.lang.own.value,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Russian,
+                      fontSize: 14,
+                      color: $text.primary
+                    }
+                  - {
+                      id: m4.lang.own.chevron,
+                      type: svg,
+                      size: [ 11, 11 ],
+                      icon: fas:chevron-down,
+                      fill: $text.tertiary
+                    }
+      - id: m4.program
+        type: frame
+        size: [ fill, hug ]
+        margin: [ 0, 16 ]
+        cornerRadius: 10
+        fill: $bg
+        stroke: { color: $border, width: 1, alignment: inside }
+        layout: { type: flex, direction: column, gap: 10, padding: 14 }
+        children:
+          - id: m4.program.head
+            type: frame
+            size: [ fill, hug ]
+            layout:
+              {
+                type: flex,
+                direction: row,
+                justifyContent: spaceBetween,
+                alignItems: center
+              }
+            children:
+              - {
+                  id: m4.program.title,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Program · level B1,
+                  fontSize: 15,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+              - id: m4.program.badge
+                type: frame
+                size: [ hug, hug ]
+                cornerRadius: 6
+                fill: $muted
+                layout: { type: flex, padding: [ 2, 8 ] }
+                children:
+                  - {
+                      id: m4.program.badge.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: 1 of 9 topics,
+                      fontSize: 10,
+                      fontWeight: 600,
+                      color: $text.secondary
+                    }
+          - {
+              id: m4.program.desc,
+              type: text,
+              size: [ fill, hug ],
+              content: "Уровень B1 подтверждён: базовая грамматика и лексика закрыты (24 из
+                32). Основные пробелы — Perfect и Continuous, относительные
+                придаточные, модальные глаголы.",
+              fontSize: 12,
+              lineHeight: 17,
+              color: $text.secondary
+            }
+          - id: m4.program.actions
+            type: frame
+            size: [ hug, hug ]
+            layout: { type: flex, direction: row, gap: 8 }
+            children:
+              - id: m4.program.finalTest
+                type: frame
+                size: [ hug, 34 ]
+                cornerRadius: 6
+                fill: $primary
+                layout: { type: flex, alignItems: center, padding: [ 0, 12 ] }
+                children:
+                  - {
+                      id: m4.program.finalTest.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Take the final test,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "#FFFFFF"
+                    }
+              - id: m4.program.reset
+                type: frame
+                size: [ hug, 34 ]
+                cornerRadius: 6
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, alignItems: center, padding: [ 0, 12 ] }
+                children:
+                  - {
+                      id: m4.program.reset.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Reset the level,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.primary
+                    }
+      - id: m4.topics
+        type: frame
+        size: [ fill, fill ]
+        layout:
+          {
+            type: flex,
+            direction: column,
+            gap: 8,
+            padding: [ 12, 16 ],
+            alignItems: start
+          }
+        children:
+          - id: m4.topic.1
+            type: frame
+            size: [ fill, hug ]
+            cornerRadius: 10
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 10,
+                alignItems: center,
+                padding: [ 12, 12 ]
+              }
+            children:
+              - id: m4.topic.1.num
+                type: frame
+                size: [ 28, 28 ]
+                cornerRadius: 14
+                fill: $muted
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m4.topic.1.num.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: "1",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: $text.primary
+                    }
+              - id: m4.topic.1.texts
+                type: frame
+                size: [ fill, hug ]
+                layout: { type: flex, direction: column, gap: 1 }
+                children:
+                  - {
+                      id: m4.topic.1.title,
+                      type: text,
+                      size: [ 200, hug ],
+                      content: "Present Perfect vs Present Continuous",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: $text.primary,
+                      maxLines: 2
+                    }
+                  - {
+                      id: m4.topic.1.meta,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Grammar,
+                      fontSize: 11,
+                      color: $text.tertiary
+                    }
+              - id: m4.topic.1.badge
+                type: frame
+                size: [ hug, hug ]
+                cornerRadius: 6
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, padding: [ 2, 8 ] }
+                children:
+                  - {
+                      id: m4.topic.1.badge.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: completed,
+                      fontSize: 10,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+          - id: m4.topic.2
+            type: frame
+            size: [ fill, hug ]
+            cornerRadius: 10
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 10,
+                alignItems: center,
+                padding: [ 12, 12 ]
+              }
+            children:
+              - id: m4.topic.2.num
+                type: frame
+                size: [ 28, 28 ]
+                cornerRadius: 14
+                fill: $muted
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m4.topic.2.num.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: "2",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: $text.primary
+                    }
+              - id: m4.topic.2.texts
+                type: frame
+                size: [ fill, hug ]
+                layout: { type: flex, direction: column, gap: 1 }
+                children:
+                  - {
+                      id: m4.topic.2.title,
+                      type: text,
+                      size: [ 200, hug ],
+                      content: "Относительные придаточные: whose, which, who",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: $text.primary,
+                      maxLines: 2
+                    }
+                  - {
+                      id: m4.topic.2.meta,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Grammar,
+                      fontSize: 11,
+                      color: $text.tertiary
+                    }
+              - id: m4.topic.2.badge
+                type: frame
+                size: [ hug, hug ]
+                cornerRadius: 6
+                fill: $primary
+                layout: { type: flex, padding: [ 2, 8 ] }
+                children:
+                  - {
+                      id: m4.topic.2.badge.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: In progress,
+                      fontSize: 10,
+                      fontWeight: 500,
+                      color: "#FFFFFF"
+                    }
+          - id: m4.topic.3
+            type: frame
+            size: [ fill, hug ]
+            cornerRadius: 10
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 10,
+                alignItems: center,
+                padding: [ 12, 12 ]
+              }
+            children:
+              - id: m4.topic.3.num
+                type: frame
+                size: [ 28, 28 ]
+                cornerRadius: 14
+                fill: $muted
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m4.topic.3.num.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: "3",
+                      fontSize: 12,
+                      fontWeight: 600,
+                      color: $text.primary
+                    }
+              - id: m4.topic.3.texts
+                type: frame
+                size: [ fill, hug ]
+                layout: { type: flex, direction: column, gap: 1 }
+                children:
+                  - {
+                      id: m4.topic.3.title,
+                      type: text,
+                      size: [ 200, hug ],
+                      content: "Модальные глаголы: mustn't, don't have to, have to",
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: $text.primary,
+                      maxLines: 2
+                    }
+                  - {
+                      id: m4.topic.3.meta,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Grammar,
+                      fontSize: 11,
+                      color: $text.tertiary
+                    }
+              - id: m4.topic.3.badge
+                type: frame
+                size: [ hug, hug ]
+                cornerRadius: 6
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, padding: [ 2, 8 ] }
+                children:
+                  - {
+                      id: m4.topic.3.badge.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: not started,
+                      fontSize: 10,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+      - id: m4.tabs
+        type: frame
+        size: [ fill, 62 ]
+        fill: $bg
+        stroke: { color: $border, width: [ 1, 0, 0, 0 ], alignment: inside }
+        layout: { type: flex, direction: row, padding: [ 6, 8, 14, 8 ] }
+        children:
+          - id: m4.tab.topics
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m4.tab.topics.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:layer-group,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m4.tab.topics.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m4.tab.teacher
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m4.tab.teacher.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:chalkboard-user,
+                  fill: $text.primary
+                }
+              - {
+                  id: m4.tab.teacher.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Teacher,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+          - id: m4.tab.chat
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m4.tab.chat.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:comment-dots,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m4.tab.chat.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Chat,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m4.tab.settings
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m4.tab.settings.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:gear,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m4.tab.settings.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Settings,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+
+  - id: note.m5
+    type: text
+    position: [ 1920, 24 ]
+    size: [ hug, hug ]
+    fontSize: 36
+    fontWeight: 700
+    color: "#000000"
+    content: Vocab
+
+  - id: m.vocab
+    type: frame
+    position: [ 1920, 88 ]
+    size: [ 390, 844 ]
+    fill: $bg
+    layout:
+      type: flex
+      direction: column
+      overflow: hidden
+    children:
+      - id: m5.topbar
+        type: frame
+        size: [ fill, hug ]
+        layout:
+          {
+            type: flex,
+            direction: row,
+            justifyContent: spaceBetween,
+            alignItems: center,
+            padding: [ 12, 16 ]
+          }
+        children:
+          - id: m5.back
+            type: frame
+            size: [ hug, hug ]
+            layout: { type: flex, direction: row, gap: 6, alignItems: center }
+            children:
+              - {
+                  id: m5.back.icon,
+                  type: svg,
+                  size: [ 12, 12 ],
+                  icon: fas:chevron-left,
+                  fill: $text.secondary
+                }
+              - {
+                  id: m5.back.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: $text.secondary
+                }
+          - id: m5.settings
+            type: frame
+            size: [ 34, 34 ]
+            cornerRadius: 6
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m5.settings.icon,
+                  type: svg,
+                  size: [ 13, 13 ],
+                  icon: fas:gear,
+                  fill: $text.secondary
+                }
+      - id: m5.heading
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, direction: column, gap: 2, padding: [ 8, 16, 0, 16 ] }
+        children:
+          - {
+              id: m5.title,
+              type: text,
+              size: [ hug, hug ],
+              content: English,
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: -0.4,
+              color: $text.primary
+            }
+          - {
+              id: m5.breadcrumbs,
+              type: text,
+              size: [ hug, hug ],
+              content: English → Russian,
+              fontSize: 11,
+              color: $text.tertiary
+            }
+      - id: m5.seg1
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 12, 16, 6, 16 ] }
+        children:
+          - id: m5.seg1.track
+            type: frame
+            size: [ fill, 32 ]
+            cornerRadius: 8
+            fill: $muted
+            layout: { type: flex, direction: row, padding: 3, gap: 2 }
+            children:
+              - id: m5.seg1.all
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                fill: $bg
+                effects: { type: shadow, color: "#0000000F", offset: [ 0, 1 ], blur: 2 }
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m5.seg1.all.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: All,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.primary
+                    }
+              - id: m5.seg1.inbox
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m5.seg1.inbox.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Inbox,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m5.seg1.learning
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m5.seg1.learning.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Learning,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m5.seg1.known
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m5.seg1.known.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Known,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+      - id: m5.seg2
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 0, 16, 6, 16 ] }
+        children:
+          - id: m5.seg2.track
+            type: frame
+            size: [ fill, 32 ]
+            cornerRadius: 8
+            fill: $muted
+            layout: { type: flex, direction: row, padding: 3, gap: 2 }
+            children:
+              - id: m5.seg2.both
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                fill: $bg
+                effects: { type: shadow, color: "#0000000F", offset: [ 0, 1 ], blur: 2 }
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m5.seg2.both.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Both,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.primary
+                    }
+              - id: m5.seg2.words
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m5.seg2.words.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Words,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m5.seg2.phrases
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m5.seg2.phrases.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Phrases,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+      - id: m5.search
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 0, 16, 6, 16 ] }
+        children:
+          - id: m5.search.box
+            type: frame
+            size: [ fill, 38 ]
+            cornerRadius: 8
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 8,
+                alignItems: center,
+                padding: [ 0, 12 ]
+              }
+            children:
+              - {
+                  id: m5.search.icon,
+                  type: svg,
+                  size: [ 12, 12 ],
+                  icon: fas:magnifying-glass,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m5.search.placeholder,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Find a word or phrase,
+                  fontSize: 12,
+                  color: $text.tertiary
+                }
+      - id: m5.actions
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, direction: row, gap: 8, padding: [ 0, 16, 10, 16 ] }
+        children:
+          - id: m5.fromPhoto
+            type: frame
+            size: [ fill, 36 ]
+            cornerRadius: 8
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 6,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m5.fromPhoto.icon,
+                  type: svg,
+                  size: [ 12, 12 ],
+                  icon: fas:camera,
+                  fill: $text.primary
+                }
+              - {
+                  id: m5.fromPhoto.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: From photo,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: $text.primary
+                }
+          - id: m5.add
+            type: frame
+            size: [ fill, 36 ]
+            cornerRadius: 8
+            fill: $primary
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 6,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m5.add.icon,
+                  type: svg,
+                  size: [ 11, 11 ],
+                  icon: fas:plus,
+                  fill: "#FFFFFF"
+                }
+              - {
+                  id: m5.add.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Add entry,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: "#FFFFFF"
+                }
+      - id: m5.list
+        type: frame
+        size: [ fill, fill ]
+        layout: { type: flex, direction: column, padding: [ 0, 16 ], alignItems: start }
+        children:
+          - id: m5.list.card
+            type: frame
+            size: [ fill, hug ]
+            cornerRadius: 12
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              type: flex
+              direction: column
+              overflow: hidden
+            children:
+              - id: m5.entry.1
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m5.entry.1.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m5.entry.1.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m5.entry.1.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: security posture,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.1.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "состояние защищённости",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.1.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Phrase · Inbox · PortSwigger",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m5.entry.1.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m5.entry.1.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m5.entry.2
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m5.entry.2.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m5.entry.2.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m5.entry.2.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: a weaker security posture,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.2.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "защищённость слабее",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.2.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Phrase · Inbox · PortSwigger",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m5.entry.2.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m5.entry.2.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m5.entry.3
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m5.entry.3.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m5.entry.3.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m5.entry.3.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: posture,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.3.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "осанка; поза; позиция",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.3.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Word · Inbox · PortSwigger",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m5.entry.3.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m5.entry.3.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m5.entry.4
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m5.entry.4.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m5.entry.4.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m5.entry.4.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: weaker,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.4.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "слабее",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.4.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Word · Inbox · PortSwigger",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m5.entry.4.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m5.entry.4.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m5.entry.5
+                type: frame
+                size: [ fill, hug ]
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m5.entry.5.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m5.entry.5.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m5.entry.5.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: ordinary,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.5.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "обычный",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m5.entry.5.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Word · Inbox",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m5.entry.5.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m5.entry.5.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+      - id: m5.tabs
+        type: frame
+        size: [ fill, 62 ]
+        fill: $bg
+        stroke: { color: $border, width: [ 1, 0, 0, 0 ], alignment: inside }
+        layout: { type: flex, direction: row, padding: [ 6, 8, 14, 8 ] }
+        children:
+          - id: m5.tab.topics
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m5.tab.topics.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:layer-group,
+                  fill: $text.primary
+                }
+              - {
+                  id: m5.tab.topics.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+          - id: m5.tab.teacher
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m5.tab.teacher.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:chalkboard-user,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m5.tab.teacher.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Teacher,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m5.tab.chat
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m5.tab.chat.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:comment-dots,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m5.tab.chat.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Chat,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m5.tab.settings
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m5.tab.settings.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:gear,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m5.tab.settings.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Settings,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+
+  - id: note.m6
+    type: text
+    position: [ 2390, 24 ]
+    size: [ hug, hug ]
+    fontSize: 36
+    fontWeight: 700
+    color: "#000000"
+    content: Entry open
+
+  - id: m.entry
+    type: frame
+    position: [ 2390, 88 ]
+    size: [ 390, 844 ]
+    fill: $bg
+    layout:
+      type: flex
+      direction: column
+      overflow: hidden
+    children:
+      - id: m6.topbar
+        type: frame
+        size: [ fill, hug ]
+        layout:
+          {
+            type: flex,
+            direction: row,
+            justifyContent: spaceBetween,
+            alignItems: center,
+            padding: [ 12, 16 ]
+          }
+        children:
+          - id: m6.back
+            type: frame
+            size: [ hug, hug ]
+            layout: { type: flex, direction: row, gap: 6, alignItems: center }
+            children:
+              - {
+                  id: m6.back.icon,
+                  type: svg,
+                  size: [ 12, 12 ],
+                  icon: fas:chevron-left,
+                  fill: $text.secondary
+                }
+              - {
+                  id: m6.back.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: English,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: $text.secondary
+                }
+          - id: m6.settings
+            type: frame
+            size: [ 34, 34 ]
+            cornerRadius: 6
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m6.settings.icon,
+                  type: svg,
+                  size: [ 13, 13 ],
+                  icon: fas:gear,
+                  fill: $text.secondary
+                }
+      - id: m6.body
+        type: frame
+        size: [ fill, fill ]
+        layout:
+          {
+            type: flex,
+            direction: column,
+            gap: 10,
+            padding: [ 8, 16, 12, 16 ],
+            overflow: hidden
+          }
+        children:
+          - id: m6.badge
+            type: frame
+            size: [ hug, hug ]
+            alignSelf: start
+            cornerRadius: 6
+            fill: $muted
+            layout: { type: flex, padding: [ 3, 10 ] }
+            children:
+              - {
+                  id: m6.badge.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Phrase,
+                  fontSize: 11,
+                  fontWeight: 600,
+                  color: $text.secondary
+                }
+          - {
+              id: m6.term,
+              type: text,
+              size: [ fill, hug ],
+              content: security posture,
+              fontSize: 20,
+              fontWeight: 600,
+              letterSpacing: -0.3,
+              color: $text.primary
+            }
+          - {
+              id: m6.transcription,
+              type: text,
+              size: [ hug, hug ],
+              content: "/sɪˈkjʊərəti ˈpɒstʃər/",
+              fontSize: 12,
+              color: $text.tertiary
+            }
+          - {
+              id: m6.translation,
+              type: text,
+              size: [ fill, hug ],
+              content: "Состояние защищённости; уровень безопасности",
+              fontSize: 15,
+              fontWeight: 600,
+              color: $text.primary
+            }
+          - {
+              id: m6.source,
+              type: text,
+              size: [ fill, hug ],
+              content: "Source: Server-side vulnerabilities — PortSwigger",
+              fontSize: 11,
+              color: $text.tertiary
+            }
+          - id: m6.status
+            type: frame
+            size: [ fill, 36 ]
+            cornerRadius: 8
+            fill: $muted
+            layout: { type: flex, direction: row, padding: 3, gap: 2 }
+            children:
+              - id: m6.status.inbox
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                fill: $primary
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m6.status.inbox.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Inbox,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "#FFFFFF"
+                    }
+              - id: m6.status.learning
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m6.status.learning.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Learning,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m6.status.known
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m6.status.known.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Known,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+          - {
+              id: m6.div.1,
+              type: frame,
+              size: [ fill, 1 ],
+              fill: $border,
+              margin: [ 6, 0, 0, 0 ]
+            }
+          - id: m6.sec.breakdown
+            type: frame
+            size: [ fill, hug ]
+            margin: [ 6, 0, 0, 0 ]
+            layout: { type: flex, direction: column, gap: 4 }
+            children:
+              - {
+                  id: m6.sec.breakdown.label,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Breakdown,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: $text.secondary
+                }
+              - id: m6.sec.breakdown.text
+                type: text
+                size: [ fill, hug ]
+                fontSize: 13
+                lineHeight: 19
+                color: $text.primary
+                content: |
+                  <strong>security</strong> — «безопасность», здесь в значении защищённости от атак. <strong>posture</strong> — буквально «осанка, поза»; переносно — «позиция, состояние».
+          - { id: m6.div.2, type: frame, size: [ fill, 1 ], fill: $border }
+          - id: m6.sec.rule
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 4 }
+            children:
+              - {
+                  id: m6.sec.rule.label,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Rule,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: $text.secondary
+                }
+              - {
+                  id: m6.sec.rule.text,
+                  type: text,
+                  size: [ fill, hug ],
+                  content: "Устойчивая коллокация «существительное + существительное»: ударение на
+                    первом слове.",
+                  fontSize: 13,
+                  lineHeight: 19,
+                  color: $text.primary
+                }
+          - { id: m6.div.3, type: frame, size: [ fill, 1 ], fill: $border }
+          - id: m6.sec.usage
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 4 }
+            children:
+              - {
+                  id: m6.sec.usage.label,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: How to use it,
+                  fontSize: 12,
+                  fontWeight: 600,
+                  color: $text.secondary
+                }
+              - {
+                  id: m6.sec.usage.text,
+                  type: text,
+                  size: [ fill, hug ],
+                  content: "Regular audits help maintain a strong security posture.",
+                  fontSize: 13,
+                  lineHeight: 19,
+                  color: $text.primary
+                }
+          - { id: m6.spacer, type: frame, size: [ fill, fill ] }
+          - id: m6.ask
+            type: frame
+            size: [ fill, 40 ]
+            cornerRadius: 8
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 6,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m6.ask.icon,
+                  type: svg,
+                  size: [ 12, 12 ],
+                  icon: fas:comment,
+                  fill: $text.primary
+                }
+              - {
+                  id: m6.ask.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Ask the AI agent,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: $text.primary
+                }
+          - id: m6.delete
+            type: frame
+            size: [ fill, 32 ]
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m6.delete.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Delete entry,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: $destructive
+                }
+      - id: m6.tabs
+        type: frame
+        size: [ fill, 62 ]
+        fill: $bg
+        stroke: { color: $border, width: [ 1, 0, 0, 0 ], alignment: inside }
+        layout: { type: flex, direction: row, padding: [ 6, 8, 14, 8 ] }
+        children:
+          - id: m6.tab.topics
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m6.tab.topics.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:layer-group,
+                  fill: $text.primary
+                }
+              - {
+                  id: m6.tab.topics.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+          - id: m6.tab.teacher
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m6.tab.teacher.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:chalkboard-user,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m6.tab.teacher.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Teacher,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m6.tab.chat
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m6.tab.chat.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:comment-dots,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m6.tab.chat.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Chat,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m6.tab.settings
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m6.tab.settings.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:gear,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m6.tab.settings.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Settings,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+  - id: note.m7
+    type: text
+    position: [ 2860, 24 ]
+    size: [ hug, hug ]
+    fontSize: 36
+    fontWeight: 700
+    color: "#000000"
+    content: Add entry
+
+  - id: m.addentry
+    type: frame
+    position: [ 2860, 88 ]
+    size: [ 390, 844 ]
+    fill: $bg
+    layout:
+      type: flex
+      direction: column
+      overflow: hidden
+    children:
+      - id: m7.topbar
+        type: frame
+        size: [ fill, hug ]
+        layout:
+          {
+            type: flex,
+            direction: row,
+            justifyContent: spaceBetween,
+            alignItems: center,
+            padding: [ 12, 16 ]
+          }
+        children:
+          - id: m7.back
+            type: frame
+            size: [ hug, hug ]
+            layout: { type: flex, direction: row, gap: 6, alignItems: center }
+            children:
+              - {
+                  id: m7.back.icon,
+                  type: svg,
+                  size: [ 12, 12 ],
+                  icon: fas:chevron-left,
+                  fill: $text.secondary
+                }
+              - {
+                  id: m7.back.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 13,
+                  fontWeight: 500,
+                  color: $text.secondary
+                }
+          - id: m7.settings
+            type: frame
+            size: [ 34, 34 ]
+            cornerRadius: 6
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m7.settings.icon,
+                  type: svg,
+                  size: [ 13, 13 ],
+                  icon: fas:gear,
+                  fill: $text.secondary
+                }
+      - id: m7.heading
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, direction: column, gap: 2, padding: [ 8, 16, 0, 16 ] }
+        children:
+          - {
+              id: m7.title,
+              type: text,
+              size: [ hug, hug ],
+              content: English,
+              fontSize: 22,
+              fontWeight: 600,
+              letterSpacing: -0.4,
+              color: $text.primary
+            }
+          - {
+              id: m7.breadcrumbs,
+              type: text,
+              size: [ hug, hug ],
+              content: English → Russian,
+              fontSize: 11,
+              color: $text.tertiary
+            }
+      - id: m7.seg1
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 12, 16, 6, 16 ] }
+        children:
+          - id: m7.seg1.track
+            type: frame
+            size: [ fill, 32 ]
+            cornerRadius: 8
+            fill: $muted
+            layout: { type: flex, direction: row, padding: 3, gap: 2 }
+            children:
+              - id: m7.seg1.all
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                fill: $bg
+                effects: { type: shadow, color: "#0000000F", offset: [ 0, 1 ], blur: 2 }
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.seg1.all.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: All,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.primary
+                    }
+              - id: m7.seg1.inbox
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.seg1.inbox.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Inbox,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m7.seg1.learning
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.seg1.learning.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Learning,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m7.seg1.known
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.seg1.known.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Known,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+      - id: m7.seg2
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 0, 16, 6, 16 ] }
+        children:
+          - id: m7.seg2.track
+            type: frame
+            size: [ fill, 32 ]
+            cornerRadius: 8
+            fill: $muted
+            layout: { type: flex, direction: row, padding: 3, gap: 2 }
+            children:
+              - id: m7.seg2.both
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                fill: $bg
+                effects: { type: shadow, color: "#0000000F", offset: [ 0, 1 ], blur: 2 }
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.seg2.both.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Both,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.primary
+                    }
+              - id: m7.seg2.words
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.seg2.words.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Words,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m7.seg2.phrases
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.seg2.phrases.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Phrases,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+      - id: m7.search
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, padding: [ 0, 16, 6, 16 ] }
+        children:
+          - id: m7.search.box
+            type: frame
+            size: [ fill, 38 ]
+            cornerRadius: 8
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 8,
+                alignItems: center,
+                padding: [ 0, 12 ]
+              }
+            children:
+              - {
+                  id: m7.search.icon,
+                  type: svg,
+                  size: [ 12, 12 ],
+                  icon: fas:magnifying-glass,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m7.search.placeholder,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Find a word or phrase,
+                  fontSize: 12,
+                  color: $text.tertiary
+                }
+      - id: m7.actions
+        type: frame
+        size: [ fill, hug ]
+        layout: { type: flex, direction: row, gap: 8, padding: [ 0, 16, 10, 16 ] }
+        children:
+          - id: m7.fromPhoto
+            type: frame
+            size: [ fill, 36 ]
+            cornerRadius: 8
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 6,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m7.fromPhoto.icon,
+                  type: svg,
+                  size: [ 12, 12 ],
+                  icon: fas:camera,
+                  fill: $text.primary
+                }
+              - {
+                  id: m7.fromPhoto.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: From photo,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: $text.primary
+                }
+          - id: m7.add
+            type: frame
+            size: [ fill, 36 ]
+            cornerRadius: 8
+            fill: $primary
+            layout:
+              {
+                type: flex,
+                direction: row,
+                gap: 6,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m7.add.icon,
+                  type: svg,
+                  size: [ 11, 11 ],
+                  icon: fas:plus,
+                  fill: "#FFFFFF"
+                }
+              - {
+                  id: m7.add.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Add entry,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: "#FFFFFF"
+                }
+      - id: m7.list
+        type: frame
+        size: [ fill, fill ]
+        layout: { type: flex, direction: column, padding: [ 0, 16 ], alignItems: start }
+        children:
+          - id: m7.list.card
+            type: frame
+            size: [ fill, hug ]
+            cornerRadius: 12
+            fill: $bg
+            stroke: { color: $border, width: 1, alignment: inside }
+            layout:
+              type: flex
+              direction: column
+              overflow: hidden
+            children:
+              - id: m7.entry.1
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m7.entry.1.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m7.entry.1.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m7.entry.1.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: security posture,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.1.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "состояние защищённости",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.1.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Phrase · Inbox · PortSwigger",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m7.entry.1.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m7.entry.1.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m7.entry.2
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m7.entry.2.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m7.entry.2.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m7.entry.2.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: a weaker security posture,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.2.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "защищённость слабее",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.2.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Phrase · Inbox · PortSwigger",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m7.entry.2.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m7.entry.2.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m7.entry.3
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m7.entry.3.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m7.entry.3.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m7.entry.3.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: posture,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.3.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "осанка; поза; позиция",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.3.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Word · Inbox · PortSwigger",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m7.entry.3.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m7.entry.3.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m7.entry.4
+                type: frame
+                size: [ fill, hug ]
+                stroke: { color: $border, width: [ 0, 0, 1, 0 ], alignment: inside }
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m7.entry.4.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m7.entry.4.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m7.entry.4.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: weaker,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.4.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "слабее",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.4.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Word · Inbox · PortSwigger",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m7.entry.4.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m7.entry.4.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+              - id: m7.entry.5
+                type: frame
+                size: [ fill, hug ]
+                layout:
+                  {
+                    type: flex,
+                    direction: row,
+                    gap: 10,
+                    alignItems: center,
+                    padding: [ 12, 12 ]
+                  }
+                children:
+                  - { id: m7.entry.5.dot, type: ellipse, size: [ 8, 8 ], fill: "#D97706" }
+                  - id: m7.entry.5.body
+                    type: frame
+                    size: [ fill, hug ]
+                    layout: { type: flex, direction: column, gap: 1 }
+                    children:
+                      - {
+                          id: m7.entry.5.term,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: ordinary,
+                          fontSize: 13,
+                          fontWeight: 600,
+                          color: $text.primary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.5.translation,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "обычный",
+                          fontSize: 12,
+                          color: $text.secondary,
+                          maxLines: 1
+                        }
+                      - {
+                          id: m7.entry.5.meta,
+                          type: text,
+                          size: [ fill, hug ],
+                          content: "Word · Inbox",
+                          fontSize: 10,
+                          color: $text.tertiary,
+                          maxLines: 1
+                        }
+                  - {
+                      id: m7.entry.5.sound,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:volume-high,
+                      fill: $text.tertiary
+                    }
+                  - {
+                      id: m7.entry.5.chevron,
+                      type: svg,
+                      size: [ 10, 10 ],
+                      icon: fas:chevron-right,
+                      fill: $text.tertiary
+                    }
+      - id: m7.tabs
+        type: frame
+        size: [ fill, 62 ]
+        fill: $bg
+        stroke: { color: $border, width: [ 1, 0, 0, 0 ], alignment: inside }
+        layout: { type: flex, direction: row, padding: [ 6, 8, 14, 8 ] }
+        children:
+          - id: m7.tab.topics
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m7.tab.topics.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:layer-group,
+                  fill: $text.primary
+                }
+              - {
+                  id: m7.tab.topics.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Topics,
+                  fontSize: 10,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+          - id: m7.tab.teacher
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m7.tab.teacher.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:chalkboard-user,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m7.tab.teacher.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Teacher,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m7.tab.chat
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m7.tab.chat.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:comment-dots,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m7.tab.chat.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Chat,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+          - id: m7.tab.settings
+            type: frame
+            size: [ fill, fill ]
+            layout:
+              {
+                type: flex,
+                direction: column,
+                gap: 4,
+                alignItems: center,
+                justifyContent: center
+              }
+            children:
+              - {
+                  id: m7.tab.settings.icon,
+                  type: svg,
+                  size: [ 18, 18 ],
+                  icon: fas:gear,
+                  fill: $text.tertiary
+                }
+              - {
+                  id: m7.tab.settings.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Settings,
+                  fontSize: 10,
+                  fontWeight: 500,
+                  color: $text.tertiary
+                }
+
+      - id: m7.scrim
+        type: rect
+        position: [ 0, 0 ]
+        size: [ fill, fill ]
+        fill: "#09090B80"
+      - id: m7.sheet
+        type: frame
+        position: [ 0, 324 ]
+        size: [ 390, 520 ]
+        cornerRadius: 16
+        fill: $bg
+        effects: { type: shadow, color: "#00000026", offset: [ 0, -4 ], blur: 24 }
+        layout: { type: flex, direction: column, gap: 12, padding: [ 12, 20, 20, 20 ] }
+        children:
+          - id: m7.sheet.grabberRow
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, justifyContent: center }
+            children:
+              - {
+                  id: m7.sheet.grabber,
+                  type: rect,
+                  size: [ 36, 4 ],
+                  cornerRadius: 2,
+                  fill: $border
+                }
+          - id: m7.sheet.head
+            type: frame
+            size: [ fill, hug ]
+            layout:
+              {
+                type: flex,
+                direction: row,
+                justifyContent: spaceBetween,
+                alignItems: center
+              }
+            children:
+              - {
+                  id: m7.sheet.title,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Add entry,
+                  fontSize: 17,
+                  fontWeight: 600,
+                  color: $text.primary
+                }
+              - id: m7.close
+                type: frame
+                size: [ 28, 28 ]
+                cornerRadius: 6
+                fill: $muted
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.close.icon,
+                      type: svg,
+                      size: [ 12, 12 ],
+                      icon: fas:xmark,
+                      fill: $text.secondary
+                    }
+          - {
+              id: m7.sheet.desc,
+              type: text,
+              size: [ fill, hug ],
+              content: A word or phrase is enough. Add a translation and explanations later.,
+              fontSize: 12,
+              color: $text.secondary
+            }
+          - id: m7.sheet.kind
+            type: frame
+            size: [ fill, 34 ]
+            cornerRadius: 8
+            fill: $muted
+            layout: { type: flex, direction: row, padding: 3, gap: 2 }
+            children:
+              - id: m7.kind.word
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.kind.word.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Word,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m7.kind.phrase
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                fill: $bg
+                effects: { type: shadow, color: "#0000000F", offset: [ 0, 1 ], blur: 2 }
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.kind.phrase.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Phrase,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.primary
+                    }
+          - id: m7.f.term
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 4 }
+            children:
+              - {
+                  id: m7.f.term.label,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Word or phrase,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: $text.primary
+                }
+              - id: m7.f.term.input
+                type: frame
+                size: [ fill, 44 ]
+                cornerRadius: 8
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, alignItems: center, padding: [ 0, 12 ] }
+                children:
+                  - {
+                      id: m7.f.term.placeholder,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: "For example, hit the road",
+                      fontSize: 13,
+                      color: $text.tertiary
+                    }
+          - id: m7.f.translation
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 4 }
+            children:
+              - {
+                  id: m7.f.translation.label,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Translation,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: $text.primary
+                }
+              - id: m7.f.translation.input
+                type: frame
+                size: [ fill, 44 ]
+                cornerRadius: 8
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, alignItems: center, padding: [ 0, 12 ] }
+                children:
+                  - {
+                      id: m7.f.translation.placeholder,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: What it means,
+                      fontSize: 13,
+                      color: $text.tertiary
+                    }
+          - id: m7.f.source
+            type: frame
+            size: [ fill, hug ]
+            layout: { type: flex, direction: column, gap: 4 }
+            children:
+              - {
+                  id: m7.f.source.label,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Source,
+                  fontSize: 12,
+                  fontWeight: 500,
+                  color: $text.primary
+                }
+              - id: m7.f.source.input
+                type: frame
+                size: [ fill, 44 ]
+                cornerRadius: 8
+                fill: $bg
+                stroke: { color: $border, width: 1, alignment: inside }
+                layout: { type: flex, alignItems: center, padding: [ 0, 12 ] }
+                children:
+                  - {
+                      id: m7.f.source.placeholder,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: "Video, episode, speaker and timestamp",
+                      fontSize: 13,
+                      color: $text.tertiary
+                    }
+          - id: m7.status
+            type: frame
+            size: [ fill, 36 ]
+            cornerRadius: 8
+            fill: $muted
+            layout: { type: flex, direction: row, padding: 3, gap: 2 }
+            children:
+              - id: m7.status.inbox
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                fill: $primary
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.status.inbox.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Inbox,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: "#FFFFFF"
+                    }
+              - id: m7.status.learning
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.status.learning.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Learning,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+              - id: m7.status.known
+                type: frame
+                size: [ fill, fill ]
+                cornerRadius: 6
+                layout: { type: flex, alignItems: center, justifyContent: center }
+                children:
+                  - {
+                      id: m7.status.known.text,
+                      type: text,
+                      size: [ hug, hug ],
+                      content: Known,
+                      fontSize: 12,
+                      fontWeight: 500,
+                      color: $text.secondary
+                    }
+          - id: m7.save
+            type: frame
+            size: [ fill, 44 ]
+            cornerRadius: 8
+            fill: $primary
+            layout: { type: flex, alignItems: center, justifyContent: center }
+            children:
+              - {
+                  id: m7.save.text,
+                  type: text,
+                  size: [ hug, hug ],
+                  content: Save,
+                  fontSize: 14,
+                  fontWeight: 500,
+                  color: "#FFFFFF"
+                }
+
+prototype: |
+  flow main = "m.start" {
+    viewport: [390, 844]
+  }
+
+  on click("m1.card.beginner") {
+    navigate("m.lesson", transition: none())
+  }
+
+  on click("m1.card.chat") {
+    navigate("m.lesson", transition: none())
+  }
+
+  on click("m1.card.check") {
+    navigate("m.lesson", transition: none())
+  }
+
+  on click("m1.card.grammar") {
+    navigate("m.lesson", transition: none())
+  }
+
+  on click("m1.tab.topics") {
+    navigate("m.topics", transition: none())
+  }
+
+  on click("m1.tab.teacher") {
+    navigate("m.teacher", transition: none())
+  }
+
+  on click("m2.back") {
+    back(transition: none())
+  }
+
+  on click("m2.tab.topics") {
+    navigate("m.topics", transition: none())
+  }
+
+  on click("m2.tab.teacher") {
+    navigate("m.teacher", transition: none())
+  }
+
+  on click("m3.tab.chat") {
+    navigate("m.start", transition: none())
+  }
+
+  on click("m3.tab.teacher") {
+    navigate("m.teacher", transition: none())
+  }
+
+  on click("m3.topic.1") {
+    navigate("m.vocab", transition: none())
+  }
+
+  on click("m4.tab.topics") {
+    navigate("m.topics", transition: none())
+  }
+
+  on click("m4.tab.chat") {
+    navigate("m.start", transition: none())
+  }
+
+  on click("m5.back") {
+    navigate("m.topics", transition: none())
+  }
+
+  on click("m5.entry.1") {
+    navigate("m.entry", transition: none())
+  }
+
+  on click("m5.add") {
+    navigate("m.addentry", transition: dissolve(180))
+  }
+
+  on click("m5.tab.chat") {
+    navigate("m.start", transition: none())
+  }
+
+  on click("m5.tab.teacher") {
+    navigate("m.teacher", transition: none())
+  }
+
+  on click("m6.back") {
+    back(transition: none())
+  }
+
+  on click("m6.tab.chat") {
+    navigate("m.start", transition: none())
+  }
+
+  on click("m6.tab.topics") {
+    navigate("m.topics", transition: none())
+  }
+
+  on click("m6.tab.teacher") {
+    navigate("m.teacher", transition: none())
+  }
+
+  on click("m7.close") {
+    back(transition: dissolve(150))
+  }
+
+  on click("m7.save") {
+    back(transition: dissolve(150))
+  }
