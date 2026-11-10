@@ -52,6 +52,55 @@ func (q *Queries) ArchiveLearningPath(ctx context.Context, arg ArchiveLearningPa
 	return result.RowsAffected(), nil
 }
 
+const completeLearningPathTopicIfExercisesPassed = `-- name: CompleteLearningPathTopicIfExercisesPassed :execrows
+UPDATE learning_path_topics t
+SET status = 'completed', completed_at = $3
+WHERE t.id = $1
+  AND t.status = 'in_progress'
+  AND EXISTS (
+      SELECT 1 FROM learning_paths p
+      WHERE p.id = t.path_id AND p.status = 'active'
+  )
+  AND EXISTS (
+      SELECT 1 FROM learning_path_exercises e
+      JOIN learning_path_exercise_versions v ON v.exercise_id = e.id
+      WHERE e.topic_id = t.id
+        AND v.generation = (
+            SELECT MAX(current.generation)
+            FROM learning_path_exercise_versions current
+            WHERE current.topic_id = e.topic_id
+        )
+  )
+  AND NOT EXISTS (
+      SELECT 1 FROM learning_path_exercises e
+      JOIN learning_path_exercise_versions v ON v.exercise_id = e.id
+      WHERE e.topic_id = t.id
+        AND v.generation = (
+            SELECT MAX(current.generation)
+            FROM learning_path_exercise_versions current
+            WHERE current.topic_id = e.topic_id
+        )
+        AND NOT EXISTS (
+            SELECT 1 FROM learning_path_attempts a
+            WHERE a.exercise_id = e.id AND a.user_id = $2 AND a.correct
+        )
+  )
+`
+
+type CompleteLearningPathTopicIfExercisesPassedParams struct {
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
+	CompletedAt pgtype.Timestamptz
+}
+
+func (q *Queries) CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error) {
+	result, err := q.db.Exec(ctx, completeLearningPathTopicIfExercisesPassed, arg.ID, arg.UserID, arg.CompletedAt)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteLearningPathExercises = `-- name: DeleteLearningPathExercises :exec
 DELETE FROM learning_path_exercises WHERE topic_id = $1
 `
@@ -142,7 +191,7 @@ func (q *Queries) GetLearningPath(ctx context.Context, arg GetLearningPathParams
 }
 
 const getLearningPathExercise = `-- name: GetLearningPathExercise :one
-SELECT e.id, e.topic_id, e.position, e.kind, e.text, e.prompt, e.options, e.answer, e.created_at FROM learning_path_exercises e
+SELECT e.id, e.topic_id, e.position, e.kind, e.text, e.prompt, e.options, e.answer, e.created_at, e.rule FROM learning_path_exercises e
 JOIN learning_path_topics t ON t.id = e.topic_id
 JOIN learning_paths p ON p.id = t.path_id
 JOIN learning_path_exercise_versions v ON v.exercise_id = e.id
@@ -172,6 +221,7 @@ func (q *Queries) GetLearningPathExercise(ctx context.Context, arg GetLearningPa
 		&i.Options,
 		&i.Answer,
 		&i.CreatedAt,
+		&i.Rule,
 	)
 	return i, err
 }
@@ -231,6 +281,18 @@ func (q *Queries) GetLearningPathTopic(ctx context.Context, arg GetLearningPathT
 		&i.CompletedAt,
 	)
 	return i, err
+}
+
+const getNextLearningPathExerciseGeneration = `-- name: GetNextLearningPathExerciseGeneration :one
+SELECT COALESCE(MAX(generation), 0)::integer + 1
+FROM learning_path_exercise_versions WHERE topic_id = $1
+`
+
+func (q *Queries) GetNextLearningPathExerciseGeneration(ctx context.Context, topicID pgtype.UUID) (int32, error) {
+	row := q.db.QueryRow(ctx, getNextLearningPathExerciseGeneration, topicID)
+	var column_1 int32
+	err := row.Scan(&column_1)
+	return column_1, err
 }
 
 const getOpenLearningPathTest = `-- name: GetOpenLearningPathTest :one
@@ -350,8 +412,8 @@ func (q *Queries) InsertLearningPathAttempt(ctx context.Context, arg InsertLearn
 }
 
 const insertLearningPathExercise = `-- name: InsertLearningPathExercise :one
-INSERT INTO learning_path_exercises (id, topic_id, position, kind, text, prompt, options, answer, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, topic_id, position, kind, text, prompt, options, answer, created_at
+INSERT INTO learning_path_exercises (id, topic_id, position, kind, text, prompt, options, answer, rule, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id, topic_id, position, kind, text, prompt, options, answer, created_at, rule
 `
 
 type InsertLearningPathExerciseParams struct {
@@ -363,6 +425,7 @@ type InsertLearningPathExerciseParams struct {
 	Prompt    string
 	Options   []byte
 	Answer    string
+	Rule      string
 	CreatedAt pgtype.Timestamptz
 }
 
@@ -376,6 +439,7 @@ func (q *Queries) InsertLearningPathExercise(ctx context.Context, arg InsertLear
 		arg.Prompt,
 		arg.Options,
 		arg.Answer,
+		arg.Rule,
 		arg.CreatedAt,
 	)
 	var i LearningPathExercise
@@ -389,8 +453,25 @@ func (q *Queries) InsertLearningPathExercise(ctx context.Context, arg InsertLear
 		&i.Options,
 		&i.Answer,
 		&i.CreatedAt,
+		&i.Rule,
 	)
 	return i, err
+}
+
+const insertLearningPathExerciseVersion = `-- name: InsertLearningPathExerciseVersion :exec
+INSERT INTO learning_path_exercise_versions (exercise_id, topic_id, generation)
+VALUES ($1, $2, $3)
+`
+
+type InsertLearningPathExerciseVersionParams struct {
+	ExerciseID pgtype.UUID
+	TopicID    pgtype.UUID
+	Generation int32
+}
+
+func (q *Queries) InsertLearningPathExerciseVersion(ctx context.Context, arg InsertLearningPathExerciseVersionParams) error {
+	_, err := q.db.Exec(ctx, insertLearningPathExerciseVersion, arg.ExerciseID, arg.TopicID, arg.Generation)
+	return err
 }
 
 const insertLearningPathTest = `-- name: InsertLearningPathTest :one
@@ -545,8 +626,7 @@ func (q *Queries) ListLearningPathAttemptsByTopic(ctx context.Context, arg ListL
 }
 
 const listLearningPathExercises = `-- name: ListLearningPathExercises :many
-SELECT e.id, e.topic_id, e.position, e.kind, e.text, e.prompt, e.options, e.answer, e.created_at
-FROM learning_path_exercises e
+SELECT e.id, e.topic_id, e.position, e.kind, e.text, e.prompt, e.options, e.answer, e.created_at, e.rule FROM learning_path_exercises e
 JOIN learning_path_exercise_versions v ON v.exercise_id = e.id
 WHERE e.topic_id = $1
   AND v.generation = (
@@ -576,6 +656,7 @@ func (q *Queries) ListLearningPathExercises(ctx context.Context, topicID pgtype.
 			&i.Options,
 			&i.Answer,
 			&i.CreatedAt,
+			&i.Rule,
 		); err != nil {
 			return nil, err
 		}
@@ -587,54 +668,11 @@ func (q *Queries) ListLearningPathExercises(ctx context.Context, topicID pgtype.
 	return items, nil
 }
 
-const getNextLearningPathExerciseGeneration = `-- name: GetNextLearningPathExerciseGeneration :one
-SELECT COALESCE(MAX(generation), 0)::integer + 1
-FROM learning_path_exercise_versions WHERE topic_id = $1
-`
-
-func (q *Queries) GetNextLearningPathExerciseGeneration(ctx context.Context, topicID pgtype.UUID) (int32, error) {
-	row := q.db.QueryRow(ctx, getNextLearningPathExerciseGeneration, topicID)
-	var generation int32
-	err := row.Scan(&generation)
-	return generation, err
-}
-
-const insertLearningPathExerciseVersion = `-- name: InsertLearningPathExerciseVersion :exec
-INSERT INTO learning_path_exercise_versions (exercise_id, topic_id, generation)
-VALUES ($1, $2, $3)
-`
-
-type InsertLearningPathExerciseVersionParams struct {
-	ExerciseID pgtype.UUID
-	TopicID    pgtype.UUID
-	Generation int32
-}
-
-func (q *Queries) InsertLearningPathExerciseVersion(ctx context.Context, arg InsertLearningPathExerciseVersionParams) error {
-	_, err := q.db.Exec(ctx, insertLearningPathExerciseVersion,
-		arg.ExerciseID,
-		arg.TopicID,
-		arg.Generation,
-	)
-	return err
-}
-
 const listLearningPathHistory = `-- name: ListLearningPathHistory :many
 SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at FROM learning_paths
 WHERE user_id = $1 AND status <> 'active'
 ORDER BY created_at DESC, id DESC
 `
-
-const lockLearningPathTopic = `-- name: LockLearningPathTopic :one
-SELECT id FROM learning_path_topics WHERE id = $1 FOR UPDATE
-`
-
-func (q *Queries) LockLearningPathTopic(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error) {
-	row := q.db.QueryRow(ctx, lockLearningPathTopic, id)
-	var topicID pgtype.UUID
-	err := row.Scan(&topicID)
-	return topicID, err
-}
 
 func (q *Queries) ListLearningPathHistory(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error) {
 	rows, err := q.db.Query(ctx, listLearningPathHistory, userID)
@@ -731,28 +769,15 @@ func (q *Queries) ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID
 	return items, nil
 }
 
-const updateLearningPathTopicStatus = `-- name: UpdateLearningPathTopicStatus :execrows
-UPDATE learning_path_topics SET status = $3, completed_at = $4 WHERE id = $1 AND path_id = $2
+const lockLearningPathTopic = `-- name: LockLearningPathTopic :one
+SELECT id FROM learning_path_topics WHERE id = $1 FOR UPDATE
 `
 
-type UpdateLearningPathTopicStatusParams struct {
-	ID          pgtype.UUID
-	PathID      pgtype.UUID
-	Status      LearningPathTopicStatus
-	CompletedAt pgtype.Timestamptz
-}
-
-func (q *Queries) UpdateLearningPathTopicStatus(ctx context.Context, arg UpdateLearningPathTopicStatusParams) (int64, error) {
-	result, err := q.db.Exec(ctx, updateLearningPathTopicStatus,
-		arg.ID,
-		arg.PathID,
-		arg.Status,
-		arg.CompletedAt,
-	)
-	if err != nil {
-		return 0, err
-	}
-	return result.RowsAffected(), nil
+func (q *Queries) LockLearningPathTopic(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error) {
+	row := q.db.QueryRow(ctx, lockLearningPathTopic, id)
+	var id_2 pgtype.UUID
+	err := row.Scan(&id_2)
+	return id_2, err
 }
 
 const startLearningPathTopic = `-- name: StartLearningPathTopic :execrows
@@ -773,51 +798,22 @@ func (q *Queries) StartLearningPathTopic(ctx context.Context, arg StartLearningP
 	return result.RowsAffected(), nil
 }
 
-const completeLearningPathTopicIfExercisesPassed = `-- name: CompleteLearningPathTopicIfExercisesPassed :execrows
-UPDATE learning_path_topics t
-SET status = 'completed', completed_at = $3
-WHERE t.id = $1
-  AND t.status = 'in_progress'
-  AND EXISTS (
-      SELECT 1 FROM learning_paths p
-      WHERE p.id = t.path_id AND p.status = 'active'
-  )
-  AND EXISTS (
-      SELECT 1 FROM learning_path_exercises e
-      JOIN learning_path_exercise_versions v ON v.exercise_id = e.id
-      WHERE e.topic_id = t.id
-        AND v.generation = (
-            SELECT MAX(current.generation)
-            FROM learning_path_exercise_versions current
-            WHERE current.topic_id = e.topic_id
-        )
-  )
-  AND NOT EXISTS (
-      SELECT 1 FROM learning_path_exercises e
-      JOIN learning_path_exercise_versions v ON v.exercise_id = e.id
-      WHERE e.topic_id = t.id
-        AND v.generation = (
-            SELECT MAX(current.generation)
-            FROM learning_path_exercise_versions current
-            WHERE current.topic_id = e.topic_id
-        )
-        AND NOT EXISTS (
-            SELECT 1 FROM learning_path_attempts a
-            WHERE a.exercise_id = e.id AND a.user_id = $2 AND a.correct
-        )
-  )
+const updateLearningPathTopicStatus = `-- name: UpdateLearningPathTopicStatus :execrows
+UPDATE learning_path_topics SET status = $3, completed_at = $4 WHERE id = $1 AND path_id = $2
 `
 
-type CompleteLearningPathTopicIfExercisesPassedParams struct {
+type UpdateLearningPathTopicStatusParams struct {
 	ID          pgtype.UUID
-	UserID      pgtype.UUID
+	PathID      pgtype.UUID
+	Status      LearningPathTopicStatus
 	CompletedAt pgtype.Timestamptz
 }
 
-func (q *Queries) CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error) {
-	result, err := q.db.Exec(ctx, completeLearningPathTopicIfExercisesPassed,
+func (q *Queries) UpdateLearningPathTopicStatus(ctx context.Context, arg UpdateLearningPathTopicStatusParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateLearningPathTopicStatus,
 		arg.ID,
-		arg.UserID,
+		arg.PathID,
+		arg.Status,
 		arg.CompletedAt,
 	)
 	if err != nil {

@@ -146,7 +146,7 @@ function QuestionCard({
             type="button"
             onClick={() => onPick(option)}
             aria-pressed={picked === option}
-            className={`border-border hover:border-primary/40 rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
+            className={`border-border hover:border-primary/40 cursor-pointer rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
               picked === option
                 ? "border-primary bg-[color:var(--primary-wash)] text-primary font-semibold"
                 : "bg-secondary"

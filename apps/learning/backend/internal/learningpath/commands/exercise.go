@@ -115,6 +115,7 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 			Prompt:    e.Prompt,
 			Options:   raw,
 			Answer:    e.Answer,
+			Rule:      e.Rule,
 			CreatedAt: db.Time(now),
 		})
 		if err != nil {

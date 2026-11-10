@@ -95,8 +95,8 @@ type Querier interface {
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
 	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error
-	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
+	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)
 	UnlockLearningChat(ctx context.Context, id pgtype.UUID) error
 	UpdateLearningAIChoice(ctx context.Context, arg UpdateLearningAIChoiceParams) (LearningAiSetting, error)
 	UpdateLearningEntry(ctx context.Context, arg UpdateLearningEntryParams) (LearningEntry, error)

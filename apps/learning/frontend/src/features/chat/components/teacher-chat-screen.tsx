@@ -51,6 +51,15 @@ function rememberedTopic(): string | null {
   }
 }
 
+/** A question carried here from another learning screen, if there is one. */
+function forwardedQuestion(): string {
+  try {
+    return new URLSearchParams(window.location.search).get("question") ?? ""
+  } catch {
+    return ""
+  }
+}
+
 function remember(id: string) {
   try {
     window.localStorage.setItem(lastTopicKey, id)
@@ -74,6 +83,7 @@ export function TeacherChatScreen() {
   // Read once. Nothing that depends on it is drawn before the topics have
   // loaded, so the server and the first client render still agree.
   const [picked, setPicked] = useState<string | null>(rememberedTopic)
+  const [draftQuestion, setDraftQuestion] = useState(forwardedQuestion)
   useClaimFullScreen()
 
   const topic =
@@ -116,6 +126,8 @@ export function TeacherChatScreen() {
         <Conversation
           key={topic.id}
           topicId={topic.id}
+          initialQuestion={draftQuestion}
+          onInitialQuestionUsed={() => setDraftQuestion("")}
           picker={
             <Select
               value={topic.id}
@@ -155,9 +167,13 @@ export function TeacherChatScreen() {
 
 function Conversation({
   topicId,
+  initialQuestion,
+  onInitialQuestionUsed,
   picker,
 }: {
   topicId: string
+  initialQuestion: string
+  onInitialQuestionUsed: () => void
   picker: React.ReactNode
 }) {
   const t = useTranslations("chat")
@@ -165,10 +181,16 @@ function Conversation({
   const chat = useTopicChat(topicId)
   const { turn, error, send, sending } = useTopicChatTurn(topicId)
   const archive = useArchiveTopicChat(topicId)
-  const [text, setText] = useState("")
+  const [text, setText] = useState(initialQuestion)
   const [confirmClear, setConfirmClear] = useState(false)
   const [history, setHistory] = useState(false)
   const end = useRef<HTMLDivElement>(null)
+
+  // A question brought from a guided exercise belongs in the composer. Consume
+  // it once so switching the chat topic does not put it back into the field.
+  useEffect(() => {
+    if (initialQuestion) onInitialQuestionUsed()
+  }, [initialQuestion, onInitialQuestionUsed])
 
   const messages = chat.data?.messages ?? []
   const streaming = turn?.answer.length ?? 0

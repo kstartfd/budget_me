@@ -387,6 +387,11 @@
       "fillPlaceholder": "Type the missing word",
       "translatePlaceholder": "Type your translation",
       "solved": "done",
+      "hint": "Exercise hint",
+      "rule": "Rule",
+      "answer": "Correct answer",
+      "askTeacher": "Discuss with the teacher",
+      "chatQuestion": "Please go through this rule and explain why this is the correct answer.\\n\\nRule: {rule}\\nExercise: {prompt}\\nCorrect answer: {answer}",
       "resetExercises": "Reset exercises",
       "pastAttempts": "Previous exercises: {count} attempts, {correct} correct"
     }

@@ -93,7 +93,7 @@ export function ProgramView({
               onClick={() =>
                 setOpenTopic(openTopic === topic.id ? null : topic.id)
               }
-              className="bg-card border-border hover:border-primary/30 flex min-w-0 w-full items-center gap-3.5 rounded-[18px] border p-4 text-left shadow-[var(--shadow-card)] transition-colors"
+              className="bg-card border-border hover:border-primary/30 flex min-w-0 w-full cursor-pointer items-center gap-3.5 rounded-[18px] border p-4 text-left shadow-[var(--shadow-card)] transition-colors"
             >
               <span className="bg-[color:var(--primary-wash)] text-primary flex size-11 shrink-0 items-center justify-center rounded-full text-sm font-bold">
                 {topic.position + 1}

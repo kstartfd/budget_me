@@ -665,6 +665,13 @@ type LearningPathExercise struct {
 	Options   []byte
 	Answer    string
 	CreatedAt pgtype.Timestamptz
+	Rule      string
+}
+
+type LearningPathExerciseVersion struct {
+	ExerciseID pgtype.UUID
+	TopicID    pgtype.UUID
+	Generation int32
 }
 
 type LearningPathTest struct {

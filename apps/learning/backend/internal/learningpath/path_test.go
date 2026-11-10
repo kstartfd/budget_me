@@ -375,9 +375,9 @@ func TestAnalyzeWithoutAnAgent(t *testing.T) {
 }
 
 const exercisesReply = `{"exercises":[
-	{"kind":"choice","text":"","prompt":"She ___ to school every day.","options":["go","goes","going","went"],"answer":"goes"},
-	{"kind":"fill","text":"","prompt":"Yesterday I ... my bike. (ride)","options":[],"answer":"rode"},
-	{"kind":"translate","text":"","prompt":"Translate into English: Я живу в Москве.","options":[],"answer":"I live in Moscow."}]}`
+	{"kind":"choice","text":"","prompt":"She ___ to school every day.","options":["go","goes","going","went"],"answer":"goes","rule":"В Present Simple с she, he или it к глаголу добавляется окончание -s."},
+	{"kind":"fill","text":"","prompt":"Yesterday I ... my bike. (ride)","options":[],"answer":"rode","rule":"Глагол ride — неправильный: в Past Simple его форма rode."},
+	{"kind":"translate","text":"","prompt":"Translate into English: Я живу в Москве.","options":[],"answer":"I live in Moscow.","rule":"Для постоянного места жительства используем Present Simple: I live."}]}`
 
 // generateExercises opens a topic's exercise set.
 func generateExercises(t *testing.T, e env, topicID string) []any {
@@ -434,11 +434,13 @@ func TestTopicExercisesAndAttempts(t *testing.T) {
 		t.Fatalf("topic status: %v", detail["topic"])
 	}
 
-	// A right choice answer is graded on the spot: no agent call, no feedback.
+	// A right choice answer and its short rule are available before the attempt.
 	choice := exercises[0].(map[string]any)
-	if _, ok := choice["answer"]; ok {
-		t.Fatalf("the exercise answer left the server: %v", choice)
+	if choice["answer"] != "goes" || choice["rule"] == "" {
+		t.Fatalf("exercise hint: %v", choice)
 	}
+
+	// A right choice answer is graded on the spot: no agent call, no feedback.
 	calls := len(e.provider.requests())
 	attempt(t, e, choice["id"].(string), "goes", true, "")
 	if len(e.provider.requests()) != calls {

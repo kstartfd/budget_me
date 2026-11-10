@@ -55,7 +55,7 @@ export const pathSchema = z.object({
 })
 export type Path = z.infer<typeof pathSchema>
 
-/** One exercise as the learner sees it — the answer never leaves the server. */
+/** One guided exercise, including the rule and answer available before trying. */
 export const pathExerciseSchema = z.object({
   id: z.string(),
   position: z.number(),
@@ -63,6 +63,8 @@ export const pathExerciseSchema = z.object({
   text: z.string(),
   prompt: z.string(),
   options: z.array(z.string()),
+  answer: z.string(),
+  rule: z.string(),
 })
 export type PathExercise = z.infer<typeof pathExerciseSchema>
 

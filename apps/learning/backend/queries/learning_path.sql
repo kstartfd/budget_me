@@ -99,8 +99,8 @@ WHERE t.id = $1
   );
 
 -- name: InsertLearningPathExercise :one
-INSERT INTO learning_path_exercises (id, topic_id, position, kind, text, prompt, options, answer, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;
+INSERT INTO learning_path_exercises (id, topic_id, position, kind, text, prompt, options, answer, rule, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING *;
 
 -- name: ListLearningPathExercises :many
 SELECT e.* FROM learning_path_exercises e

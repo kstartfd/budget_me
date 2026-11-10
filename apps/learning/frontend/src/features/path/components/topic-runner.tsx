@@ -1,7 +1,9 @@
 "use client"
 
 import { useState } from "react"
+import Link from "next/link"
 import { useTranslations } from "next-intl"
+import { IconMessageCircle } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
@@ -62,6 +64,7 @@ export function TopicRunner({ topicId }: { topicId: string }) {
               key={exercise.id}
               topicId={topicId}
               exercise={exercise}
+              topicGoal={topic.goal}
               solved={solved.has(exercise.id)}
             />
           ))}
@@ -136,17 +139,25 @@ function TopicActions({
 
 function ExerciseCard({
   exercise,
+  topicGoal,
   solved,
   topicId,
 }: {
   topicId: string
   exercise: PathExercise
+  topicGoal: string
   solved: boolean
 }) {
   const t = useTranslations("path.topic")
   const attempt = useTopicExerciseAttempt(topicId)
   const [value, setValue] = useState("")
   const [last, setLast] = useState<PathAttempt | null>(null)
+  const rule = exercise.rule || topicGoal
+  const chatQuestion = t("chatQuestion", {
+    rule,
+    prompt: exercise.prompt,
+    answer: exercise.answer,
+  })
 
   const submit = (answer: string) => {
     if (!answer.trim()) return
@@ -158,6 +169,30 @@ function ExerciseCard({
 
   return (
     <section className="bg-card border-border space-y-3 rounded-[18px] border p-4">
+      <aside className="border-primary/20 bg-primary/5 space-y-3 rounded-2xl border px-4 py-3.5">
+        <div className="space-y-1">
+          <p className="text-primary text-xs font-semibold">{t("hint")}</p>
+          <p className="text-sm leading-relaxed">{rule}</p>
+        </div>
+        <div className="border-primary/15 border-t pt-3">
+          <p className="text-muted-foreground text-xs font-medium">
+            {t("answer")}
+          </p>
+          <p className="text-primary mt-0.5 text-sm font-semibold">
+            {exercise.answer}
+          </p>
+        </div>
+        <Button
+          asChild
+          variant="secondary"
+          className="h-auto rounded-xl px-3 py-2 text-xs font-semibold"
+        >
+          <Link href={`/learning/chat?question=${encodeURIComponent(chatQuestion)}`}>
+            <IconMessageCircle size={15} />
+            {t("askTeacher")}
+          </Link>
+        </Button>
+      </aside>
       {exercise.text && (
         <p className="text-muted-foreground text-sm leading-relaxed italic">
           {exercise.text}
@@ -180,7 +215,7 @@ function ExerciseCard({
               type="button"
               onClick={() => submit(option)}
               disabled={attempt.isPending}
-              className={`border-border hover:border-primary/40 rounded-2xl border px-4 py-3 text-left text-sm transition-colors ${
+              className={`border-border hover:border-primary/40 cursor-pointer rounded-2xl border px-4 py-3 text-left text-sm transition-colors disabled:cursor-not-allowed ${
                 last?.answer === option && last.correct
                   ? "border-primary bg-[color:var(--primary-wash)] text-primary font-semibold"
                   : "bg-secondary"

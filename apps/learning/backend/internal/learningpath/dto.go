@@ -152,8 +152,8 @@ func pathDTO(p queries.PathWithTopics) pathResponse {
 	return out
 }
 
-// exerciseResponse is one exercise as the learner sees it: the answer never
-// leaves the server.
+// exerciseResponse is one exercise with its answer and the rule that explains
+// it. A plan is guided practice, so the learner can inspect both before trying.
 type exerciseResponse struct {
 	ID       string   `json:"id"`
 	Position int      `json:"position"`
@@ -161,6 +161,8 @@ type exerciseResponse struct {
 	Text     string   `json:"text"`
 	Prompt   string   `json:"prompt"`
 	Options  []string `json:"options"`
+	Answer   string   `json:"answer"`
+	Rule     string   `json:"rule"`
 }
 
 func exerciseDTO(e db.LearningPathExercise) exerciseResponse {
@@ -176,6 +178,8 @@ func exerciseDTO(e db.LearningPathExercise) exerciseResponse {
 		Text:     e.Text,
 		Prompt:   e.Prompt,
 		Options:  options,
+		Answer:   e.Answer,
+		Rule:     e.Rule,
 	}
 }
 
