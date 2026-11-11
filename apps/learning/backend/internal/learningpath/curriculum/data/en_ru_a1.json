@@ -1,0 +1,175 @@
+[
+  {
+    "id": "a1-to-be",
+    "skill": "grammar",
+    "unit": "Основы предложения",
+    "title": "Глагол to be: am, is, are",
+    "goal": "Сказать, кто вы, откуда, сколько вам лет, и задать такой же вопрос другому человеку.",
+    "theory": "To be нужен почти в каждом предложении о том, кто или что вы: I am, you are, he/she/it is, we/you/they are. В речи его сокращают: I'm, you're, she's, they're. Для отрицания добавьте not: I am not, he isn't, they aren't. В вопросе глагол выходит вперёд: Are you ready? Is she at home? Примеры: I'm from Russia. She is a doctor. We aren't at work. Where are you from?",
+    "tags": ["to be", "am is are", "глагол-связка", "краткие формы"]
+  },
+  {
+    "id": "a1-articles",
+    "skill": "grammar",
+    "unit": "Основы предложения",
+    "title": "Артикли a, an, the",
+    "goal": "Правильно ставить артикль перед существительным: один из многих или конкретный предмет.",
+    "theory": "Артикль a/an ставят, когда предмет один из многих или упоминается впервые: a book, an apple (an — перед гласным звуком). The ставят, когда ясно, о каком именно предмете речь: Open the door. I have a dog. The dog is big. Артикль не нужен перед множественным числом в общем смысле и перед неисчисляемыми: I like cats. I drink water. Не ставим артикль в устойчивых выражениях: go to school, at home.",
+    "tags": ["артикли", "a an the", "нулевой артикль"]
+  },
+  {
+    "id": "a1-plurals",
+    "skill": "grammar",
+    "unit": "Основы предложения",
+    "title": "Множественное число существительных",
+    "goal": "Образовывать множественное число правильных и частых неправильных существительных.",
+    "theory": "Обычно к слову добавляют -s: book — books. После s, x, ch, sh добавляют -es: box — boxes, watch — watches. Если слово оканчивается на согласную + y, то y меняется на -ies: city — cities, но day — days. Есть неправильные формы, которые нужно запомнить: man — men, woman — women, child — children, person — people, foot — feet. Слова sheep и fish не меняются.",
+    "tags": ["множественное число", "plural", "неправильные существительные", "-s -es -ies"]
+  },
+  {
+    "id": "a1-demonstratives-possessives",
+    "skill": "grammar",
+    "unit": "Основы предложения",
+    "title": "This / that / these / those и my, your, his",
+    "goal": "Показывать на предметы и говорить, чьё это.",
+    "theory": "This (этот) и these (эти) — для близких предметов, that (тот) и those (те) — для далёких: This is my bag. Those are his shoes. Чтобы сказать, чьё это, используйте притяжательные местоимения: my, your, his, her, its, our, their — они стоят перед существительным: my car, her name. Для принадлежности существительному добавьте 's: Tom's phone, my sister's room.",
+    "tags": ["this that", "these those", "притяжательные местоимения", "'s"]
+  },
+  {
+    "id": "a1-present-simple",
+    "skill": "grammar",
+    "unit": "Настоящее время",
+    "title": "Present Simple: утверждения",
+    "goal": "Рассказать о привычках, режиме дня и постоянных фактах.",
+    "theory": "Present Simple описывает то, что происходит регулярно или всегда: I work, they live, we study. С he, she, it к глаголу добавляют -s: he works, she lives. После s, x, ch, sh, o добавляют -es: she watches, he goes; после согласной + y меняют на -ies: he studies. Частые слова-маркеры: always, usually, often, sometimes, never, every day. Примеры: I get up at 7. My brother plays football on Sundays.",
+    "tags": ["present simple", "окончание -s", "he she it", "наречия частоты"]
+  },
+  {
+    "id": "a1-present-simple-questions",
+    "skill": "grammar",
+    "unit": "Настоящее время",
+    "title": "Present Simple: отрицания и вопросы",
+    "goal": "Задавать вопросы и отвечать «нет» о повседневных действиях.",
+    "theory": "В отрицаниях и вопросах нужен вспомогательный глагол do (с he/she/it — does). Отрицание: I do not (don't) like tea. She does not (doesn't) work here. Вопрос: Do you speak English? Does he live in London? После does глагол возвращается без -s: Does she work? (не works). Короткие ответы: Yes, I do. No, she doesn't. Вопросы с вопросительным словом: Where do you live? What does he do?",
+    "tags": ["do does", "отрицание", "вопросы", "present simple"]
+  },
+  {
+    "id": "a1-there-is",
+    "skill": "grammar",
+    "unit": "Описание мест",
+    "title": "There is / there are",
+    "goal": "Описать комнату, город или место: что в нём есть.",
+    "theory": "There is (there's) говорит, что что-то есть, в единственном числе: There is a bed in the room. There are — для множественного числа: There are two windows. Отрицание: There isn't a sofa. There aren't any chairs. Вопрос: Is there a bank near here? Are there any shops? В утверждении с множественным числом и в отрицании используют some и any: There are some apples. There aren't any eggs.",
+    "tags": ["there is", "there are", "some any", "описание комнаты"]
+  },
+  {
+    "id": "a1-can",
+    "skill": "grammar",
+    "unit": "Модальные глаголы",
+    "title": "Can и can't: умею и могу",
+    "goal": "Говорить, что вы умеете и что можете делать, и просить о чём-то вежливо.",
+    "theory": "Can выражает умение или возможность: I can swim. She can speak French. Отрицание — can't (cannot): He can't drive. После can глагол стоит без to и без -s: He can swim (не cans, не to swim). Вопрос: Can you help me? Can I open the window? Ответы: Yes, I can. No, I can't. Вежливая просьба: Can you repeat, please?",
+    "tags": ["can", "can't", "модальные глаголы", "умения", "просьбы"]
+  },
+  {
+    "id": "a1-have-got",
+    "skill": "grammar",
+    "unit": "Основы предложения",
+    "title": "Have got / has got: у меня есть",
+    "goal": "Сказать, что у вас есть, и описать семью и внешность.",
+    "theory": "Have got говорит о принадлежности и описании: I have got a car. She has got blue eyes. Короткая форма: I've got, she's got. Отрицание: I haven't got a brother. He hasn't got a car. Вопрос: Have you got a pen? Has she got a sister? С he, she, it используйте has. Просто have/has (без got) тоже можно, но have got чаще звучит в британском английском.",
+    "tags": ["have got", "has got", "принадлежность", "семья"]
+  },
+  {
+    "id": "a1-prepositions",
+    "skill": "grammar",
+    "unit": "Описание мест",
+    "title": "Предлоги in, on, at",
+    "goal": "Говорить, где что находится и когда что-то происходит.",
+    "theory": "Для места: in — внутри (in the box, in London), on — на поверхности (on the table), at — в точке (at the door, at school). Для времени: at — точное время (at 5 o'clock), on — дни и даты (on Monday, on 5 May), in — месяцы, годы, части дня (in July, in 2020, in the morning). Исключения: at night, at the weekend. Другие предлоги места: next to, under, behind, between.",
+    "tags": ["предлоги", "in on at", "место", "время"]
+  },
+  {
+    "id": "a1-vocab-people",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Семья и люди",
+    "goal": "Назвать членов семьи и описать, кто есть кто.",
+    "theory": "Слова о семье и людях нужны в первых же разговорах. Запоминайте их парами с примером: This is my mother. He is my brother. Обратите внимание: parents — это родители (мама и папа вместе), а relatives — родственники. Слово friend (друг) пишется с ie. Для знакомства: Nice to meet you.",
+    "vocabulary": [
+      {"word": "mother", "translation": "мама"},
+      {"word": "father", "translation": "папа"},
+      {"word": "sister", "translation": "сестра"},
+      {"word": "brother", "translation": "брат"},
+      {"word": "parents", "translation": "родители"},
+      {"word": "friend", "translation": "друг, подруга"},
+      {"word": "neighbour", "translation": "сосед"},
+      {"word": "husband", "translation": "муж"}
+    ],
+    "tags": ["семья", "люди"]
+  },
+  {
+    "id": "a1-vocab-food",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Еда и напитки",
+    "goal": "Заказать еду, сказать, что вы любите, и прочитать простое меню.",
+    "theory": "Слова про еду пригодятся в магазине и в кафе. Полезные выражения: I'd like a coffee, please. Can I have the menu? I like pizza. I don't like fish. Слова water, milk, bread, rice — неисчисляемые, перед ними не ставят a: some bread, a glass of water, a piece of bread.",
+    "vocabulary": [
+      {"word": "bread", "translation": "хлеб"},
+      {"word": "milk", "translation": "молоко"},
+      {"word": "chicken", "translation": "курица"},
+      {"word": "vegetables", "translation": "овощи"},
+      {"word": "fruit", "translation": "фрукты"},
+      {"word": "breakfast", "translation": "завтрак"},
+      {"word": "lunch", "translation": "обед"},
+      {"word": "dinner", "translation": "ужин"}
+    ],
+    "tags": ["еда", "кафе", "магазин"]
+  },
+  {
+    "id": "a1-vocab-daily",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Распорядок дня и время",
+    "goal": "Рассказать о своём дне и назвать время.",
+    "theory": "Режим дня описывают глаголами в Present Simple: get up, have breakfast, go to work, come home, go to bed. Время называют так: It's seven o'clock (7:00), half past seven (7:30), quarter to eight (7:45). Дни недели пишутся с большой буквы: Monday, Tuesday. Перед днём недели нужен предлог on, перед временем — at.",
+    "vocabulary": [
+      {"word": "get up", "translation": "вставать"},
+      {"word": "go to work", "translation": "идти на работу"},
+      {"word": "come home", "translation": "приходить домой"},
+      {"word": "go to bed", "translation": "ложиться спать"},
+      {"word": "morning", "translation": "утро"},
+      {"word": "evening", "translation": "вечер"},
+      {"word": "weekend", "translation": "выходные"},
+      {"word": "early", "translation": "рано"}
+    ],
+    "tags": ["режим дня", "время", "дни недели"]
+  },
+  {
+    "id": "a1-reading-notices",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем короткие объявления и меню",
+    "goal": "Понять простое объявление, расписание или меню и найти в них нужное: время, цену, место.",
+    "theory": "В коротких текстах важно сначала найти ключевые слова: числа (время, цена), названия мест и дни недели. Не нужно понимать каждое слово: ищите ответ на вопрос «когда», «где», «сколько». Частые слова в объявлениях: open (открыто), closed (закрыто), free (бесплатно), sale (распродажа), exit (выход).",
+    "vocabulary": [
+      {"word": "open", "translation": "открыто"},
+      {"word": "closed", "translation": "закрыто"},
+      {"word": "free", "translation": "бесплатно; свободный"},
+      {"word": "price", "translation": "цена"},
+      {"word": "sale", "translation": "распродажа"},
+      {"word": "exit", "translation": "выход"}
+    ],
+    "tags": ["чтение", "объявления", "меню"]
+  },
+  {
+    "id": "a1-writing-intro",
+    "skill": "writing",
+    "unit": "Чтение и письмо",
+    "title": "Пишем о себе: короткое представление",
+    "goal": "Написать 5–6 простых предложений о себе: имя, возраст, страна, работа, увлечения.",
+    "theory": "Короткий рассказ о себе строится по плану: имя, возраст, откуда вы, чем занимаетесь, что любите. Каждое предложение начинайте с большой буквы и заканчивайте точкой. Образец: Hello! My name is Anna. I am 25 years old. I am from Russia. I work in a shop. I like music and swimming. Используйте to be, have got, Present Simple и like + существительное.",
+    "tags": ["письмо", "о себе", "представление"]
+  }
+]

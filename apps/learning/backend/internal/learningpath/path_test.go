@@ -371,13 +371,14 @@ func aboveLevel(reached string) string {
 	return ""
 }
 
+// programReply is the planner choosing from the library: ids, not texts.
 const programReply = `{"summary":"Solid A1 with clear A2 gaps.","topics":[
-	{"skill":"grammar","title":"Past simple of regular verbs","goal":"Use the past simple of regular verbs in short sentences about yesterday."},
-	{"skill":"vocabulary","title":"Food and drink words","goal":"Name twenty common foods and drinks."},
-	{"skill":"reading","title":"Short everyday notices","goal":"Understand opening hours and prices in short notices."},
-	{"skill":"grammar","title":"Present perfect with since and for","goal":"Say how long something has been true with since and for."},
-	{"skill":"reading","title":"Slow everyday dialogues","goal":"Follow a slow dialogue about plans and pick out the times and places."},
-	{"skill":"writing","title":"Short messages to a friend","goal":"Write a short message that invites a friend and fixes a time."}]}`
+	{"id":"a1-to-be","why":"Вы путаете am, is и are."},
+	{"id":"a1-present-simple","why":"Окончание -s у he и she."},
+	{"id":"a1-present-simple-questions","why":"Вопросы с do и does."},
+	{"id":"a1-articles","why":"Артикли a и the."},
+	{"id":"a1-vocab-food","why":"Слова для кафе и магазина."},
+	{"id":"a1-reading-notices","why":"Чтение коротких объявлений."}]}`
 
 func analyze(t *testing.T, e env, testID string) map[string]any {
 	t.Helper()
@@ -426,6 +427,56 @@ func TestPlacementBuildsAProgram(t *testing.T) {
 	}
 	if !strings.Contains(prompts[0], "wrongAnswers") || !strings.Contains(prompts[0], "levelReached") {
 		t.Fatalf("the analyst did not get the test result:\n%s", prompts[0])
+	}
+
+	// The program is made of the library's own topics: the rule and the goal
+	// are written by people, the reason is the planner's.
+	if first["title"] != "Глагол to be: am, is, are" || !strings.Contains(first["theory"].(string), "I am, you are") {
+		t.Fatalf("the topic does not carry the library's rule: %v", first)
+	}
+	if !strings.Contains(first["goal"].(string), "Вы путаете am, is и are.") {
+		t.Fatalf("the planner's reason is missing from the goal: %v", first["goal"])
+	}
+	food := topics[4].(map[string]any)
+	if words := food["vocabulary"].([]any); len(words) < 6 {
+		t.Fatalf("a vocabulary topic must bring its words: %v", food)
+	}
+	if !strings.Contains(prompts[0], "library") || !strings.Contains(prompts[0], "a1-to-be") {
+		t.Fatalf("the planner was not given the library:\n%s", prompts[0])
+	}
+}
+
+// TestPlannerCannotInventATopic: an id that is not in the library is refused
+// and the retry says so; the program is built from the corrected answer.
+func TestPlannerCannotInventATopic(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	bad := strings.Replace(programReply, "a1-articles", "a1-made-up-topic", 1)
+	e.provider.enqueue(bad, programReply)
+
+	path := analyze(t, e, climb(t, e, "A1"))
+	if len(path["topics"].([]any)) != 6 {
+		t.Fatalf("path: %v", path)
+	}
+
+	prompts := e.provider.requests()
+	if len(prompts) != 2 || !strings.Contains(prompts[1], "is not in the library") {
+		t.Fatalf("the retry did not say the id is unknown: %d\n%v", len(prompts), prompts)
+	}
+}
+
+// TestPlannerStaysWithinTheLearnersLevel: a topic above the level after the
+// one reached is not on offer, so asking for it is refused.
+func TestPlannerStaysWithinTheLearnersLevel(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	tooHigh := strings.Replace(programReply, "a1-articles", "b2-wish", 1)
+	e.provider.enqueue(tooHigh, tooHigh)
+
+	testID := climb(t, e, "A1")
+	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests/"+testID+"/analyze", e.session, nil)
+	if code != http.StatusBadGateway {
+		t.Fatalf("a topic far above the learner must be refused: %d %v", code, body)
 	}
 }
 
@@ -633,7 +684,7 @@ func TestTopicExercisesAndAttempts(t *testing.T) {
 
 	prompts := e.provider.requests()
 	exercisePrompt := prompts[len(prompts)-1]
-	for _, want := range []string{"what the rule is", "how to apply it", "why the given answer is correct"} {
+	for _, want := range []string{"what the rule is", "how to apply it", "why the given answer is correct", `\"theory\"`, "I am, you are"} {
 		if !strings.Contains(exercisePrompt, want) {
 			t.Fatalf("the exercise writer was not asked for %s:\n%s", want, exercisePrompt)
 		}

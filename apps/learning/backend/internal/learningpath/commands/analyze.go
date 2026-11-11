@@ -99,13 +99,25 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 	learned := learningcommands.LanguageName(test.Language)
 	native := learningcommands.LanguageName(test.TranslationLanguage)
 
-	system, prompt := analyzePrompt(learned, native, placement.Level(test.LevelReached), asked, correct, wrong, prefs)
+	reached := placement.Level(test.LevelReached)
 
 	var plan program
-	if err := h.agent.completeJSON(ctx, cmd.UserID, system, prompt, &plan, func() error {
-		return validateProgram(&plan)
-	}); err != nil {
-		return db.LearningPath{}, nil, err
+
+	// A pair with a library is planned from it, so the rules and words a
+	// learner reads were written by people; otherwise the agent writes it all.
+	if library := libraryFor(test.Language, test.TranslationLanguage, reached); len(library) > 0 {
+		plan, err = h.planFromLibrary(ctx, cmd.UserID, learned, native, reached, asked, correct, wrong, prefs, library)
+		if err != nil {
+			return db.LearningPath{}, nil, err
+		}
+	} else {
+		system, prompt := analyzePrompt(learned, native, reached, asked, correct, wrong, prefs)
+
+		if err := h.agent.completeJSON(ctx, cmd.UserID, system, prompt, &plan, func() error {
+			return validateProgram(&plan)
+		}); err != nil {
+			return db.LearningPath{}, nil, err
+		}
 	}
 
 	prefsJSON, err := json.Marshal(prefs)

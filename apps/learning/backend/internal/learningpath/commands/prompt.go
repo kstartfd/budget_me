@@ -45,10 +45,11 @@ const analyzeSystem = "You are an experienced language teacher building a study 
 
 // exercisesSystem is the exercise writer for one topic of the program.
 const exercisesSystem = "You write practice exercises for one topic of a language study program.\n\n" +
-	"You receive the language pair, the learner's CEFR level, and the topic: its skill, title and goal. You may also receive the learner's results on previous exercises for this topic. Use those results to reinforce weak areas and tune the difficulty, while keeping the set appropriate for the stated CEFR level. Write a set of exercises that practice exactly that topic.\n\n" +
+	"You receive the language pair, the learner's CEFR level, and the topic: its skill, title and goal, and often its rule (theory) and key words. You may also receive the learner's results on previous exercises for this topic. Use those results to reinforce weak areas and tune the difficulty, while keeping the set appropriate for the stated CEFR level. Write a set of exercises that practice exactly that topic.\n\n" +
 	"Reply with one JSON object and nothing else: no markdown, no code fence. Its exact shape:\n" +
 	`{"exercises": [{"kind": string, "text": string, "prompt": string, "options": [string], "answer": string, "rule": string}]}` + "\n" +
 	"kind is one of choice (pick one of four options), fill (write the missing word or phrase into the gap marked with ...), translate (translate the given sentence into the learned language).\n" +
+	"When the topic carries its rule, every exercise must practise exactly that rule and agree with it, never contradict it or test a different rule; use the topic's key words where they fit. For a reading topic every exercise carries a short passage in text (two to four sentences, in the learned language) and asks about its content.\n" +
 	"text carries a short reading passage only when the exercise needs one, otherwise it is empty. A choice exercise always has exactly four options with the answer among them; fill and translate have no options.\n" +
 	"Write everything the learner must read — text, prompt and options — in the learned language; the answer of a translate exercise is the correct translation. Keep answers short: one word or phrase for choice and fill, one ordinary sentence for translate.\n" +
 	"rule is a clear explanation in the learner's own language. It must say what the rule is, how to apply it in this exercise, and why the given answer is correct. Be specific to this exercise and use no more than three sentences.\n" +
@@ -92,12 +93,21 @@ func analyzePrompt(learned, native string, reached placement.Level, asked, corre
 }
 
 // exercisesPrompt packs the topic into one JSON user prompt.
-func exercisesPrompt(learned, native string, level, skill, title, goal string, answered, correct int) (string, string) {
+func exercisesPrompt(learned, native string, level, skill, title, goal, theory string, words []programWord, answered, correct int) (string, string) {
+	topic := map[string]any{"skill": skill, "title": title, "goal": goal}
+	if theory != "" {
+		topic["theory"] = theory
+	}
+
+	if len(words) > 0 {
+		topic["keyWords"] = words
+	}
+
 	data := map[string]any{
 		"learnedLanguage": learned,
 		"nativeLanguage":  native,
 		"level":           level,
-		"topic":           map[string]string{"skill": skill, "title": title, "goal": goal},
+		"topic":           topic,
 		"exerciseCount":   exerciseBatch,
 	}
 	if answered > 0 {
