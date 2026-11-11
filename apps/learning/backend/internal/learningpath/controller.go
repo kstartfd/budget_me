@@ -347,6 +347,20 @@ func (c *Controller) createTeacher(ctx echo.Context) error {
 	return httpx.Created(ctx, teacherDTO(queries.TeacherView{Teacher: teacher}))
 }
 
+// deleteTeacher removes a teacher from the list; its program goes to the history.
+func (c *Controller) deleteTeacher(ctx echo.Context) error {
+	id, err := idParam(ctx, "teacher")
+	if err != nil {
+		return err
+	}
+
+	if err := c.teachers.Delete(ctx.Request().Context(), userOf(ctx), id); err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, nil)
+}
+
 func (c *Controller) current(ctx echo.Context) error {
 	language := ctx.QueryParam("language")
 	if language == "" {

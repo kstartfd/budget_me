@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
-import { IconPlus } from "@tabler/icons-react"
+import { IconPlus, IconTrash } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import {
   Select,
@@ -26,8 +26,9 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
   const t = useTranslations("path")
   const locale = useLocale()
   const names = new Intl.DisplayNames([locale], { type: "language" })
-  const { teachers, create } = useTeachers()
+  const { teachers, create, remove } = useTeachers()
   const [adding, setAdding] = useState(false)
+  const [confirming, setConfirming] = useState<string | null>(null)
   const [language, setLanguage] = useState("")
   const [native, setNative] = useState(locale.split("-")[0] === "en" ? "en" : "ru")
 
@@ -71,7 +72,8 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
                 : 0
 
             return (
-              <li key={teacher.id}>
+              <li key={teacher.id} className="space-y-2">
+                <div className="flex items-stretch gap-2">
                 <button
                   type="button"
                   onClick={() =>
@@ -80,7 +82,7 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
                       translationLanguage: teacher.translationLanguage,
                     })
                   }
-                  className="bg-background border-border hover:bg-muted/40 block w-full cursor-pointer space-y-2.5 rounded-lg border p-4 text-left transition-colors"
+                  className="bg-background border-border hover:bg-muted/40 block min-w-0 flex-1 cursor-pointer space-y-2.5 rounded-lg border p-4 text-left transition-colors"
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
@@ -123,6 +125,56 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
                     </div>
                   )}
                 </button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  aria-label={t("deleteTeacher")}
+                  title={t("deleteTeacher")}
+                  onClick={() => setConfirming(confirming === teacher.id ? null : teacher.id)}
+                  className="text-muted-foreground hover:text-destructive h-auto w-11 shrink-0"
+                >
+                  <IconTrash size={16} />
+                </Button>
+                </div>
+                {confirming === teacher.id && (
+                  <div
+                    role="alertdialog"
+                    className="border-destructive/40 bg-background space-y-2.5 rounded-lg border p-3.5"
+                  >
+                    <p className="text-sm leading-relaxed">
+                      {t(teacher.path ? "deleteTeacherWithProgram" : "deleteTeacherConfirm", {
+                        language: names.of(teacher.language) ?? teacher.language,
+                      })}
+                    </p>
+                    {remove.isError && (
+                      <p role="alert" className="text-destructive text-xs">
+                        {remove.error.message}
+                      </p>
+                    )}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="destructive"
+                        size="lg"
+                        disabled={remove.isPending}
+                        onClick={() =>
+                          remove.mutate(teacher.id, { onSuccess: () => setConfirming(null) })
+                        }
+                        className="px-4 text-[13px]"
+                      >
+                        {t(remove.isPending ? "deleting" : "deleteConfirm")}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="lg"
+                        onClick={() => setConfirming(null)}
+                        className="px-4 text-[13px]"
+                      >
+                        {t("cancel")}
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </li>
             )
           })}

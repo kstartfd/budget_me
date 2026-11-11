@@ -49,6 +49,40 @@ func (h TeacherHandler) Create(ctx context.Context, cmd CreateTeacher) (db.Learn
 	})
 }
 
+// Delete removes a teacher from the learner's list. Its running program is not
+// thrown away: it is closed into the history like a reset, so what the learner
+// did stays queryable, and studying the language again makes a new teacher.
+func (h TeacherHandler) Delete(ctx context.Context, userID, teacherID uuid.UUID) error {
+	teacher, err := h.q.GetLearningTeacher(ctx, db.GetLearningTeacherParams{ID: ids.ToPg(teacherID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return apperr.NewNotFound("teacher not found")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	// Close the program first: if removing the teacher then fails, asking again
+	// finds nothing left to close and finishes the job.
+	active, err := h.q.GetActiveLearningPath(ctx, db.GetActiveLearningPathParams{UserID: teacher.UserID, Language: teacher.Language})
+	if err == nil {
+		if _, err := h.q.ArchiveLearningPath(ctx, db.ArchiveLearningPathParams{
+			ID:         active.ID,
+			UserID:     active.UserID,
+			Status:     db.LearningPathStatusAbandoned,
+			ArchivedAt: db.Time(h.clock.Now()),
+		}); err != nil {
+			return err
+		}
+	} else if !db.IsNotFound(err) {
+		return err
+	}
+
+	_, err = h.q.DeleteLearningTeacher(ctx, db.DeleteLearningTeacherParams{ID: teacher.ID, UserID: teacher.UserID})
+
+	return err
+}
+
 // validLanguage accepts a BCP 47 tag of a sane length.
 func validLanguage(code string) bool {
 	if code == "" || len(code) > 35 {

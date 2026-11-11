@@ -59,7 +59,12 @@ export function useTeachers() {
     onSuccess: () => client.invalidateQueries({ queryKey: ["path", user?.id] }),
   })
 
-  return { teachers, create }
+  const remove = useMutation({
+    mutationFn: (id: string) => api.deleteTeacher(id),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["path", user?.id] }),
+  })
+
+  return { teachers, create, remove }
 }
 
 export function usePathTest(id: string | null) {

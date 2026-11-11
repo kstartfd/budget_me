@@ -147,6 +147,10 @@ export async function fetchPathAudio(path: string): Promise<Blob> {
   return res.blob()
 }
 
+/** Removes a teacher; its running program goes to the history. */
+export const deleteTeacher = (id: string): Promise<void> =>
+  request(`/path/teachers/${id}`, "DELETE", () => undefined)
+
 export const fetchHistory = (): Promise<Path[]> =>
   request("/path/history", "GET", (d) => pathSchema.array().parse(d))
 

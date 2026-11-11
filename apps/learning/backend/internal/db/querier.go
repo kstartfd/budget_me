@@ -26,6 +26,7 @@ type Querier interface {
 	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
 	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
 	DeleteLearningPathExercises(ctx context.Context, topicID pgtype.UUID) error
+	DeleteLearningTeacher(ctx context.Context, arg DeleteLearningTeacherParams) (int64, error)
 	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
 	DeleteOldLearningChatUsage(ctx context.Context, day pgtype.Date) error
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
@@ -56,6 +57,7 @@ type Querier interface {
 	GetLearningPathLesson(ctx context.Context, arg GetLearningPathLessonParams) (LearningPathLesson, error)
 	GetLearningPathTest(ctx context.Context, arg GetLearningPathTestParams) (LearningPathTest, error)
 	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
+	GetLearningTeacher(ctx context.Context, arg GetLearningTeacherParams) (LearningTeacher, error)
 	GetLearningTeacherByLanguage(ctx context.Context, arg GetLearningTeacherByLanguageParams) (LearningTeacher, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
 	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)

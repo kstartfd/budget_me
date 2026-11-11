@@ -141,6 +141,23 @@ func (q *Queries) DeleteLearningPathExercises(ctx context.Context, topicID pgtyp
 	return err
 }
 
+const deleteLearningTeacher = `-- name: DeleteLearningTeacher :execrows
+DELETE FROM learning_teachers WHERE id = $1 AND user_id = $2
+`
+
+type DeleteLearningTeacherParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) DeleteLearningTeacher(ctx context.Context, arg DeleteLearningTeacherParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteLearningTeacher, arg.ID, arg.UserID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const finishLearningPathJob = `-- name: FinishLearningPathJob :exec
 UPDATE learning_path_jobs SET status = $2, path_id = $3, error = $4, updated_at = $5 WHERE id = $1
 `
@@ -478,6 +495,28 @@ func (q *Queries) GetLearningPathTopic(ctx context.Context, arg GetLearningPathT
 		&i.Unit,
 		&i.Theory,
 		&i.Vocabulary,
+	)
+	return i, err
+}
+
+const getLearningTeacher = `-- name: GetLearningTeacher :one
+SELECT id, user_id, language, translation_language, created_at FROM learning_teachers WHERE id = $1 AND user_id = $2
+`
+
+type GetLearningTeacherParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetLearningTeacher(ctx context.Context, arg GetLearningTeacherParams) (LearningTeacher, error) {
+	row := q.db.QueryRow(ctx, getLearningTeacher, arg.ID, arg.UserID)
+	var i LearningTeacher
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Language,
+		&i.TranslationLanguage,
+		&i.CreatedAt,
 	)
 	return i, err
 }

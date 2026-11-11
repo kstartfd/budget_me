@@ -990,6 +990,55 @@ func TestNextLevelTestStartsAboveTheConfirmedLevel(t *testing.T) {
 	}
 }
 
+// TestDeletingATeacherKeepsTheProgramInTheHistory: the teacher leaves the list
+// and its running program is closed into the history, not thrown away; the
+// language can be started again.
+func TestDeletingATeacherKeepsTheProgramInTheHistory(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	analyze(t, e, climb(t, e, "A1"))
+
+	code, body := request(t, e.e, "GET", "/api/v1/learning/path/teachers", e.session, nil)
+	teachers := listPayload(t, body)
+	if code != http.StatusOK || len(teachers) != 1 {
+		t.Fatalf("teachers: %d %v", code, body)
+	}
+	id := teachers[0]["id"].(string)
+
+	code, body = request(t, e.e, "DELETE", "/api/v1/learning/path/teachers/"+id, e.session, nil)
+	if code != http.StatusOK {
+		t.Fatalf("delete: %d %v", code, body)
+	}
+
+	_, body = request(t, e.e, "GET", "/api/v1/learning/path/teachers", e.session, nil)
+	if left := listPayload(t, body); len(left) != 0 {
+		t.Fatalf("the teacher must be gone: %v", left)
+	}
+
+	if code, _ := request(t, e.e, "GET", "/api/v1/learning/path?language=en", e.session, nil); code != http.StatusNotFound {
+		t.Fatalf("the program must no longer be running: %d", code)
+	}
+
+	_, body = request(t, e.e, "GET", "/api/v1/learning/path/history", e.session, nil)
+	history := listPayload(t, body)
+	if len(history) != 1 || history[0]["status"] != "abandoned" {
+		t.Fatalf("the program must sit in the history: %v", history)
+	}
+
+	if code, _ := request(t, e.e, "DELETE", "/api/v1/learning/path/teachers/"+id, e.session, nil); code != http.StatusNotFound {
+		t.Fatalf("deleting twice: %d", code)
+	}
+
+	// Studying the language again makes a new teacher.
+	startPlacement(t, e)
+	_, body = request(t, e.e, "GET", "/api/v1/learning/path/teachers", e.session, nil)
+	if again := listPayload(t, body); len(again) != 1 || again[0]["id"] == id {
+		t.Fatalf("a new teacher is expected: %v", again)
+	}
+}
+
 // TestResetArchivesTheProgram: reset closes the active program into the
 // history and frees the language for a fresh placement.
 func TestResetArchivesTheProgram(t *testing.T) {

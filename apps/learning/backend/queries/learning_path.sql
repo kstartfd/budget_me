@@ -217,6 +217,12 @@ VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (user_id, language) DO UPDATE SET language = learning_teachers.language
 RETURNING *;
 
+-- name: GetLearningTeacher :one
+SELECT * FROM learning_teachers WHERE id = $1 AND user_id = $2;
+
+-- name: DeleteLearningTeacher :execrows
+DELETE FROM learning_teachers WHERE id = $1 AND user_id = $2;
+
 -- name: ListActiveLearningPaths :many
 SELECT * FROM learning_paths WHERE user_id = $1 AND status = 'active';
 
