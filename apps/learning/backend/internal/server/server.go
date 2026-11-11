@@ -74,6 +74,6 @@ func New(cfg config.Config, pool, accountPool *pgxpool.Pool) *echo.Echo {
 	learningai.NewController(queries, clk, vault, agent, ocr.New(cfg.OCRBin)).Routes(protected)
 	learningchat.NewController(pool, queries, clk, vault, agent, cfg.ChatRate).Routes(protected)
 	learningmarks.NewController(queries, clk).Routes(protected)
-	learningpath.NewController(pool, queries, clk, vault, agent, cfg.PathPrefetch).Routes(protected)
+	learningpath.NewController(pool, queries, clk, vault, agent, cfg.PathPrefetch, audio).Routes(protected)
 	return e
 }

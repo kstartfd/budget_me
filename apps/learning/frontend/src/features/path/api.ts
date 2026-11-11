@@ -132,6 +132,21 @@ export const createTeacher = (
     { language, translationLanguage },
   )
 
+/** The voice of a word, a sentence to listen to or a phrase to repeat. */
+export async function fetchPathAudio(path: string): Promise<Blob> {
+  const token = readToken()
+  const res = await fetch(`/api/v1/learning${path}`, {
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!res.ok) {
+    const body = await res.json().catch(() => null)
+    throw new ApiError(res.status, body?.message ?? res.statusText)
+  }
+
+  return res.blob()
+}
+
 export const fetchHistory = (): Promise<Path[]> =>
   request("/path/history", "GET", (d) => pathSchema.array().parse(d))
 

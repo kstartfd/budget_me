@@ -3,7 +3,10 @@
 // every test is written for its learner by the learner's own agent.
 package placement
 
-import "strings"
+import (
+	"strings"
+	"unicode"
+)
 
 // Skill is what a question probes. Reading questions carry a short Text; the
 // other skills ask straight from the Prompt.
@@ -98,6 +101,69 @@ func Index(level Level) int {
 	}
 
 	return -1
+}
+
+// Similarity is how alike two phrases are, from 0 to 1, ignoring case,
+// punctuation and spacing: it is what a spoken answer is graded by, since
+// speech recognition returns the words with none of the writing around them.
+func Similarity(a, b string) float64 {
+	x, y := []rune(words(a)), []rune(words(b))
+	if len(x) == 0 && len(y) == 0 {
+		return 1
+	}
+
+	longest := max(len(x), len(y))
+
+	return 1 - float64(distance(x, y))/float64(longest)
+}
+
+// words lowers a phrase and keeps only its letters and digits, single-spaced.
+func words(s string) string {
+	var out []rune
+
+	space := true
+
+	for _, r := range strings.ToLower(s) {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			out = append(out, r)
+			space = false
+
+			continue
+		}
+
+		if !space {
+			out = append(out, ' ')
+			space = true
+		}
+	}
+
+	return strings.TrimSpace(string(out))
+}
+
+// distance is the Levenshtein distance between two rune slices.
+func distance(a, b []rune) int {
+	prev := make([]int, len(b)+1)
+	for j := range prev {
+		prev[j] = j
+	}
+
+	for i := 1; i <= len(a); i++ {
+		cur := make([]int, len(b)+1)
+		cur[0] = i
+
+		for j := 1; j <= len(b); j++ {
+			cost := 1
+			if a[i-1] == b[j-1] {
+				cost = 0
+			}
+
+			cur[j] = min(prev[j]+1, cur[j-1]+1, prev[j-1]+cost)
+		}
+
+		prev = cur
+	}
+
+	return prev[len(b)]
 }
 
 // BatchNeed is how many questions a level batch carries, by test kind.

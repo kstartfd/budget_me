@@ -21,6 +21,11 @@ import (
 
 const maxAttemptRunes = 2000
 
+// speakMatch is how close to the phrase a spoken answer must be heard: the
+// browser's recognition drops a word or hears one wrong now and then, and that
+// is not a mistake of the learner's.
+const speakMatch = 0.8
+
 // ErrThrottled marks an answer check the rate limiter refused: the learner is
 // asking the agent faster than allowed, which is worth a 429, not a failure.
 var ErrThrottled = errors.New("learning path: the agent is being asked too fast")
@@ -114,9 +119,16 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 func (h AttemptHandler) review(ctx context.Context, userID uuid.UUID, path db.LearningPath, exercise db.LearningPathExercise, options []string, answer string) (bool, string, error) {
 	key := placement.Question{Answer: exercise.Answer}
 
-	// Choice and fill have one right answer; only the explanation ever needs
-	// the agent.
-	if exercise.Kind != db.LearningPathExerciseKindTranslate {
+	// A phrase said aloud was already heard by the browser: it is compared
+	// with the phrase right here, no agent needed.
+	if exercise.Kind == db.LearningPathExerciseKindSpeak {
+		return placement.Similarity(answer, exercise.Answer) >= speakMatch, "", nil
+	}
+
+	// Choice, fill and listen have one right answer; only the explanation ever
+	// needs the agent. A translation and a text of the learner's own are judged
+	// by the agent.
+	if exercise.Kind != db.LearningPathExerciseKindTranslate && exercise.Kind != db.LearningPathExerciseKindWrite {
 		if placement.Grade(key, answer) {
 			return true, "", nil
 		}

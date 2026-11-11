@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -199,6 +201,7 @@ type env struct {
 	user     uuid.UUID
 	session  string
 	provider *stubProvider
+	audioDir string
 }
 
 func setup(t *testing.T) env {
@@ -225,9 +228,17 @@ func setupPrefetch(t *testing.T, defaultReply string, prefetch int) env {
 	providers := httptest.NewServer(http.HandlerFunc(provider.serve))
 	t.Cleanup(providers.Close)
 
-	cfg := config.Config{AuthSecret: authSecret, PathPrefetch: prefetch, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL}}
+	// A stand-in voice, so audio is made without the real service.
+	tts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "audio/mpeg")
+		_, _ = w.Write([]byte("ID3-fake-voice"))
+	}))
+	t.Cleanup(tts.Close)
 
-	return env{e: server.New(cfg, pool, testdb.AccountPool(t)), q: q, pool: pool, user: user, session: raw, provider: provider}
+	audioDir := t.TempDir()
+	cfg := config.Config{AuthSecret: authSecret, PathPrefetch: prefetch, TTSURL: tts.URL, AudioCacheDir: audioDir, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL}}
+
+	return env{e: server.New(cfg, pool, testdb.AccountPool(t)), q: q, pool: pool, user: user, session: raw, provider: provider, audioDir: audioDir}
 }
 
 func request(t *testing.T, e *echo.Echo, method, path, raw string, body any) (int, map[string]any) {
@@ -1335,5 +1346,135 @@ func TestTeachersAreLanguagesStudiedSideBySide(t *testing.T) {
 	summary := english["path"].(map[string]any)
 	if summary["level"] != "A1" || summary["topicsTotal"].(float64) != 6 || summary["topicsDone"].(float64) != 0 {
 		t.Fatalf("program summary: %v", summary)
+	}
+}
+
+// rawGet reads a response that is not JSON, such as a voice.
+func rawGet(t *testing.T, e env, path string) (int, []byte, string) {
+	t.Helper()
+	req := httptest.NewRequest(http.MethodGet, path, nil)
+	req.Header.Set("Authorization", "Bearer "+e.session)
+	rec := httptest.NewRecorder()
+	e.e.ServeHTTP(rec, req)
+	return rec.Code, rec.Body.Bytes(), rec.Header().Get("Content-Type")
+}
+
+const variedExercisesReply = `{"exercises":[
+	{"kind":"listen","text":"She has been waiting for an hour.","prompt":"Как долго она ждёт?","options":["for an hour","since an hour","an hour ago","during an hour"],"answer":"for an hour","rule":"For отвечает на вопрос «как долго»."},
+	{"kind":"speak","text":"","prompt":"Скажите вслух.","options":[],"answer":"Nice to meet you","rule":"Слова to и you произносите слитно."},
+	{"kind":"write","text":"","prompt":"Напишите два предложения о вашем дне.","options":[],"answer":"I get up at seven. I work in an office.","rule":"Используйте Present Simple для распорядка дня."}]}`
+
+// TestListeningSpeakingAndWritingExercises: the three new kinds are stored, a
+// listening answer and a spoken phrase are graded here without the agent, and a
+// text of the learner's own is judged by the agent.
+func TestListeningSpeakingAndWritingExercises(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	path := analyze(t, e, climb(t, e, "A1"))
+	topicID := path["topics"].([]any)[0].(map[string]any)["id"].(string)
+
+	e.provider.enqueue(variedExercisesReply)
+	exercises := generateExercises(t, e, topicID)
+	if len(exercises) != 3 {
+		t.Fatalf("exercises: %v", exercises)
+	}
+	listen, speak, write := exercises[0].(map[string]any), exercises[1].(map[string]any), exercises[2].(map[string]any)
+
+	calls := len(e.provider.requests())
+
+	attempt(t, e, listen["id"].(string), "for an hour", true, "")
+
+	// A phrase heard a little differently still counts; one that is not it does not.
+	attempt(t, e, speak["id"].(string), "nice to meet you", true, "")
+	attempt(t, e, speak["id"].(string), "nice to meat you", true, "")
+	attempt(t, e, speak["id"].(string), "see you later", false, "")
+
+	if len(e.provider.requests()) != calls {
+		t.Fatal("grading a choice and a spoken phrase must not spend the agent")
+	}
+
+	// A text of the learner's own has no key: the agent judges it.
+	e.provider.enqueue(`{"correct":true,"feedback":""}`)
+	attempt(t, e, write["id"].(string), "I get up at seven. I go to work by bus.", true, "")
+	if len(e.provider.requests()) != calls+1 {
+		t.Fatal("a written text must be judged by the agent")
+	}
+	judge := e.provider.requests()[calls]
+	if !strings.Contains(judge, "write") {
+		t.Fatalf("the agent was not told it is a writing exercise:\n%s", judge)
+	}
+}
+
+// TestBrokenNewExerciseKindsAreRetried: a listening exercise with no sentence,
+// or a speaking one with options, never reaches the learner.
+func TestBrokenNewExerciseKindsAreRetried(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	path := analyze(t, e, climb(t, e, "A1"))
+	topicID := path["topics"].([]any)[0].(map[string]any)["id"].(string)
+
+	noSentence := strings.Replace(variedExercisesReply, `"text":"She has been waiting for an hour."`, `"text":""`, 1)
+	e.provider.enqueue(noSentence, variedExercisesReply)
+	generateExercises(t, e, topicID)
+
+	prompts := e.provider.requests()
+	if !strings.Contains(prompts[len(prompts)-1], "listen needs the sentence to hear") {
+		t.Fatalf("the retry did not say what was wrong:\n%s", prompts[len(prompts)-1])
+	}
+}
+
+// TestExerciseAndWordAudio: a listening exercise and a key word are read aloud;
+// an exercise with nothing to hear is refused.
+func TestExerciseAndWordAudio(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	path := analyze(t, e, climb(t, e, "A1"))
+	topics := path["topics"].([]any)
+	topicID := topics[0].(map[string]any)["id"].(string)
+
+	e.provider.enqueue(variedExercisesReply)
+	exercises := generateExercises(t, e, topicID)
+
+	code, body, kind := rawGet(t, e, "/api/v1/learning/path/exercises/"+exercises[0].(map[string]any)["id"].(string)+"/audio")
+	if code != http.StatusOK || len(body) == 0 || !strings.HasPrefix(kind, "audio/") {
+		t.Fatalf("listening audio: %d %q %q", code, body, kind)
+	}
+
+	// The cache folder may be lost while its rows stay (a new container, a wiped
+	// volume): the voice is made again instead of failing for good.
+	files, _ := os.ReadDir(e.audioDir)
+	for _, f := range files {
+		_ = os.Remove(filepath.Join(e.audioDir, f.Name()))
+	}
+	code, body, _ = rawGet(t, e, "/api/v1/learning/path/exercises/"+exercises[0].(map[string]any)["id"].(string)+"/audio")
+	if code != http.StatusOK || len(body) == 0 {
+		t.Fatalf("a lost cache file must be made again: %d", code)
+	}
+
+	code, _, _ = rawGet(t, e, "/api/v1/learning/path/exercises/"+exercises[1].(map[string]any)["id"].(string)+"/audio")
+	if code != http.StatusOK {
+		t.Fatalf("a speaking exercise may be heard before it is repeated: %d", code)
+	}
+
+	code, _, _ = rawGet(t, e, "/api/v1/learning/path/exercises/"+exercises[2].(map[string]any)["id"].(string)+"/audio")
+	if code != http.StatusBadRequest {
+		t.Fatalf("a writing exercise has nothing to hear: %d", code)
+	}
+
+	// The food topic carries its words; the first one can be heard, a missing one cannot.
+	food := topics[4].(map[string]any)["id"].(string)
+	code, body, _ = rawGet(t, e, "/api/v1/learning/path/topics/"+food+"/words/0/audio")
+	if code != http.StatusOK || len(body) == 0 {
+		t.Fatalf("word audio: %d", code)
+	}
+	code, _, _ = rawGet(t, e, "/api/v1/learning/path/topics/"+food+"/words/99/audio")
+	if code != http.StatusNotFound {
+		t.Fatalf("a missing word: %d", code)
 	}
 }

@@ -35,3 +35,25 @@ func TestGradeForgivesCaseAndEdges(t *testing.T) {
 		t.Fatal("a wrong option graded right")
 	}
 }
+
+func TestSimilarityIgnoresWritingAndMeasuresWords(t *testing.T) {
+	cases := []struct {
+		a, b string
+		min  float64
+		max  float64
+	}{
+		{"Nice to meet you!", "nice to meet you", 1, 1},
+		{"I have been to  Italy.", "i have been to italy", 1, 1},
+		{"Nice to meet you", "nice to meat you", 0.85, 0.99},
+		{"Nice to meet you", "see you later", 0, 0.5},
+		{"", "", 1, 1},
+		{"", "hello", 0, 0},
+	}
+
+	for _, c := range cases {
+		got := placement.Similarity(c.a, c.b)
+		if got < c.min || got > c.max {
+			t.Errorf("Similarity(%q, %q) = %.2f, want %.2f to %.2f", c.a, c.b, got, c.min, c.max)
+		}
+	}
+}

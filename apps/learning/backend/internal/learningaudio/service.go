@@ -46,7 +46,13 @@ func (s Service) Ensure(ctx context.Context, language, text string) (db.Learning
 
 	row, err := s.q.GetLearningAudioCache(ctx, db.GetLearningAudioCacheParams{Language: language, TextHash: textHash})
 	if err == nil {
-		return row, nil
+		// The row outlives the file when the cache folder is lost (a new
+		// container, a wiped volume): make the voice again into the same place.
+		if _, statErr := os.Stat(filepath.Join(s.root, row.StoragePath)); statErr == nil {
+			return row, nil
+		}
+
+		return row, s.remake(ctx, row, text, language)
 	}
 	if !db.IsNotFound(err) {
 		return row, err
@@ -105,6 +111,16 @@ func (s Service) Open(_ context.Context, row db.LearningAudioCache) (*os.File, e
 	}
 
 	return os.Open(filepath.Join(s.root, row.StoragePath))
+}
+
+// remake writes again the file of a cached text whose file has gone missing.
+func (s Service) remake(ctx context.Context, row db.LearningAudioCache, text, language string) error {
+	audio, _, err := s.provider.Speak(ctx, text, language)
+	if err != nil || len(audio) == 0 {
+		return apperr.NewInternal("audio synthesis failed")
+	}
+
+	return s.write(row.StoragePath, audio)
 }
 
 func (s Service) write(name string, data []byte) error {

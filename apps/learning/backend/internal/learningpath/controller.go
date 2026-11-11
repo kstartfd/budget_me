@@ -2,6 +2,7 @@ package learningpath
 
 import (
 	"context"
+	"encoding/hex"
 	"errors"
 	"math"
 	"net/http"
@@ -17,6 +18,7 @@ import (
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/httpx"
 	"learning_app/backend/internal/ids"
+	"learning_app/backend/internal/learningaudio"
 	"learning_app/backend/internal/learningpath/commands"
 	"learning_app/backend/internal/learningpath/queries"
 	"learning_app/backend/internal/llm"
@@ -51,10 +53,11 @@ type Controller struct {
 	resets    commands.ResetHandler
 	read      queries.ReadHandler
 	limit     *ratelimit.Limiter
+	audio     learningaudio.Service
 	testLimit *ratelimit.Limiter
 }
 
-func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent commands.Completer, prefetch int) *Controller {
+func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent commands.Completer, prefetch int, audio learningaudio.Service) *Controller {
 	analysis := commands.NewAnalyzeHandler(pool, q, clk, commands.NewAgent(q, vault, agent))
 	exercises := commands.NewExerciseHandler(pool, q, clk, commands.NewAgent(q, vault, agent))
 
@@ -71,6 +74,7 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 		read:      queries.NewReadHandler(q),
 		limit:     ratelimit.New(aiRate),
 		testLimit: ratelimit.New(testRate),
+		audio:     audio,
 	}
 }
 
@@ -471,6 +475,69 @@ func (c *Controller) attempt(ctx echo.Context) error {
 	ctx.Response().Header().Set("Cache-Control", "no-store")
 
 	return httpx.OK(ctx, attemptDTO(result.Attempt))
+}
+
+// exerciseAudio reads aloud the sentence of a listening exercise, or the
+// phrase of a speaking one.
+func (c *Controller) exerciseAudio(ctx echo.Context) error {
+	id, err := idParam(ctx, "exercise")
+	if err != nil {
+		return err
+	}
+
+	language, text, err := c.read.ExerciseSpeech(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	return c.speak(ctx, language, text)
+}
+
+// wordAudio reads aloud one key word of a topic.
+func (c *Controller) wordAudio(ctx echo.Context) error {
+	id, err := idParam(ctx, "topic")
+	if err != nil {
+		return err
+	}
+
+	index, err := strconv.Atoi(ctx.Param("index"))
+	if err != nil {
+		return apperr.NewInvalid("invalid word index")
+	}
+
+	language, text, err := c.read.WordSpeech(ctx.Request().Context(), userOf(ctx), id, index)
+	if err != nil {
+		return err
+	}
+
+	return c.speak(ctx, language, text)
+}
+
+// speak sends the voice of a text: made once, then served from the cache.
+func (c *Controller) speak(ctx echo.Context, language, text string) error {
+	audio, err := c.audio.Ensure(ctx.Request().Context(), language, text)
+	if err != nil {
+		return err
+	}
+
+	file, err := c.audio.Open(ctx.Request().Context(), audio)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	etag := `"` + hex.EncodeToString(audio.ContentHash) + `"`
+	ctx.Response().Header().Set("ETag", etag)
+	ctx.Response().Header().Set(echo.HeaderCacheControl, "private, max-age=31536000, immutable")
+	ctx.Response().Header().Set(echo.HeaderContentType, audio.ContentType)
+
+	if ctx.Request().Header.Get("If-None-Match") == etag {
+		return ctx.NoContent(http.StatusNotModified)
+	}
+
+	http.ServeContent(ctx.Response(), ctx.Request(), "", time.Time{}, file)
+
+	return nil
 }
 
 // lessonReply answers with a lesson and what has been done in it.

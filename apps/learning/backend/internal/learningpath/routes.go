@@ -30,4 +30,6 @@ func (c *Controller) Routes(protected *echo.Group) {
 	protected.POST("/learning/path/lessons/:id/resume", c.resumeLesson)
 	protected.POST("/learning/path/lessons/:id/finish", c.finishLesson)
 	protected.POST("/learning/path/exercises/:id/attempt", c.attempt, echomw.BodyLimit("16K"))
+	protected.GET("/learning/path/exercises/:id/audio", c.exerciseAudio)
+	protected.GET("/learning/path/topics/:id/words/:index/audio", c.wordAudio)
 }

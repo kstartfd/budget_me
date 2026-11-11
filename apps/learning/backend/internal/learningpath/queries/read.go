@@ -2,6 +2,7 @@ package queries
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -71,6 +72,70 @@ func (h ReadHandler) PathByID(ctx context.Context, userID, pathID uuid.UUID) (Pa
 	}
 
 	return PathWithTopics{Path: path, Topics: topics}, nil
+}
+
+// ExerciseSpeech is what a learner may hear of an exercise, and in which
+// language: the sentence of a listening exercise, or the phrase to repeat in a
+// speaking one. Any other exercise has nothing to listen to.
+func (h ReadHandler) ExerciseSpeech(ctx context.Context, userID, exerciseID uuid.UUID) (string, string, error) {
+	exercise, err := h.q.GetLearningPathExercise(ctx, db.GetLearningPathExerciseParams{ID: ids.ToPg(exerciseID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return "", "", apperr.NewNotFound("exercise not found")
+	}
+
+	if err != nil {
+		return "", "", err
+	}
+
+	var text string
+
+	switch exercise.Kind {
+	case db.LearningPathExerciseKindListen:
+		text = exercise.Text
+	case db.LearningPathExerciseKindSpeak:
+		text = exercise.Answer
+	default:
+		return "", "", apperr.NewInvalid("this exercise has nothing to listen to")
+	}
+
+	topic, err := h.q.GetLearningPathTopic(ctx, db.GetLearningPathTopicParams{ID: exercise.TopicID, UserID: ids.ToPg(userID)})
+	if err != nil {
+		return "", "", err
+	}
+
+	path, err := h.q.GetLearningPath(ctx, db.GetLearningPathParams{ID: topic.PathID, UserID: ids.ToPg(userID)})
+	if err != nil {
+		return "", "", err
+	}
+
+	return path.Language, text, nil
+}
+
+// WordSpeech is a key word of a topic, to be heard, with its language.
+func (h ReadHandler) WordSpeech(ctx context.Context, userID, topicID uuid.UUID, index int) (string, string, error) {
+	topic, err := h.q.GetLearningPathTopic(ctx, db.GetLearningPathTopicParams{ID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return "", "", apperr.NewNotFound("topic not found")
+	}
+
+	if err != nil {
+		return "", "", err
+	}
+
+	var words []struct {
+		Word string `json:"word"`
+	}
+
+	if err := json.Unmarshal(topic.Vocabulary, &words); err != nil || index < 0 || index >= len(words) {
+		return "", "", apperr.NewNotFound("word not found")
+	}
+
+	path, err := h.q.GetLearningPath(ctx, db.GetLearningPathParams{ID: topic.PathID, UserID: ids.ToPg(userID)})
+	if err != nil {
+		return "", "", err
+	}
+
+	return path.Language, words[index].Word, nil
 }
 
 // History returns every closed program, newest first, each with its topics.

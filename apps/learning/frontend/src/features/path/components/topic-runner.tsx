@@ -1,17 +1,26 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconBookmarkPlus, IconCheck, IconMessageCircle, IconX } from "@tabler/icons-react"
+import {
+  IconBookmarkPlus,
+  IconCheck,
+  IconMessageCircle,
+  IconMicrophone,
+  IconX,
+} from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import { PathTopicChat } from "@/features/chat/components/path-topic-chat"
 import { useLearning } from "@/features/learning/hooks"
 import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { LessonPanel } from "./lesson-panel"
+import { PlayButton } from "./play-button"
+import { listenOnce, speechSupported } from "../speech"
 import type { PathAttempt, PathExercise } from "../schemas"
 
 const baseLanguage = (code: string) => code.split("-")[0].toLowerCase()
@@ -94,6 +103,7 @@ export function TopicRunner({ topicId }: { topicId: string }) {
       </div>
       {topic.vocabulary.length > 0 && (
         <Vocabulary
+          topicId={topicId}
           words={topic.vocabulary}
           topicTitle={topic.title}
           notebookId={chatTopic?.id}
@@ -129,6 +139,7 @@ export function TopicRunner({ topicId }: { topicId: string }) {
               index={index + 1}
               total={exercises.length}
               topicTitle={topic.title}
+              language={path.language}
               chatTopicId={chatTopic?.id}
               solved={solved.has(exercise.id)}
               latestAttempt={latestAttempts.get(exercise.id)}
@@ -217,6 +228,7 @@ function ExerciseCard({
   index,
   total,
   topicTitle,
+  language,
   chatTopicId,
   solved,
   topicId,
@@ -227,6 +239,7 @@ function ExerciseCard({
   index: number
   total: number
   topicTitle: string
+  language: string
   chatTopicId?: string
   solved: boolean
   latestAttempt?: PathAttempt
@@ -239,6 +252,16 @@ function ExerciseCard({
   const [value, setValue] = useState("")
   const [last, setLast] = useState<PathAttempt | null>(null)
   const result = last ?? latestAttempt
+  // A phrase to say is heard by the browser; where it cannot, or the
+  // microphone is refused, the learner types it instead.
+  const [hearing, setHearing] = useState(false)
+  const [heard, setHeard] = useState("")
+  const [voiceNote, setVoiceNote] = useState<"noSpeech" | null>(null)
+  const [voiceFailed, setVoiceFailed] = useState<string | null>(null)
+  const stopListening = useRef<(() => void) | null>(null)
+  const voice = exercise.kind === "speak" && speechSupported() && voiceFailed === null
+
+  useEffect(() => () => stopListening.current?.(), [])
   // The whole exercise goes to the teacher: the sentence or passage (the
   // prompt alone is just "fill in the gap"), the options, and what was answered.
   const exerciseText = [
@@ -264,6 +287,23 @@ function ExerciseCard({
     )
   }
 
+  const startVoice = () => {
+    setHeard("")
+    setVoiceNote(null)
+    setHearing(true)
+    stopListening.current = listenOnce(language, {
+      onText: (text) => {
+        setHeard(text)
+        submit(text)
+      },
+      onError: (reason) => {
+        if (reason === "no-speech" || reason === "aborted") setVoiceNote("noSpeech")
+        else setVoiceFailed(reason)
+      },
+      onEnd: () => setHearing(false),
+    })
+  }
+
   const done = result ? result.correct : solved
   const failed = !!result && !result.correct
   // A word or a phrase worth keeping can go to the notebook once it is answered.
@@ -271,7 +311,7 @@ function ExerciseCard({
 
   return (
     <section className="border-border space-y-3 border-t pt-4 first-of-type:border-t-0 first-of-type:pt-0">
-      {exercise.text && (
+      {exercise.text && !(exercise.kind === "listen" && !result) && (
         <p className="text-muted-foreground text-sm leading-relaxed italic">
           {exercise.text}
         </p>
@@ -295,8 +335,12 @@ function ExerciseCard({
         )}
       </div>
 
-      {exercise.kind === "choice" ? (
-        <div className="grid gap-2">
+      {exercise.kind === "choice" || exercise.kind === "listen" ? (
+        <div className="space-y-2">
+          {exercise.kind === "listen" && (
+            <PlayButton path={`/path/exercises/${exercise.id}/audio`} label={t("hear")} />
+          )}
+          <div className="grid gap-2">
           {exercise.options.map((option) => {
             const picked = result?.answer === option
             const right = picked && result.correct
@@ -334,26 +378,67 @@ function ExerciseCard({
               </button>
             )
           })}
+          </div>
+        </div>
+      ) : voice ? (
+        <div className="space-y-2.5">
+          <p className="bg-muted rounded-lg px-3.5 py-3 text-[15px] leading-snug font-medium">
+            {exercise.answer}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            <PlayButton path={`/path/exercises/${exercise.id}/audio`} label={t("hear")} />
+            <Button
+              type="button"
+              size="lg"
+              onClick={startVoice}
+              disabled={hearing || attempt.isPending}
+              className="text-[13px]"
+            >
+              <IconMicrophone size={16} className={hearing ? "animate-pulse" : undefined} />
+              {t(hearing ? "listening" : "speakNow")}
+            </Button>
+          </div>
+          {heard && (
+            <p className="text-muted-foreground text-xs">
+              {t("heard")}: {heard}
+            </p>
+          )}
+          {voiceNote && (
+            <p className="text-muted-foreground text-xs">{t("noSpeech")}</p>
+          )}
         </div>
       ) : (
         <form
-          className="flex gap-2"
+          className={cn("flex gap-2", exercise.kind === "write" && "flex-wrap")}
           onSubmit={(e) => {
             e.preventDefault()
             submit(value)
           }}
         >
-          <Input
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            placeholder={t(
-              exercise.kind === "fill"
-                ? "fillPlaceholder"
-                : "translatePlaceholder",
-            )}
-            aria-label={exercise.prompt}
-            className="bg-background h-10 text-sm md:text-sm"
-          />
+          {exercise.kind === "write" ? (
+            <Textarea
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder={t("writePlaceholder")}
+              aria-label={exercise.prompt}
+              rows={3}
+              className="bg-background basis-full text-sm md:text-sm"
+            />
+          ) : (
+            <Input
+              value={value}
+              onChange={(e) => setValue(e.target.value)}
+              placeholder={t(
+                exercise.kind === "fill"
+                  ? "fillPlaceholder"
+                  : exercise.kind === "speak"
+                    ? "speakFallback"
+                    : "translatePlaceholder",
+              )}
+              aria-label={exercise.prompt}
+              className="bg-background h-10 text-sm md:text-sm"
+            />
+          )}
           <Button
             type="submit"
             disabled={attempt.isPending || !value.trim()}
@@ -372,7 +457,18 @@ function ExerciseCard({
           </Button>
         </form>
       )}
-      {revealed && exercise.kind !== "choice" && (
+      {exercise.kind === "speak" && voiceFailed !== null && (
+        <p className="text-muted-foreground text-xs">{t("voiceFailed")}</p>
+      )}
+      {exercise.kind === "write" && result && (
+        <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3 text-[13px] leading-relaxed">
+          <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+            {t("sampleAnswer")}
+          </p>
+          <p>{exercise.answer}</p>
+        </div>
+      )}
+      {revealed && exercise.kind !== "choice" && exercise.kind !== "listen" && (
         <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3 text-[13px] leading-relaxed">
           <p>
             <span className="text-muted-foreground">{t("correctAnswer")}: </span>
@@ -477,11 +573,13 @@ type SaveEntry = ReturnType<typeof useLearning>["saveEntry"]
 /** Vocabulary lists the key words of a topic; each goes to the notebook of
  * the language pair in one tap, and the whole list in one more. */
 function Vocabulary({
+  topicId,
   words,
   topicTitle,
   notebookId,
   saveEntry,
 }: {
+  topicId: string
   words: { word: string; translation: string }[]
   topicTitle: string
   notebookId?: string
@@ -519,11 +617,16 @@ function Vocabulary({
         )}
       </div>
       <ul className="space-y-1">
-        {words.map((word) => (
+        {words.map((word, index) => (
           <li
             key={word.word}
             className="border-border flex items-center gap-2 rounded-md border px-3 py-1.5 text-[13px]"
           >
+            <PlayButton
+              compact
+              path={`/path/topics/${topicId}/words/${index}/audio`}
+              label={t("hearWord", { word: word.word })}
+            />
             <span className="font-medium">{word.word}</span>
             <span className="text-muted-foreground min-w-0 flex-1 truncate">
               {word.translation}
@@ -561,7 +664,7 @@ const maxPhraseWords = 4
  * translation is a whole sentence, which is not a notebook entry. */
 function isWordOrPhrase(exercise: PathExercise): boolean {
   const answer = exercise.answer.trim()
-  if (exercise.kind === "translate" || !answer) return false
+  if (!["choice", "fill", "speak"].includes(exercise.kind) || !answer) return false
   if (/[.!?;:]$/.test(answer)) return false
 
   return answer.split(/\s+/).length <= maxPhraseWords
