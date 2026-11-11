@@ -275,7 +275,9 @@ const programReply = `{"summary":"Solid A1 with clear A2 gaps.","topics":[
 	{"skill":"grammar","title":"Past simple of regular verbs","goal":"Use the past simple of regular verbs in short sentences about yesterday."},
 	{"skill":"vocabulary","title":"Food and drink words","goal":"Name twenty common foods and drinks."},
 	{"skill":"reading","title":"Short everyday notices","goal":"Understand opening hours and prices in short notices."},
-	{"skill":"grammar","title":"Present perfect with since and for","goal":"Say how long something has been true with since and for."}]}`
+	{"skill":"grammar","title":"Present perfect with since and for","goal":"Say how long something has been true with since and for."},
+	{"skill":"reading","title":"Slow everyday dialogues","goal":"Follow a slow dialogue about plans and pick out the times and places."},
+	{"skill":"writing","title":"Short messages to a friend","goal":"Write a short message that invites a friend and fixes a time."}]}`
 
 func analyze(t *testing.T, e env, testID string) map[string]any {
 	t.Helper()
@@ -309,7 +311,7 @@ func TestPlacementBuildsAProgram(t *testing.T) {
 		t.Fatalf("path: %v", path)
 	}
 	topics := path["topics"].([]any)
-	if len(topics) != 4 {
+	if len(topics) != 6 {
 		t.Fatalf("topics: %v", topics)
 	}
 	first := topics[0].(map[string]any)
