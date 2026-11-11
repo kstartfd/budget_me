@@ -20,6 +20,8 @@ import (
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/learningaudio"
 	"learning_app/backend/internal/learningpath/commands"
+	"learning_app/backend/internal/learningpath/curriculum"
+	"learning_app/backend/internal/learningpath/placement"
 	"learning_app/backend/internal/learningpath/queries"
 	"learning_app/backend/internal/llm"
 	"learning_app/backend/internal/ratelimit"
@@ -420,7 +422,116 @@ func (c *Controller) topic(ctx echo.Context) error {
 
 	ctx.Response().Header().Set("Cache-Control", "no-store")
 
-	return httpx.OK(ctx, topicDetailDTO(detail))
+	// The rule is shown only to someone who has that teacher now: a program kept
+	// in the history of a teacher they deleted does not hand it out.
+	var rule *ruleResponse
+	if c.hasRuleBook(ctx, detail.Path.Language) {
+		rule = ruleOf(detail)
+	}
+
+	return httpx.OK(ctx, topicDetailDTO(detail, rule))
+}
+
+// hasRuleBook tells whether the learner has a teacher of this language whose
+// pair has a rule book.
+func (c *Controller) hasRuleBook(ctx echo.Context, language string) bool {
+	teachers, err := c.read.Teachers(ctx.Request().Context(), userOf(ctx))
+	if err != nil {
+		return false
+	}
+
+	for _, t := range teachers {
+		if t.Teacher.Language == language && len(curriculum.Rules(t.Teacher.Language, t.Teacher.TranslationLanguage)) > 0 {
+			return true
+		}
+	}
+
+	return false
+}
+
+// ruleOf finds the rule a topic is about: the one it was made from, or, for a
+// topic an agent wrote on its own, the one its title names. It is only given
+// for a pair that has a rule book, and a program is only ever of such a pair
+// when its teacher is, so no one gets a rule they have no teacher for.
+func ruleOf(d queries.TopicDetail) *ruleResponse {
+	language, native := d.Path.Language, d.Path.TranslationLanguage
+	if !curriculum.Has(language, native) {
+		return nil
+	}
+
+	var (
+		found curriculum.Topic
+		ok    bool
+	)
+
+	if d.Topic.SourceID != "" {
+		found, ok = curriculum.Find(language, native, d.Topic.SourceID)
+	}
+
+	if !ok || found.Extra == nil {
+		reach := min(placement.Index(placement.Level(d.Path.Level))+1, len(placement.Levels)-1)
+		found, ok = curriculum.Match(language, native, d.Topic.Title, placement.Levels[max(reach, 0)])
+	}
+
+	if !ok || found.Extra == nil {
+		return nil
+	}
+
+	rule := ruleDTO(found, language, native)
+
+	return &rule
+}
+
+// ruleBook is the pair whose rules the learner may read: the one of a teacher
+// they have, and only if that pair has a rule book. Without such a teacher the
+// rules are not served.
+func (c *Controller) ruleBook(ctx echo.Context) (string, string, error) {
+	teachers, err := c.read.Teachers(ctx.Request().Context(), userOf(ctx))
+	if err != nil {
+		return "", "", err
+	}
+
+	for _, t := range teachers {
+		if len(curriculum.Rules(t.Teacher.Language, t.Teacher.TranslationLanguage)) > 0 {
+			return t.Teacher.Language, t.Teacher.TranslationLanguage, nil
+		}
+	}
+
+	return "", "", apperr.NewForbidden("the rule book is for a teacher whose language it covers")
+}
+
+// listRules lists the rules of the learner's rule book, by level.
+func (c *Controller) listRules(ctx echo.Context) error {
+	language, native, err := c.ruleBook(ctx)
+	if err != nil {
+		return err
+	}
+
+	rules := curriculum.Rules(language, native)
+	out := make([]ruleRef, len(rules))
+
+	for i, r := range rules {
+		out[i] = ruleRefOf(r)
+	}
+
+	return httpx.OK(ctx, out)
+}
+
+// getRule reads one rule, with the rules it refers to.
+func (c *Controller) getRule(ctx echo.Context) error {
+	language, native, err := c.ruleBook(ctx)
+	if err != nil {
+		return err
+	}
+
+	rule, ok := curriculum.Find(language, native, ctx.Param("id"))
+	if !ok || rule.Extra == nil {
+		return apperr.NewNotFound("rule not found")
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "private, max-age=3600")
+
+	return httpx.OK(ctx, ruleDTO(rule, language, native))
 }
 
 // generate writes (or hands back) the exercise set of a topic.

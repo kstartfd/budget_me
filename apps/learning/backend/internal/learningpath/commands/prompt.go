@@ -152,6 +152,9 @@ type programTopic struct {
 	Goal       string        `json:"goal"`
 	Theory     string        `json:"theory"`
 	Vocabulary []programWord `json:"vocabulary"`
+	// SourceID is the library topic this one was made from; empty when the agent
+	// wrote the topic itself.
+	SourceID string `json:"-"`
 }
 
 // programWord is one key word of a topic, with its translation.

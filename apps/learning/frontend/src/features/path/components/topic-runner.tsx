@@ -20,6 +20,7 @@ import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { LessonPanel } from "./lesson-panel"
 import { PlayButton } from "./play-button"
+import { RuleCard } from "./rule-card"
 import { listenOnce, speechSupported } from "../speech"
 import type { PathAttempt, PathExercise } from "../schemas"
 
@@ -87,20 +88,35 @@ export function TopicRunner({ topicId }: { topicId: string }) {
 
   return (
     <div className="space-y-3 p-4 pt-4">
+      {detail.data.rule ? (
+        // The rule comes first: what the topic is about is read before it is practised.
+        <div className="space-y-3">
+          <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3">
+            <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+              {t("goal")}
+            </p>
+            <p className="text-[13px] leading-relaxed">{topic.goal}</p>
+          </div>
+          <div className="border-border rounded-lg border p-4">
+            <RuleCard rule={detail.data.rule} />
+          </div>
+        </div>
+      ) : (
+        <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3">
+          <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+            {t("rule")}
+          </p>
+          <p className="text-[13px] leading-relaxed">{topic.goal}</p>
+          {topic.theory && (
+            <p className="text-[13px] leading-relaxed whitespace-pre-line">
+              {topic.theory}
+            </p>
+          )}
+        </div>
+      )}
       {topic.status !== "completed" && (
         <LessonPanel topicId={topicId} onPausedChange={onPausedChange} />
       )}
-      <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3">
-        <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
-          {t("rule")}
-        </p>
-        <p className="text-[13px] leading-relaxed">{topic.goal}</p>
-        {topic.theory && (
-          <p className="text-[13px] leading-relaxed whitespace-pre-line">
-            {topic.theory}
-          </p>
-        )}
-      </div>
       {topic.vocabulary.length > 0 && (
         <Vocabulary
           topicId={topicId}

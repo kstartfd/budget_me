@@ -469,7 +469,7 @@ func (q *Queries) GetLearningPathTest(ctx context.Context, arg GetLearningPathTe
 }
 
 const getLearningPathTopic = `-- name: GetLearningPathTopic :one
-SELECT t.id, t.path_id, t.position, t.skill, t.title, t.goal, t.status, t.created_at, t.completed_at, t.unit, t.theory, t.vocabulary FROM learning_path_topics t
+SELECT t.id, t.path_id, t.position, t.skill, t.title, t.goal, t.status, t.created_at, t.completed_at, t.unit, t.theory, t.vocabulary, t.source_id FROM learning_path_topics t
 JOIN learning_paths p ON p.id = t.path_id
 WHERE t.id = $1 AND p.user_id = $2
 `
@@ -495,6 +495,7 @@ func (q *Queries) GetLearningPathTopic(ctx context.Context, arg GetLearningPathT
 		&i.Unit,
 		&i.Theory,
 		&i.Vocabulary,
+		&i.SourceID,
 	)
 	return i, err
 }
@@ -917,8 +918,8 @@ func (q *Queries) InsertLearningPathTestQuestion(ctx context.Context, arg Insert
 }
 
 const insertLearningPathTopic = `-- name: InsertLearningPathTopic :one
-INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, unit, theory, vocabulary, status, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'not_started', $10) RETURNING id, path_id, position, skill, title, goal, status, created_at, completed_at, unit, theory, vocabulary
+INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, unit, theory, vocabulary, status, created_at, source_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'not_started', $10, $11) RETURNING id, path_id, position, skill, title, goal, status, created_at, completed_at, unit, theory, vocabulary, source_id
 `
 
 type InsertLearningPathTopicParams struct {
@@ -932,6 +933,7 @@ type InsertLearningPathTopicParams struct {
 	Theory     string
 	Vocabulary []byte
 	CreatedAt  pgtype.Timestamptz
+	SourceID   string
 }
 
 func (q *Queries) InsertLearningPathTopic(ctx context.Context, arg InsertLearningPathTopicParams) (LearningPathTopic, error) {
@@ -946,6 +948,7 @@ func (q *Queries) InsertLearningPathTopic(ctx context.Context, arg InsertLearnin
 		arg.Theory,
 		arg.Vocabulary,
 		arg.CreatedAt,
+		arg.SourceID,
 	)
 	var i LearningPathTopic
 	err := row.Scan(
@@ -961,6 +964,7 @@ func (q *Queries) InsertLearningPathTopic(ctx context.Context, arg InsertLearnin
 		&i.Unit,
 		&i.Theory,
 		&i.Vocabulary,
+		&i.SourceID,
 	)
 	return i, err
 }
@@ -1301,7 +1305,7 @@ func (q *Queries) ListLearningPathTestQuestions(ctx context.Context, testID pgty
 }
 
 const listLearningPathTopics = `-- name: ListLearningPathTopics :many
-SELECT id, path_id, position, skill, title, goal, status, created_at, completed_at, unit, theory, vocabulary FROM learning_path_topics WHERE path_id = $1 ORDER BY position, id
+SELECT id, path_id, position, skill, title, goal, status, created_at, completed_at, unit, theory, vocabulary, source_id FROM learning_path_topics WHERE path_id = $1 ORDER BY position, id
 `
 
 func (q *Queries) ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID) ([]LearningPathTopic, error) {
@@ -1326,6 +1330,7 @@ func (q *Queries) ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID
 			&i.Unit,
 			&i.Theory,
 			&i.Vocabulary,
+			&i.SourceID,
 		); err != nil {
 			return nil, err
 		}

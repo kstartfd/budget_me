@@ -846,6 +846,7 @@ type LearningPathTopic struct {
 	Unit        string
 	Theory      string
 	Vocabulary  []byte
+	SourceID    string
 }
 
 type LearningScan struct {

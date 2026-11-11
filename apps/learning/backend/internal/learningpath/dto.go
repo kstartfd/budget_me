@@ -7,6 +7,7 @@ import (
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/learningpath/commands"
+	"learning_app/backend/internal/learningpath/curriculum"
 	"learning_app/backend/internal/learningpath/placement"
 	"learning_app/backend/internal/learningpath/queries"
 )
@@ -285,6 +286,74 @@ func attemptsDTO(list []db.LearningPathAttempt) []attemptResponse {
 	return out
 }
 
+// ruleRef is a rule in a list or a reference: enough to show and to link to.
+type ruleRef struct {
+	ID    string `json:"id"`
+	Level string `json:"level"`
+	Title string `json:"title"`
+	Unit  string `json:"unit"`
+}
+
+// ruleResponse is one rule of the rule book with its references resolved.
+type ruleResponse struct {
+	ID       string            `json:"id"`
+	Level    string            `json:"level"`
+	Title    string            `json:"title"`
+	Unit     string            `json:"unit"`
+	Goal     string            `json:"goal"`
+	Theory   string            `json:"theory"`
+	Forms    []string          `json:"forms"`
+	Examples []exampleResponse `json:"examples"`
+	Mistakes []mistakeResponse `json:"mistakes"`
+	Related  []ruleRef         `json:"related"`
+}
+
+type exampleResponse struct {
+	Text        string `json:"text"`
+	Translation string `json:"translation"`
+}
+
+type mistakeResponse struct {
+	Wrong string `json:"wrong"`
+	Right string `json:"right"`
+	Note  string `json:"note"`
+}
+
+func ruleRefOf(t curriculum.Topic) ruleRef {
+	return ruleRef{ID: t.ID, Level: t.Level, Title: t.Title, Unit: t.Unit}
+}
+
+// ruleDTO renders a topic of the rule book; its references are looked up in the
+// same book, and one that does not lead to a rule is left out.
+func ruleDTO(t curriculum.Topic, language, native string) ruleResponse {
+	out := ruleResponse{
+		ID: t.ID, Level: t.Level, Title: t.Title, Unit: t.Unit, Goal: t.Goal, Theory: t.Theory,
+		Forms: []string{}, Examples: []exampleResponse{}, Mistakes: []mistakeResponse{}, Related: []ruleRef{},
+	}
+
+	if t.Extra == nil {
+		return out
+	}
+
+	out.Forms = append(out.Forms, t.Extra.Forms...)
+
+	for _, e := range t.Extra.Examples {
+		out.Examples = append(out.Examples, exampleResponse{Text: e.Text, Translation: e.Translation})
+	}
+
+	for _, m := range t.Extra.Mistakes {
+		out.Mistakes = append(out.Mistakes, mistakeResponse{Wrong: m.Wrong, Right: m.Right, Note: m.Note})
+	}
+
+	for _, id := range t.Extra.Related {
+		if other, ok := curriculum.Find(language, native, id); ok && other.Extra != nil {
+			out.Related = append(out.Related, ruleRefOf(other))
+		}
+	}
+
+	return out
+}
+
 // topicDetailResponse is the topic screen: the step, its exercises and the
 // attempts made on them.
 type topicDetailResponse struct {
@@ -292,14 +361,17 @@ type topicDetailResponse struct {
 	Topic     topicResponse      `json:"topic"`
 	Exercises []exerciseResponse `json:"exercises"`
 	Attempts  []attemptResponse  `json:"attempts"`
+	// Rule is the rule of the topic from the rule book, when there is one.
+	Rule *ruleResponse `json:"rule"`
 }
 
-func topicDetailDTO(d queries.TopicDetail) topicDetailResponse {
+func topicDetailDTO(d queries.TopicDetail, rule *ruleResponse) topicDetailResponse {
 	return topicDetailResponse{
 		Path:      pathDTO(queries.PathWithTopics{Path: d.Path}),
 		Topic:     topicDTO(d.Topic),
 		Exercises: exercisesDTO(d.Exercises),
 		Attempts:  attemptsDTO(d.Attempts),
+		Rule:      rule,
 	}
 }
 

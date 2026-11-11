@@ -21,6 +21,8 @@ func (c *Controller) Routes(protected *echo.Group) {
 	protected.GET("/learning/path", c.current)
 	protected.GET("/learning/path/history", c.history)
 	protected.POST("/learning/path/reset", c.reset, echomw.BodyLimit("16K"))
+	protected.GET("/learning/path/rules", c.listRules)
+	protected.GET("/learning/path/rules/:id", c.getRule)
 	protected.GET("/learning/path/topics/:id", c.topic)
 	protected.POST("/learning/path/topics/:id/exercises", c.generate)
 	protected.POST("/learning/path/topics/:id/complete", c.completeTopic)

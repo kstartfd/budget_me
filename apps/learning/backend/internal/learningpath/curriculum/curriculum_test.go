@@ -133,3 +133,87 @@ func TestUpToAndFind(t *testing.T) {
 		t.Fatal("French has no library yet")
 	}
 }
+
+// TestRuleBookIsWellFormed: every grammar topic is a rule with its form,
+// examples, a mistake and references, and every reference leads to a rule.
+func TestRuleBookIsWellFormed(t *testing.T) {
+	rules := curriculum.Rules("en", "ru")
+	have := map[string]bool{}
+
+	for _, r := range rules {
+		have[r.ID] = true
+	}
+
+	for _, topic := range curriculum.UpTo("en", "ru", placement.C2) {
+		if topic.Skill == "grammar" && !have[topic.ID] {
+			t.Errorf("%s is grammar but has no entry in the rule book", topic.ID)
+		}
+	}
+
+	for _, r := range rules {
+		if r.Skill != "grammar" {
+			t.Errorf("%s: only grammar topics are rules", r.ID)
+		}
+
+		if len(r.Extra.Forms) < 2 || len(r.Extra.Examples) < 3 || len(r.Extra.Mistakes) < 1 || len(r.Extra.Related) < 2 {
+			t.Errorf("%s: a rule needs 2 forms, 3 examples, a mistake and 2 references, has %d/%d/%d/%d",
+				r.ID, len(r.Extra.Forms), len(r.Extra.Examples), len(r.Extra.Mistakes), len(r.Extra.Related))
+		}
+
+		for _, ex := range r.Extra.Examples {
+			if strings.TrimSpace(ex.Text) == "" || strings.TrimSpace(ex.Translation) == "" {
+				t.Errorf("%s: an example without a translation: %+v", r.ID, ex)
+			}
+		}
+
+		for _, m := range r.Extra.Mistakes {
+			if m.Wrong == "" || m.Right == "" || m.Wrong == m.Right {
+				t.Errorf("%s: a mistake must differ from its correction: %+v", r.ID, m)
+			}
+		}
+
+		for _, id := range r.Extra.Related {
+			if id == r.ID {
+				t.Errorf("%s refers to itself", r.ID)
+			}
+
+			if !have[id] {
+				t.Errorf("%s refers to %q, which is not a rule", r.ID, id)
+			}
+		}
+	}
+}
+
+// TestMatchGivesAgentWrittenTopicsTheirRule: a topic an agent wrote on its own
+// is recognised by its title and gets the library's rule.
+func TestMatchGivesAgentWrittenTopicsTheirRule(t *testing.T) {
+	cases := []struct {
+		title string
+		want  string
+	}{
+		{"Past Perfect: действия до момента в прошлом", "b2-past-perfect"},
+		{"Past Perfect в связках by the time, when, before, after", "b2-past-perfect"},
+		{"Present Perfect Continuous: как долго и результат", "b2-present-perfect-continuous"},
+		{"Present Perfect: опыт", "b1-present-perfect"},
+		{"Present Simple или Present Continuous", "a2-present-simple-vs-continuous"},
+	}
+
+	for _, c := range cases {
+		got, ok := curriculum.Match("en", "ru", c.title, placement.C2)
+		if !ok || got.ID != c.want {
+			t.Errorf("Match(%q) = %q %t, want %q", c.title, got.ID, ok, c.want)
+		}
+	}
+
+	if _, ok := curriculum.Match("en", "ru", "Past Perfect: действия до момента в прошлом", placement.B1); ok {
+		t.Error("a B2 rule must not match a B1 learner's topic")
+	}
+
+	if _, ok := curriculum.Match("en", "ru", "Чтение коротких текстов", placement.C2); ok {
+		t.Error("a topic that is not about a rule must not match one")
+	}
+
+	if _, ok := curriculum.Match("fr", "ru", "Past Perfect", placement.C2); ok {
+		t.Error("French has no rule book")
+	}
+}

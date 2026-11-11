@@ -1,0 +1,1452 @@
+{
+  "a1-to-be": {
+    "forms": [
+      "I am / you are / he, she, it is / we, you, they are",
+      "Отрицание: I am not, he is not (isn't), they are not (aren't)",
+      "Вопрос: Am I…? Are you…? Is she…?"
+    ],
+    "examples": [
+      {
+        "text": "I am a student.",
+        "translation": "Я студент."
+      },
+      {
+        "text": "She is from Spain.",
+        "translation": "Она из Испании."
+      },
+      {
+        "text": "Are they at home?",
+        "translation": "Они дома?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "She are my friend.",
+        "right": "She is my friend.",
+        "note": "С she, he, it используется is."
+      }
+    ],
+    "related": [
+      "a1-have-got",
+      "a1-there-is",
+      "a1-present-simple"
+    ]
+  },
+  "a1-articles": {
+    "forms": [
+      "a + согласный звук: a book",
+      "an + гласный звук: an apple, an hour",
+      "the — конкретный предмет или уже упомянутый"
+    ],
+    "examples": [
+      {
+        "text": "I have a dog. The dog is big.",
+        "translation": "У меня есть собака. Собака большая."
+      },
+      {
+        "text": "She is an engineer.",
+        "translation": "Она инженер."
+      },
+      {
+        "text": "I like music.",
+        "translation": "Я люблю музыку."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I am student.",
+        "right": "I am a student.",
+        "note": "Перед профессией в единственном числе нужен артикль."
+      }
+    ],
+    "related": [
+      "a1-plurals",
+      "a1-demonstratives-possessives"
+    ]
+  },
+  "a1-plurals": {
+    "forms": [
+      "Обычно -s: book — books",
+      "После s, x, ch, sh: -es: box — boxes",
+      "Согласная + y → -ies: city — cities",
+      "Особые: man — men, child — children, person — people"
+    ],
+    "examples": [
+      {
+        "text": "two cars",
+        "translation": "две машины"
+      },
+      {
+        "text": "three children",
+        "translation": "трое детей"
+      },
+      {
+        "text": "There are many cities here.",
+        "translation": "Здесь много городов."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "two childs",
+        "right": "two children",
+        "note": "child образует множественное число особым способом."
+      }
+    ],
+    "related": [
+      "a1-articles",
+      "a2-quantifiers"
+    ]
+  },
+  "a1-demonstratives-possessives": {
+    "forms": [
+      "this / these — близко; that / those — далеко",
+      "my, your, his, her, its, our, their + существительное",
+      "'s показывает принадлежность: Tom's bag"
+    ],
+    "examples": [
+      {
+        "text": "This is my bag.",
+        "translation": "Это моя сумка."
+      },
+      {
+        "text": "Those are his shoes.",
+        "translation": "То его туфли."
+      },
+      {
+        "text": "It's my sister's room.",
+        "translation": "Это комната моей сестры."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "This are my books.",
+        "right": "These are my books.",
+        "note": "Для множественного числа нужно these."
+      }
+    ],
+    "related": [
+      "a1-to-be",
+      "a1-have-got"
+    ]
+  },
+  "a1-present-simple": {
+    "forms": [
+      "I / you / we / they + глагол: I work",
+      "he / she / it + глагол-s: she works",
+      "Маркеры: always, usually, often, sometimes, never, every day"
+    ],
+    "examples": [
+      {
+        "text": "I get up at seven.",
+        "translation": "Я встаю в семь."
+      },
+      {
+        "text": "My brother plays football.",
+        "translation": "Мой брат играет в футбол."
+      },
+      {
+        "text": "She never drinks coffee.",
+        "translation": "Она никогда не пьёт кофе."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He work here.",
+        "right": "He works here.",
+        "note": "С he, she, it в Present Simple добавляется -s."
+      }
+    ],
+    "related": [
+      "a1-present-simple-questions",
+      "a2-present-simple-vs-continuous"
+    ]
+  },
+  "a1-present-simple-questions": {
+    "forms": [
+      "Отрицание: do not (don't) / does not (doesn't) + глагол",
+      "Вопрос: Do you…? Does he…?",
+      "После does глагол без -s"
+    ],
+    "examples": [
+      {
+        "text": "I don't like tea.",
+        "translation": "Я не люблю чай."
+      },
+      {
+        "text": "Does she work here?",
+        "translation": "Она здесь работает?"
+      },
+      {
+        "text": "Where do you live?",
+        "translation": "Где вы живёте?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Does he works here?",
+        "right": "Does he work here?",
+        "note": "После does глагол стоит без -s."
+      }
+    ],
+    "related": [
+      "a1-present-simple",
+      "a2-past-simple-questions"
+    ]
+  },
+  "a1-there-is": {
+    "forms": [
+      "There is + единственное число: There is a bed",
+      "There are + множественное: There are two windows",
+      "Отрицание: isn't / aren't (any)",
+      "Вопрос: Is there…? Are there any…?"
+    ],
+    "examples": [
+      {
+        "text": "There is a bank near here.",
+        "translation": "Рядом есть банк."
+      },
+      {
+        "text": "There aren't any eggs.",
+        "translation": "Яиц нет."
+      },
+      {
+        "text": "Is there a park in your town?",
+        "translation": "В вашем городе есть парк?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "There is two chairs.",
+        "right": "There are two chairs.",
+        "note": "Для множественного числа нужно there are."
+      }
+    ],
+    "related": [
+      "a1-prepositions",
+      "a2-quantifiers"
+    ]
+  },
+  "a1-can": {
+    "forms": [
+      "can + глагол без to: I can swim",
+      "Отрицание: can't (cannot)",
+      "Вопрос: Can you help me?"
+    ],
+    "examples": [
+      {
+        "text": "She can speak French.",
+        "translation": "Она говорит по-французски."
+      },
+      {
+        "text": "I can't drive.",
+        "translation": "Я не умею водить."
+      },
+      {
+        "text": "Can I open the window?",
+        "translation": "Можно открыть окно?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He can to swim.",
+        "right": "He can swim.",
+        "note": "После can не ставят to."
+      }
+    ],
+    "related": [
+      "a2-have-to-should",
+      "a1-to-be"
+    ]
+  },
+  "a1-have-got": {
+    "forms": [
+      "I / you / we / they have got; he / she / it has got",
+      "Отрицание: haven't / hasn't got",
+      "Вопрос: Have you got…? Has she got…?"
+    ],
+    "examples": [
+      {
+        "text": "I've got a brother.",
+        "translation": "У меня есть брат."
+      },
+      {
+        "text": "She hasn't got a car.",
+        "translation": "У неё нет машины."
+      },
+      {
+        "text": "Have you got a pen?",
+        "translation": "У вас есть ручка?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "She have got blue eyes.",
+        "right": "She has got blue eyes.",
+        "note": "С she, he, it нужно has."
+      }
+    ],
+    "related": [
+      "a1-to-be",
+      "a1-there-is"
+    ]
+  },
+  "a1-prepositions": {
+    "forms": [
+      "Место: in (внутри), on (на поверхности), at (в точке)",
+      "Время: at 5 o'clock, on Monday, in July",
+      "Ещё: next to, under, behind, between"
+    ],
+    "examples": [
+      {
+        "text": "The keys are on the table.",
+        "translation": "Ключи на столе."
+      },
+      {
+        "text": "I'm at school.",
+        "translation": "Я в школе."
+      },
+      {
+        "text": "We meet on Friday.",
+        "translation": "Мы встречаемся в пятницу."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I work in Monday.",
+        "right": "I work on Monday.",
+        "note": "С днями недели используется on."
+      }
+    ],
+    "related": [
+      "a1-there-is",
+      "a2-adverbs"
+    ]
+  },
+  "a2-past-simple-regular": {
+    "forms": [
+      "V + -ed: worked, played",
+      "На -e добавляем -d: live — lived",
+      "Согласная + y → -ied: study — studied",
+      "Удвоение: stop — stopped"
+    ],
+    "examples": [
+      {
+        "text": "I worked late yesterday.",
+        "translation": "Вчера я работал допоздна."
+      },
+      {
+        "text": "She studied French at school.",
+        "translation": "Она учила французский в школе."
+      },
+      {
+        "text": "We stopped at a café.",
+        "translation": "Мы остановились в кафе."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "She studyed French.",
+        "right": "She studied French.",
+        "note": "Согласная + y меняется на -ied."
+      }
+    ],
+    "related": [
+      "a2-past-simple-irregular",
+      "a2-past-simple-questions"
+    ]
+  },
+  "a2-past-simple-irregular": {
+    "forms": [
+      "go — went, see — saw, have — had, make — made, take — took",
+      "to be: I / he / she / it was; you / we / they were",
+      "Отрицание и вопрос: did + начальная форма"
+    ],
+    "examples": [
+      {
+        "text": "We went to the sea.",
+        "translation": "Мы ездили на море."
+      },
+      {
+        "text": "She was tired.",
+        "translation": "Она была усталой."
+      },
+      {
+        "text": "They bought a new car.",
+        "translation": "Они купили новую машину."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I goed there.",
+        "right": "I went there.",
+        "note": "go — неправильный глагол, его форма went."
+      }
+    ],
+    "related": [
+      "a2-past-simple-regular",
+      "a2-past-simple-questions"
+    ]
+  },
+  "a2-past-simple-questions": {
+    "forms": [
+      "Отрицание: did not (didn't) + глагол",
+      "Вопрос: Did you…? What did she…?",
+      "После did глагол в начальной форме"
+    ],
+    "examples": [
+      {
+        "text": "I didn't see him.",
+        "translation": "Я его не видел."
+      },
+      {
+        "text": "Did you call her?",
+        "translation": "Ты ей звонил?"
+      },
+      {
+        "text": "Where did they go?",
+        "translation": "Куда они пошли?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Did you saw it?",
+        "right": "Did you see it?",
+        "note": "После did глагол стоит в начальной форме."
+      }
+    ],
+    "related": [
+      "a2-past-simple-irregular",
+      "a1-present-simple-questions"
+    ]
+  },
+  "a2-present-continuous": {
+    "forms": [
+      "am / is / are + глагол-ing: I am working",
+      "Отрицание: am not / isn't / aren't + -ing",
+      "Вопрос: Are you listening?"
+    ],
+    "examples": [
+      {
+        "text": "It is raining now.",
+        "translation": "Сейчас идёт дождь."
+      },
+      {
+        "text": "I'm staying with a friend this week.",
+        "translation": "Эту неделю я живу у друга."
+      },
+      {
+        "text": "What are you doing?",
+        "translation": "Что ты делаешь?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I am knowing him.",
+        "right": "I know him.",
+        "note": "Глаголы состояния (know, like, want) обычно не употребляют в Continuous."
+      }
+    ],
+    "related": [
+      "a2-present-simple-vs-continuous",
+      "a2-going-to"
+    ]
+  },
+  "a2-present-simple-vs-continuous": {
+    "forms": [
+      "Present Simple: привычки, расписания, постоянные факты",
+      "Present Continuous: сейчас или временно",
+      "Подсказки: always, every day / now, at the moment, today"
+    ],
+    "examples": [
+      {
+        "text": "I drink tea every morning.",
+        "translation": "Я пью чай каждое утро."
+      },
+      {
+        "text": "I'm drinking tea now.",
+        "translation": "Я сейчас пью чай."
+      },
+      {
+        "text": "She works in a bank, but today she's working at home.",
+        "translation": "Она работает в банке, но сегодня работает дома."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Look! It rains.",
+        "right": "Look! It is raining.",
+        "note": "Действие в момент речи требует Present Continuous."
+      }
+    ],
+    "related": [
+      "a1-present-simple",
+      "a2-present-continuous"
+    ]
+  },
+  "a2-going-to": {
+    "forms": [
+      "am / is / are + going to + глагол",
+      "Отрицание: I'm not going to…",
+      "Вопрос: Are you going to…?"
+    ],
+    "examples": [
+      {
+        "text": "I'm going to visit my aunt on Sunday.",
+        "translation": "В воскресенье я собираюсь навестить тётю."
+      },
+      {
+        "text": "Look at the clouds! It's going to rain.",
+        "translation": "Посмотри на тучи! Будет дождь."
+      },
+      {
+        "text": "Are you going to study tonight?",
+        "translation": "Ты собираешься заниматься сегодня вечером?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I going to buy a car.",
+        "right": "I'm going to buy a car.",
+        "note": "Нужен глагол to be: am, is или are."
+      }
+    ],
+    "related": [
+      "a2-will",
+      "a2-present-continuous"
+    ]
+  },
+  "a2-will": {
+    "forms": [
+      "will + глагол: I will call you",
+      "Отрицание: won't (will not)",
+      "Вопрос: Will you help me?"
+    ],
+    "examples": [
+      {
+        "text": "I'll have the soup.",
+        "translation": "Я возьму суп."
+      },
+      {
+        "text": "I promise I won't be late.",
+        "translation": "Обещаю, что не опоздаю."
+      },
+      {
+        "text": "It will be hot tomorrow.",
+        "translation": "Завтра будет жарко."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I will to go.",
+        "right": "I will go.",
+        "note": "После will не ставят to."
+      }
+    ],
+    "related": [
+      "a2-going-to",
+      "b1-first-conditional"
+    ]
+  },
+  "a2-comparatives": {
+    "forms": [
+      "Короткие: -er / the -est: tall — taller — the tallest",
+      "Длинные: more / the most: more interesting",
+      "Особые: good — better — best; bad — worse — worst",
+      "as … as — равенство"
+    ],
+    "examples": [
+      {
+        "text": "My bag is cheaper than yours.",
+        "translation": "Моя сумка дешевле твоей."
+      },
+      {
+        "text": "This is the most expensive hotel.",
+        "translation": "Это самый дорогой отель."
+      },
+      {
+        "text": "He is as tall as me.",
+        "translation": "Он такой же высокий, как я."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "This bag is more cheap.",
+        "right": "This bag is cheaper.",
+        "note": "У коротких прилагательных используется -er, а не more."
+      }
+    ],
+    "related": [
+      "a2-adverbs",
+      "a1-to-be"
+    ]
+  },
+  "a2-quantifiers": {
+    "forms": [
+      "Исчисляемые: many, a few, some, any",
+      "Неисчисляемые: much, a little, some, any",
+      "a lot of — для обоих",
+      "some — в утверждении; any — в вопросе и отрицании"
+    ],
+    "examples": [
+      {
+        "text": "How much water do you drink?",
+        "translation": "Сколько воды вы пьёте?"
+      },
+      {
+        "text": "There are a few apples.",
+        "translation": "Есть несколько яблок."
+      },
+      {
+        "text": "I don't have any money.",
+        "translation": "У меня нет денег."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "How many money?",
+        "right": "How much money?",
+        "note": "money неисчисляемое, поэтому much."
+      }
+    ],
+    "related": [
+      "a1-plurals",
+      "a1-there-is"
+    ]
+  },
+  "a2-have-to-should": {
+    "forms": [
+      "have to / must — необходимость",
+      "don't have to — не нужно; mustn't — нельзя",
+      "should + глагол — совет"
+    ],
+    "examples": [
+      {
+        "text": "I have to get up early.",
+        "translation": "Мне нужно рано вставать."
+      },
+      {
+        "text": "You mustn't park here.",
+        "translation": "Здесь нельзя парковаться."
+      },
+      {
+        "text": "You should see a doctor.",
+        "translation": "Вам стоит сходить к врачу."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "You mustn't come if you don't want to.",
+        "right": "You don't have to come if you don't want to.",
+        "note": "mustn't означает запрет, а «не обязательно» — don't have to."
+      }
+    ],
+    "related": [
+      "a1-can",
+      "b1-modals-deduction"
+    ]
+  },
+  "a2-adverbs": {
+    "forms": [
+      "Образ действия: прилагательное + -ly: slow — slowly",
+      "Особые: good — well, fast — fast, hard — hard",
+      "Частота: перед глаголом, после to be: She always walks. He is never late."
+    ],
+    "examples": [
+      {
+        "text": "He drives carefully.",
+        "translation": "Он водит осторожно."
+      },
+      {
+        "text": "She speaks English well.",
+        "translation": "Она хорошо говорит по-английски."
+      },
+      {
+        "text": "I usually get up at seven.",
+        "translation": "Обычно я встаю в семь."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He speaks English good.",
+        "right": "He speaks English well.",
+        "note": "Для глагола нужно наречие well, а не прилагательное good."
+      }
+    ],
+    "related": [
+      "a1-present-simple",
+      "a2-comparatives"
+    ]
+  },
+  "b1-present-perfect": {
+    "forms": [
+      "have / has + V3: I have seen",
+      "Отрицание: haven't / hasn't + V3",
+      "Вопрос: Have you ever…?",
+      "for + период, since + момент"
+    ],
+    "examples": [
+      {
+        "text": "I have lived here for ten years.",
+        "translation": "Я живу здесь десять лет."
+      },
+      {
+        "text": "She has never been to Italy.",
+        "translation": "Она никогда не была в Италии."
+      },
+      {
+        "text": "Have you finished yet?",
+        "translation": "Ты уже закончил?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I have seen him yesterday.",
+        "right": "I saw him yesterday.",
+        "note": "С yesterday нужен Past Simple."
+      }
+    ],
+    "related": [
+      "b1-present-perfect-vs-past",
+      "b2-present-perfect-continuous"
+    ]
+  },
+  "b1-present-perfect-vs-past": {
+    "forms": [
+      "Past Simple: время названо, действие закончено",
+      "Present Perfect: важен результат или опыт, время не названо",
+      "Только Past Simple: yesterday, last week, ago, in 2019"
+    ],
+    "examples": [
+      {
+        "text": "I lost my keys. (Их нет у меня сейчас.)",
+        "translation": "Я потерял ключи."
+      },
+      {
+        "text": "I lost my keys yesterday.",
+        "translation": "Вчера я потерял ключи."
+      },
+      {
+        "text": "Have you ever eaten sushi?",
+        "translation": "Ты когда-нибудь ел суши?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "When have you bought it?",
+        "right": "When did you buy it?",
+        "note": "Вопрос о времени события задают в Past Simple."
+      }
+    ],
+    "related": [
+      "b1-present-perfect",
+      "a2-past-simple-regular"
+    ]
+  },
+  "b1-past-continuous": {
+    "forms": [
+      "was / were + глагол-ing",
+      "Фон: Past Continuous; событие: Past Simple",
+      "while — длительное действие; when — короткое"
+    ],
+    "examples": [
+      {
+        "text": "I was cooking at seven.",
+        "translation": "В семь я готовил."
+      },
+      {
+        "text": "I was walking home when it started to rain.",
+        "translation": "Я шёл домой, когда начался дождь."
+      },
+      {
+        "text": "While she was reading, he was cooking.",
+        "translation": "Пока она читала, он готовил."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I was walk home.",
+        "right": "I was walking home.",
+        "note": "После was и were идёт форма на -ing."
+      }
+    ],
+    "related": [
+      "a2-past-simple-regular",
+      "b2-past-perfect"
+    ]
+  },
+  "b1-first-conditional": {
+    "forms": [
+      "If + Present Simple, will + глагол",
+      "Нельзя: If you will come",
+      "unless = if not"
+    ],
+    "examples": [
+      {
+        "text": "If it rains, we will stay at home.",
+        "translation": "Если пойдёт дождь, мы останемся дома."
+      },
+      {
+        "text": "I'll call you if I have time.",
+        "translation": "Я позвоню, если будет время."
+      },
+      {
+        "text": "Unless you hurry, you'll be late.",
+        "translation": "Если не поторопишься, опоздаешь."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "If it will rain, we stay at home.",
+        "right": "If it rains, we will stay at home.",
+        "note": "После if ставят Present Simple, а не will."
+      }
+    ],
+    "related": [
+      "b1-second-conditional",
+      "a2-will"
+    ]
+  },
+  "b1-second-conditional": {
+    "forms": [
+      "If + Past Simple, would + глагол",
+      "If I were you… — совет",
+      "could или might вместо would"
+    ],
+    "examples": [
+      {
+        "text": "If I had more money, I would travel.",
+        "translation": "Будь у меня больше денег, я бы путешествовал."
+      },
+      {
+        "text": "If I were you, I would apply.",
+        "translation": "На вашем месте я бы подал заявку."
+      },
+      {
+        "text": "What would you do if you won the lottery?",
+        "translation": "Что бы вы сделали, выиграв в лотерею?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "If I would have money, I would buy it.",
+        "right": "If I had money, I would buy it.",
+        "note": "В if-части ставят Past Simple, без would."
+      }
+    ],
+    "related": [
+      "b1-first-conditional",
+      "b2-third-conditional"
+    ]
+  },
+  "b1-passive": {
+    "forms": [
+      "to be + V3: is cleaned, was cleaned",
+      "by + исполнитель (если он важен)",
+      "Вопрос: Was it made in China?"
+    ],
+    "examples": [
+      {
+        "text": "English is spoken all over the world.",
+        "translation": "На английском говорят по всему миру."
+      },
+      {
+        "text": "My bike was stolen.",
+        "translation": "Мой велосипед украли."
+      },
+      {
+        "text": "The book was written by Orwell.",
+        "translation": "Книгу написал Оруэлл."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "The room cleaned every day.",
+        "right": "The room is cleaned every day.",
+        "note": "В пассиве обязателен глагол to be."
+      }
+    ],
+    "related": [
+      "b2-passive-advanced",
+      "a2-past-simple-irregular"
+    ]
+  },
+  "b1-used-to": {
+    "forms": [
+      "used to + глагол — привычка в прошлом",
+      "Отрицание и вопрос: did + use to",
+      "would — только для повторяющихся действий"
+    ],
+    "examples": [
+      {
+        "text": "I used to play the piano.",
+        "translation": "Раньше я играл на пианино."
+      },
+      {
+        "text": "Did you use to smoke?",
+        "translation": "Ты раньше курил?"
+      },
+      {
+        "text": "She used to be shy.",
+        "translation": "Раньше она была застенчивой."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I didn't used to like it.",
+        "right": "I didn't use to like it.",
+        "note": "После did форма use без -d."
+      }
+    ],
+    "related": [
+      "a2-past-simple-regular",
+      "b1-past-continuous"
+    ]
+  },
+  "b1-relative-clauses": {
+    "forms": [
+      "who — люди, which — предметы, that — и то и другое",
+      "whose — принадлежность, where — место",
+      "Подлежащее опускать нельзя, дополнение можно"
+    ],
+    "examples": [
+      {
+        "text": "The man who lives next door is a doctor.",
+        "translation": "Мужчина, который живёт по соседству, врач."
+      },
+      {
+        "text": "The book (that) I bought is great.",
+        "translation": "Книга, которую я купил, отличная."
+      },
+      {
+        "text": "This is the town where I was born.",
+        "translation": "Это город, где я родился."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "The man which lives next door is a doctor.",
+        "right": "The man who lives next door is a doctor.",
+        "note": "О людях говорят who."
+      }
+    ],
+    "related": [
+      "b2-relative-advanced",
+      "b1-linking-words"
+    ]
+  },
+  "b1-reported-speech": {
+    "forms": [
+      "Время сдвигается назад: is → was, will → would",
+      "Меняются слова: today → that day, tomorrow → the next day",
+      "Вопросы: прямой порядок слов: He asked where I lived"
+    ],
+    "examples": [
+      {
+        "text": "She said (that) she was tired.",
+        "translation": "Она сказала, что устала."
+      },
+      {
+        "text": "He asked if I was ready.",
+        "translation": "Он спросил, готов ли я."
+      },
+      {
+        "text": "They said they would call.",
+        "translation": "Они сказали, что позвонят."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He asked where did I live.",
+        "right": "He asked where I lived.",
+        "note": "В косвенном вопросе порядок слов прямой."
+      }
+    ],
+    "related": [
+      "b2-reported-advanced",
+      "b1-passive"
+    ]
+  },
+  "b1-modals-deduction": {
+    "forms": [
+      "must be — наверняка",
+      "might / may / could be — возможно",
+      "can't be — не может быть",
+      "Прошлое: must have + V3"
+    ],
+    "examples": [
+      {
+        "text": "She must be at work.",
+        "translation": "Она наверняка на работе."
+      },
+      {
+        "text": "He might be sleeping.",
+        "translation": "Возможно, он спит."
+      },
+      {
+        "text": "That can't be true.",
+        "translation": "Не может быть."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He must to be tired.",
+        "right": "He must be tired.",
+        "note": "После must не ставят to."
+      }
+    ],
+    "related": [
+      "b2-modals-past",
+      "a2-have-to-should"
+    ]
+  },
+  "b1-gerund-infinitive": {
+    "forms": [
+      "Герундий: enjoy, finish, mind, avoid + -ing",
+      "Инфинитив: want, decide, hope, plan + to",
+      "После предлога — всегда герундий"
+    ],
+    "examples": [
+      {
+        "text": "I enjoy reading.",
+        "translation": "Мне нравится читать."
+      },
+      {
+        "text": "He decided to leave.",
+        "translation": "Он решил уйти."
+      },
+      {
+        "text": "She is interested in learning Italian.",
+        "translation": "Ей интересно учить итальянский."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I enjoy to swim.",
+        "right": "I enjoy swimming.",
+        "note": "После enjoy нужен герундий."
+      }
+    ],
+    "related": [
+      "b2-gerund-infinitive-meaning",
+      "a1-can"
+    ]
+  },
+  "b1-linking-words": {
+    "forms": [
+      "because — причина, so — следствие",
+      "but, although, however — контраст",
+      "despite + существительное или герундий"
+    ],
+    "examples": [
+      {
+        "text": "I was tired, so I went to bed.",
+        "translation": "Я устал, поэтому лёг спать."
+      },
+      {
+        "text": "Although it was cold, we went out.",
+        "translation": "Хотя было холодно, мы вышли."
+      },
+      {
+        "text": "It was cold. However, we went out.",
+        "translation": "Было холодно. Однако мы вышли."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Despite it was cold, we went out.",
+        "right": "Despite the cold, we went out.",
+        "note": "После despite идёт существительное, а не целое предложение."
+      }
+    ],
+    "related": [
+      "b2-discourse",
+      "b1-relative-clauses"
+    ]
+  },
+  "b2-present-perfect-continuous": {
+    "forms": [
+      "have / has been + -ing",
+      "Подчёркивает процесс и длительность",
+      "Результат — Present Perfect, процесс — Continuous"
+    ],
+    "examples": [
+      {
+        "text": "I have been working here for five years.",
+        "translation": "Я работаю здесь пять лет."
+      },
+      {
+        "text": "She has been crying — her eyes are red.",
+        "translation": "Она плакала — глаза красные."
+      },
+      {
+        "text": "How long have you been waiting?",
+        "translation": "Как долго вы ждёте?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I have been knowing him for years.",
+        "right": "I have known him for years.",
+        "note": "С глаголами состояния используют Present Perfect."
+      }
+    ],
+    "related": [
+      "b1-present-perfect",
+      "b2-past-perfect"
+    ]
+  },
+  "b2-past-perfect": {
+    "forms": [
+      "had + V3",
+      "Действие, которое было раньше другого действия в прошлом",
+      "Маркеры: after, before, by the time, already, just"
+    ],
+    "examples": [
+      {
+        "text": "When I arrived, the film had already started.",
+        "translation": "Когда я пришёл, фильм уже начался."
+      },
+      {
+        "text": "She told me she had lost her bag.",
+        "translation": "Она сказала, что потеряла сумку."
+      },
+      {
+        "text": "By the time we got there, they had left.",
+        "translation": "К тому времени как мы приехали, они уже ушли."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "When I arrived, the film already started.",
+        "right": "When I arrived, the film had already started.",
+        "note": "Более раннее действие выражают Past Perfect."
+      }
+    ],
+    "related": [
+      "b1-present-perfect-vs-past",
+      "b2-third-conditional"
+    ]
+  },
+  "b2-future-perfect-continuous": {
+    "forms": [
+      "will be + -ing — действие в момент в будущем",
+      "will have + V3 — завершится к моменту",
+      "will have been + -ing — длительность к моменту"
+    ],
+    "examples": [
+      {
+        "text": "This time tomorrow I will be flying to Rome.",
+        "translation": "Завтра в это время я буду лететь в Рим."
+      },
+      {
+        "text": "By June I will have finished my degree.",
+        "translation": "К июню я закончу учёбу."
+      },
+      {
+        "text": "By May we will have been living here for ten years.",
+        "translation": "К маю мы проживём здесь десять лет."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "By June I will finish my degree.",
+        "right": "By June I will have finished my degree.",
+        "note": "«К определённому моменту» выражает Future Perfect."
+      }
+    ],
+    "related": [
+      "a2-will",
+      "b2-past-perfect"
+    ]
+  },
+  "b2-third-conditional": {
+    "forms": [
+      "If + Past Perfect, would have + V3",
+      "Смешанный: If + Past Perfect, would + глагол (результат сейчас)",
+      "could have, might have вместо would have"
+    ],
+    "examples": [
+      {
+        "text": "If I had studied, I would have passed.",
+        "translation": "Если бы я учился, я бы сдал."
+      },
+      {
+        "text": "If I had taken that job, I would be rich now.",
+        "translation": "Если бы я принял ту работу, я бы сейчас был богат."
+      },
+      {
+        "text": "She wouldn't have missed the bus if she had left earlier.",
+        "translation": "Она бы не опоздала на автобус, если бы вышла раньше."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "If I would have known, I would have come.",
+        "right": "If I had known, I would have come.",
+        "note": "В if-части would не ставят."
+      }
+    ],
+    "related": [
+      "b1-second-conditional",
+      "b2-wish"
+    ]
+  },
+  "b2-wish": {
+    "forms": [
+      "wish + Past Simple — о настоящем",
+      "wish + Past Perfect — о прошлом",
+      "wish + would — раздражение чужим поведением"
+    ],
+    "examples": [
+      {
+        "text": "I wish I had more time.",
+        "translation": "Жаль, что у меня мало времени."
+      },
+      {
+        "text": "I wish I had gone to the party.",
+        "translation": "Жаль, что я не пошёл на вечеринку."
+      },
+      {
+        "text": "I wish you would stop shouting.",
+        "translation": "Хотелось бы, чтобы ты перестал кричать."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I wish I will be there.",
+        "right": "I wish I could be there.",
+        "note": "После wish будущее время не используют."
+      }
+    ],
+    "related": [
+      "b2-third-conditional",
+      "b1-second-conditional"
+    ]
+  },
+  "b2-passive-advanced": {
+    "forms": [
+      "Во всех временах: is being built, has been built, will be built",
+      "С модальными: must be finished",
+      "Безличное: It is said that… / He is said to be…",
+      "have something done"
+    ],
+    "examples": [
+      {
+        "text": "The bridge is being repaired.",
+        "translation": "Мост ремонтируют."
+      },
+      {
+        "text": "He is said to be rich.",
+        "translation": "Говорят, он богат."
+      },
+      {
+        "text": "I had my car repaired.",
+        "translation": "Мне отремонтировали машину."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "The report must finished today.",
+        "right": "The report must be finished today.",
+        "note": "После модального глагола нужно be + V3."
+      }
+    ],
+    "related": [
+      "b1-passive",
+      "b2-reported-advanced"
+    ]
+  },
+  "b2-reported-advanced": {
+    "forms": [
+      "Общий вопрос: asked if / whether",
+      "Просьба и приказ: told / asked + to",
+      "Глаголы пересказа: suggest, admit, deny, promise, warn, refuse"
+    ],
+    "examples": [
+      {
+        "text": "She asked if I was ready.",
+        "translation": "Она спросила, готов ли я."
+      },
+      {
+        "text": "He admitted taking the money.",
+        "translation": "Он признал, что взял деньги."
+      },
+      {
+        "text": "They suggested going to the cinema.",
+        "translation": "Они предложили сходить в кино."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He suggested me to go.",
+        "right": "He suggested going.",
+        "note": "После suggest ставят герундий."
+      }
+    ],
+    "related": [
+      "b1-reported-speech",
+      "b1-gerund-infinitive"
+    ]
+  },
+  "b2-relative-advanced": {
+    "forms": [
+      "Неопределяющие: через запятые, без that",
+      "which — относится ко всему предложению",
+      "Причастные обороты: The man standing there… (who is standing)"
+    ],
+    "examples": [
+      {
+        "text": "My brother, who lives in Berlin, is a teacher.",
+        "translation": "Мой брат, который живёт в Берлине, учитель."
+      },
+      {
+        "text": "He passed the exam, which surprised everyone.",
+        "translation": "Он сдал экзамен, что всех удивило."
+      },
+      {
+        "text": "The book written by Orwell is famous.",
+        "translation": "Книга, написанная Оруэллом, известна."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "My brother, that lives in Berlin, is a teacher.",
+        "right": "My brother, who lives in Berlin, is a teacher.",
+        "note": "В неопределяющих придаточных that не используют."
+      }
+    ],
+    "related": [
+      "b1-relative-clauses",
+      "b2-discourse"
+    ]
+  },
+  "b2-modals-past": {
+    "forms": [
+      "should have + V3 — надо было",
+      "could have + V3 — мог бы",
+      "must have + V3 — наверняка",
+      "can't have + V3 — не могло быть"
+    ],
+    "examples": [
+      {
+        "text": "You should have called me.",
+        "translation": "Тебе надо было мне позвонить."
+      },
+      {
+        "text": "We could have won.",
+        "translation": "Мы могли бы выиграть."
+      },
+      {
+        "text": "He must have missed the bus.",
+        "translation": "Наверное, он опоздал на автобус."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "You should called me.",
+        "right": "You should have called me.",
+        "note": "После should нужно have + V3."
+      }
+    ],
+    "related": [
+      "b1-modals-deduction",
+      "b2-wish"
+    ]
+  },
+  "b2-gerund-infinitive-meaning": {
+    "forms": [
+      "stop doing — прекратить; stop to do — остановиться, чтобы",
+      "remember doing — помнить; remember to do — не забыть",
+      "try doing — попробовать; try to do — постараться"
+    ],
+    "examples": [
+      {
+        "text": "He stopped smoking.",
+        "translation": "Он бросил курить."
+      },
+      {
+        "text": "I remember locking the door.",
+        "translation": "Я помню, что запер дверь."
+      },
+      {
+        "text": "Remember to lock the door.",
+        "translation": "Не забудь запереть дверь."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I forgot locking the door.",
+        "right": "I forgot to lock the door.",
+        "note": "Чтобы сказать «забыл сделать», после forget нужен to + инфинитив."
+      }
+    ],
+    "related": [
+      "b1-gerund-infinitive",
+      "b2-reported-advanced"
+    ]
+  },
+  "b2-phrasal-verbs": {
+    "forms": [
+      "глагол + частица: give up, look after",
+      "Разделяемые: put on the jacket / put it on",
+      "Неразделяемые: look after them"
+    ],
+    "examples": [
+      {
+        "text": "I gave up smoking.",
+        "translation": "Я бросил курить."
+      },
+      {
+        "text": "She looks after her grandmother.",
+        "translation": "Она ухаживает за бабушкой."
+      },
+      {
+        "text": "Put it on!",
+        "translation": "Надень это!"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Put on it.",
+        "right": "Put it on.",
+        "note": "Местоимение ставят между глаголом и частицей."
+      }
+    ],
+    "related": [
+      "b2-discourse",
+      "b1-gerund-infinitive"
+    ]
+  },
+  "b2-discourse": {
+    "forms": [
+      "Контраст: whereas, nevertheless, on the contrary",
+      "Добавление: moreover, furthermore, besides",
+      "Следствие: therefore, consequently, as a result"
+    ],
+    "examples": [
+      {
+        "text": "The plan was risky. Nevertheless, they went ahead.",
+        "translation": "План был рискованным. Тем не менее они продолжили."
+      },
+      {
+        "text": "Moreover, the price is low.",
+        "translation": "К тому же цена низкая."
+      },
+      {
+        "text": "He was ill; therefore, he stayed home.",
+        "translation": "Он заболел, поэтому остался дома."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Nevertheless of the rain, we went out.",
+        "right": "Despite the rain, we went out.",
+        "note": "Nevertheless — наречие, а не предлог."
+      }
+    ],
+    "related": [
+      "b1-linking-words",
+      "b2-relative-advanced"
+    ]
+  }
+}

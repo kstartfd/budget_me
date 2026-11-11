@@ -4,6 +4,8 @@ import {
   pathJobSchema,
   pathExerciseSchema,
   pathLessonSchema,
+  pathRuleRefSchema,
+  pathRuleSchema,
   pathSchema,
   pathTeacherSchema,
   pathTestSchema,
@@ -14,6 +16,8 @@ import {
   type PathJob,
   type PathExercise,
   type PathLesson,
+  type PathRule,
+  type PathRuleRef,
   type PathTeacher,
   type PathTest,
   type PathTopic,
@@ -150,6 +154,13 @@ export async function fetchPathAudio(path: string): Promise<Blob> {
 /** Removes a teacher; its running program goes to the history. */
 export const deleteTeacher = (id: string): Promise<void> =>
   request(`/path/teachers/${id}`, "DELETE", () => undefined)
+
+/** The rule book of the learner's teacher; 403 when no teacher opens it. */
+export const fetchRules = (): Promise<PathRuleRef[]> =>
+  request("/path/rules", "GET", (d) => pathRuleRefSchema.array().parse(d))
+
+export const fetchRule = (id: string): Promise<PathRule> =>
+  request(`/path/rules/${id}`, "GET", (d) => pathRuleSchema.parse(d))
 
 export const fetchHistory = (): Promise<Path[]> =>
   request("/path/history", "GET", (d) => pathSchema.array().parse(d))

@@ -184,6 +184,7 @@ func programFrom(p catalogPlan, allowed map[string]curriculum.Topic) program {
 		}
 
 		out.Topics = append(out.Topics, programTopic{
+			SourceID:   t.ID,
 			Unit:       t.Unit,
 			Skill:      t.Skill,
 			Title:      t.Title,

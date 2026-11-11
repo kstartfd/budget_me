@@ -42,6 +42,34 @@ export function usePath(language: string, nativeLanguage: string) {
   return { active, history, startPlacement, reset, startFinal }
 }
 
+const hour = 60 * 60 * 1000
+
+/** The rule book: the list of rules. Closed (403) without the right teacher. */
+export function useRules() {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: ["path", user?.id, "rules"],
+    queryFn: api.fetchRules,
+    enabled: !!user,
+    staleTime: hour,
+    retry: false,
+  })
+}
+
+/** One rule of the rule book. */
+export function useRule(id: string) {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: ["path", user?.id, "rule", id],
+    queryFn: () => api.fetchRule(id),
+    enabled: !!user,
+    staleTime: hour,
+    retry: false,
+  })
+}
+
 /** The learner's teachers, and adding one. */
 export function useTeachers() {
   const { user } = useAuth()

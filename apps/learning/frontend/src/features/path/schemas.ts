@@ -117,11 +117,32 @@ export const pathAttemptSchema = z.object({
 })
 export type PathAttempt = z.infer<typeof pathAttemptSchema>
 
+/** A rule of the rule book in a list or as a reference. */
+export const pathRuleRefSchema = z.object({
+  id: z.string(),
+  level: z.string(),
+  title: z.string(),
+  unit: z.string(),
+})
+export type PathRuleRef = z.infer<typeof pathRuleRefSchema>
+
+/** One rule: how it is built, examples, typical mistakes and references. */
+export const pathRuleSchema = pathRuleRefSchema.extend({
+  goal: z.string(),
+  theory: z.string(),
+  forms: z.array(z.string()),
+  examples: z.array(z.object({ text: z.string(), translation: z.string() })),
+  mistakes: z.array(z.object({ wrong: z.string(), right: z.string(), note: z.string() })),
+  related: z.array(pathRuleRefSchema),
+})
+export type PathRule = z.infer<typeof pathRuleSchema>
+
 export const pathTopicDetailSchema = z.object({
   path: pathSchema,
   topic: pathTopicSchema,
   exercises: z.array(pathExerciseSchema),
   attempts: z.array(pathAttemptSchema),
+  rule: pathRuleSchema.nullish(),
 })
 export type PathTopicDetail = z.infer<typeof pathTopicDetailSchema>
 

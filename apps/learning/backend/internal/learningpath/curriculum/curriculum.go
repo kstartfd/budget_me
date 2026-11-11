@@ -32,6 +32,30 @@ type Word struct {
 	Translation string `json:"translation"`
 }
 
+// Example is a sentence that shows a rule at work, with its translation.
+type Example struct {
+	Text        string `json:"text"`
+	Translation string `json:"translation"`
+}
+
+// Mistake is a typical error against a rule and its correction.
+type Mistake struct {
+	Wrong string `json:"wrong"`
+	Right string `json:"right"`
+	Note  string `json:"note"`
+}
+
+// Extra is what turns a grammar topic into an entry of the rule book: how the
+// rule is built, sentences that show it, the mistakes made against it and the
+// other rules it is read together with. It lives in <language>_<native>_rules.json,
+// keyed by topic id.
+type Extra struct {
+	Forms    []string  `json:"forms"`
+	Examples []Example `json:"examples"`
+	Mistakes []Mistake `json:"mistakes"`
+	Related  []string  `json:"related"`
+}
+
 // Topic is one lesson of the library: a rule or a theme, what the learner can
 // do once it is learnt, and the words that go with it.
 type Topic struct {
@@ -44,6 +68,8 @@ type Topic struct {
 	Theory     string   `json:"theory"`
 	Vocabulary []Word   `json:"vocabulary"`
 	Tags       []string `json:"tags"`
+	// Extra is set for the grammar topics that are also rules of the rule book.
+	Extra *Extra `json:"-"`
 }
 
 // Skills a topic can teach, the same set a program topic carries.
@@ -63,6 +89,8 @@ func init() {
 		panic(err)
 	}
 
+	extras := map[string]map[string]Extra{}
+
 	for _, e := range entries {
 		name := strings.TrimSuffix(e.Name(), ".json")
 
@@ -76,12 +104,26 @@ func init() {
 			panic(err)
 		}
 
+		key := parts[0] + "_" + parts[1]
+
+		// The rule book of a pair: extras by topic id, attached below once
+		// every level is loaded.
+		if parts[2] == "rules" {
+			var rules map[string]Extra
+			if err := json.Unmarshal(raw, &rules); err != nil {
+				panic(fmt.Sprintf("curriculum: %s: %v", e.Name(), err))
+			}
+
+			extras[key] = rules
+
+			continue
+		}
+
 		var list []Topic
 		if err := json.Unmarshal(raw, &list); err != nil {
 			panic(fmt.Sprintf("curriculum: %s: %v", e.Name(), err))
 		}
 
-		key := parts[0] + "_" + parts[1]
 		if catalogs[key] == nil {
 			catalogs[key] = &catalog{byID: map[string]Topic{}}
 		}
@@ -92,6 +134,21 @@ func init() {
 			t.Level = strings.ToUpper(parts[2])
 			c.topics = append(c.topics, t)
 			c.byID[t.ID] = t
+		}
+	}
+
+	for key, rules := range extras {
+		c := catalogs[key]
+		if c == nil {
+			panic(fmt.Sprintf("curriculum: rules for %s have no topics", key))
+		}
+
+		for i := range c.topics {
+			if extra, ok := rules[c.topics[i].ID]; ok {
+				e := extra
+				c.topics[i].Extra = &e
+				c.byID[c.topics[i].ID] = c.topics[i]
+			}
 		}
 	}
 
@@ -160,6 +217,70 @@ func UpTo(language, native string, level placement.Level) []Topic {
 	}
 
 	return out
+}
+
+// Rules returns the rule book of a pair: the topics that carry a rule, from
+// the first rung up, or nil when the pair has none.
+func Rules(language, native string) []Topic {
+	c := lookup(language, native)
+	if c == nil {
+		return nil
+	}
+
+	var out []Topic
+
+	for _, t := range c.topics {
+		if t.Extra != nil {
+			out = append(out, t)
+		}
+	}
+
+	return out
+}
+
+// ruleKey is what a topic title is recognised by: the part before a colon, or
+// the whole title, lowered ("Past Perfect: что было до прошлого" is "past perfect").
+func ruleKey(title string) string {
+	if i := strings.Index(title, ":"); i > 0 {
+		title = title[:i]
+	}
+
+	return strings.ToLower(strings.TrimSpace(title))
+}
+
+// Match finds the rule a topic written without the library is about: the rule
+// whose key is the longest one the title contains, among the rules up to level.
+// An agent writes "Past Perfect: действия до момента в прошлом", and this gives
+// that topic the library's rule for Past Perfect.
+func Match(language, native, title string, upTo placement.Level) (Topic, bool) {
+	c := lookup(language, native)
+	if c == nil {
+		return Topic{}, false
+	}
+
+	title = strings.ToLower(title)
+	limit := placement.Index(upTo)
+
+	var best Topic
+
+	bestLen := 0
+
+	for _, t := range c.topics {
+		if t.Extra == nil || placement.Index(placement.Level(t.Level)) > limit {
+			continue
+		}
+
+		key := ruleKey(t.Title)
+		if len(key) < 4 || !strings.Contains(title, key) {
+			continue
+		}
+
+		if len(key) > bestLen {
+			best, bestLen = t, len(key)
+		}
+	}
+
+	return best, bestLen > 0
 }
 
 // Find returns one topic by its id.

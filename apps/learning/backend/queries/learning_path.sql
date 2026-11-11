@@ -53,8 +53,8 @@ WHERE user_id = $1 AND status <> 'active'
 ORDER BY created_at DESC, id DESC;
 
 -- name: InsertLearningPathTopic :one
-INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, unit, theory, vocabulary, status, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'not_started', $10) RETURNING *;
+INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, unit, theory, vocabulary, status, created_at, source_id)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'not_started', $10, $11) RETURNING *;
 
 -- name: ListLearningPathTopics :many
 SELECT * FROM learning_path_topics WHERE path_id = $1 ORDER BY position, id;

@@ -1057,6 +1057,76 @@ func TestDeletingATeacherKeepsTheProgramInTheHistory(t *testing.T) {
 	}
 }
 
+// TestRuleBookNeedsTheTeacher: the rules are served to someone who has the
+// teacher whose language they cover, and to no one else; a topic of that
+// teacher's program carries its rule with references to other rules.
+func TestRuleBookNeedsTheTeacher(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	if code, _ := request(t, e.e, "GET", "/api/v1/learning/path/rules", e.session, nil); code != http.StatusForbidden {
+		t.Fatalf("without a teacher the rule book must be closed: %d", code)
+	}
+
+	// A teacher whose language has no rule book does not open it.
+	request(t, e.e, "POST", "/api/v1/learning/path/teachers", e.session, map[string]any{"language": "es", "translationLanguage": "ru"})
+	if code, _ := request(t, e.e, "GET", "/api/v1/learning/path/rules", e.session, nil); code != http.StatusForbidden {
+		t.Fatalf("a Spanish teacher must not open the English rule book: %d", code)
+	}
+
+	path := analyze(t, e, climb(t, e, "A1"))
+
+	code, body := request(t, e.e, "GET", "/api/v1/learning/path/rules", e.session, nil)
+	if code != http.StatusOK {
+		t.Fatalf("rules: %d %v", code, body)
+	}
+	rules := listPayload(t, body)
+	if len(rules) < 40 {
+		t.Fatalf("the rule book is too small: %d", len(rules))
+	}
+
+	code, body = request(t, e.e, "GET", "/api/v1/learning/path/rules/b2-past-perfect", e.session, nil)
+	rule := data(t, body)
+	if code != http.StatusOK || rule["title"] == "" || len(rule["forms"].([]any)) < 2 || len(rule["examples"].([]any)) < 3 {
+		t.Fatalf("rule: %d %v", code, body)
+	}
+	related := rule["related"].([]any)
+	if len(related) < 2 || related[0].(map[string]any)["id"] == "" || related[0].(map[string]any)["title"] == "" {
+		t.Fatalf("a rule must refer to other rules: %v", related)
+	}
+
+	if code, _ := request(t, e.e, "GET", "/api/v1/learning/path/rules/a1-vocab-food", e.session, nil); code != http.StatusNotFound {
+		t.Fatalf("a topic that is not a rule: %d", code)
+	}
+
+	// The first topic of the program is grammar made from the library: it comes with its rule.
+	first := path["topics"].([]any)[0].(map[string]any)["id"].(string)
+	detail := topicDetail(t, e, first)
+	topicRule, _ := detail["rule"].(map[string]any)
+	if topicRule == nil || topicRule["id"] != "a1-to-be" || len(topicRule["related"].([]any)) < 2 {
+		t.Fatalf("the topic must carry its rule: %v", detail["rule"])
+	}
+
+	// A vocabulary topic has words, not a rule.
+	food := path["topics"].([]any)[4].(map[string]any)["id"].(string)
+	if topicDetail(t, e, food)["rule"] != nil {
+		t.Fatal("a vocabulary topic has no rule")
+	}
+
+	// Deleting the teacher closes the book again, and the kept program stops handing it out.
+	_, body = request(t, e.e, "GET", "/api/v1/learning/path/teachers", e.session, nil)
+	for _, teacher := range listPayload(t, body) {
+		request(t, e.e, "DELETE", "/api/v1/learning/path/teachers/"+teacher["id"].(string), e.session, nil)
+	}
+	if code, _ := request(t, e.e, "GET", "/api/v1/learning/path/rules/b2-past-perfect", e.session, nil); code != http.StatusForbidden {
+		t.Fatalf("without the teacher the rule book must be closed again: %d", code)
+	}
+	if topicDetail(t, e, first)["rule"] != nil {
+		t.Fatal("a topic of a deleted teacher must not hand out its rule")
+	}
+}
+
 // TestResetArchivesTheProgram: reset closes the active program into the
 // history and frees the language for a fresh placement.
 func TestResetArchivesTheProgram(t *testing.T) {

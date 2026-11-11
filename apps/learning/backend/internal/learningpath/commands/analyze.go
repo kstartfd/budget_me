@@ -169,6 +169,7 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 			Theory:     t.Theory,
 			Vocabulary: vocabulary,
 			CreatedAt:  db.Time(now),
+			SourceID:   t.SourceID,
 		})
 		if err != nil {
 			return db.LearningPath{}, nil, err

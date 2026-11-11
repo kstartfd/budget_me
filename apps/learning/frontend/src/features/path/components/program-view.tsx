@@ -6,6 +6,8 @@ import { IconChevronRight, IconChevronUp } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import Link from "next/link"
+import { useRules } from "../hooks"
 import type { Path } from "../schemas"
 import { ProgramScale } from "./program-scale"
 import { SkillIcon } from "./skills"
@@ -44,6 +46,9 @@ export function ProgramView({
   const [openTopic, setOpenTopic] = useState<string | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
   const done = path.topics.filter((topic) => topic.status === "completed").length
+  // The rule book is there for a teacher whose language it covers; for any other
+  // the request is refused and the button stays out.
+  const rules = useRules()
   const finished = path.topics.length > 0 && done === path.topics.length
 
   return (
@@ -81,6 +86,11 @@ export function ProgramView({
           >
             {starting ? t("starting") : t(finished ? "retakeButton" : "finalTest")}
           </Button>
+          {rules.isSuccess && rules.data.length > 0 && (
+            <Button asChild variant="outline" size="lg" className="px-4 text-[13px]">
+              <Link href="/learning/path/rules">{t("rulesOpen")}</Link>
+            </Button>
+          )}
           {confirmReset ? (
             <>
               <Button
