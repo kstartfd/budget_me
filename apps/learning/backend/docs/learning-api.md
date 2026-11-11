@@ -295,6 +295,32 @@ requests that get to the reader count). At most 2 pictures are read at a time on
 Extension tokens get **401**. The image installs the language data named in `OCR_LANGS` of
 `infra/learning/docker/backend.Dockerfile`; `ocr.languages` must list the same ones.
 
+## Teachers and the study program (session only)
+
+A teacher is a language the learner studies, with the language its rules are
+explained in; there is one per language. Everything here spends the learner's
+own agent and is never reachable with a topic-scoped extension token. Paths are
+under `/api/v1/learning/path`.
+
+| Method and path | What it does |
+| --- | --- |
+| `GET /teachers` | The learner's teachers, each with a line about its running program (`level`, `topicsDone`, `topicsTotal`). |
+| `POST /teachers` | `{language, translationLanguage}`. Adds a teacher; a language that has one hands it back with its own pair. |
+| `DELETE /teachers/:id` | Removes a teacher. Its running program is closed into the history, not thrown away. |
+| `POST /tests` | Opens a placement test (`{language, translationLanguage, level?}`; `level` starts above A1 and is accepted only as the rung after a confirmed final test). The first batch is written by the agent before the test exists, so without a reachable agent it fails and leaves nothing open. |
+| `POST /final-tests` | Opens the final test of the running program's level. |
+| `GET /tests/:id`, `POST /tests/:id/answers` | The state of a test, and one batch of answers; a full batch goes to the examiner (the agent), which climbs or places the learner. |
+| `POST /tests/:id/analyze` | Queues building the program from a finished placement test and answers `202` with a job; asking again hands the same job back. |
+| `GET /jobs/:id` | `queued`, `running`, `done` (with the program) or `failed` (with why). |
+| `GET /?language=`, `GET /history`, `POST /reset` | The running program of a language, the closed ones, and closing the running one. |
+| `GET /topics/:id`, `POST /topics/:id/exercises`, `POST /topics/:id/complete` | A topic with its rule and words, its exercise set (`?regenerate=1` writes a new one), and completing it. |
+| `POST /exercises/:id/attempt` | Checks one answer. Kinds: `choice`, `fill`, `listen` are graded here; `speak` is compared with the phrase; `translate` and `write` are judged by the agent. |
+| `GET /exercises/:id/audio`, `GET /topics/:id/words/:index/audio` | The voice of a listening sentence or a phrase to repeat, and of a key word of a topic. |
+
+For a language pair that has a library (English for Russian speakers, A1 to B2)
+the program is planned from it: the agent only picks topics, and each topic
+carries the library's own rule, words and goal.
+
 ## Session-only management
 
 - `POST /topics`, `PUT /topics/<uuid>` — `name`, `language`, `translationLanguage`.
