@@ -233,11 +233,25 @@ function ExerciseCard({
 }) {
   const t = useTranslations("path.topic")
   const attempt = useTopicExerciseAttempt(topicId)
+  const { saveEntry } = useLearning()
+  const [saved, setSaved] = useState(false)
   const [value, setValue] = useState("")
   const [last, setLast] = useState<PathAttempt | null>(null)
   const result = last ?? latestAttempt
+  // The whole exercise goes to the teacher: the sentence or passage (the
+  // prompt alone is just "fill in the gap"), the options, and what was answered.
+  const exerciseText = [
+    exercise.text,
+    exercise.prompt,
+    exercise.options.length > 0
+      ? t("chatOptions", { options: exercise.options.join(" / ") })
+      : "",
+    result ? t("chatMyAnswer", { answer: result.answer }) : "",
+  ]
+    .filter(Boolean)
+    .join("\n")
   const chat = new URLSearchParams({
-    question: t("chatQuestion", { topic: topicTitle, prompt: exercise.prompt }),
+    question: t("chatQuestion", { topic: topicTitle, prompt: exerciseText }),
   })
   if (chatTopicId) chat.set("topic", chatTopicId)
 
@@ -251,6 +265,8 @@ function ExerciseCard({
 
   const done = result ? result.correct : solved
   const failed = !!result && !result.correct
+  // A word or a phrase worth keeping can go to the notebook once it is answered.
+  const keepable = !!chatTopicId && !!result && isWordOrPhrase(exercise)
 
   return (
     <section className="border-border space-y-3 border-t pt-4 first-of-type:border-t-0 first-of-type:pt-0">
@@ -378,18 +394,45 @@ function ExerciseCard({
               </>
             )}
           </p>
-          {!result.correct && (
-            <Button
-              asChild
-              variant="outline"
-              size="lg"
-              className="bg-background mt-2 text-[13px]"
-            >
-              <Link href={`/learning/chat?${chat}`}>
-                <IconMessageCircle size={14} />
-                {t("askTeacher")}
-              </Link>
-            </Button>
+          <div className="flex flex-wrap gap-2">
+            {!result.correct && (
+              <Button
+                asChild
+                variant="outline"
+                size="lg"
+                className="bg-background mt-2 text-[13px]"
+              >
+                <Link href={`/learning/chat?${chat}`}>
+                  <IconMessageCircle size={14} />
+                  {t("askTeacher")}
+                </Link>
+              </Button>
+            )}
+            {keepable && (
+              <Button
+                type="button"
+                variant="outline"
+                size="lg"
+                disabled={saved || saveEntry.isPending}
+                onClick={async () => {
+                  await saveEntry.mutateAsync(
+                    exerciseEntry(exercise, topicTitle, chatTopicId),
+                  )
+                  setSaved(true)
+                }}
+                className="bg-background mt-2 text-[13px]"
+              >
+                {saved ? <IconCheck size={14} /> : <IconBookmarkPlus size={14} />}
+                {saved
+                  ? t("savedToNotebook")
+                  : t("saveToNotebook", { text: exercise.answer })}
+              </Button>
+            )}
+          </div>
+          {saveEntry.isError && (
+            <p role="alert" className="text-destructive text-xs">
+              {saveEntry.error.message}
+            </p>
           )}
         </div>
       )}
@@ -491,6 +534,46 @@ function Vocabulary({
       )}
     </div>
   )
+}
+
+const maxPhraseWords = 4
+
+/** A choice or fill exercise whose answer is a word or a short phrase. A
+ * translation is a whole sentence, which is not a notebook entry. */
+function isWordOrPhrase(exercise: PathExercise): boolean {
+  const answer = exercise.answer.trim()
+  if (exercise.kind === "translate" || !answer) return false
+  if (/[.!?;:]$/.test(answer)) return false
+
+  return answer.split(/\s+/).length <= maxPhraseWords
+}
+
+/** The notebook entry of an exercise's answer: the exercise sentence with the
+ * gap filled becomes the example, the rule is kept with it. */
+function exerciseEntry(
+  exercise: PathExercise,
+  topicTitle: string,
+  notebookId: string,
+): EntryInput {
+  const answer = exercise.answer.trim()
+  const gap = /_{2,}|\.{3}|…/
+  const example = gap.test(exercise.prompt)
+    ? exercise.prompt.replace(gap, answer)
+    : exercise.prompt
+
+  return {
+    topicId: notebookId,
+    kind: answer.includes(" ") ? "phrase" : "word",
+    text: answer,
+    transcription: "",
+    translation: "",
+    explanation: "",
+    nativeUsage: "",
+    example: exercise.kind === "choice" || exercise.kind === "fill" ? example : "",
+    rule: exercise.rule,
+    source: topicTitle,
+    status: "inbox",
+  }
 }
 
 /** The notebook entry of a word: new, in the inbox, remembering where it came from. */
