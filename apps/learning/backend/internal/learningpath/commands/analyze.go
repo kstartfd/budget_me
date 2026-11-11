@@ -66,11 +66,21 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 		return db.LearningPath{}, nil, err
 	}
 
+	rows, err := h.q.ListLearningPathTestQuestions(ctx, test.ID)
+	if err != nil {
+		return db.LearningPath{}, nil, err
+	}
+
+	written := make(map[string]db.LearningPathTestQuestion, len(rows))
+	for _, r := range rows {
+		written[r.QuestionKey] = r
+	}
+
 	var asked, correct int
 	var wrong []wrongAnswer
 
 	for _, a := range answers {
-		q, _, ok := placement.Find(test.Language, a.QuestionKey)
+		r, ok := written[a.QuestionKey]
 		if !ok {
 			continue
 		}
@@ -80,7 +90,7 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 		if a.Correct {
 			correct++
 		} else {
-			wrong = append(wrong, wrongAnswer{question: q, chosen: a.Answer})
+			wrong = append(wrong, wrongAnswer{question: questionOf(r), level: placement.Level(r.Level), chosen: a.Answer})
 		}
 	}
 

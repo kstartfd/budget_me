@@ -79,12 +79,8 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
         </h1>
         <p className="text-muted-foreground text-[13px] lg:text-sm">
           {current.asked > 0
-            ? t("progress", {
-                correct: current.correct,
-                asked: current.asked,
-                needed: current.needed,
-              })
-            : t("progressFirst", { needed: current.needed })}
+            ? t("progress", { correct: current.correct, asked: current.asked })
+            : t("progressFirst")}
           {" · "}
           {t("answeredCount", { answered: answeredCount, total: current.questions.length })}
         </p>

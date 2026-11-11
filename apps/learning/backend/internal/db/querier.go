@@ -70,6 +70,7 @@ type Querier interface {
 	InsertLearningPathLesson(ctx context.Context, arg InsertLearningPathLessonParams) (LearningPathLesson, error)
 	InsertLearningPathTest(ctx context.Context, arg InsertLearningPathTestParams) (LearningPathTest, error)
 	InsertLearningPathTestAnswer(ctx context.Context, arg InsertLearningPathTestAnswerParams) (int64, error)
+	InsertLearningPathTestQuestion(ctx context.Context, arg InsertLearningPathTestQuestionParams) error
 	InsertLearningPathTopic(ctx context.Context, arg InsertLearningPathTopicParams) (LearningPathTopic, error)
 	InsertLearningToken(ctx context.Context, arg InsertLearningTokenParams) (LearningToken, error)
 	InsertLearningTopic(ctx context.Context, arg InsertLearningTopicParams) (LearningTopic, error)
@@ -86,6 +87,7 @@ type Querier interface {
 	ListLearningPathLessonStats(ctx context.Context, lessonIds []pgtype.UUID) ([]ListLearningPathLessonStatsRow, error)
 	ListLearningPathLessons(ctx context.Context, arg ListLearningPathLessonsParams) ([]LearningPathLesson, error)
 	ListLearningPathTestAnswers(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestAnswer, error)
+	ListLearningPathTestQuestions(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestQuestion, error)
 	ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID) ([]LearningPathTopic, error)
 	ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error)
 	ListLearningTopics(ctx context.Context, userID pgtype.UUID) ([]LearningTopic, error)

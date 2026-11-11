@@ -762,6 +762,18 @@ type LearningPathTestAnswer struct {
 	Correct     bool
 }
 
+type LearningPathTestQuestion struct {
+	TestID      pgtype.UUID
+	QuestionKey string
+	Level       string
+	Position    int32
+	Skill       string
+	Text        string
+	Prompt      string
+	Options     []byte
+	Answer      string
+}
+
 type LearningPathTopic struct {
 	ID          pgtype.UUID
 	PathID      pgtype.UUID

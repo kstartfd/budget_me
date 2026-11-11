@@ -680,6 +680,38 @@ func (q *Queries) InsertLearningPathTestAnswer(ctx context.Context, arg InsertLe
 	return result.RowsAffected(), nil
 }
 
+const insertLearningPathTestQuestion = `-- name: InsertLearningPathTestQuestion :exec
+INSERT INTO learning_path_test_questions (test_id, question_key, level, position, skill, text, prompt, options, answer)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+`
+
+type InsertLearningPathTestQuestionParams struct {
+	TestID      pgtype.UUID
+	QuestionKey string
+	Level       string
+	Position    int32
+	Skill       string
+	Text        string
+	Prompt      string
+	Options     []byte
+	Answer      string
+}
+
+func (q *Queries) InsertLearningPathTestQuestion(ctx context.Context, arg InsertLearningPathTestQuestionParams) error {
+	_, err := q.db.Exec(ctx, insertLearningPathTestQuestion,
+		arg.TestID,
+		arg.QuestionKey,
+		arg.Level,
+		arg.Position,
+		arg.Skill,
+		arg.Text,
+		arg.Prompt,
+		arg.Options,
+		arg.Answer,
+	)
+	return err
+}
+
 const insertLearningPathTopic = `-- name: InsertLearningPathTopic :one
 INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, unit, theory, vocabulary, status, created_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'not_started', $10) RETURNING id, path_id, position, skill, title, goal, status, created_at, completed_at, unit, theory, vocabulary
@@ -948,6 +980,40 @@ func (q *Queries) ListLearningPathTestAnswers(ctx context.Context, testID pgtype
 			&i.QuestionKey,
 			&i.Answer,
 			&i.Correct,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLearningPathTestQuestions = `-- name: ListLearningPathTestQuestions :many
+SELECT test_id, question_key, level, position, skill, text, prompt, options, answer FROM learning_path_test_questions WHERE test_id = $1 ORDER BY level, position
+`
+
+func (q *Queries) ListLearningPathTestQuestions(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestQuestion, error) {
+	rows, err := q.db.Query(ctx, listLearningPathTestQuestions, testID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LearningPathTestQuestion{}
+	for rows.Next() {
+		var i LearningPathTestQuestion
+		if err := rows.Scan(
+			&i.TestID,
+			&i.QuestionKey,
+			&i.Level,
+			&i.Position,
+			&i.Skill,
+			&i.Text,
+			&i.Prompt,
+			&i.Options,
+			&i.Answer,
 		); err != nil {
 			return nil, err
 		}

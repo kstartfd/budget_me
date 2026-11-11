@@ -13,6 +13,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton"
 import { usePath } from "../hooks"
 import { ProgramView } from "./program-view"
+import { StartError } from "./start-error"
 import { TestRunner } from "./test-runner"
 
 const languages = [
@@ -143,14 +144,14 @@ export function PathScreen({
             })
           }
           onReset={() => path.reset.mutate()}
+          startError={path.startFinal.isError ? path.startFinal.error.message : null}
+          starting={path.startFinal.isPending}
         />
       ) : (
         <section className="bg-background border-border space-y-3 rounded-lg border p-5">
           <p className="text-sm leading-relaxed">{t("placementIntro")}</p>
           {path.startPlacement.isError && (
-            <p role="alert" className="text-destructive text-sm">
-              {path.startPlacement.error.message}
-            </p>
+            <StartError message={path.startPlacement.error.message} />
           )}
           <Button
             onClick={() =>

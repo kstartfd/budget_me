@@ -26,6 +26,13 @@ ON CONFLICT (test_id, question_key) DO NOTHING;
 -- name: ListLearningPathTestAnswers :many
 SELECT * FROM learning_path_test_answers WHERE test_id = $1;
 
+-- name: InsertLearningPathTestQuestion :exec
+INSERT INTO learning_path_test_questions (test_id, question_key, level, position, skill, text, prompt, options, answer)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9);
+
+-- name: ListLearningPathTestQuestions :many
+SELECT * FROM learning_path_test_questions WHERE test_id = $1 ORDER BY level, position;
+
 -- name: InsertLearningPath :one
 INSERT INTO learning_paths (id, user_id, language, translation_language, level, summary, status, source, placement_test_id, preferences, created_at)
 VALUES ($1, $2, $3, $4, $5, $6, 'active', $7, $8, $9, $10) RETURNING *;

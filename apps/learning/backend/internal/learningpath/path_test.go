@@ -6,6 +6,8 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"testing"
@@ -29,11 +31,90 @@ const authSecret = "learning-integration-test-secret-long-enough"
 // stubProvider stands in for the three agent providers. GETs answer the key
 // check; POSTs are completions answered from a queue (or the default text)
 // and the request prompts are remembered, so a test sees what the server sent.
+//
+// The level test is written and judged by the agent too, and those two calls
+// are answered by the stub itself (see testReply) without touching the queue,
+// so a test that queues a program or an exercise set sees only its own calls
+// in requests(); the test calls are kept apart in testCalls().
 type stubProvider struct {
 	mu          sync.Mutex
 	defaultText string
 	queue       []string
 	prompts     []string
+	testPrompts []string
+	written     int
+	// examiner, when set, overrides the examiner's reply: it gets the level
+	// and how many of how many were right.
+	examiner func(level string, correct, asked int) string
+	// breakQuestions makes the question writer answer garbage.
+	breakQuestions bool
+}
+
+const (
+	rightOption = "right answer"
+	wrongOption = "wrong one"
+)
+
+var (
+	levelPattern   = regexp.MustCompile(`level\\+"\s*:\s*\\+"([ABC][12])`)
+	countPattern   = regexp.MustCompile(`count\\+"\s*:\s*(\d+)`)
+	askedPattern   = regexp.MustCompile(`asked\\+"\s*:\s*(\d+)`)
+	correctPattern = regexp.MustCompile(`correct\\+"\s*:\s*(\d+)`)
+)
+
+func number(re *regexp.Regexp, raw string) int {
+	m := re.FindStringSubmatch(raw)
+	if m == nil {
+		return 0
+	}
+	n, _ := strconv.Atoi(m[1])
+	return n
+}
+
+// testReply answers the question writer and the examiner of a level test. The
+// writer makes unique questions with one right option; the examiner climbs when
+// at least three quarters are right and otherwise stops one rung under.
+func (p *stubProvider) testReply(raw string) (string, bool) {
+	level := ""
+	if m := levelPattern.FindStringSubmatch(raw); m != nil {
+		level = m[1]
+	}
+
+	switch {
+	case strings.Contains(raw, "You write the questions of a language level test"):
+		if p.breakQuestions {
+			return "I cannot write that.", true
+		}
+
+		count := number(countPattern, raw)
+		questions := make([]map[string]any, count)
+		for i := range questions {
+			p.written++
+			skill, text := "grammar", ""
+			if i == count-1 {
+				skill, text = "reading", "A short passage."
+			}
+			questions[i] = map[string]any{
+				"skill": skill, "text": text,
+				"prompt":  fmt.Sprintf("%s question %d", level, p.written),
+				"options": []string{wrongOption, rightOption, "wrong two", "wrong three"},
+				"answer":  rightOption,
+			}
+		}
+		b, _ := json.Marshal(map[string]any{"questions": questions})
+		return string(b), true
+	case strings.Contains(raw, "You are the examiner of a language level test"):
+		asked, correct := number(askedPattern, raw), number(correctPattern, raw)
+		if p.examiner != nil {
+			return p.examiner(level, correct, asked), true
+		}
+		if correct*4 >= asked*3 {
+			return `{"verdict":"climb","level":"` + level + `"}`, true
+		}
+		return `{"verdict":"stop","level":"` + string(placement.Below(placement.Level(level))) + `"}`, true
+	}
+
+	return "", false
 }
 
 func (p *stubProvider) serve(w http.ResponseWriter, r *http.Request) {
@@ -48,12 +129,17 @@ func (p *stubProvider) serve(w http.ResponseWriter, r *http.Request) {
 	raw, _ := io.ReadAll(r.Body)
 
 	p.mu.Lock()
-	text := p.defaultText
-	if len(p.queue) > 0 {
-		text = p.queue[0]
-		p.queue = p.queue[1:]
+	text, isTest := p.testReply(string(raw))
+	if isTest {
+		p.testPrompts = append(p.testPrompts, string(raw))
+	} else {
+		text = p.defaultText
+		if len(p.queue) > 0 {
+			text = p.queue[0]
+			p.queue = p.queue[1:]
+		}
+		p.prompts = append(p.prompts, string(raw))
 	}
-	p.prompts = append(p.prompts, string(raw))
 	p.mu.Unlock()
 
 	if strings.Contains(string(raw), `"stream":true`) && !strings.HasSuffix(r.URL.Path, "/v1/messages") && !strings.HasSuffix(r.URL.Path, "/responses") {
@@ -92,6 +178,13 @@ func (p *stubProvider) requests() []string {
 	p.mu.Lock()
 	defer p.mu.Unlock()
 	return append([]string(nil), p.prompts...)
+}
+
+// testCalls are the requests the question writer and the examiner got.
+func (p *stubProvider) testCalls() []string {
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	return append([]string(nil), p.testPrompts...)
 }
 
 func quote(s string) string {
@@ -218,28 +311,25 @@ func startPlacementState(t *testing.T, e env) (string, map[string]any) {
 // It returns the test DTO after the batch.
 func answerBatch(t *testing.T, e env, testID string, questions []any, right bool) map[string]any {
 	t.Helper()
+	n := 0
+	if right {
+		n = len(questions)
+	}
+	return answerMixed(t, e, testID, questions, n)
+}
+
+// answerMixed answers the first nRight questions right and the rest wrong.
+func answerMixed(t *testing.T, e env, testID string, questions []any, nRight int) map[string]any {
+	t.Helper()
 
 	answers := make([]map[string]any, len(questions))
 	for i, item := range questions {
 		q := item.(map[string]any)
-		key := q["key"].(string)
-		picked := ""
-		if right {
-			question, _, ok := placement.Find("en", key)
-			if !ok {
-				t.Fatalf("unknown question %q", key)
-			}
-			picked = question.Answer
-		} else {
-			for _, opt := range q["options"].([]any) {
-				question, _, _ := placement.Find("en", key)
-				if opt.(string) != question.Answer {
-					picked = opt.(string)
-					break
-				}
-			}
+		picked := wrongOption
+		if i < nRight {
+			picked = rightOption
 		}
-		answers[i] = map[string]any{"key": key, "answer": picked}
+		answers[i] = map[string]any{"key": q["key"].(string), "answer": picked}
 	}
 
 	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests/"+testID+"/answers", e.session, map[string]any{"answers": answers})
@@ -343,6 +433,7 @@ func TestPlacementBuildsAProgram(t *testing.T) {
 // answer keys.
 func TestPlacementAnswersNeverReachTheClient(t *testing.T) {
 	e := setup(t)
+	chooseAgent(t, e)
 
 	_, questions := startPlacement(t, e)
 	for _, item := range questions {
@@ -375,14 +466,127 @@ func TestAnalyzeRetriesABrokenProgram(t *testing.T) {
 	}
 }
 
-// TestAnalyzeWithoutAnAgent is the setup error a learner can act on.
+// TestAnalyzeWithoutAnAgent is the setup error a learner can act on: the agent
+// was there for the test and is gone by the time the program is built.
 func TestAnalyzeWithoutAnAgent(t *testing.T) {
 	e := setup(t)
+	chooseAgent(t, e)
 
 	testID := climb(t, e, "A1")
+
+	if _, err := e.pool.Exec(t.Context(), "DELETE FROM learning_ai_settings WHERE user_id = $1", e.user); err != nil {
+		t.Fatal(err)
+	}
+
 	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests/"+testID+"/analyze", e.session, nil)
 	if code != http.StatusBadRequest {
 		t.Fatalf("analyze with no agent: %d %v", code, body)
+	}
+}
+
+// openTests counts the tests of the learner: a test that could not start must
+// leave none behind.
+func openTests(t *testing.T, e env) int {
+	t.Helper()
+	var n int
+	if err := e.pool.QueryRow(t.Context(), "SELECT count(*) FROM learning_path_tests WHERE user_id = $1", e.user).Scan(&n); err != nil {
+		t.Fatal(err)
+	}
+	return n
+}
+
+// TestTestCannotStartWithoutAnAgent: the test is written by the agent, so
+// without one it does not start and nothing is left open.
+func TestTestCannotStartWithoutAnAgent(t *testing.T) {
+	e := setup(t)
+
+	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests", e.session, map[string]any{"language": "en", "translationLanguage": "ru"})
+	if code != http.StatusBadRequest {
+		t.Fatalf("start without an agent: %d %v", code, body)
+	}
+	if openTests(t, e) != 0 {
+		t.Fatal("a test that could not start was left open")
+	}
+}
+
+// TestTestCannotStartWhenTheAgentFails: an agent that answers garbage, even
+// after the retry, stops the test too.
+func TestTestCannotStartWhenTheAgentFails(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.breakQuestions = true
+
+	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests", e.session, map[string]any{"language": "en", "translationLanguage": "ru"})
+	if code != http.StatusBadGateway {
+		t.Fatalf("start with a broken agent: %d %v", code, body)
+	}
+	if openTests(t, e) != 0 {
+		t.Fatal("a test that could not start was left open")
+	}
+}
+
+// TestQuestionsAreWrittenForEachTest: nothing is canned. Every test asks the
+// agent, the next level's batch is written when the learner climbs, and what
+// was asked already travels along so it is not repeated.
+func TestQuestionsAreWrittenForEachTest(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+
+	testID, questions := startPlacement(t, e)
+	if calls := e.provider.testCalls(); len(calls) != 1 || !strings.Contains(calls[0], "language level test") {
+		t.Fatalf("the first batch was not written by the agent: %d calls", len(calls))
+	}
+
+	first := questions[0].(map[string]any)["prompt"].(string)
+	state := answerBatch(t, e, testID, questions, true)
+	if state["level"] != "A2" {
+		t.Fatalf("the ladder did not climb: %v", state["level"])
+	}
+
+	// One call for the examiner, one for the A2 batch, which carries the A1 prompts.
+	calls := e.provider.testCalls()
+	if len(calls) != 3 {
+		t.Fatalf("calls: %d", len(calls))
+	}
+	if !strings.Contains(calls[2], first) {
+		t.Fatalf("the next batch was not told what was asked:\n%s", calls[2])
+	}
+}
+
+// TestExaminerDecidesTheLevel: the level is the agent's call, not a threshold.
+// Five of eight right still climbs when the examiner says so.
+func TestExaminerDecidesTheLevel(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.examiner = func(level string, correct, asked int) string {
+		return `{"verdict":"climb","level":"` + level + `"}`
+	}
+
+	testID, questions := startPlacement(t, e)
+	state := answerMixed(t, e, testID, questions, 5)
+	if state["status"] == "done" || state["level"] != "A2" {
+		t.Fatalf("the examiner's verdict was not followed: %v", state)
+	}
+}
+
+// TestExaminerCannotContradictTheBatch: a verdict that climbs a learner who got
+// nothing right is refused, and the test is left where it was.
+func TestExaminerCannotContradictTheBatch(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.examiner = func(level string, correct, asked int) string {
+		return `{"verdict":"climb","level":"` + level + `"}`
+	}
+
+	testID, questions := startPlacement(t, e)
+
+	answers := make([]map[string]any, len(questions))
+	for i, item := range questions {
+		answers[i] = map[string]any{"key": item.(map[string]any)["key"], "answer": wrongOption}
+	}
+	code, _ := request(t, e.e, "POST", "/api/v1/learning/path/tests/"+testID+"/answers", e.session, map[string]any{"answers": answers})
+	if code != http.StatusBadGateway {
+		t.Fatalf("a climb on an all-wrong batch must be refused: %d", code)
 	}
 }
 
@@ -614,6 +818,7 @@ func TestSecondProgramIsMarkedAsReset(t *testing.T) {
 // instead of splitting it.
 func TestOpenTestIsHandedBack(t *testing.T) {
 	e := setup(t)
+	chooseAgent(t, e)
 
 	first, _ := startPlacement(t, e)
 	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests", e.session, map[string]any{"language": "en", "translationLanguage": "ru"})
@@ -625,6 +830,7 @@ func TestOpenTestIsHandedBack(t *testing.T) {
 // TestUnknownAnswerKeyIsRefused keeps the batch protocol honest.
 func TestUnknownAnswerKeyIsRefused(t *testing.T) {
 	e := setup(t)
+	chooseAgent(t, e)
 
 	testID, _ := startPlacement(t, e)
 	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests/"+testID+"/answers", e.session, map[string]any{
@@ -677,6 +883,7 @@ func TestRegenerateKeepsAttemptHistory(t *testing.T) {
 // TestClimbToTheTop: passing C2 ends the ladder at C2.
 func TestClimbToTheTop(t *testing.T) {
 	e := setup(t)
+	chooseAgent(t, e)
 
 	// The whole ladder right: A1..C2 then done at C2.
 	testID, questions := startPlacement(t, e)

@@ -47,7 +47,7 @@ type Controller struct {
 
 func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent commands.Completer) *Controller {
 	return &Controller{
-		tests:     commands.NewTestHandler(q, clk),
+		tests:     commands.NewTestHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
 		analysis:  commands.NewAnalyzeHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
 		exercises: commands.NewExerciseHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
 		attempts:  commands.NewAttemptHandler(q, clk, commands.NewAgent(q, vault, agent), ratelimit.New(aiRate)),
@@ -99,13 +99,22 @@ func (c *Controller) startTest(ctx echo.Context) error {
 		return apperr.NewInvalid("invalid body")
 	}
 
+	// The agent writes the questions, so starting a test spends the learner's
+	// key like any other agent call, and fails when it cannot be reached.
+	release, wait, ok := c.limit.Acquire(userOf(ctx))
+	if !ok {
+		return tooManyRequests(ctx, wait)
+	}
+
+	defer release()
+
 	test, err := c.tests.Start(ctx.Request().Context(), commands.StartTest{
 		UserID:              userOf(ctx),
 		Kind:                "placement",
 		Language:            req.Language,
 		TranslationLanguage: req.TranslationLanguage,
 	})
-	if err != nil {
+	if err = agentError(err); err != nil {
 		return err
 	}
 
@@ -124,13 +133,22 @@ func (c *Controller) startFinal(ctx echo.Context) error {
 		return apperr.NewInvalid("invalid body")
 	}
 
+	// The agent writes the questions, so starting a test spends the learner's
+	// key like any other agent call, and fails when it cannot be reached.
+	release, wait, ok := c.limit.Acquire(userOf(ctx))
+	if !ok {
+		return tooManyRequests(ctx, wait)
+	}
+
+	defer release()
+
 	test, err := c.tests.Start(ctx.Request().Context(), commands.StartTest{
 		UserID:              userOf(ctx),
 		Kind:                "final",
 		Language:            req.Language,
 		TranslationLanguage: req.TranslationLanguage,
 	})
-	if err != nil {
+	if err = agentError(err); err != nil {
 		return err
 	}
 
@@ -174,8 +192,16 @@ func (c *Controller) answer(ctx echo.Context) error {
 		given[i] = commands.Answer{Key: a.Key, Answer: a.Answer}
 	}
 
+	// A full batch goes to the examiner, which is an agent call.
+	release, wait, ok := c.limit.Acquire(userOf(ctx))
+	if !ok {
+		return tooManyRequests(ctx, wait)
+	}
+
+	defer release()
+
 	p, err := c.tests.Answer(ctx.Request().Context(), userOf(ctx), id, given)
-	if err != nil {
+	if err = agentError(err); err != nil {
 		return err
 	}
 

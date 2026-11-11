@@ -2,25 +2,33 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"golang.org/x/text/language"
 
 	"learning_app/backend/internal/apperr"
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
+	learningcommands "learning_app/backend/internal/learning/commands"
 	"learning_app/backend/internal/learningpath/placement"
 )
 
 const maxTestAnswerRunes = 400
 
-// StartTest opens a level test. A placement climbs the ladder from A1 until a
-// batch fails; a final checks the program's own level. A test that is already
-// open for the language is handed back instead of a second one, so a refresh
-// or a double tap never splits a test in two.
+// StartTest opens a level test. A placement climbs the ladder from A1 until the
+// examiner stops it; a final checks the program's own level. A test that is
+// already open for the language is handed back instead of a second one, so a
+// refresh or a double tap never splits a test in two.
+//
+// The questions are written for the learner by their own agent, and the first
+// batch is written before the test exists: a learner whose agent cannot be
+// reached never gets a test that could not be taken.
 type StartTest struct {
 	UserID              uuid.UUID
 	Kind                string // "placement" or "final"
@@ -29,12 +37,14 @@ type StartTest struct {
 }
 
 type TestHandler struct {
+	pool  *pgxpool.Pool
 	q     *db.Queries
 	clock clock.Clock
+	agent Agent
 }
 
-func NewTestHandler(q *db.Queries, clk clock.Clock) TestHandler {
-	return TestHandler{q: q, clock: clk}
+func NewTestHandler(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, agent Agent) TestHandler {
+	return TestHandler{pool: pool, q: q, clock: clk, agent: agent}
 }
 
 func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathTest, error) {
@@ -48,17 +58,13 @@ func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathT
 		return db.LearningPathTest{}, apperr.NewInvalid("invalid test kind")
 	}
 
-	if !placement.Has(cmd.Language) {
-		return db.LearningPathTest{}, apperr.NewInvalid("the level test is not available for this language yet")
-	}
-
 	open, err := h.q.GetOpenLearningPathTest(ctx, db.GetOpenLearningPathTestParams{
 		UserID:   ids.ToPg(cmd.UserID),
 		Language: cmd.Language,
 		Kind:     db.LearningPathTestKind(cmd.Kind),
 	})
 	if err == nil {
-		return open, nil
+		return open, h.ensureQuestions(ctx, open)
 	}
 
 	if !db.IsNotFound(err) {
@@ -97,7 +103,23 @@ func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathT
 		level = path.Level
 	}
 
-	return h.q.InsertLearningPathTest(ctx, db.InsertLearningPathTestParams{
+	// The first batch doubles as the check that the agent can be reached: no
+	// agent, a rejected key or an unreadable reply stops the test right here.
+	questions, err := h.generate(ctx, cmd.UserID, cmd.Kind, cmd.Language, cmd.TranslationLanguage, placement.Level(level), nil)
+	if err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	tq := h.q.WithTx(tx)
+
+	test, err := tq.InsertLearningPathTest(ctx, db.InsertLearningPathTestParams{
 		ID:                  ids.ToPg(ids.New()),
 		UserID:              ids.ToPg(cmd.UserID),
 		PathID:              ids.ToPgOpt(pathID),
@@ -107,6 +129,102 @@ func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathT
 		Level:               level,
 		CreatedAt:           db.Time(h.clock.Now()),
 	})
+	if err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	if err := storeQuestions(ctx, tq, test.ID, placement.Level(level), questions); err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	return test, tx.Commit(ctx)
+}
+
+// generate has the learner's agent write one batch of a level. Prompts already
+// asked in the test travel with the request so the agent does not repeat them.
+func (h TestHandler) generate(ctx context.Context, userID uuid.UUID, kind, lang, translation string, level placement.Level, asked []string) ([]placement.Question, error) {
+	count := placement.BatchNeed(kind)
+	learned := learningcommands.LanguageName(lang)
+	native := learningcommands.LanguageName(translation)
+	system, prompt := testQuestionsPrompt(learned, native, kind, level, count, asked)
+
+	var batch generatedBatch
+	if err := h.agent.completeJSON(ctx, userID, system, prompt, &batch, func() error {
+		return validateBatch(&batch, count)
+	}); err != nil {
+		return nil, err
+	}
+
+	return questionsOf(batch, level), nil
+}
+
+// ensureQuestions writes the batch of an open test that has none for the level
+// it is on, which is how a test opened before questions were stored resumes.
+func (h TestHandler) ensureQuestions(ctx context.Context, test db.LearningPathTest) error {
+	rows, err := h.q.ListLearningPathTestQuestions(ctx, test.ID)
+	if err != nil {
+		return err
+	}
+
+	var asked []string
+
+	for _, r := range rows {
+		if r.Level == test.Level {
+			return nil
+		}
+
+		asked = append(asked, r.Prompt)
+	}
+
+	questions, err := h.generate(ctx, ids.FromPg(test.UserID), string(test.Kind), test.Language, test.TranslationLanguage, placement.Level(test.Level), asked)
+	if err != nil {
+		return err
+	}
+
+	return storeQuestions(ctx, h.q, test.ID, placement.Level(test.Level), questions)
+}
+
+// storeQuestions keeps a batch with its test, answer keys included.
+func storeQuestions(ctx context.Context, q *db.Queries, testID pgtype.UUID, level placement.Level, questions []placement.Question) error {
+	for i, question := range questions {
+		options, err := json.Marshal(question.Options)
+		if err != nil {
+			return err
+		}
+
+		if err := q.InsertLearningPathTestQuestion(ctx, db.InsertLearningPathTestQuestionParams{
+			TestID:      testID,
+			QuestionKey: question.Key,
+			Level:       string(level),
+			Position:    int32(i),
+			Skill:       string(question.Skill),
+			Text:        question.Text,
+			Prompt:      question.Prompt,
+			Options:     options,
+			Answer:      question.Answer,
+		}); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// questionOf reads a stored question back.
+func questionOf(row db.LearningPathTestQuestion) placement.Question {
+	var options []string
+	if len(row.Options) > 0 {
+		_ = json.Unmarshal(row.Options, &options)
+	}
+
+	return placement.Question{
+		Key:     row.QuestionKey,
+		Skill:   placement.Skill(row.Skill),
+		Text:    row.Text,
+		Prompt:  row.Prompt,
+		Options: options,
+		Answer:  row.Answer,
+	}
 }
 
 // TestProgress is where a test stands: how the current batch has gone and
@@ -116,8 +234,7 @@ type TestProgress struct {
 	Questions []placement.Question // what is still to answer on the current level
 	Asked     int                  // answered on the current level
 	Correct   int                  // right on the current level
-	Needed    int                  // batch size of the test kind
-	PassNeed  int                  // right answers that pass the level
+	Needed    int                  // questions of the current level's batch
 }
 
 // Progress reads a test and computes where it stands. It is the shared back of
@@ -132,42 +249,70 @@ func (h TestHandler) Progress(ctx context.Context, userID, testID uuid.UUID) (Te
 		return TestProgress{}, err
 	}
 
-	answers, err := h.q.ListLearningPathTestAnswers(ctx, ids.ToPg(testID))
+	answers, questions, err := h.stored(ctx, test.ID)
 	if err != nil {
 		return TestProgress{}, err
 	}
 
-	return progressOf(test, answers), nil
+	return progressOf(test, answers, questions), nil
 }
 
-// progressOf folds the stored answers into where the test stands. Answers of
-// passed levels stay in the table as history; only the current level counts.
-func progressOf(test db.LearningPathTest, answers []db.LearningPathTestAnswer) TestProgress {
-	p := TestProgress{Test: test, Needed: placement.BatchNeed(string(test.Kind)), PassNeed: placement.PassNeed(string(test.Kind))}
+func (h TestHandler) stored(ctx context.Context, testID pgtype.UUID) ([]db.LearningPathTestAnswer, []db.LearningPathTestQuestion, error) {
+	answers, err := h.q.ListLearningPathTestAnswers(ctx, testID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	questions, err := h.q.ListLearningPathTestQuestions(ctx, testID)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return answers, questions, nil
+}
+
+// progressOf folds the stored questions and answers into where the test
+// stands. Answers of passed levels stay in the table as history; only the
+// current level counts.
+func progressOf(test db.LearningPathTest, answers []db.LearningPathTestAnswer, questions []db.LearningPathTestQuestion) TestProgress {
+	p := TestProgress{Test: test, Needed: placement.BatchNeed(string(test.Kind))}
 
 	answered := map[string]bool{}
-
 	for _, a := range answers {
-		_, level, ok := placement.Find(test.Language, a.QuestionKey)
-		if !ok || level != placement.Level(test.Level) {
-			continue
-		}
-
 		answered[a.QuestionKey] = true
-		p.Asked++
+	}
 
-		if a.Correct {
-			p.Correct++
+	var level []db.LearningPathTestQuestion
+
+	for _, r := range questions {
+		if r.Level == test.Level {
+			level = append(level, r)
 		}
 	}
 
-	if test.Status == db.LearningPathTestStatusInProgress {
-		exclude := make(map[string]bool, len(answers))
-		for _, a := range answers {
-			exclude[a.QuestionKey] = true
+	if len(level) > 0 {
+		p.Needed = len(level)
+	}
+
+	correct := map[string]bool{}
+	for _, a := range answers {
+		correct[a.QuestionKey] = a.Correct
+	}
+
+	for _, r := range level {
+		if answered[r.QuestionKey] {
+			p.Asked++
+
+			if correct[r.QuestionKey] {
+				p.Correct++
+			}
+
+			continue
 		}
 
-		p.Questions = placement.Batch(test.Language, placement.Level(test.Level), exclude, p.Needed-p.Asked)
+		if test.Status == db.LearningPathTestStatusInProgress {
+			p.Questions = append(p.Questions, questionOf(r))
+		}
 	}
 
 	return p
@@ -181,9 +326,10 @@ type Answer struct {
 
 // AnswerBatch records a batch of answers and moves the ladder. Every key must
 // belong to the level the test is asking about now; re-sending a key is
-// ignored, so a retry is safe. When the level's batch is complete the test
-// either climbs or finishes, and a finished final test the learner passed
-// finishes the program with it.
+// ignored, so a retry is safe. When the level's batch is complete the examiner
+// (the learner's agent) decides: the test climbs, or it finishes with the level
+// the learner is placed at. A finished final test the learner passed finishes
+// the program with it.
 func (h TestHandler) Answer(ctx context.Context, userID, testID uuid.UUID, given []Answer) (TestProgress, error) {
 	test, err := h.q.GetLearningPathTest(ctx, db.GetLearningPathTestParams{ID: ids.ToPg(testID), UserID: ids.ToPg(userID)})
 	if db.IsNotFound(err) {
@@ -199,7 +345,7 @@ func (h TestHandler) Answer(ctx context.Context, userID, testID uuid.UUID, given
 	}
 
 	if len(given) == 0 || len(given) > placement.BatchNeed(string(test.Kind)) {
-		return TestProgress{}, apperr.NewInvalid("a batch of 1 to 8 answers")
+		return TestProgress{}, apperr.NewInvalid("a batch of 1 to 10 answers")
 	}
 
 	for _, a := range given {
@@ -212,9 +358,22 @@ func (h TestHandler) Answer(ctx context.Context, userID, testID uuid.UUID, given
 		}
 	}
 
+	_, rows, err := h.stored(ctx, test.ID)
+	if err != nil {
+		return TestProgress{}, err
+	}
+
+	onLevel := map[string]placement.Question{}
+
+	for _, r := range rows {
+		if r.Level == test.Level {
+			onLevel[r.QuestionKey] = questionOf(r)
+		}
+	}
+
 	for _, a := range given {
-		q, level, ok := placement.Find(test.Language, a.Key)
-		if !ok || level != placement.Level(test.Level) {
+		q, ok := onLevel[a.Key]
+		if !ok {
 			return TestProgress{}, apperr.NewInvalid("unknown question for this level: " + a.Key)
 		}
 
@@ -228,17 +387,25 @@ func (h TestHandler) Answer(ctx context.Context, userID, testID uuid.UUID, given
 		}
 	}
 
-	p, err := h.Progress(ctx, userID, testID)
+	answers, rows, err := h.stored(ctx, test.ID)
 	if err != nil {
-		return p, err
+		return TestProgress{}, err
 	}
 
+	p := progressOf(test, answers, rows)
 	if p.Asked < p.Needed {
 		return p, nil
 	}
 
+	level := placement.Level(test.Level)
+
+	call, err := h.judge(ctx, test, level, p, answers, rows)
+	if err != nil {
+		return p, err
+	}
+
 	now := db.Time(h.clock.Now())
-	passed := p.Correct >= p.PassNeed
+	climbs := call.Verdict == "climb"
 
 	// finish marks the test done in the store and on the value we hand back.
 	finish := func(reached string, ok bool) error {
@@ -256,11 +423,11 @@ func (h TestHandler) Answer(ctx context.Context, userID, testID uuid.UUID, given
 	}
 
 	if test.Kind == db.LearningPathTestKindFinal {
-		if err := finish(test.Level, passed); err != nil {
+		if err := finish(test.Level, climbs); err != nil {
 			return p, err
 		}
 
-		if passed && test.PathID.Valid {
+		if climbs && test.PathID.Valid {
 			if _, err := h.q.ArchiveLearningPath(ctx, db.ArchiveLearningPathParams{
 				ID:         test.PathID,
 				UserID:     test.UserID,
@@ -274,23 +441,86 @@ func (h TestHandler) Answer(ctx context.Context, userID, testID uuid.UUID, given
 		return p, nil
 	}
 
-	// Placement: a pass climbs, a fail lands on the level under the one that
-	// stopped the climb. Passing the top rung is finishing the ladder.
-	if passed {
-		if next, ok := placement.Next(placement.Level(test.Level)); ok {
-			if err := h.q.AdvanceLearningPathTest(ctx, db.AdvanceLearningPathTestParams{ID: test.ID, UserID: test.UserID, Level: string(next)}); err != nil {
-				return p, err
-			}
+	// Placement: a climb goes up a rung, a stop lands where the examiner placed
+	// the learner. Climbing the top rung is finishing the ladder.
+	if !climbs {
+		return p, finish(call.Level, false)
+	}
 
-			p.Test.Level = string(next)
-			p.Questions = placement.Batch(test.Language, next, nil, p.Needed)
-			p.Asked, p.Correct = 0, 0
-
-			return p, nil
-		}
-
+	next, ok := placement.Next(level)
+	if !ok {
 		return p, finish(test.Level, true)
 	}
 
-	return p, finish(string(placement.Below(placement.Level(test.Level))), false)
+	asked := make([]string, len(rows))
+	for i, r := range rows {
+		asked[i] = r.Prompt
+	}
+
+	questions, err := h.generate(ctx, ids.FromPg(test.UserID), string(test.Kind), test.Language, test.TranslationLanguage, next, asked)
+	if err != nil {
+		return p, err
+	}
+
+	if err := h.advance(ctx, test, next, questions); err != nil {
+		return p, err
+	}
+
+	p.Test.Level = string(next)
+	p.Questions = questions
+	p.Needed = len(questions)
+	p.Asked, p.Correct = 0, 0
+
+	return p, nil
+}
+
+// judge has the examiner read the finished batch of the level.
+func (h TestHandler) judge(ctx context.Context, test db.LearningPathTest, level placement.Level, p TestProgress, answers []db.LearningPathTestAnswer, rows []db.LearningPathTestQuestion) (verdict, error) {
+	chosen := map[string]db.LearningPathTestAnswer{}
+	for _, a := range answers {
+		chosen[a.QuestionKey] = a
+	}
+
+	var batch []judged
+
+	for _, r := range rows {
+		if a, ok := chosen[r.QuestionKey]; ok && r.Level == test.Level {
+			batch = append(batch, judged{question: questionOf(r), chosen: a.Answer, correct: a.Correct})
+		}
+	}
+
+	learned := learningcommands.LanguageName(test.Language)
+	native := learningcommands.LanguageName(test.TranslationLanguage)
+	system, prompt := testJudgePrompt(learned, native, string(test.Kind), level, batch)
+
+	var v verdict
+	if err := h.agent.completeJSON(ctx, ids.FromPg(test.UserID), system, prompt, &v, func() error {
+		return validateVerdict(&v, level, p.Asked, p.Correct)
+	}); err != nil {
+		return verdict{}, err
+	}
+
+	return v, nil
+}
+
+// advance moves the test up a rung together with the batch written for it.
+func (h TestHandler) advance(ctx context.Context, test db.LearningPathTest, next placement.Level, questions []placement.Question) error {
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		return err
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	tq := h.q.WithTx(tx)
+
+	if err := tq.AdvanceLearningPathTest(ctx, db.AdvanceLearningPathTestParams{ID: test.ID, UserID: test.UserID, Level: string(next)}); err != nil {
+		return err
+	}
+
+	if err := storeQuestions(ctx, tq, test.ID, next, questions); err != nil {
+		return err
+	}
+
+	return tx.Commit(ctx)
 }

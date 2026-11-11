@@ -11,7 +11,7 @@ import (
 	"learning_app/backend/internal/learningpath/queries"
 )
 
-// questionResponse is a bank question as the test-taker sees it: never the
+// questionResponse is a test question as the test-taker sees it: never the
 // answer.
 type questionResponse struct {
 	Key     string   `json:"key"`
@@ -48,7 +48,6 @@ type testResponse struct {
 	Asked               int                `json:"asked"`
 	Correct             int                `json:"correct"`
 	Needed              int                `json:"needed"`
-	PassNeed            int                `json:"passNeed"`
 	CreatedAt           time.Time          `json:"createdAt"`
 	CompletedAt         *time.Time         `json:"completedAt"`
 }
@@ -67,7 +66,6 @@ func testDTO(p commands.TestProgress) testResponse {
 		Asked:               p.Asked,
 		Correct:             p.Correct,
 		Needed:              p.Needed,
-		PassNeed:            p.PassNeed,
 		CreatedAt:           p.Test.CreatedAt.Time,
 	}
 

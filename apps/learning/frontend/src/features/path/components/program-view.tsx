@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { Path } from "../schemas"
+import { StartError } from "./start-error"
 import { TopicRunner } from "./topic-runner"
 
 const statusBadge: Record<
@@ -28,15 +29,20 @@ export function ProgramView({
   path,
   onStartFinal,
   onReset,
+  startError,
+  starting,
 }: {
   path: Path
   onStartFinal: () => void
   onReset: () => void
+  startError: string | null
+  starting: boolean
 }) {
   const t = useTranslations("path")
   const [openTopic, setOpenTopic] = useState<string | null>(null)
   const [confirmReset, setConfirmReset] = useState(false)
   const done = path.topics.filter((topic) => topic.status === "completed").length
+  const finished = path.topics.length > 0 && done === path.topics.length
 
   return (
     <div className="space-y-4">
@@ -54,9 +60,24 @@ export function ProgramView({
             {path.summary}
           </p>
         )}
+        {finished && (
+          <div className="border-border bg-muted/40 space-y-1 rounded-md border p-3.5">
+            <p className="text-sm font-semibold">{t("retakeTitle")}</p>
+            <p className="text-muted-foreground text-[13px] leading-relaxed">
+              {t("retakeHint")}
+            </p>
+          </div>
+        )}
+        {startError && <StartError message={startError} />}
         <div className="flex flex-wrap gap-2">
-          <Button size="lg" onClick={onStartFinal} className="px-4 text-[13px]">
-            {t("finalTest")}
+          <Button
+            size="lg"
+            variant={finished ? "default" : "secondary"}
+            onClick={onStartFinal}
+            disabled={starting}
+            className="px-4 text-[13px]"
+          >
+            {starting ? t("starting") : t(finished ? "retakeButton" : "finalTest")}
           </Button>
           {confirmReset ? (
             <>
