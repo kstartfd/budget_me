@@ -178,7 +178,12 @@ jobs:
         run: |
           go run ./cmd/migrate up
           go vet ./...
-          go test ./...
+          go test ./... 2>&1 | tee /tmp/test.log
+          rc=${PIPESTATUS[0]}
+          if [ "$rc" != 0 ]; then
+            grep -E -B2 -A8 -- '--- FAIL|^FAIL|panic' /tmp/test.log | head -40 | while IFS= read -r l; do echo "::error::$l"; done
+          fi
+          exit "$rc"
 
   test-learning-frontend:
     needs: changes
