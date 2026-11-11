@@ -796,6 +796,14 @@ type LearningScan struct {
 	CreatedAt pgtype.Timestamptz
 }
 
+type LearningTeacher struct {
+	ID                  pgtype.UUID
+	UserID              pgtype.UUID
+	Language            string
+	TranslationLanguage string
+	CreatedAt           pgtype.Timestamptz
+}
+
 type LearningToken struct {
 	ID              pgtype.UUID
 	UserID          pgtype.UUID

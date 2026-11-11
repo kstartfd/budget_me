@@ -1131,3 +1131,72 @@ func TestPathTopicChat(t *testing.T) {
 		t.Fatalf("a stranger's topic: %d", code)
 	}
 }
+
+// TestTeachersAreLanguagesStudiedSideBySide: a teacher is a language with the
+// language its rules are explained in, one per language. Starting a test makes
+// the teacher, an existing teacher keeps its pair, and the list says how far
+// each running program has got.
+func TestTeachersAreLanguagesStudiedSideBySide(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	list := func() []map[string]any {
+		code, body := request(t, e.e, "GET", "/api/v1/learning/path/teachers", e.session, nil)
+		if code != http.StatusOK {
+			t.Fatalf("teachers: %d %v", code, body)
+		}
+		return listPayload(t, body)
+	}
+
+	if got := list(); len(got) != 0 {
+		t.Fatalf("a new learner has no teachers: %v", got)
+	}
+
+	code, body := request(t, e.e, "POST", "/api/v1/learning/path/teachers", e.session, map[string]any{"language": "es", "translationLanguage": "ru"})
+	if code != http.StatusCreated || data(t, body)["language"] != "es" || data(t, body)["path"] != nil {
+		t.Fatalf("create: %d %v", code, body)
+	}
+	first := data(t, body)["id"]
+
+	// One teacher per language: asking again hands back the same one, with its own pair.
+	code, body = request(t, e.e, "POST", "/api/v1/learning/path/teachers", e.session, map[string]any{"language": "es", "translationLanguage": "en"})
+	if code != http.StatusCreated || data(t, body)["id"] != first || data(t, body)["translationLanguage"] != "ru" {
+		t.Fatalf("a second teacher for a language: %d %v", code, body)
+	}
+
+	code, _ = request(t, e.e, "POST", "/api/v1/learning/path/teachers", e.session, map[string]any{"language": "ru", "translationLanguage": "ru"})
+	if code != http.StatusBadRequest {
+		t.Fatalf("a language explained in itself must be refused: %d", code)
+	}
+
+	// A test for that language keeps the teacher's pair, whatever the request says.
+	code, body = request(t, e.e, "POST", "/api/v1/learning/path/tests", e.session, map[string]any{"language": "es", "translationLanguage": "en"})
+	if code != http.StatusCreated || data(t, body)["translationLanguage"] != "ru" {
+		t.Fatalf("the test must keep the teacher's pair: %d %v", code, body)
+	}
+
+	// Studying English makes its teacher; the program shows up on its card.
+	analyze(t, e, climb(t, e, "A1"))
+
+	teachers := list()
+	if len(teachers) != 2 {
+		t.Fatalf("want two teachers, got %v", teachers)
+	}
+	var english map[string]any
+	for _, teacher := range teachers {
+		if teacher["language"] == "en" {
+			english = teacher
+		}
+		if teacher["language"] == "es" && teacher["path"] != nil {
+			t.Fatalf("Spanish has no program yet: %v", teacher)
+		}
+	}
+	if english == nil || english["path"] == nil {
+		t.Fatalf("English must have a teacher with a program: %v", teachers)
+	}
+	summary := english["path"].(map[string]any)
+	if summary["level"] != "A1" || summary["topicsTotal"].(float64) != 6 || summary["topicsDone"].(float64) != 0 {
+		t.Fatalf("program summary: %v", summary)
+	}
+}

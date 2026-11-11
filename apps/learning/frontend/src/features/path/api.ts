@@ -4,6 +4,7 @@ import {
   pathExerciseSchema,
   pathLessonSchema,
   pathSchema,
+  pathTeacherSchema,
   pathTestSchema,
   pathTopicDetailSchema,
   pathTopicSchema,
@@ -11,6 +12,7 @@ import {
   type PathAttempt,
   type PathExercise,
   type PathLesson,
+  type PathTeacher,
   type PathTest,
   type PathTopic,
   type PathTopicDetail,
@@ -104,6 +106,21 @@ export const fetchActivePath = async (language: string): Promise<Path | null> =>
     throw error
   }
 }
+
+export const fetchTeachers = (): Promise<PathTeacher[]> =>
+  request("/path/teachers", "GET", (d) => pathTeacherSchema.array().parse(d))
+
+/** Adds a language to study; a language that has a teacher hands it back. */
+export const createTeacher = (
+  language: string,
+  translationLanguage: string,
+): Promise<PathTeacher> =>
+  request(
+    "/path/teachers",
+    "POST",
+    (d) => pathTeacherSchema.parse(d),
+    { language, translationLanguage },
+  )
 
 export const fetchHistory = (): Promise<Path[]> =>
   request("/path/history", "GET", (d) => pathSchema.array().parse(d))

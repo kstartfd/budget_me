@@ -10,6 +10,23 @@ export const pathQuestionSchema = z.object({
 })
 export type PathQuestion = z.infer<typeof pathQuestionSchema>
 
+/** A language the learner studies, with a line about its running program. */
+export const pathTeacherSchema = z.object({
+  id: z.string(),
+  language: z.string(),
+  translationLanguage: z.string(),
+  createdAt: z.string(),
+  path: z
+    .object({
+      id: z.string(),
+      level: z.string(),
+      topicsDone: z.number(),
+      topicsTotal: z.number(),
+    })
+    .nullable(),
+})
+export type PathTeacher = z.infer<typeof pathTeacherSchema>
+
 export const pathTestSchema = z.object({
   id: z.string(),
   kind: z.enum(["placement", "final"]),

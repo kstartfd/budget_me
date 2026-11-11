@@ -61,6 +61,15 @@ func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathT
 		return db.LearningPathTest{}, apperr.NewInvalid("invalid test kind")
 	}
 
+	// A teacher fixes the pair of its language: whatever the request says, the
+	// rules stay in the language the teacher was created with.
+	teacher, err := h.q.GetLearningTeacherByLanguage(ctx, db.GetLearningTeacherByLanguageParams{UserID: ids.ToPg(cmd.UserID), Language: cmd.Language})
+	if err == nil {
+		cmd.TranslationLanguage = teacher.TranslationLanguage
+	} else if !db.IsNotFound(err) {
+		return db.LearningPathTest{}, err
+	}
+
 	open, err := h.q.GetOpenLearningPathTest(ctx, db.GetOpenLearningPathTestParams{
 		UserID:   ids.ToPg(cmd.UserID),
 		Language: cmd.Language,
@@ -126,6 +135,17 @@ func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathT
 	defer func() { _ = tx.Rollback(ctx) }()
 
 	tq := h.q.WithTx(tx)
+
+	// Studying a language means having its teacher.
+	if _, err := tq.InsertLearningTeacher(ctx, db.InsertLearningTeacherParams{
+		ID:                  ids.ToPg(ids.New()),
+		UserID:              ids.ToPg(cmd.UserID),
+		Language:            cmd.Language,
+		TranslationLanguage: cmd.TranslationLanguage,
+		CreatedAt:           db.Time(h.clock.Now()),
+	}); err != nil {
+		return db.LearningPathTest{}, err
+	}
 
 	test, err := tq.InsertLearningPathTest(ctx, db.InsertLearningPathTestParams{
 		ID:                  ids.ToPg(ids.New()),

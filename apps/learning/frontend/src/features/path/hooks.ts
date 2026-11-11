@@ -40,11 +40,31 @@ export function usePath(language: string, nativeLanguage: string) {
   })
 
   const startFinal = useMutation({
-    mutationFn: () => api.startFinalTest(language, nativeLanguage),
+    mutationFn: (native?: string) => api.startFinalTest(language, native ?? nativeLanguage),
     onSuccess: refresh,
   })
 
   return { active, history, startPlacement, analyze, reset, startFinal }
+}
+
+/** The learner's teachers, and adding one. */
+export function useTeachers() {
+  const { user } = useAuth()
+  const client = useQueryClient()
+
+  const teachers = useQuery({
+    queryKey: ["path", user?.id, "teachers"],
+    queryFn: api.fetchTeachers,
+    enabled: !!user,
+  })
+
+  const create = useMutation({
+    mutationFn: (input: { language: string; translationLanguage: string }) =>
+      api.createTeacher(input.language, input.translationLanguage),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["path", user?.id] }),
+  })
+
+  return { teachers, create }
 }
 
 export function usePathTest(id: string | null) {

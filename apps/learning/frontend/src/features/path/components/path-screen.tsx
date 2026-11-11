@@ -3,46 +3,23 @@
 import { useEffect, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { IconChevronLeft } from "@tabler/icons-react"
 import { usePath } from "../hooks"
 import { ProgramView } from "./program-view"
 import { StartError } from "./start-error"
+import { TeachersList, type TeacherPair } from "./teachers-list"
 import { TestRunner } from "./test-runner"
 
-const languages = [
-  "en",
-  "es",
-  "fr",
-  "de",
-  "it",
-  "pt",
-  "pl",
-  "ru",
-  "be",
-  "uk",
-  "zh",
-  "ja",
-  "ko",
-  "tr",
-]
-
 /**
- * The teacher's program: a test, a program built from it, level by level.
- * Stands alone as a page, or embeds above the teacher chat: then the language
- * pair comes from the picked topic, the selectors and the page header are
- * left out, and onTestChange tells the host to get out of the way while a
- * test runs.
+ * The Teacher page: the learner's teachers side by side, and the program of
+ * the one they open. Embedded above the teacher chat the pair comes from the
+ * picked topic and there is no list: it is that one teacher's program, and
+ * onTestChange tells the host to get out of the way while a test runs.
  */
 export function PathScreen({
-  language: fixedLanguage,
-  translationLanguage: fixedNative,
+  language,
+  translationLanguage,
   embedded = false,
   onTestChange,
 }: {
@@ -51,17 +28,54 @@ export function PathScreen({
   embedded?: boolean
   onTestChange?: (testActive: boolean) => void
 }) {
+  if (embedded || language) {
+    return (
+      <Program
+        language={language ?? "en"}
+        nativeLanguage={translationLanguage ?? "ru"}
+        embedded={embedded}
+        onTestChange={onTestChange}
+      />
+    )
+  }
+
+  return <Teachers onTestChange={onTestChange} />
+}
+
+function Teachers({ onTestChange }: { onTestChange?: (testActive: boolean) => void }) {
+  const [selected, setSelected] = useState<TeacherPair | null>(null)
+
+  if (!selected) return <TeachersList onOpen={setSelected} />
+
+  return (
+    <Program
+      language={selected.language}
+      nativeLanguage={selected.translationLanguage}
+      onBack={() => setSelected(null)}
+      onTestChange={onTestChange}
+    />
+  )
+}
+
+function Program({
+  language,
+  nativeLanguage,
+  embedded = false,
+  onBack,
+  onTestChange,
+}: {
+  language: string
+  nativeLanguage: string
+  embedded?: boolean
+  onBack?: () => void
+  onTestChange?: (testActive: boolean) => void
+}) {
   const t = useTranslations("path")
   const locale = useLocale()
-  const [pickedLanguage, setPickedLanguage] = useState(fixedLanguage ?? "en")
-  const [pickedNative, setPickedNative] = useState(fixedNative ?? "ru")
-  // Embedded, the pair comes from the picked topic and the props win; alone,
-  // the user picks and the state is the source.
-  const language = fixedLanguage ?? pickedLanguage
-  const nativeLanguage = fixedNative ?? pickedNative
   const [testId, setTestId] = useState<string | null>(null)
   const path = usePath(language, nativeLanguage)
   const languageNames = new Intl.DisplayNames([locale], { type: "language" })
+  const languageName = languageNames.of(language) ?? language
   const active = path.active.data
 
   useEffect(() => {
@@ -97,44 +111,19 @@ export function PathScreen({
     >
       {!embedded && (
         <header className="space-y-1">
+          {onBack && (
+            <Button variant="ghost" size="sm" onClick={onBack} className="-ml-2 h-auto px-2 py-1 text-xs">
+              <IconChevronLeft size={14} />
+              {t("backToTeachers")}
+            </Button>
+          )}
           <h1 className="text-[22px] font-semibold tracking-[-0.01em] lg:text-2xl">
-            {t("title")}
+            {t("teacherTitle", { language: languageName })}
           </h1>
           <p className="text-muted-foreground text-xs leading-relaxed lg:text-sm">
-            {t("subtitle")}
+            {t("explainedIn", { language: languageNames.of(nativeLanguage) ?? nativeLanguage })}
           </p>
         </header>
-      )}
-
-      {!embedded && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {(
-            [
-              [language, setPickedLanguage, "language"],
-              [nativeLanguage, setPickedNative, "nativeLanguage"],
-            ] as const
-          ).map(([value, setValue, name]) => (
-            <label key={name} className="block space-y-1.5 text-[13px] font-medium">
-              <span>{t(name)}</span>
-              <Select
-                value={value}
-                onValueChange={setValue}
-                disabled={!!active}
-              >
-                <SelectTrigger className="bg-background h-10 w-full px-3 text-sm disabled:opacity-100">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {languages.map((code) => (
-                    <SelectItem key={code} value={code}>
-                      {languageNames.of(code) ?? code}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </label>
-          ))}
-        </div>
       )}
 
       {path.active.isPending ? (
@@ -146,7 +135,7 @@ export function PathScreen({
         <ProgramView
           path={active}
           onStartFinal={() =>
-            path.startFinal.mutate(undefined, {
+            path.startFinal.mutate(active.translationLanguage, {
               onSuccess: (test) => setTestId(test.id),
             })
           }
@@ -175,15 +164,13 @@ export function PathScreen({
         </section>
       )}
 
-      <History />
+      <History language={language} nativeLanguage={nativeLanguage} />
     </div>
   )
 }
 
-function History() {
+function History({ language, nativeLanguage }: { language: string; nativeLanguage: string }) {
   const t = useTranslations("path")
-  const [language] = useState("en")
-  const [nativeLanguage] = useState("ru")
   const { history } = usePath(language, nativeLanguage)
 
   if (!history.data || history.data.length === 0) return null
@@ -192,7 +179,9 @@ function History() {
     <section className="space-y-2.5">
       <h2 className="text-sm font-semibold">{t("history")}</h2>
       <ul className="space-y-2">
-        {history.data.map((item) => (
+        {history.data
+          .filter((item) => item.language === language)
+          .map((item) => (
           <li
             key={item.id}
             className="bg-background border-border flex items-center gap-3 rounded-lg border p-4"

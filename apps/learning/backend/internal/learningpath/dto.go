@@ -79,6 +79,38 @@ func testDTO(p commands.TestProgress) testResponse {
 	return out
 }
 
+// teacherResponse is a language the learner studies, with a line about its
+// running program.
+type teacherResponse struct {
+	ID                  string               `json:"id"`
+	Language            string               `json:"language"`
+	TranslationLanguage string               `json:"translationLanguage"`
+	CreatedAt           time.Time            `json:"createdAt"`
+	Path                *teacherPathResponse `json:"path"`
+}
+
+type teacherPathResponse struct {
+	ID         string `json:"id"`
+	Level      string `json:"level"`
+	TopicsDone int    `json:"topicsDone"`
+	TopicsAll  int    `json:"topicsTotal"`
+}
+
+func teacherDTO(v queries.TeacherView) teacherResponse {
+	out := teacherResponse{
+		ID:                  ids.FromPg(v.Teacher.ID).String(),
+		Language:            v.Teacher.Language,
+		TranslationLanguage: v.Teacher.TranslationLanguage,
+		CreatedAt:           v.Teacher.CreatedAt.Time,
+	}
+
+	if v.Path != nil {
+		out.Path = &teacherPathResponse{ID: v.Path.ID.String(), Level: v.Path.Level, TopicsDone: v.Path.Done, TopicsAll: v.Path.Total}
+	}
+
+	return out
+}
+
 // topicResponse is one step of the program.
 type topicResponse struct {
 	ID          string         `json:"id"`

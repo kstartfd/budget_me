@@ -45,6 +45,7 @@ type Controller struct {
 	exercises commands.ExerciseHandler
 	attempts  commands.AttemptHandler
 	topics    commands.TopicHandler
+	teachers  commands.TeacherHandler
 	lessons   commands.LessonHandler
 	resets    commands.ResetHandler
 	read      queries.ReadHandler
@@ -59,6 +60,7 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 		exercises: commands.NewExerciseHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
 		attempts:  commands.NewAttemptHandler(q, clk, commands.NewAgent(q, vault, agent), ratelimit.New(aiRate)),
 		topics:    commands.NewTopicHandler(q, clk),
+		teachers:  commands.NewTeacherHandler(q, clk),
 		lessons:   commands.NewLessonHandler(q, clk),
 		resets:    commands.NewResetHandler(q, clk),
 		read:      queries.NewReadHandler(q),
@@ -248,6 +250,43 @@ func (c *Controller) analyze(ctx echo.Context) error {
 	}
 
 	return httpx.Created(ctx, pathDTO(queries.PathWithTopics{Path: path, Topics: topics}))
+}
+
+// listTeachers lists the languages the learner studies, each with a line about
+// its running program.
+func (c *Controller) listTeachers(ctx echo.Context) error {
+	found, err := c.read.Teachers(ctx.Request().Context(), userOf(ctx))
+	if err != nil {
+		return err
+	}
+
+	out := make([]teacherResponse, len(found))
+	for i, v := range found {
+		out[i] = teacherDTO(v)
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, out)
+}
+
+// createTeacher adds a language to study, or hands back the one that exists.
+func (c *Controller) createTeacher(ctx echo.Context) error {
+	var req startTestRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	teacher, err := c.teachers.Create(ctx.Request().Context(), commands.CreateTeacher{
+		UserID:              userOf(ctx),
+		Language:            req.Language,
+		TranslationLanguage: req.TranslationLanguage,
+	})
+	if err != nil {
+		return err
+	}
+
+	return httpx.Created(ctx, teacherDTO(queries.TeacherView{Teacher: teacher}))
 }
 
 func (c *Controller) current(ctx echo.Context) error {

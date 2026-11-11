@@ -204,3 +204,22 @@ SELECT lesson_id::uuid AS lesson_id,
 FROM learning_path_attempts
 WHERE lesson_id = ANY(sqlc.arg(lesson_ids)::uuid[])
 GROUP BY lesson_id;
+
+-- name: ListLearningTeachers :many
+SELECT * FROM learning_teachers WHERE user_id = $1 ORDER BY created_at, id;
+
+-- name: GetLearningTeacherByLanguage :one
+SELECT * FROM learning_teachers WHERE user_id = $1 AND language = $2;
+
+-- name: InsertLearningTeacher :one
+INSERT INTO learning_teachers (id, user_id, language, translation_language, created_at)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (user_id, language) DO UPDATE SET language = learning_teachers.language
+RETURNING *;
+
+-- name: ListActiveLearningPaths :many
+SELECT * FROM learning_paths WHERE user_id = $1 AND status = 'active';
+
+-- name: CountLearningPathTopics :many
+SELECT path_id, count(*)::int AS total, (count(*) FILTER (WHERE status = 'completed'))::int AS done
+FROM learning_path_topics WHERE path_id = ANY($1::uuid[]) GROUP BY path_id;

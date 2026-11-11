@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"learning_app/backend/internal/apperr"
 	"learning_app/backend/internal/db"
@@ -100,4 +101,69 @@ func (h ReadHandler) Topic(ctx context.Context, userID, topicID uuid.UUID) (Topi
 	}
 
 	return TopicDetail{Path: path, Topic: topic, Exercises: exercises, Attempts: attempts}, nil
+}
+
+// TeacherView is a teacher with what its running program looks like: nothing
+// when no program runs.
+type TeacherView struct {
+	Teacher db.LearningTeacher
+	Path    *PathSummary
+}
+
+// PathSummary is a running program in one line: its level and how far along.
+type PathSummary struct {
+	ID    uuid.UUID
+	Level string
+	Done  int
+	Total int
+}
+
+// Teachers lists the learner's teachers, oldest first, each with the summary of
+// its running program.
+func (h ReadHandler) Teachers(ctx context.Context, userID uuid.UUID) ([]TeacherView, error) {
+	teachers, err := h.q.ListLearningTeachers(ctx, ids.ToPg(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	paths, err := h.q.ListActiveLearningPaths(ctx, ids.ToPg(userID))
+	if err != nil {
+		return nil, err
+	}
+
+	counts := map[uuid.UUID]db.CountLearningPathTopicsRow{}
+
+	if len(paths) > 0 {
+		pathIDs := make([]pgtype.UUID, len(paths))
+		for i, p := range paths {
+			pathIDs[i] = p.ID
+		}
+
+		rows, err := h.q.CountLearningPathTopics(ctx, pathIDs)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, r := range rows {
+			counts[ids.FromPg(r.PathID)] = r
+		}
+	}
+
+	byLanguage := map[string]db.LearningPath{}
+	for _, p := range paths {
+		byLanguage[p.Language] = p
+	}
+
+	out := make([]TeacherView, len(teachers))
+
+	for i, t := range teachers {
+		out[i] = TeacherView{Teacher: t}
+
+		if p, ok := byLanguage[t.Language]; ok {
+			c := counts[ids.FromPg(p.ID)]
+			out[i].Path = &PathSummary{ID: ids.FromPg(p.ID), Level: p.Level, Done: int(c.Done), Total: int(c.Total)}
+		}
+	}
+
+	return out, nil
 }

@@ -101,6 +101,37 @@ func (q *Queries) CompleteLearningPathTopicIfExercisesPassed(ctx context.Context
 	return result.RowsAffected(), nil
 }
 
+const countLearningPathTopics = `-- name: CountLearningPathTopics :many
+SELECT path_id, count(*)::int AS total, (count(*) FILTER (WHERE status = 'completed'))::int AS done
+FROM learning_path_topics WHERE path_id = ANY($1::uuid[]) GROUP BY path_id
+`
+
+type CountLearningPathTopicsRow struct {
+	PathID pgtype.UUID
+	Total  int32
+	Done   int32
+}
+
+func (q *Queries) CountLearningPathTopics(ctx context.Context, dollar_1 []pgtype.UUID) ([]CountLearningPathTopicsRow, error) {
+	rows, err := q.db.Query(ctx, countLearningPathTopics, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CountLearningPathTopicsRow{}
+	for rows.Next() {
+		var i CountLearningPathTopicsRow
+		if err := rows.Scan(&i.PathID, &i.Total, &i.Done); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const deleteLearningPathExercises = `-- name: DeleteLearningPathExercises :exec
 DELETE FROM learning_path_exercises WHERE topic_id = $1
 `
@@ -371,6 +402,28 @@ func (q *Queries) GetLearningPathTopic(ctx context.Context, arg GetLearningPathT
 		&i.Unit,
 		&i.Theory,
 		&i.Vocabulary,
+	)
+	return i, err
+}
+
+const getLearningTeacherByLanguage = `-- name: GetLearningTeacherByLanguage :one
+SELECT id, user_id, language, translation_language, created_at FROM learning_teachers WHERE user_id = $1 AND language = $2
+`
+
+type GetLearningTeacherByLanguageParams struct {
+	UserID   pgtype.UUID
+	Language string
+}
+
+func (q *Queries) GetLearningTeacherByLanguage(ctx context.Context, arg GetLearningTeacherByLanguageParams) (LearningTeacher, error) {
+	row := q.db.QueryRow(ctx, getLearningTeacherByLanguage, arg.UserID, arg.Language)
+	var i LearningTeacher
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Language,
+		&i.TranslationLanguage,
+		&i.CreatedAt,
 	)
 	return i, err
 }
@@ -761,6 +814,77 @@ func (q *Queries) InsertLearningPathTopic(ctx context.Context, arg InsertLearnin
 	return i, err
 }
 
+const insertLearningTeacher = `-- name: InsertLearningTeacher :one
+INSERT INTO learning_teachers (id, user_id, language, translation_language, created_at)
+VALUES ($1, $2, $3, $4, $5)
+ON CONFLICT (user_id, language) DO UPDATE SET language = learning_teachers.language
+RETURNING id, user_id, language, translation_language, created_at
+`
+
+type InsertLearningTeacherParams struct {
+	ID                  pgtype.UUID
+	UserID              pgtype.UUID
+	Language            string
+	TranslationLanguage string
+	CreatedAt           pgtype.Timestamptz
+}
+
+func (q *Queries) InsertLearningTeacher(ctx context.Context, arg InsertLearningTeacherParams) (LearningTeacher, error) {
+	row := q.db.QueryRow(ctx, insertLearningTeacher,
+		arg.ID,
+		arg.UserID,
+		arg.Language,
+		arg.TranslationLanguage,
+		arg.CreatedAt,
+	)
+	var i LearningTeacher
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Language,
+		&i.TranslationLanguage,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
+const listActiveLearningPaths = `-- name: ListActiveLearningPaths :many
+SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at, preferences FROM learning_paths WHERE user_id = $1 AND status = 'active'
+`
+
+func (q *Queries) ListActiveLearningPaths(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error) {
+	rows, err := q.db.Query(ctx, listActiveLearningPaths, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LearningPath{}
+	for rows.Next() {
+		var i LearningPath
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Language,
+			&i.TranslationLanguage,
+			&i.Level,
+			&i.Summary,
+			&i.Status,
+			&i.Source,
+			&i.PlacementTestID,
+			&i.CreatedAt,
+			&i.ArchivedAt,
+			&i.Preferences,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listLearningPathAttemptsByTopic = `-- name: ListLearningPathAttemptsByTopic :many
 SELECT a.id, a.exercise_id, a.user_id, a.answer, a.correct, a.feedback, a.created_at, a.lesson_id FROM learning_path_attempts a
 JOIN learning_path_exercises e ON e.id = a.exercise_id
@@ -1051,6 +1175,36 @@ func (q *Queries) ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID
 			&i.Unit,
 			&i.Theory,
 			&i.Vocabulary,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listLearningTeachers = `-- name: ListLearningTeachers :many
+SELECT id, user_id, language, translation_language, created_at FROM learning_teachers WHERE user_id = $1 ORDER BY created_at, id
+`
+
+func (q *Queries) ListLearningTeachers(ctx context.Context, userID pgtype.UUID) ([]LearningTeacher, error) {
+	rows, err := q.db.Query(ctx, listLearningTeachers, userID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LearningTeacher{}
+	for rows.Next() {
+		var i LearningTeacher
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.Language,
+			&i.TranslationLanguage,
+			&i.CreatedAt,
 		); err != nil {
 			return nil, err
 		}
