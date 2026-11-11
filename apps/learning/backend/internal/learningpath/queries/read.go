@@ -54,6 +54,25 @@ func (h ReadHandler) Active(ctx context.Context, userID uuid.UUID, language stri
 	return PathWithTopics{Path: path, Topics: topics}, nil
 }
 
+// PathByID returns a program of the learner with its topics.
+func (h ReadHandler) PathByID(ctx context.Context, userID, pathID uuid.UUID) (PathWithTopics, error) {
+	path, err := h.q.GetLearningPath(ctx, db.GetLearningPathParams{ID: ids.ToPg(pathID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return PathWithTopics{}, apperr.NewNotFound("program not found")
+	}
+
+	if err != nil {
+		return PathWithTopics{}, err
+	}
+
+	topics, err := h.q.ListLearningPathTopics(ctx, path.ID)
+	if err != nil {
+		return PathWithTopics{}, err
+	}
+
+	return PathWithTopics{Path: path, Topics: topics}, nil
+}
+
 // History returns every closed program, newest first, each with its topics.
 func (h ReadHandler) History(ctx context.Context, userID uuid.UUID) ([]PathWithTopics, error) {
 	paths, err := h.q.ListLearningPathHistory(ctx, ids.ToPg(userID))

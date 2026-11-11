@@ -141,6 +141,29 @@ func (q *Queries) DeleteLearningPathExercises(ctx context.Context, topicID pgtyp
 	return err
 }
 
+const finishLearningPathJob = `-- name: FinishLearningPathJob :exec
+UPDATE learning_path_jobs SET status = $2, path_id = $3, error = $4, updated_at = $5 WHERE id = $1
+`
+
+type FinishLearningPathJobParams struct {
+	ID        pgtype.UUID
+	Status    LearningPathJobStatus
+	PathID    pgtype.UUID
+	Error     string
+	UpdatedAt pgtype.Timestamptz
+}
+
+func (q *Queries) FinishLearningPathJob(ctx context.Context, arg FinishLearningPathJobParams) error {
+	_, err := q.db.Exec(ctx, finishLearningPathJob,
+		arg.ID,
+		arg.Status,
+		arg.PathID,
+		arg.Error,
+		arg.UpdatedAt,
+	)
+	return err
+}
+
 const finishLearningPathLesson = `-- name: FinishLearningPathLesson :one
 UPDATE learning_path_lessons SET
     status = 'finished',
@@ -254,6 +277,33 @@ func (q *Queries) GetActiveLearningPathLesson(ctx context.Context, userID pgtype
 	return i, err
 }
 
+const getLatestLearningPathJobByTest = `-- name: GetLatestLearningPathJobByTest :one
+SELECT id, user_id, test_id, status, preferences, path_id, error, created_at, updated_at FROM learning_path_jobs WHERE test_id = $1 AND user_id = $2
+ORDER BY created_at DESC, id LIMIT 1
+`
+
+type GetLatestLearningPathJobByTestParams struct {
+	TestID pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetLatestLearningPathJobByTest(ctx context.Context, arg GetLatestLearningPathJobByTestParams) (LearningPathJob, error) {
+	row := q.db.QueryRow(ctx, getLatestLearningPathJobByTest, arg.TestID, arg.UserID)
+	var i LearningPathJob
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TestID,
+		&i.Status,
+		&i.Preferences,
+		&i.PathID,
+		&i.Error,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
+}
+
 const getLearningPath = `-- name: GetLearningPath :one
 SELECT id, user_id, language, translation_language, level, summary, status, source, placement_test_id, created_at, archived_at, preferences FROM learning_paths WHERE id = $1 AND user_id = $2
 `
@@ -315,6 +365,32 @@ func (q *Queries) GetLearningPathExercise(ctx context.Context, arg GetLearningPa
 		&i.Answer,
 		&i.CreatedAt,
 		&i.Rule,
+	)
+	return i, err
+}
+
+const getLearningPathJob = `-- name: GetLearningPathJob :one
+SELECT id, user_id, test_id, status, preferences, path_id, error, created_at, updated_at FROM learning_path_jobs WHERE id = $1 AND user_id = $2
+`
+
+type GetLearningPathJobParams struct {
+	ID     pgtype.UUID
+	UserID pgtype.UUID
+}
+
+func (q *Queries) GetLearningPathJob(ctx context.Context, arg GetLearningPathJobParams) (LearningPathJob, error) {
+	row := q.db.QueryRow(ctx, getLearningPathJob, arg.ID, arg.UserID)
+	var i LearningPathJob
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TestID,
+		&i.Status,
+		&i.Preferences,
+		&i.PathID,
+		&i.Error,
+		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
@@ -623,6 +699,42 @@ type InsertLearningPathExerciseVersionParams struct {
 func (q *Queries) InsertLearningPathExerciseVersion(ctx context.Context, arg InsertLearningPathExerciseVersionParams) error {
 	_, err := q.db.Exec(ctx, insertLearningPathExerciseVersion, arg.ExerciseID, arg.TopicID, arg.Generation)
 	return err
+}
+
+const insertLearningPathJob = `-- name: InsertLearningPathJob :one
+INSERT INTO learning_path_jobs (id, user_id, test_id, status, preferences, created_at, updated_at)
+VALUES ($1, $2, $3, 'queued', $4, $5, $5) RETURNING id, user_id, test_id, status, preferences, path_id, error, created_at, updated_at
+`
+
+type InsertLearningPathJobParams struct {
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
+	TestID      pgtype.UUID
+	Preferences []byte
+	CreatedAt   pgtype.Timestamptz
+}
+
+func (q *Queries) InsertLearningPathJob(ctx context.Context, arg InsertLearningPathJobParams) (LearningPathJob, error) {
+	row := q.db.QueryRow(ctx, insertLearningPathJob,
+		arg.ID,
+		arg.UserID,
+		arg.TestID,
+		arg.Preferences,
+		arg.CreatedAt,
+	)
+	var i LearningPathJob
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TestID,
+		&i.Status,
+		&i.Preferences,
+		&i.PathID,
+		&i.Error,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+	)
+	return i, err
 }
 
 const insertLearningPathLesson = `-- name: InsertLearningPathLesson :one
@@ -1287,6 +1399,20 @@ func (q *Queries) ResumeLearningPathLesson(ctx context.Context, arg ResumeLearni
 		&i.PauseCount,
 	)
 	return i, err
+}
+
+const setLearningPathJobRunning = `-- name: SetLearningPathJobRunning :exec
+UPDATE learning_path_jobs SET status = 'running', updated_at = $2 WHERE id = $1
+`
+
+type SetLearningPathJobRunningParams struct {
+	ID        pgtype.UUID
+	UpdatedAt pgtype.Timestamptz
+}
+
+func (q *Queries) SetLearningPathJobRunning(ctx context.Context, arg SetLearningPathJobRunningParams) error {
+	_, err := q.db.Exec(ctx, setLearningPathJobRunning, arg.ID, arg.UpdatedAt)
+	return err
 }
 
 const startLearningPathTopic = `-- name: StartLearningPathTopic :execrows

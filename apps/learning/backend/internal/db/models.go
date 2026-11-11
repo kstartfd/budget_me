@@ -315,6 +315,50 @@ func (ns NullLearningPathExerciseKind) Value() (driver.Value, error) {
 	return string(ns.LearningPathExerciseKind), nil
 }
 
+type LearningPathJobStatus string
+
+const (
+	LearningPathJobStatusQueued  LearningPathJobStatus = "queued"
+	LearningPathJobStatusRunning LearningPathJobStatus = "running"
+	LearningPathJobStatusDone    LearningPathJobStatus = "done"
+	LearningPathJobStatusFailed  LearningPathJobStatus = "failed"
+)
+
+func (e *LearningPathJobStatus) Scan(src interface{}) error {
+	switch s := src.(type) {
+	case []byte:
+		*e = LearningPathJobStatus(s)
+	case string:
+		*e = LearningPathJobStatus(s)
+	default:
+		return fmt.Errorf("unsupported scan type for LearningPathJobStatus: %T", src)
+	}
+	return nil
+}
+
+type NullLearningPathJobStatus struct {
+	LearningPathJobStatus LearningPathJobStatus
+	Valid                 bool // Valid is true if LearningPathJobStatus is not NULL
+}
+
+// Scan implements the Scanner interface.
+func (ns *NullLearningPathJobStatus) Scan(value interface{}) error {
+	if value == nil {
+		ns.LearningPathJobStatus, ns.Valid = "", false
+		return nil
+	}
+	ns.Valid = true
+	return ns.LearningPathJobStatus.Scan(value)
+}
+
+// Value implements the driver Valuer interface.
+func (ns NullLearningPathJobStatus) Value() (driver.Value, error) {
+	if !ns.Valid {
+		return nil, nil
+	}
+	return string(ns.LearningPathJobStatus), nil
+}
+
 type LearningPathLessonStatus string
 
 const (
@@ -725,6 +769,18 @@ type LearningPathExerciseVersion struct {
 	ExerciseID pgtype.UUID
 	TopicID    pgtype.UUID
 	Generation int32
+}
+
+type LearningPathJob struct {
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
+	TestID      pgtype.UUID
+	Status      LearningPathJobStatus
+	Preferences []byte
+	PathID      pgtype.UUID
+	Error       string
+	CreatedAt   pgtype.Timestamptz
+	UpdatedAt   pgtype.Timestamptz
 }
 
 type LearningPathLesson struct {

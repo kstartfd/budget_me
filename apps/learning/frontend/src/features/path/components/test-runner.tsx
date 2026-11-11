@@ -1,12 +1,12 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import { IconChevronLeft } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { useMutation } from "@tanstack/react-query"
-import { analyzeTest, answerBatch } from "../api"
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { answerBatch, fetchJob, startBuild } from "../api"
 import { usePathTest } from "../hooks"
 import { LevelScale, nextLevel } from "./level-scale"
 import type { PathTest, Preferences } from "../schemas"
@@ -238,13 +238,29 @@ function Done({
   const [prefs, setPrefs] = useState<Preferences>({})
   // A passed final test confirms the level; the way on is the test of the next one.
   const next = test.kind === "final" && test.passed ? nextLevel(test.levelReached) : undefined
+  // The program is built in the background: the button only queues the job and
+  // this follows it, so closing the app does not lose the work.
+  const [jobId, setJobId] = useState<string | null>(null)
   const analyze = useMutation({
-    mutationFn: () => analyzeTest(test.id, prefs),
-    onSuccess: () => {
-      onAnalyzed()
-      onClose(true)
-    },
+    mutationFn: () => startBuild(test.id, prefs),
+    onSuccess: (job) => setJobId(job.id),
   })
+  const job = useQuery({
+    queryKey: ["path", "job", jobId],
+    queryFn: () => fetchJob(jobId as string),
+    enabled: jobId !== null,
+    refetchInterval: (query) =>
+      query.state.data?.status === "done" || query.state.data?.status === "failed" ? false : 1500,
+  })
+  const built = job.data?.status === "done"
+  const failure = job.data?.status === "failed" ? job.data.error : null
+  const building = analyze.isPending || (jobId !== null && !built && !failure && !job.isError)
+
+  useEffect(() => {
+    if (!built) return
+    onAnalyzed()
+    onClose(true)
+  }, [built, onAnalyzed, onClose])
 
   return (
     <div className="anim-fade mx-auto max-w-[560px] space-y-4 py-10 text-center lg:pt-16">
@@ -270,10 +286,13 @@ function Done({
       {test.kind === "placement" && (
         <Survey value={prefs} onChange={setPrefs} disabled={analyze.isPending} />
       )}
-      {analyze.isError && (
+      {(analyze.isError || failure || job.isError) && (
         <p role="alert" className="text-destructive text-sm">
-          {analyze.error.message}
+          {analyze.error?.message ?? failure ?? job.error?.message}
         </p>
+      )}
+      {building && (
+        <p className="text-muted-foreground text-[13px] leading-relaxed">{t("buildingHint")}</p>
       )}
       <div className="flex flex-wrap justify-center gap-3">
         {next && onNextLevel && (
@@ -281,17 +300,20 @@ function Done({
             {t("nextLevelTest", { level: next })}
           </Button>
         )}
-        <Button variant="secondary" onClick={() => onClose(analyze.isSuccess)}>
+        <Button variant="secondary" onClick={() => onClose(built)}>
           {t("exit")}
         </Button>
         {test.kind === "placement" && (
           <Button
-            onClick={() => analyze.mutate()}
+            onClick={() => {
+              setJobId(null)
+              analyze.mutate()
+            }}
             size="lg"
-            disabled={analyze.isPending}
+            disabled={building}
             className="px-4 text-[13px]"
           >
-            {t(analyze.isPending ? "analyzing" : "analyze")}
+            {t(building ? "analyzing" : failure ? "analyzeAgain" : "analyze")}
           </Button>
         )}
       </div>

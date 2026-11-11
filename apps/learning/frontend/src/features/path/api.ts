@@ -1,6 +1,7 @@
 import { readToken } from "@/features/auth"
 import {
   pathAttemptSchema,
+  pathJobSchema,
   pathExerciseSchema,
   pathLessonSchema,
   pathSchema,
@@ -10,6 +11,7 @@ import {
   pathTopicSchema,
   type Path,
   type PathAttempt,
+  type PathJob,
   type PathExercise,
   type PathLesson,
   type PathTeacher,
@@ -83,17 +85,25 @@ export const answerBatch = (
     answers,
   })
 
-/** Builds the program from a finished placement test. */
-export const analyzeTest = (
+/**
+ * Queues the building of the program from a finished placement test. It
+ * answers at once with a job: the agent works in the background, and asking
+ * again hands the same job back.
+ */
+export const startBuild = (
   id: string,
   preferences: Preferences = {},
-): Promise<Path> =>
+): Promise<PathJob> =>
   request(
     `/path/tests/${id}/analyze`,
     "POST",
-    (d) => pathSchema.parse(d),
+    (d) => pathJobSchema.parse(d),
     preferences,
   )
+
+/** How a build is going; a finished one carries its program. */
+export const fetchJob = (id: string): Promise<PathJob> =>
+  request(`/path/jobs/${id}`, "GET", (d) => pathJobSchema.parse(d))
 
 /** The active program of a language, or null when there is none. */
 export const fetchActivePath = async (language: string): Promise<Path | null> => {

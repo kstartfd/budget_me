@@ -453,6 +453,8 @@
       "placed": "Your level: {level}",
       "placedHint": "Now the teacher reads the test — the wrong answers above all — and writes your program.",
       "analyze": "Build my program",
+      "buildingHint": "The program is being built in the background. You can close the app: it finishes on its own and will be here when you come back.",
+      "analyzeAgain": "Try again",
       "analyzing": "The teacher is writing the program…",
       "finalPassed": "Level {level} confirmed",
       "finalPassedHint": "Program completed. Take the test for the next level: it starts right there.",

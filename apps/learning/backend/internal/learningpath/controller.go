@@ -42,6 +42,7 @@ var agentFailed = httpx.New(30004, http.StatusBadGateway, "the AI agent's answer
 type Controller struct {
 	tests     commands.TestHandler
 	analysis  commands.AnalyzeHandler
+	builds    commands.BuildHandler
 	exercises commands.ExerciseHandler
 	attempts  commands.AttemptHandler
 	topics    commands.TopicHandler
@@ -53,11 +54,15 @@ type Controller struct {
 	testLimit *ratelimit.Limiter
 }
 
-func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent commands.Completer) *Controller {
+func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent commands.Completer, prefetch int) *Controller {
+	analysis := commands.NewAnalyzeHandler(pool, q, clk, commands.NewAgent(q, vault, agent))
+	exercises := commands.NewExerciseHandler(pool, q, clk, commands.NewAgent(q, vault, agent))
+
 	return &Controller{
 		tests:     commands.NewTestHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
-		analysis:  commands.NewAnalyzeHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
-		exercises: commands.NewExerciseHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
+		analysis:  analysis,
+		builds:    commands.NewBuildHandler(q, clk, analysis, exercises, prefetch),
+		exercises: exercises,
 		attempts:  commands.NewAttemptHandler(q, clk, commands.NewAgent(q, vault, agent), ratelimit.New(aiRate)),
 		topics:    commands.NewTopicHandler(q, clk),
 		teachers:  commands.NewTeacherHandler(q, clk),
@@ -221,8 +226,10 @@ func (c *Controller) answer(ctx echo.Context) error {
 	return httpx.OK(ctx, testDTO(p))
 }
 
-// analyze has the learner's agent read the finished test and build the
-// program from it.
+// analyze queues the building of the program from a finished test and answers
+// at once with the job the screen follows: the agent works in the background,
+// so a closed tab or a dropped connection does not lose it. Asking again hands
+// the same job back.
 func (c *Controller) analyze(ctx echo.Context) error {
 	id, err := idParam(ctx, "test")
 	if err != nil {
@@ -237,19 +244,66 @@ func (c *Controller) analyze(ctx echo.Context) error {
 		}
 	}
 
+	// The slot is held for the whole run, so one learner never builds twice at once.
 	release, wait, ok := c.limit.Acquire(userOf(ctx))
 	if !ok {
 		return tooManyRequests(ctx, wait)
 	}
 
-	defer release()
+	job, created, err := c.builds.Enqueue(ctx.Request().Context(), commands.BuildProgram{UserID: userOf(ctx), TestID: id, Preferences: commands.Preferences(req)})
+	if err != nil {
+		release()
 
-	path, topics, err := c.analysis.Handle(ctx.Request().Context(), commands.Analyze{UserID: userOf(ctx), TestID: id, Preferences: commands.Preferences(req)})
-	if err = agentError(err); err != nil {
 		return err
 	}
 
-	return httpx.Created(ctx, pathDTO(queries.PathWithTopics{Path: path, Topics: topics}))
+	if created {
+		go func() {
+			defer release()
+
+			c.builds.Run(job)
+		}()
+	} else {
+		release()
+	}
+
+	return httpx.Accepted(ctx, c.jobDTO(ctx, job))
+}
+
+// job reports how a build is going, with the program once it exists.
+func (c *Controller) job(ctx echo.Context) error {
+	id, err := idParam(ctx, "job")
+	if err != nil {
+		return err
+	}
+
+	job, err := c.builds.Job(ctx.Request().Context(), userOf(ctx), id)
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, c.jobDTO(ctx, job))
+}
+
+// jobDTO renders a job; a finished one carries its program.
+func (c *Controller) jobDTO(ctx echo.Context, job db.LearningPathJob) jobResponse {
+	out := jobResponse{
+		ID:     ids.FromPg(job.ID).String(),
+		TestID: ids.FromPg(job.TestID).String(),
+		Status: string(job.Status),
+		Error:  job.Error,
+	}
+
+	if job.Status == db.LearningPathJobStatusDone && job.PathID.Valid {
+		if found, err := c.read.PathByID(ctx.Request().Context(), userOf(ctx), ids.FromPg(job.PathID)); err == nil {
+			dto := pathDTO(found)
+			out.Path = &dto
+		}
+	}
+
+	return out
 }
 
 // listTeachers lists the languages the learner studies, each with a line about

@@ -33,6 +33,7 @@ type Querier interface {
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
 	EnsureLearningChatForPathTopic(ctx context.Context, arg EnsureLearningChatForPathTopicParams) (LearningChat, error)
 	EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicChatParams) (LearningChat, error)
+	FinishLearningPathJob(ctx context.Context, arg FinishLearningPathJobParams) error
 	// Closing a lesson also closes a pause that was still open, so the paused
 	// time is never lost.
 	FinishLearningPathLesson(ctx context.Context, arg FinishLearningPathLessonParams) (LearningPathLesson, error)
@@ -40,6 +41,7 @@ type Querier interface {
 	GetActiveLearningPath(ctx context.Context, arg GetActiveLearningPathParams) (LearningPath, error)
 	GetActiveLearningPathLesson(ctx context.Context, userID pgtype.UUID) (LearningPathLesson, error)
 	GetArchivedTopicChat(ctx context.Context, arg GetArchivedTopicChatParams) (LearningChat, error)
+	GetLatestLearningPathJobByTest(ctx context.Context, arg GetLatestLearningPathJobByTestParams) (LearningPathJob, error)
 	GetLearningAISettings(ctx context.Context, userID pgtype.UUID) (LearningAiSetting, error)
 	GetLearningAudioCache(ctx context.Context, arg GetLearningAudioCacheParams) (LearningAudioCache, error)
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
@@ -50,6 +52,7 @@ type Querier interface {
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
 	GetLearningPath(ctx context.Context, arg GetLearningPathParams) (LearningPath, error)
 	GetLearningPathExercise(ctx context.Context, arg GetLearningPathExerciseParams) (LearningPathExercise, error)
+	GetLearningPathJob(ctx context.Context, arg GetLearningPathJobParams) (LearningPathJob, error)
 	GetLearningPathLesson(ctx context.Context, arg GetLearningPathLessonParams) (LearningPathLesson, error)
 	GetLearningPathTest(ctx context.Context, arg GetLearningPathTestParams) (LearningPathTest, error)
 	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
@@ -69,6 +72,7 @@ type Querier interface {
 	InsertLearningPathAttempt(ctx context.Context, arg InsertLearningPathAttemptParams) (LearningPathAttempt, error)
 	InsertLearningPathExercise(ctx context.Context, arg InsertLearningPathExerciseParams) (LearningPathExercise, error)
 	InsertLearningPathExerciseVersion(ctx context.Context, arg InsertLearningPathExerciseVersionParams) error
+	InsertLearningPathJob(ctx context.Context, arg InsertLearningPathJobParams) (LearningPathJob, error)
 	InsertLearningPathLesson(ctx context.Context, arg InsertLearningPathLessonParams) (LearningPathLesson, error)
 	InsertLearningPathTest(ctx context.Context, arg InsertLearningPathTestParams) (LearningPathTest, error)
 	InsertLearningPathTestAnswer(ctx context.Context, arg InsertLearningPathTestAnswerParams) (int64, error)
@@ -116,6 +120,7 @@ type Querier interface {
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
 	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error
+	SetLearningPathJobRunning(ctx context.Context, arg SetLearningPathJobRunningParams) error
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
 	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)
 	UnlockLearningChat(ctx context.Context, id pgtype.UUID) error

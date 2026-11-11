@@ -84,6 +84,16 @@ export const pathSchema = z.object({
 })
 export type Path = z.infer<typeof pathSchema>
 
+/** The building of a program: it runs in the background on the learner's agent. */
+export const pathJobSchema = z.object({
+  id: z.string(),
+  testId: z.string(),
+  status: z.enum(["queued", "running", "done", "failed"]),
+  error: z.string(),
+  path: pathSchema.nullable(),
+})
+export type PathJob = z.infer<typeof pathJobSchema>
+
 /** One guided exercise, including the rule and answer available before trying. */
 export const pathExerciseSchema = z.object({
   id: z.string(),

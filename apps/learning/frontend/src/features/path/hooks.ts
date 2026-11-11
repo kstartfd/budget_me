@@ -29,11 +29,6 @@ export function usePath(language: string, nativeLanguage: string) {
     onSuccess: refresh,
   })
 
-  const analyze = useMutation({
-    mutationFn: (id: string) => api.analyzeTest(id),
-    onSuccess: refresh,
-  })
-
   const reset = useMutation({
     mutationFn: () => api.resetPath(language),
     onSuccess: refresh,
@@ -44,7 +39,7 @@ export function usePath(language: string, nativeLanguage: string) {
     onSuccess: refresh,
   })
 
-  return { active, history, startPlacement, analyze, reset, startFinal }
+  return { active, history, startPlacement, reset, startFinal }
 }
 
 /** The learner's teachers, and adding one. */

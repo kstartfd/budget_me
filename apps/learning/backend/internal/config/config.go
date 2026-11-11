@@ -38,6 +38,11 @@ type Config struct {
 	// ChatRate is how fast one user may use the chat. Never read from the
 	// environment: blank means the defaults, and tests loosen or tighten it.
 	ChatRate ratelimit.Config
+	// PathPrefetch is how many topics of a new program get their exercises
+	// written in the background right after it is built. Never read from the
+	// environment: Load sets the default, tests leave it at zero so the stub
+	// provider only sees the calls a test makes itself.
+	PathPrefetch int
 }
 
 func Load() (Config, error) {
@@ -52,6 +57,7 @@ func Load() (Config, error) {
 		TelegramBotToken:     os.Getenv("TELEGRAM_BOT_TOKEN"),
 		TelegramMiniAppURL:   value("TELEGRAM_MINIAPP_URL", "http://localhost:3001"),
 		AudioCacheDir:        value("AUDIO_CACHE_DIR", "/var/lib/learning/audio"),
+		PathPrefetch:         3,
 	}
 	if cfg.DatabaseURL == "" {
 		return cfg, errors.New("DATABASE_URL is required")

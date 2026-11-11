@@ -208,6 +208,14 @@ func setup(t *testing.T) env {
 
 func setupWith(t *testing.T, defaultReply string) env {
 	t.Helper()
+	return setupPrefetch(t, defaultReply, 0)
+}
+
+// setupPrefetch is setupWith with the background preparation of the first
+// exercise sets switched on, which the other tests keep off so the stub only
+// sees the calls they make themselves.
+func setupPrefetch(t *testing.T, defaultReply string, prefetch int) env {
+	t.Helper()
 
 	pool, q := testdb.Pool(t)
 	user := testdb.NewUser(t, pool, q, time.Now().UTC(), 1)
@@ -217,7 +225,7 @@ func setupWith(t *testing.T, defaultReply string) env {
 	providers := httptest.NewServer(http.HandlerFunc(provider.serve))
 	t.Cleanup(providers.Close)
 
-	cfg := config.Config{AuthSecret: authSecret, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL}}
+	cfg := config.Config{AuthSecret: authSecret, PathPrefetch: prefetch, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL}}
 
 	return env{e: server.New(cfg, pool, testdb.AccountPool(t)), q: q, pool: pool, user: user, session: raw, provider: provider}
 }
@@ -380,13 +388,45 @@ const programReply = `{"summary":"Solid A1 with clear A2 gaps.","topics":[
 	{"id":"a1-vocab-food","why":"Слова для кафе и магазина."},
 	{"id":"a1-reading-notices","why":"Чтение коротких объявлений."}]}`
 
-func analyze(t *testing.T, e env, testID string) map[string]any {
+// startBuild asks for the program of a finished test; it answers at once with
+// a job.
+func startBuild(t *testing.T, e env, testID string) map[string]any {
 	t.Helper()
 	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests/"+testID+"/analyze", e.session, nil)
-	if code != http.StatusCreated {
+	if code != http.StatusAccepted {
 		t.Fatalf("analyze: %d %v", code, body)
 	}
 	return data(t, body)
+}
+
+// waitJob follows a build until it is done or failed.
+func waitJob(t *testing.T, e env, id string) map[string]any {
+	t.Helper()
+	deadline := time.Now().Add(15 * time.Second)
+	for {
+		code, body := request(t, e.e, "GET", "/api/v1/learning/path/jobs/"+id, e.session, nil)
+		if code != http.StatusOK {
+			t.Fatalf("job: %d %v", code, body)
+		}
+		job := data(t, body)
+		if job["status"] == "done" || job["status"] == "failed" {
+			return job
+		}
+		if time.Now().After(deadline) {
+			t.Fatalf("the job never finished: %v", job)
+		}
+		time.Sleep(15 * time.Millisecond)
+	}
+}
+
+// analyze builds the program of a test and returns it.
+func analyze(t *testing.T, e env, testID string) map[string]any {
+	t.Helper()
+	job := waitJob(t, e, startBuild(t, e, testID)["id"].(string))
+	if job["status"] != "done" || job["path"] == nil {
+		t.Fatalf("analyze: %v", job)
+	}
+	return job["path"].(map[string]any)
 }
 
 // TestPlacementBuildsAProgram walks the whole front half: test, climb, fail,
@@ -473,10 +513,107 @@ func TestPlannerStaysWithinTheLearnersLevel(t *testing.T) {
 	tooHigh := strings.Replace(programReply, "a1-articles", "b2-wish", 1)
 	e.provider.enqueue(tooHigh, tooHigh)
 
+	job := waitJob(t, e, startBuild(t, e, climb(t, e, "A1"))["id"].(string))
+	if job["status"] != "failed" || !strings.Contains(job["error"].(string), "could not be read") {
+		t.Fatalf("a topic far above the learner must fail the build: %v", job)
+	}
+	if job["path"] != nil {
+		t.Fatalf("a failed build left a program: %v", job)
+	}
+}
+
+// TestBuildRunsInTheBackground: the request only queues a job. Asking again
+// hands the same job back, while it runs and after it is done, so a double tap
+// never builds two programs.
+func TestBuildRunsInTheBackground(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
 	testID := climb(t, e, "A1")
-	code, body := request(t, e.e, "POST", "/api/v1/learning/path/tests/"+testID+"/analyze", e.session, nil)
-	if code != http.StatusBadGateway {
-		t.Fatalf("a topic far above the learner must be refused: %d %v", code, body)
+
+	first := startBuild(t, e, testID)
+	if first["status"] != "queued" && first["status"] != "running" && first["status"] != "done" {
+		t.Fatalf("job: %v", first)
+	}
+
+	again := startBuild(t, e, testID)
+	if again["id"] != first["id"] {
+		t.Fatalf("a second ask must hand back the same job: %v %v", first, again)
+	}
+
+	done := waitJob(t, e, first["id"].(string))
+	if done["status"] != "done" || len(done["path"].(map[string]any)["topics"].([]any)) != 6 {
+		t.Fatalf("the build: %v", done)
+	}
+
+	after := startBuild(t, e, testID)
+	if after["id"] != first["id"] || after["status"] != "done" {
+		t.Fatalf("a finished build must be handed back, not made twice: %v", after)
+	}
+
+	// One program, not two.
+	code, body := request(t, e.e, "GET", "/api/v1/learning/path/teachers", e.session, nil)
+	if code != http.StatusOK {
+		t.Fatalf("teachers: %d %v", code, body)
+	}
+}
+
+// TestFailedBuildCanBeStartedOver: a build that failed says why, and asking
+// again after the agent is back makes a new job and a program.
+func TestFailedBuildCanBeStartedOver(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault("I cannot plan that.")
+
+	testID := climb(t, e, "A1")
+	failed := waitJob(t, e, startBuild(t, e, testID)["id"].(string))
+	if failed["status"] != "failed" || failed["error"] == "" {
+		t.Fatalf("a build the agent could not do must fail with a reason: %v", failed)
+	}
+
+	e.provider.setDefault(programReply)
+	retry := startBuild(t, e, testID)
+	if retry["id"] == failed["id"] {
+		t.Fatalf("a failed build must be started over as a new job: %v", retry)
+	}
+	if done := waitJob(t, e, retry["id"].(string)); done["status"] != "done" {
+		t.Fatalf("the retry: %v", done)
+	}
+}
+
+// TestBuildPreparesTheFirstExercises: once the program is saved the first
+// topics get their exercises written in the background, and nobody has started
+// those topics, so they stay as they were.
+func TestBuildPreparesTheFirstExercises(t *testing.T) {
+	e := setupPrefetch(t, "", 2)
+	chooseAgent(t, e)
+
+	testID := climb(t, e, "A1")
+	e.provider.enqueue(programReply, exercisesReply, exercisesReply)
+
+	path := analyze(t, e, testID)
+	topics := path["topics"].([]any)
+	first := topics[0].(map[string]any)["id"].(string)
+	third := topics[2].(map[string]any)["id"].(string)
+
+	deadline := time.Now().Add(15 * time.Second)
+	for {
+		detail := topicDetail(t, e, first)
+		if len(detail["exercises"].([]any)) > 0 {
+			if detail["topic"].(map[string]any)["status"] != "not_started" {
+				t.Fatalf("preparing a set must not start the topic: %v", detail["topic"])
+			}
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("the first topic's exercises were never prepared")
+		}
+		time.Sleep(20 * time.Millisecond)
+	}
+
+	if n := len(topicDetail(t, e, third)["exercises"].([]any)); n != 0 {
+		t.Fatalf("only the first two topics are prepared, the third has %d exercises", n)
 	}
 }
 

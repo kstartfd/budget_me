@@ -79,6 +79,16 @@ func testDTO(p commands.TestProgress) testResponse {
 	return out
 }
 
+// jobResponse is the building of a program: queued, running, done (with the
+// program) or failed (with why).
+type jobResponse struct {
+	ID     string        `json:"id"`
+	TestID string        `json:"testId"`
+	Status string        `json:"status"`
+	Error  string        `json:"error"`
+	Path   *pathResponse `json:"path"`
+}
+
 // teacherResponse is a language the learner studies, with a line about its
 // running program.
 type teacherResponse struct {

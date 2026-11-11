@@ -21,6 +21,9 @@ type GenerateExercises struct {
 	UserID     uuid.UUID
 	TopicID    uuid.UUID
 	Regenerate bool
+	// Prefetch writes the set ahead of the learner: the topic stays as it was,
+	// since nobody has started it yet.
+	Prefetch bool
 }
 
 type ExerciseHandler struct {
@@ -135,7 +138,7 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 		}
 	}
 
-	if topic.Status == db.LearningPathTopicStatusNotStarted || topic.Status == db.LearningPathTopicStatusCompleted {
+	if !cmd.Prefetch && (topic.Status == db.LearningPathTopicStatusNotStarted || topic.Status == db.LearningPathTopicStatusCompleted) {
 		if _, err := tq.StartLearningPathTopic(ctx, db.StartLearningPathTopicParams{ID: topic.ID, PathID: topic.PathID}); err != nil {
 			return nil, err
 		}

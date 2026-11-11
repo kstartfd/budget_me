@@ -223,3 +223,20 @@ SELECT * FROM learning_paths WHERE user_id = $1 AND status = 'active';
 -- name: CountLearningPathTopics :many
 SELECT path_id, count(*)::int AS total, (count(*) FILTER (WHERE status = 'completed'))::int AS done
 FROM learning_path_topics WHERE path_id = ANY($1::uuid[]) GROUP BY path_id;
+
+-- name: InsertLearningPathJob :one
+INSERT INTO learning_path_jobs (id, user_id, test_id, status, preferences, created_at, updated_at)
+VALUES ($1, $2, $3, 'queued', $4, $5, $5) RETURNING *;
+
+-- name: GetLearningPathJob :one
+SELECT * FROM learning_path_jobs WHERE id = $1 AND user_id = $2;
+
+-- name: GetLatestLearningPathJobByTest :one
+SELECT * FROM learning_path_jobs WHERE test_id = $1 AND user_id = $2
+ORDER BY created_at DESC, id LIMIT 1;
+
+-- name: SetLearningPathJobRunning :exec
+UPDATE learning_path_jobs SET status = 'running', updated_at = $2 WHERE id = $1;
+
+-- name: FinishLearningPathJob :exec
+UPDATE learning_path_jobs SET status = $2, path_id = $3, error = $4, updated_at = $5 WHERE id = $1;
