@@ -370,6 +370,8 @@
     "deleteTeacherWithProgram": "Delete the {language} teacher? The running program is not lost: it goes to the history.",
     "deleteConfirm": "Delete",
     "deleting": "Deleting…",
+    "scaleProgram": "What the program is made of",
+    "scaleDone": "{done} of {total} done",
     "teachersTitle": "My teachers",
     "teachersSubtitle": "Each language has its own teacher, program and level.",
     "addTeacher": "Add a teacher",
@@ -415,7 +417,9 @@
       "grammar": "Grammar",
       "vocabulary": "Vocabulary",
       "reading": "Reading",
-      "writing": "Writing"
+      "writing": "Writing",
+      "listening": "Listening",
+      "speaking": "Speaking"
     },
     "test": {
       "loading": "Loading the test…",
@@ -501,6 +505,7 @@
       "writePlaceholder": "Write 1–3 sentences",
       "sampleAnswer": "Sample answer",
       "audioError": "Could not play",
+      "phrases": "Phrases",
       "showAnswer": "Show answer",
       "hideAnswer": "Hide answer",
       "correctAnswer": "Correct answer",

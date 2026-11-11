@@ -104,6 +104,7 @@ export function TopicRunner({ topicId }: { topicId: string }) {
       {topic.vocabulary.length > 0 && (
         <Vocabulary
           topicId={topicId}
+          heading={t(topic.skill === "listening" || topic.skill === "speaking" ? "phrases" : "vocabulary")}
           words={topic.vocabulary}
           topicTitle={topic.title}
           notebookId={chatTopic?.id}
@@ -574,12 +575,14 @@ type SaveEntry = ReturnType<typeof useLearning>["saveEntry"]
  * the language pair in one tap, and the whole list in one more. */
 function Vocabulary({
   topicId,
+  heading,
   words,
   topicTitle,
   notebookId,
   saveEntry,
 }: {
   topicId: string
+  heading: string
   words: { word: string; translation: string }[]
   topicTitle: string
   notebookId?: string
@@ -598,7 +601,7 @@ function Vocabulary({
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
         <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
-          {t("vocabulary")}
+          {heading}
         </p>
         {notebookId && (
           <Button

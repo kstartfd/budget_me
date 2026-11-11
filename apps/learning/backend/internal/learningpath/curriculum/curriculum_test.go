@@ -66,7 +66,7 @@ func TestLibraryIsWellFormed(t *testing.T) {
 		}
 
 		// Themes and reading need their words: that is what they teach.
-		if (topic.Skill == "vocabulary" || topic.Skill == "reading") && len(topic.Vocabulary) < 6 {
+		if (topic.Skill == "vocabulary" || topic.Skill == "reading" || topic.Skill == "listening" || topic.Skill == "speaking") && len(topic.Vocabulary) < 6 {
 			t.Errorf("%s: %s topics need at least 6 words, has %d", topic.ID, topic.Skill, len(topic.Vocabulary))
 		}
 
@@ -87,15 +87,20 @@ func TestLibraryIsWellFormed(t *testing.T) {
 		perLevel[topic.Level][topic.Skill]++
 	}
 
-	// A learner at any level needs grammar, words, reading and writing to draw from.
+	// A learner at any level needs grammar, words, reading, writing, listening and
+	// speaking to draw from.
 	for _, level := range []placement.Level{placement.A1, placement.A2, placement.B1, placement.B2} {
 		counts := perLevel[string(level)]
+
+		if counts["listening"] < 2 || counts["speaking"] < 2 {
+			t.Errorf("%s has %d listening and %d speaking topics, want at least 2 of each", level, counts["listening"], counts["speaking"])
+		}
 
 		if counts["grammar"] < 8 {
 			t.Errorf("%s has %d grammar topics, want at least 8", level, counts["grammar"])
 		}
 
-		for _, skill := range []string{"vocabulary", "reading", "writing"} {
+		for _, skill := range []string{"vocabulary", "reading", "writing", "listening", "speaking"} {
 			if counts[skill] < 1 {
 				t.Errorf("%s has no %s topic", level, skill)
 			}

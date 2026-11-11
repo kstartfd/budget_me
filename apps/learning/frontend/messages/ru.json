@@ -370,6 +370,8 @@
     "deleteTeacherWithProgram": "Удалить учителя «{language}»? Идущая программа не пропадёт: она уйдёт в историю.",
     "deleteConfirm": "Удалить",
     "deleting": "Удаляем…",
+    "scaleProgram": "Состав программы",
+    "scaleDone": "Пройдено {done} из {total}",
     "teachersTitle": "Мои учителя",
     "teachersSubtitle": "У каждого языка свой учитель, своя программа и свой уровень.",
     "addTeacher": "Добавить учителя",
@@ -415,7 +417,9 @@
       "grammar": "Грамматика",
       "vocabulary": "Лексика",
       "reading": "Чтение",
-      "writing": "Письмо"
+      "writing": "Письмо",
+      "listening": "Слушание",
+      "speaking": "Говорение"
     },
     "test": {
       "loading": "Загружаем тест…",
@@ -501,6 +505,7 @@
       "writePlaceholder": "Напишите 1–3 предложения",
       "sampleAnswer": "Образец ответа",
       "audioError": "Не удалось воспроизвести",
+      "phrases": "Фразы",
       "showAnswer": "Показать ответ",
       "hideAnswer": "Скрыть ответ",
       "correctAnswer": "Правильный ответ",

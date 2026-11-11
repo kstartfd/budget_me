@@ -189,5 +189,90 @@
     "goal": "Написать формальное письмо и структурированное эссе с аргументами.",
     "theory": "Формальное письмо начинается с Dear Sir/Madam или Dear Mr Smith и заканчивается Yours faithfully (если имени нет) или Yours sincerely (если имя известно). Без сокращений (I am, а не I'm), без разговорных слов. Эссе: вступление с тезисом, 2–3 абзаца с аргументами и примерами, вывод. Связки: Firstly, Moreover, However, In conclusion. Избегайте повторов: используйте синонимы и сложные конструкции.",
     "tags": ["письмо", "формальное письмо", "эссе", "структура"]
+  },
+  {
+    "id": "b2-listening-lectures",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем лекции и презентации",
+    "goal": "Понять структуру лекции, выделить тезис и главные аргументы.",
+    "theory": "В лекции есть структура: вступление, основные пункты, вывод. Слушайте слова-маркеры: firstly, moreover, in conclusion. Ведите краткие заметки ключевыми словами, а не целыми фразами. Определите тезис и аргументы, примеры можно пропускать. Если потеряли нить, дождитесь слов-маркеров: они возвращают к структуре.",
+    "vocabulary": [
+      {"word": "to sum up", "translation": "подводя итог"},
+      {"word": "it's worth noting that", "translation": "стоит отметить, что"},
+      {"word": "as a result", "translation": "в результате"},
+      {"word": "turning to", "translation": "переходя к"},
+      {"word": "in other words", "translation": "другими словами"},
+      {"word": "the key point is…", "translation": "ключевой момент в том, что…"}
+    ],
+    "tags": ["аудирование", "лекции", "презентации", "заметки"]
+  },
+  {
+    "id": "b2-listening-fast-speech",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем быструю и неформальную речь",
+    "goal": "Понимать живую разговорную речь, где слова сливаются и сокращаются.",
+    "theory": "В живой речи слова сливаются: want to превращается в wanna, going to в gonna, did you в didja. Слабые звуки пропадают. Тренируйтесь слушать фразы целиком, а не по словам, и угадывать по контексту. Не пишите такие формы в письме и формальной речи, но узнавать их на слух нужно уверенно.",
+    "vocabulary": [
+      {"word": "gonna", "translation": "going to (собираюсь)"},
+      {"word": "wanna", "translation": "want to (хочу)"},
+      {"word": "kinda", "translation": "kind of (вроде, типа)"},
+      {"word": "gotta", "translation": "have got to (должен)"},
+      {"word": "lemme", "translation": "let me (позвольте мне)"},
+      {"word": "dunno", "translation": "I don't know (не знаю)"}
+    ],
+    "tags": ["аудирование", "разговорная речь", "сокращения"]
+  },
+  {
+    "id": "b2-speaking-discussion",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: дискуссия и аргументация",
+    "goal": "Вести дискуссию: высказать позицию, привести довод, уступить и подвести итог.",
+    "theory": "В дискуссии сначала озвучьте позицию, затем приведите аргумент и пример, затем подведите итог. Для уступки: admittedly, granted. Для сомнения: I'm not convinced that… Выражения-связки делают речь убедительной и дают время подумать. Репетируйте вслух: аргумент должен звучать за 30 секунд.",
+    "vocabulary": [
+      {"word": "I'd argue that…", "translation": "Я бы сказал, что…"},
+      {"word": "Admittedly…", "translation": "Надо признать…"},
+      {"word": "I'm not convinced that…", "translation": "Я не уверен, что…"},
+      {"word": "That said…", "translation": "Тем не менее…"},
+      {"word": "What I mean is…", "translation": "Я имею в виду, что…"},
+      {"word": "To put it differently…", "translation": "Иначе говоря…"}
+    ],
+    "tags": ["говорение", "дискуссия", "аргументы"]
+  },
+  {
+    "id": "b2-speaking-interview",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: собеседование и презентация",
+    "goal": "Уверенно рассказать о своём опыте, достижениях и планах на собеседовании или презентации.",
+    "theory": "На собеседовании отвечайте по схеме: ситуация, действие, результат. Говорите о достижениях в Past Simple и о планах в Future. Звучите уверенно: I managed to…, I was responsible for… Избегайте слов-паразитов и длинных пауз, лучше короткая фраза-связка. Прогоните ответ вслух несколько раз.",
+    "vocabulary": [
+      {"word": "I was responsible for…", "translation": "Я отвечал за…"},
+      {"word": "I managed to…", "translation": "Мне удалось…"},
+      {"word": "My greatest strength is…", "translation": "Моя сильная сторона…"},
+      {"word": "I'm looking for an opportunity to…", "translation": "Я ищу возможность…"},
+      {"word": "I'd be happy to answer", "translation": "Буду рад ответить"},
+      {"word": "Let me give you an example", "translation": "Позвольте привести пример"}
+    ],
+    "tags": ["говорение", "собеседование", "презентация"]
+  },
+  {
+    "id": "b2-reading-reports",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем отчёты, статистику и обзоры",
+    "goal": "Понять цель, данные и вывод отчёта и отличить факты от интерпретации автора.",
+    "theory": "В отчёте найдите цель, метод, данные и вывод. Обращайте внимание на слова-цифры: increase, decline, remain stable, a majority of. Различайте описание данных и интерпретацию автора: слова suggests, indicates, appears to обычно вводят интерпретацию. Выпишите ключевые цифры и сопоставьте их с выводом.",
+    "vocabulary": [
+      {"word": "an increase", "translation": "рост"},
+      {"word": "a decline", "translation": "снижение"},
+      {"word": "remain stable", "translation": "оставаться стабильным"},
+      {"word": "a majority", "translation": "большинство"},
+      {"word": "according to the survey", "translation": "по данным опроса"},
+      {"word": "significantly", "translation": "значительно"}
+    ],
+    "tags": ["чтение", "отчёты", "статистика"]
   }
 ]

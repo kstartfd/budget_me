@@ -180,5 +180,90 @@
     "goal": "Написать короткое личное сообщение: пригласить, поблагодарить, рассказать о выходных.",
     "theory": "В неформальном сообщении начинайте с Hi или Dear + имя, заканчивайте словами See you soon, Best wishes или Love. Сообщение о выходных пишите в Past Simple и добавляйте детали: Last weekend I went to the park with my friends. The weather was great. Приглашение: Would you like to come to my party on Saturday? Благодарность: Thank you for your help!",
     "tags": ["письмо", "сообщение", "открытка", "приглашение"]
+  },
+  {
+    "id": "a2-listening-announcements",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем объявления и сообщения",
+    "goal": "Понять на слух объявление на вокзале, в аэропорту или в транспорте.",
+    "theory": "В объявлении ключевая информация короткая: что, когда, где. На вокзале и в аэропорту слушайте номер рейса или платформы и время. Незнакомые слова пропускайте. Заранее подумайте, что вам нужно узнать, и слушайте именно это. Повторяющиеся слова (delayed, cancelled, boarding) подсказывают, что случилось.",
+    "vocabulary": [
+      {"word": "gate", "translation": "выход на посадку"},
+      {"word": "delayed", "translation": "задержан"},
+      {"word": "cancelled", "translation": "отменён"},
+      {"word": "boarding", "translation": "посадка"},
+      {"word": "next stop", "translation": "следующая остановка"},
+      {"word": "mind the gap", "translation": "осторожно, зазор"}
+    ],
+    "tags": ["аудирование", "объявления", "транспорт"]
+  },
+  {
+    "id": "a2-listening-stories",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем рассказы о прошлом",
+    "goal": "Понять на слух короткий рассказ о том, что произошло, и ответить на вопросы по нему.",
+    "theory": "Рассказ о прошлом обычно строится в Past Simple. Слушайте слова-последовательность: first, then, after that, finally, и вопросительные слова what, who, where. Окончание -ed на слух слабое, поэтому важны слова yesterday, last week, ago. Попробуйте после прослушивания пересказать своими словами, кто что сделал.",
+    "vocabulary": [
+      {"word": "last weekend", "translation": "на прошлых выходных"},
+      {"word": "after that", "translation": "после этого"},
+      {"word": "in the end", "translation": "в конце концов"},
+      {"word": "at first", "translation": "сначала"},
+      {"word": "a few days ago", "translation": "несколько дней назад"},
+      {"word": "by the time", "translation": "к тому времени, когда"}
+    ],
+    "tags": ["аудирование", "рассказ", "past simple"]
+  },
+  {
+    "id": "a2-speaking-plans",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим о планах и выходных",
+    "goal": "Рассказать, что вы делали и что собираетесь делать.",
+    "theory": "Для планов используйте be going to: I'm going to visit my parents. Для рассказа о прошлом Past Simple: I went to the cinema. Говорите короткими законченными фразами и добавляйте детали: с кем, когда, где. Не бойтесь пауз, но старайтесь не переходить на родной язык: замените слово простым описанием.",
+    "vocabulary": [
+      {"word": "I'm going to visit my friends", "translation": "Я собираюсь навестить друзей"},
+      {"word": "What are you doing this weekend?", "translation": "Что ты делаешь на выходных?"},
+      {"word": "I went to the cinema", "translation": "Я ходил в кино"},
+      {"word": "It was great fun", "translation": "Было очень весело"},
+      {"word": "I'm not sure yet", "translation": "Я пока не уверен"},
+      {"word": "Let's meet at six", "translation": "Давай встретимся в шесть"}
+    ],
+    "tags": ["говорение", "планы", "going to", "past simple"]
+  },
+  {
+    "id": "a2-speaking-directions",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: спросить дорогу и попросить о помощи",
+    "goal": "Спросить дорогу, понять ответ и переспросить, если не поняли.",
+    "theory": "Просьбу о помощи начинайте с Excuse me. Дорогу объясняют так: go straight on, turn left/right, it's next to…, it's on the corner. Если не поняли, переспросите: Sorry, could you say that again? Скажите фразу вслух медленно и чётко: на улице вас поймут лучше, чем быструю невнятную речь.",
+    "vocabulary": [
+      {"word": "Excuse me, where is the bank?", "translation": "Извините, где банк?"},
+      {"word": "Go straight on", "translation": "Идите прямо"},
+      {"word": "Turn left at the corner", "translation": "Поверните налево на углу"},
+      {"word": "It's next to the post office", "translation": "Это рядом с почтой"},
+      {"word": "Could you say that again?", "translation": "Не могли бы вы повторить?"},
+      {"word": "Thank you for your help", "translation": "Спасибо за помощь"}
+    ],
+    "tags": ["говорение", "дорога", "вежливость", "просьбы"]
+  },
+  {
+    "id": "a2-reading-emails",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем письма, отзывы и рекламу",
+    "goal": "Понять, кто и зачем пишет письмо, и найти в отзыве или рекламе цену, условия и мнение.",
+    "theory": "В письме найдите, кто пишет, зачем и что нужно сделать. В отзыве смотрите на оценки и слова good и bad. В рекламе ищите цену, условия и срок. Незнакомое слово часто понятно из контекста: прочитайте предложение целиком и угадайте смысл, а потом проверьте по словарю.",
+    "vocabulary": [
+      {"word": "offer", "translation": "предложение"},
+      {"word": "price", "translation": "цена"},
+      {"word": "opinion", "translation": "мнение"},
+      {"word": "recommend", "translation": "рекомендовать"},
+      {"word": "deadline", "translation": "крайний срок"},
+      {"word": "booking", "translation": "бронирование"}
+    ],
+    "tags": ["чтение", "письма", "отзывы", "реклама"]
   }
 ]

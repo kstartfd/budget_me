@@ -189,5 +189,90 @@
     "goal": "Написать неформальное письмо и небольшой текст с выражением собственного мнения.",
     "theory": "В неформальном письме есть обращение (Dear Tom), приветствие (How are you?), основная часть с абзацами и прощание (Write soon, Best wishes). Для мнения используйте I think/I believe/In my opinion, затем причину с because и пример for example. Структура мини-эссе: тезис, две причины, вывод. Следите за абзацами и связками: firstly, in addition, in conclusion.",
     "tags": ["письмо", "email", "мнение", "эссе", "структура"]
+  },
+  {
+    "id": "b1-listening-podcasts",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем подкасты и интервью",
+    "goal": "Понять основную мысль подкаста или интервью и выписать главные аргументы.",
+    "theory": "В интервью и подкасте слушайте сначала тему и вопрос, а потом ответ и примеры. Обращайте внимание на слова-сигналы: however, for example, the main reason. Не страшно, если вы не поймали слово: смысл держится на ключевых словах. После прослушивания перескажите основную мысль одним предложением.",
+    "vocabulary": [
+      {"word": "the main reason is…", "translation": "главная причина в том, что…"},
+      {"word": "for instance", "translation": "например"},
+      {"word": "to be honest", "translation": "честно говоря"},
+      {"word": "on the other hand", "translation": "с другой стороны"},
+      {"word": "as far as I know", "translation": "насколько я знаю"},
+      {"word": "in my experience", "translation": "по моему опыту"}
+    ],
+    "tags": ["аудирование", "подкасты", "интервью"]
+  },
+  {
+    "id": "b1-listening-news",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем новости и инструкции",
+    "goal": "Понять на слух новость или пошаговую инструкцию и выделить главное.",
+    "theory": "В новостях сначала идёт главное событие, затем детали: кто, что, где, когда. В инструкциях слушайте порядок действий: first, next, make sure, don't forget. Запоминайте числа, названия и последовательность. Если вы упустили деталь, продолжайте слушать: следующая фраза часто объясняет её.",
+    "vocabulary": [
+      {"word": "according to reports", "translation": "по сообщениям"},
+      {"word": "is expected to", "translation": "как ожидается"},
+      {"word": "make sure that", "translation": "убедитесь, что"},
+      {"word": "first of all", "translation": "прежде всего"},
+      {"word": "in the meantime", "translation": "тем временем"},
+      {"word": "as soon as possible", "translation": "как можно скорее"}
+    ],
+    "tags": ["аудирование", "новости", "инструкции"]
+  },
+  {
+    "id": "b1-speaking-opinion",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: высказываем мнение и обсуждаем",
+    "goal": "Высказать мнение с причиной, согласиться или вежливо возразить.",
+    "theory": "Мнение лучше сопровождать причиной: I think… because… Соглашаясь, используйте I agree или that's true, не соглашаясь: I see your point, but… Это вежливее, чем просто no. Для уточнения: What I mean is… Говорите вслух, не заучивая слово в слово: важнее связная мысль, чем идеальная грамматика.",
+    "vocabulary": [
+      {"word": "In my opinion…", "translation": "По моему мнению…"},
+      {"word": "I see your point, but…", "translation": "Понимаю вас, но…"},
+      {"word": "That's a good point", "translation": "Хорошее замечание"},
+      {"word": "I couldn't agree more", "translation": "Полностью согласен"},
+      {"word": "I'm not sure about that", "translation": "Я в этом не уверен"},
+      {"word": "It depends on…", "translation": "Это зависит от…"}
+    ],
+    "tags": ["говорение", "мнение", "обсуждение"]
+  },
+  {
+    "id": "b1-speaking-story",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: рассказываем историю и впечатления",
+    "goal": "Связно рассказать о случае из жизни: начало, события и итог.",
+    "theory": "Рассказ строится так: начало (When I was…), события (Suddenly… Then…), финал (In the end…). Используйте Past Simple для событий и Past Continuous для фона. Добавляйте эмоции: I was so surprised. Тренируйтесь рассказывать вслух одну и ту же историю, каждый раз добавляя новую деталь.",
+    "vocabulary": [
+      {"word": "It all started when…", "translation": "Всё началось, когда…"},
+      {"word": "Suddenly…", "translation": "Вдруг…"},
+      {"word": "In the end…", "translation": "В конце концов…"},
+      {"word": "I was so surprised", "translation": "Я был очень удивлён"},
+      {"word": "To make a long story short", "translation": "Если коротко"},
+      {"word": "You won't believe what happened", "translation": "Ты не поверишь, что случилось"}
+    ],
+    "tags": ["говорение", "рассказ", "past simple", "past continuous"]
+  },
+  {
+    "id": "b1-reading-stories",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем рассказы и истории",
+    "goal": "Понять сюжет рассказа, героев и причины событий, и пересказать главное.",
+    "theory": "В рассказе найдите героев, место и главное событие. Следите за временами: Past Simple описывает события, Past Continuous фон, Past Perfect то, что было раньше. Отмечайте слова чувств и причины (because, so, that's why). После чтения попробуйте пересказать сюжет в трёх предложениях.",
+    "vocabulary": [
+      {"word": "main character", "translation": "главный герой"},
+      {"word": "plot", "translation": "сюжет"},
+      {"word": "turning point", "translation": "поворотный момент"},
+      {"word": "ending", "translation": "концовка"},
+      {"word": "narrator", "translation": "рассказчик"},
+      {"word": "setting", "translation": "место и время действия"}
+    ],
+    "tags": ["чтение", "рассказ", "сюжет"]
   }
 ]

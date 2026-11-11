@@ -7,6 +7,8 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import type { Path } from "../schemas"
+import { ProgramScale } from "./program-scale"
+import { SkillIcon } from "./skills"
 import { StartError } from "./start-error"
 import { TopicRunner } from "./topic-runner"
 
@@ -114,6 +116,8 @@ export function ProgramView({
         </div>
       </section>
 
+      <ProgramScale topics={path.topics} />
+
       <section className="space-y-3">
         {path.topics.map((topic, index) => {
           const open = openTopic === topic.id
@@ -152,7 +156,8 @@ export function ProgramView({
                   <h3 className="line-clamp-2 text-sm leading-snug font-semibold break-words">
                     {topic.title}
                   </h3>
-                  <p className="text-faint mt-0.5 text-xs break-words">
+                  <p className="text-faint mt-0.5 flex items-center gap-1 text-xs break-words">
+                    <SkillIcon skill={topic.skill} size={12} />
                     {t(`skill.${topic.skill}`)}
                   </p>
                 </div>

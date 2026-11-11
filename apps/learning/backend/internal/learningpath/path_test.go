@@ -397,7 +397,9 @@ const programReply = `{"summary":"Solid A1 with clear A2 gaps.","topics":[
 	{"id":"a1-present-simple-questions","why":"Вопросы с do и does."},
 	{"id":"a1-articles","why":"Артикли a и the."},
 	{"id":"a1-vocab-food","why":"Слова для кафе и магазина."},
-	{"id":"a1-reading-notices","why":"Чтение коротких объявлений."}]}`
+	{"id":"a1-reading-notices","why":"Чтение коротких объявлений."},
+	{"id":"a1-listening-numbers","why":"Числа на слух."},
+	{"id":"a1-speaking-greetings","why":"Знакомство вслух."}]}`
 
 // startBuild asks for the program of a finished test; it answers at once with
 // a job.
@@ -463,7 +465,7 @@ func TestPlacementBuildsAProgram(t *testing.T) {
 		t.Fatalf("path: %v", path)
 	}
 	topics := path["topics"].([]any)
-	if len(topics) != 6 {
+	if len(topics) != 8 {
 		t.Fatalf("topics: %v", topics)
 	}
 	first := topics[0].(map[string]any)
@@ -506,13 +508,29 @@ func TestPlannerCannotInventATopic(t *testing.T) {
 	e.provider.enqueue(bad, programReply)
 
 	path := analyze(t, e, climb(t, e, "A1"))
-	if len(path["topics"].([]any)) != 6 {
+	if len(path["topics"].([]any)) != 8 {
 		t.Fatalf("path: %v", path)
 	}
 
 	prompts := e.provider.requests()
 	if len(prompts) != 2 || !strings.Contains(prompts[1], "is not in the library") {
 		t.Fatalf("the retry did not say the id is unknown: %d\n%v", len(prompts), prompts)
+	}
+}
+
+// TestProgramNeedsListeningAndSpeaking: a plan with no listening or no speaking
+// topic is sent back, so a program is never only reading and gap filling.
+func TestProgramNeedsListeningAndSpeaking(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	noListening := strings.Replace(programReply, "a1-listening-numbers", "a1-writing-intro", 1)
+	e.provider.enqueue(noListening, programReply)
+
+	analyze(t, e, climb(t, e, "A1"))
+
+	prompts := e.provider.requests()
+	if len(prompts) != 2 || !strings.Contains(prompts[1], "has no listening topic") {
+		t.Fatalf("the retry did not ask for a listening topic: %d", len(prompts))
 	}
 }
 
@@ -554,7 +572,7 @@ func TestBuildRunsInTheBackground(t *testing.T) {
 	}
 
 	done := waitJob(t, e, first["id"].(string))
-	if done["status"] != "done" || len(done["path"].(map[string]any)["topics"].([]any)) != 6 {
+	if done["status"] != "done" || len(done["path"].(map[string]any)["topics"].([]any)) != 8 {
 		t.Fatalf("the build: %v", done)
 	}
 
@@ -1393,7 +1411,7 @@ func TestTeachersAreLanguagesStudiedSideBySide(t *testing.T) {
 		t.Fatalf("English must have a teacher with a program: %v", teachers)
 	}
 	summary := english["path"].(map[string]any)
-	if summary["level"] != "A1" || summary["topicsTotal"].(float64) != 6 || summary["topicsDone"].(float64) != 0 {
+	if summary["level"] != "A1" || summary["topicsTotal"].(float64) != 8 || summary["topicsDone"].(float64) != 0 {
 		t.Fatalf("program summary: %v", summary)
 	}
 }

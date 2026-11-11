@@ -171,5 +171,90 @@
     "goal": "Написать 5–6 простых предложений о себе: имя, возраст, страна, работа, увлечения.",
     "theory": "Короткий рассказ о себе строится по плану: имя, возраст, откуда вы, чем занимаетесь, что любите. Каждое предложение начинайте с большой буквы и заканчивайте точкой. Образец: Hello! My name is Anna. I am 25 years old. I am from Russia. I work in a shop. I like music and swimming. Используйте to be, have got, Present Simple и like + существительное.",
     "tags": ["письмо", "о себе", "представление"]
+  },
+  {
+    "id": "a1-listening-numbers",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем числа, время и цены",
+    "goal": "Понимать на слух числа, время и цены в магазине и на вокзале.",
+    "theory": "Числа на слух легко перепутать: thirteen и thirty, fifteen и fifty. В числах от 13 до 19 ударение падает на конец (thirTEEN), в десятках на начало (THIRty). Слушайте и записывайте цифры, а не слова. Время: It's half past three — 3:30, quarter to six — без четверти шесть. Цена: It's five pounds fifty — 5,50. Послушайте каждую фразу несколько раз и сравните с тем, что вы услышали.",
+    "vocabulary": [
+      {"word": "thirteen", "translation": "13"},
+      {"word": "thirty", "translation": "30"},
+      {"word": "half past three", "translation": "половина четвёртого"},
+      {"word": "quarter to six", "translation": "без четверти шесть"},
+      {"word": "five pounds fifty", "translation": "пять фунтов пятьдесят"},
+      {"word": "twenty-five", "translation": "25"}
+    ],
+    "tags": ["аудирование", "числа", "время", "цены"]
+  },
+  {
+    "id": "a1-listening-dialogues",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем короткие диалоги",
+    "goal": "Понять на слух простой диалог в магазине, кафе или на улице: кто говорит, где и что нужно.",
+    "theory": "В коротком диалоге сначала поймите, кто говорит и где: в магазине, в кафе, на улице. Не пытайтесь разобрать каждое слово, ловите вопрос и ответ. Слушайте дважды: в первый раз общий смысл, во второй детали (цена, время, место). Вежливые слова (please, thank you, excuse me) подсказывают тон разговора.",
+    "vocabulary": [
+      {"word": "Excuse me", "translation": "Извините"},
+      {"word": "How much is it?", "translation": "Сколько это стоит?"},
+      {"word": "Where is the station?", "translation": "Где вокзал?"},
+      {"word": "Can I have a coffee, please?", "translation": "Можно мне кофе, пожалуйста?"},
+      {"word": "Here you are", "translation": "Вот, пожалуйста"},
+      {"word": "Thank you very much", "translation": "Большое спасибо"}
+    ],
+    "tags": ["аудирование", "диалоги", "магазин", "кафе"]
+  },
+  {
+    "id": "a1-speaking-greetings",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: приветствие и знакомство",
+    "goal": "Поздороваться, представиться и задать пару вопросов о собеседнике.",
+    "theory": "Знакомство строится из коротких фраз: Hello, my name is Anna. Nice to meet you. Where are you from? Говорите вслух целыми фразами, а не отдельными словами. Следите за ударением: в Nice to meet you главные слова nice и meet. Послушайте фразу, повторите её и сравните со своей речью. Лучше сказать просто и без пауз, чем долго строить сложное предложение.",
+    "vocabulary": [
+      {"word": "Hello, my name is Anna", "translation": "Здравствуйте, меня зовут Анна"},
+      {"word": "Nice to meet you", "translation": "Приятно познакомиться"},
+      {"word": "Where are you from?", "translation": "Откуда вы?"},
+      {"word": "I'm from Russia", "translation": "Я из России"},
+      {"word": "How are you?", "translation": "Как дела?"},
+      {"word": "I'm fine, thank you", "translation": "У меня всё хорошо, спасибо"}
+    ],
+    "tags": ["говорение", "знакомство", "приветствие"]
+  },
+  {
+    "id": "a1-speaking-cafe",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: заказ в кафе и магазине",
+    "goal": "Вежливо заказать еду, спросить цену и расплатиться.",
+    "theory": "Вежливая просьба по-английски: I'd like …, please или Can I have …? Фраза I want … звучит слишком резко. Заканчивайте просьбу словом please, а в конце благодарите. Для расчёта: How much is it? The bill, please. Скажите каждую фразу вслух несколько раз, пока она не станет автоматической.",
+    "vocabulary": [
+      {"word": "I'd like a tea, please", "translation": "Я бы хотел чай, пожалуйста"},
+      {"word": "Can I have the menu?", "translation": "Можно меню?"},
+      {"word": "How much is it?", "translation": "Сколько стоит?"},
+      {"word": "Do you take cards?", "translation": "Вы принимаете карты?"},
+      {"word": "That's all, thanks", "translation": "Это всё, спасибо"},
+      {"word": "The bill, please", "translation": "Счёт, пожалуйста"}
+    ],
+    "tags": ["говорение", "кафе", "магазин", "вежливость"]
+  },
+  {
+    "id": "a1-reading-signs",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем вывески, знаки и расписания",
+    "goal": "Понимать вывески, предупреждающие знаки и расписание транспорта.",
+    "theory": "Знаки и вывески короткие и повторяются: ищите знакомые слова. В расписании сначала найдите нужное направление, затем время. Частые слова: platform (платформа), entrance (вход), push и pull (от себя и к себе), departures и arrivals (отправление и прибытие). Если не уверены, ориентируйтесь на картинку рядом.",
+    "vocabulary": [
+      {"word": "platform", "translation": "платформа"},
+      {"word": "entrance", "translation": "вход"},
+      {"word": "push", "translation": "от себя (на двери)"},
+      {"word": "pull", "translation": "на себя (на двери)"},
+      {"word": "departures", "translation": "отправление"},
+      {"word": "arrivals", "translation": "прибытие"}
+    ],
+    "tags": ["чтение", "знаки", "расписание"]
   }
 ]

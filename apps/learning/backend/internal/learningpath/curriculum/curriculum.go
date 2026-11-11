@@ -47,7 +47,7 @@ type Topic struct {
 }
 
 // Skills a topic can teach, the same set a program topic carries.
-var Skills = map[string]bool{"grammar": true, "vocabulary": true, "reading": true, "writing": true}
+var Skills = map[string]bool{"grammar": true, "vocabulary": true, "reading": true, "writing": true, "listening": true, "speaking": true}
 
 type catalog struct {
 	topics []Topic
