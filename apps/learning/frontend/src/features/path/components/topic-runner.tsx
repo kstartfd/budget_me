@@ -235,6 +235,7 @@ function ExerciseCard({
   const attempt = useTopicExerciseAttempt(topicId)
   const { saveEntry } = useLearning()
   const [saved, setSaved] = useState(false)
+  const [revealed, setRevealed] = useState(false)
   const [value, setValue] = useState("")
   const [last, setLast] = useState<PathAttempt | null>(null)
   const result = last ?? latestAttempt
@@ -360,7 +361,25 @@ function ExerciseCard({
           >
             {t(attempt.isPending ? "checking" : "check")}
           </Button>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setRevealed((open) => !open)}
+            aria-expanded={revealed}
+            className="h-10 px-4 text-sm"
+          >
+            {t(revealed ? "hideAnswer" : "showAnswer")}
+          </Button>
         </form>
+      )}
+      {revealed && exercise.kind !== "choice" && (
+        <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3 text-[13px] leading-relaxed">
+          <p>
+            <span className="text-muted-foreground">{t("correctAnswer")}: </span>
+            <strong>{exercise.answer}</strong>
+          </p>
+          {exercise.rule && <p className="text-muted-foreground">{exercise.rule}</p>}
+        </div>
       )}
 
       {attempt.isError && (
