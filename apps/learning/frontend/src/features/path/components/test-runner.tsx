@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { useMutation } from "@tanstack/react-query"
 import { analyzeTest, answerBatch } from "../api"
 import { usePathTest } from "../hooks"
+import { LevelScale } from "./level-scale"
 import type { PathTest, Preferences } from "../schemas"
 
 /**
@@ -77,14 +78,14 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
             level: current.level,
           })}
         </h1>
-        <p className="text-muted-foreground text-[13px] lg:text-sm">
-          {current.asked > 0
-            ? t("progress", { correct: current.correct, asked: current.asked })
-            : t("progressFirst")}
-          {" · "}
-          {t("answeredCount", { answered: answeredCount, total: current.questions.length })}
-        </p>
       </header>
+
+      <LevelScale
+        mode={current.kind === "final" ? "final" : "placement"}
+        level={current.level}
+        answered={answeredCount}
+        total={current.questions.length}
+      />
 
       <aside className="border-border bg-muted/40 text-muted-foreground rounded-lg border p-3.5 text-[13px] leading-relaxed">
         <p className="text-foreground mb-1 font-semibold">{t("howTitle")}</p>
@@ -244,6 +245,7 @@ function Done({
           ? t(test.passed ? "finalPassedHint" : "finalFailedHint")
           : t("placedHint")}
       </p>
+      {test.kind === "placement" && <LevelScale mode="determined" level={test.levelReached} />}
       {test.kind === "placement" && (
         <Survey value={prefs} onChange={setPrefs} disabled={analyze.isPending} />
       )}
