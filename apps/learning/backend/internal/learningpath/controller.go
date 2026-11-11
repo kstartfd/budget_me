@@ -29,6 +29,12 @@ import (
 // far slower than a learner asks.
 var aiRate = ratelimit.Config{Burst: 5, Every: 4 * time.Second, InFlight: 2}
 
+// testRate paces the level test on its own, so climbing the ladder never eats
+// the budget of the program calls. A learner who climbs the whole ladder sends
+// one request per level, and each one spends the key twice (the examiner and
+// the next batch), so the burst covers the six rungs and a final.
+var testRate = ratelimit.Config{Burst: 12, Every: 3 * time.Second, InFlight: 2}
+
 // agentFailed is an agent that answered but its answer survived no parsing,
 // even retried. Distinct from the chat's errors so the tab can say what happened.
 var agentFailed = httpx.New(30004, http.StatusBadGateway, "the AI agent's answer could not be read, try again")
@@ -43,6 +49,7 @@ type Controller struct {
 	resets    commands.ResetHandler
 	read      queries.ReadHandler
 	limit     *ratelimit.Limiter
+	testLimit *ratelimit.Limiter
 }
 
 func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent commands.Completer) *Controller {
@@ -56,6 +63,7 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 		resets:    commands.NewResetHandler(q, clk),
 		read:      queries.NewReadHandler(q),
 		limit:     ratelimit.New(aiRate),
+		testLimit: ratelimit.New(testRate),
 	}
 }
 
@@ -101,7 +109,7 @@ func (c *Controller) startTest(ctx echo.Context) error {
 
 	// The agent writes the questions, so starting a test spends the learner's
 	// key like any other agent call, and fails when it cannot be reached.
-	release, wait, ok := c.limit.Acquire(userOf(ctx))
+	release, wait, ok := c.testLimit.Acquire(userOf(ctx))
 	if !ok {
 		return tooManyRequests(ctx, wait)
 	}
@@ -135,7 +143,7 @@ func (c *Controller) startFinal(ctx echo.Context) error {
 
 	// The agent writes the questions, so starting a test spends the learner's
 	// key like any other agent call, and fails when it cannot be reached.
-	release, wait, ok := c.limit.Acquire(userOf(ctx))
+	release, wait, ok := c.testLimit.Acquire(userOf(ctx))
 	if !ok {
 		return tooManyRequests(ctx, wait)
 	}
@@ -193,7 +201,7 @@ func (c *Controller) answer(ctx echo.Context) error {
 	}
 
 	// A full batch goes to the examiner, which is an agent call.
-	release, wait, ok := c.limit.Acquire(userOf(ctx))
+	release, wait, ok := c.testLimit.Acquire(userOf(ctx))
 	if !ok {
 		return tooManyRequests(ctx, wait)
 	}
