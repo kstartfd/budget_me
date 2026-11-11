@@ -135,7 +135,7 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
           onClick={() => submit.mutate()}
           size="lg"
           disabled={!allAnswered || submit.isPending}
-          className="flex-1 text-[13px]"
+          className={`flex-1 text-[13px] transition-shadow ${allAnswered && !submit.isPending ? "ring-success/25 ring-4" : ""}`}
         >
           {t(submit.isPending ? "sending" : "acceptAll")}
         </Button>

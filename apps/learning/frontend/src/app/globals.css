@@ -178,6 +178,16 @@
 }
 
 /* Design motion (Budget Mini App.dc): bottom sheets, backdrops, toast. */
+@keyframes tick-pop {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.35); }
+  100% { transform: scale(1); }
+}
+@keyframes spark {
+  0% { opacity: 0; transform: translateY(4px) scale(0.6); }
+  40% { opacity: 1; }
+  100% { opacity: 0; transform: translateY(-10px) scale(1.1); }
+}
 @keyframes sheetUp {
   from { transform: translateY(100%); }
   to { transform: translateY(0); }
