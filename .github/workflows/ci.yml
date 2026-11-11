@@ -173,7 +173,7 @@ jobs:
             apps/learning/backend/go.sum
             libs/account/go.sum
       # The picture reader is the real tesseract in a couple of tests.
-      - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng
+      - run: sudo apt-get -o Acquire::Retries=5 update && sudo apt-get -o Acquire::Retries=5 install -y --no-install-recommends tesseract-ocr tesseract-ocr-eng
       - working-directory: apps/learning/backend
         run: |
           go run ./cmd/migrate up
