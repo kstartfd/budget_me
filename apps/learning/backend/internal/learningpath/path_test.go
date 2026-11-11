@@ -806,9 +806,14 @@ func TestPathTopicChat(t *testing.T) {
 	}
 
 	e.provider.setDefault("Presente simple: yo hablo.")
-	code, _ = request(t, e.e, "POST", "/api/v1/learning/path/topics/"+topicID+"/chat", e.session, map[string]any{"text": "explain this topic"})
-	if code != http.StatusOK {
-		t.Fatalf("send: %d", code)
+	// A chat turn streams its answer (server-sent events), so it is not JSON.
+	send := httptest.NewRequest("POST", "/api/v1/learning/path/topics/"+topicID+"/chat", strings.NewReader(`{"text":"explain this topic"}`))
+	send.Header.Set("Content-Type", "application/json")
+	send.Header.Set("Authorization", "Bearer "+e.session)
+	sent := httptest.NewRecorder()
+	e.e.ServeHTTP(sent, send)
+	if sent.Code != http.StatusOK || !strings.Contains(sent.Body.String(), "Presente simple: yo hablo.") {
+		t.Fatalf("send: %d %s", sent.Code, sent.Body.String())
 	}
 	prompts := e.provider.requests()
 	if last := prompts[len(prompts)-1]; !strings.Contains(last, "study program") {
