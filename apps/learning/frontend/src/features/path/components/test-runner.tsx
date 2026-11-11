@@ -19,6 +19,7 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
   const t = useTranslations("path.test")
   const query = usePathTest(id)
   const [picked, setPicked] = useState<Record<string, string>>({})
+  const [confirmed, setConfirmed] = useState<Record<string, boolean>>({})
   const [test, setTest] = useState<PathTest | null>(null)
   const [analyzed, setAnalyzed] = useState(false)
 
@@ -34,6 +35,7 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
     onSuccess: (next) => {
       setTest(next)
       setPicked({})
+      setConfirmed({})
     },
   })
 
@@ -64,7 +66,8 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
     )
   }
 
-  const allAnswered = current.questions.every((q) => picked[q.key])
+  const answeredCount = current.questions.filter((q) => picked[q.key] && confirmed[q.key]).length
+  const allAnswered = answeredCount === current.questions.length
 
   return (
     <div className="anim-fade space-y-4 lg:max-w-[704px]">
@@ -75,13 +78,26 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
           })}
         </h1>
         <p className="text-muted-foreground text-[13px] lg:text-sm">
-          {t("progress", {
-            correct: current.correct,
-            asked: current.asked,
-            needed: current.needed,
-          })}
+          {current.asked > 0
+            ? t("progress", {
+                correct: current.correct,
+                asked: current.asked,
+                needed: current.needed,
+              })
+            : t("progressFirst", { needed: current.needed })}
+          {" · "}
+          {t("answeredCount", { answered: answeredCount, total: current.questions.length })}
         </p>
       </header>
+
+      <aside className="border-border bg-muted/40 text-muted-foreground rounded-lg border p-3.5 text-[13px] leading-relaxed">
+        <p className="text-foreground mb-1 font-semibold">{t("howTitle")}</p>
+        <ol className="list-decimal space-y-0.5 pl-5">
+          <li>{t("howPick")}</li>
+          <li>{t("howConfirm")}</li>
+          <li>{t("howAccept")}</li>
+        </ol>
+      </aside>
 
       <div className="space-y-3">
         {current.questions.map((q, index) => (
@@ -90,7 +106,12 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
             index={index}
             question={q}
             picked={picked[q.key]}
-            onPick={(answer) => setPicked((prev) => ({ ...prev, [q.key]: answer }))}
+            confirmed={!!confirmed[q.key]}
+            onPick={(answer) => {
+              setPicked((prev) => ({ ...prev, [q.key]: answer }))
+              setConfirmed((prev) => ({ ...prev, [q.key]: false }))
+            }}
+            onConfirm={() => setConfirmed((prev) => ({ ...prev, [q.key]: true }))}
           />
         ))}
       </div>
@@ -100,6 +121,13 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
           {submit.error.message}
         </p>
       )}
+
+      <p
+        className={`text-center text-[13px] ${allAnswered ? "font-semibold" : "text-muted-foreground"}`}
+        aria-live="polite"
+      >
+        {t("youAnswered", { answered: answeredCount, total: current.questions.length })}
+      </p>
 
       <div className="flex gap-3">
         <Button variant="secondary" onClick={() => onClose(analyzed)}>
@@ -112,7 +140,7 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
           disabled={!allAnswered || submit.isPending}
           className="flex-1 text-[13px]"
         >
-          {t(submit.isPending ? "sending" : "send")}
+          {t(submit.isPending ? "sending" : "acceptAll")}
         </Button>
       </div>
     </div>
@@ -123,12 +151,16 @@ function QuestionCard({
   index,
   question,
   picked,
+  confirmed,
   onPick,
+  onConfirm,
 }: {
   index: number
   question: PathTest["questions"][number]
   picked: string | undefined
+  confirmed: boolean
   onPick: (answer: string) => void
+  onConfirm: () => void
 }) {
   const t = useTranslations("path.test")
   return (
@@ -140,6 +172,14 @@ function QuestionCard({
       )}
       <p className="text-sm leading-snug font-semibold">
         {index + 1}. {question.prompt}
+        {picked && confirmed && (
+          <span
+            className="text-muted-foreground ml-2 text-xs font-normal"
+            aria-label={t("answered")}
+          >
+            ✓ {t("answered")}
+          </span>
+        )}
       </p>
       <div className="grid gap-2">
         {question.options.map((option) => (
@@ -150,7 +190,7 @@ function QuestionCard({
             aria-pressed={picked === option}
             className={`border-border hover:bg-muted/50 min-h-10 cursor-pointer rounded-md border px-3.5 py-2 text-left text-sm transition-colors ${
               picked === option
-                ? "bg-muted font-semibold"
+                ? "bg-muted border-foreground font-semibold"
                 : "bg-background"
             }`}
           >
@@ -158,7 +198,18 @@ function QuestionCard({
           </button>
         ))}
       </div>
-      <p className="text-faint text-xs">{t(`skill.${question.skill}`)}</p>
+      <div className="flex items-center justify-between gap-3">
+        <p className="text-faint text-xs">{t(`skill.${question.skill}`)}</p>
+        <Button
+          type="button"
+          size="sm"
+          variant={confirmed ? "secondary" : "default"}
+          disabled={!picked || confirmed}
+          onClick={onConfirm}
+        >
+          {confirmed ? t("answered") : t("answer")}
+        </Button>
+      </div>
     </section>
   )
 }
