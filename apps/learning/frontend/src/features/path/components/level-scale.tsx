@@ -4,7 +4,12 @@ import { useEffect, useRef, useState } from "react"
 import { useTranslations } from "next-intl"
 import { cn } from "@/lib/utils"
 
-const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const
+export const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"] as const
+
+/** The rung after a level, or undefined at the top of the ladder. */
+export function nextLevel(level: string): string | undefined {
+  return LEVELS[LEVELS.indexOf(level as (typeof LEVELS)[number]) + 1]
+}
 
 /** How long the "A2 passed" pill and the "new stage" caption stay. */
 const toastMs = 1800
@@ -22,7 +27,7 @@ type Step = "done" | "cur" | "fin" | "up"
 type Mode = "norm" | "push" | "done"
 
 type LevelScaleProps =
-  | { mode: "placement"; level: string; answered: number; total: number }
+  | { mode: "placement"; level: string; startLevel?: string; answered: number; total: number }
   | { mode: "final"; level: string; answered: number; total: number }
   | { mode: "determined"; level: string }
 
@@ -149,6 +154,15 @@ export function LevelScale(props: LevelScaleProps) {
   const accented = placement && mode !== "norm"
   const wave = mode === "done" || pop >= 0
 
+  // One page per rung, from the one the test began at to the top of the ladder.
+  // The examiner may stop earlier, so this is the most there can be.
+  const first = placement
+    ? Math.max(LEVELS.indexOf((props.startLevel ?? level) as (typeof LEVELS)[number]), 0)
+    : 0
+  const page = index - first + 1
+  const pages = LEVELS.length - first
+  const pagesLeft = pages - page
+
   const status = placement ? t("scaleStatus", { level, n: answered, total }) : ""
   const announce = passed
     ? t("srPassed", { passed, level, total })
@@ -163,119 +177,31 @@ export function LevelScale(props: LevelScaleProps) {
         accented ? tone.border : "border-border",
       )}
     >
-      <ol aria-label={t("scaleLabel")} className="m-0 flex list-none gap-1.5 p-0">
-        {LEVELS.map((name, i) => {
-          const step = stepOf(i)
-          const label = {
-            done: t("stepDone"),
-            cur: t("stepCurrent"),
-            fin: t("stepDetermined"),
-            up: t("stepNext"),
-          }[step]
-
-          return (
-            <li
-              key={name}
-              aria-label={`${name}, ${label}`}
-              aria-current={step === "cur" || step === "fin" ? "step" : undefined}
-              className={cn(
-                "relative box-border flex h-14 min-w-0 flex-1 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-xl transition-all duration-[400ms] lg:h-16 motion-reduce:transition-none",
-                pop === i && "motion-safe:scale-[1.08]",
-                step === "done" && "border-success bg-success border-[1.5px]",
-                step === "cur" && "border-success bg-success/15 border-2",
-                step === "fin" &&
-                  "border-success bg-success ring-success/20 border-[1.5px] ring-[3px]",
-                step === "up" && "border-border border-[1.5px] border-dashed bg-transparent",
-              )}
-            >
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "text-[11px] leading-[14px] font-semibold tabular-nums",
-                  step === "cur" && "text-success",
-                  step === "up" && "text-muted-foreground",
-                  (step === "done" || step === "fin") && "text-white dark:text-zinc-950",
-                )}
-              >
-                {step === "done" ? "✓" : step === "fin" ? "★" : step === "cur" ? `${answered}/${total}` : "–"}
-              </span>
-              <span
-                aria-hidden="true"
-                className={cn(
-                  "text-[15px] leading-[18px] font-semibold lg:text-base",
-                  step === "cur" && "text-success",
-                  step === "up" && "text-muted-foreground",
-                  (step === "done" || step === "fin") && "text-white dark:text-zinc-950",
-                )}
-              >
-                {name}
-              </span>
-              {step === "cur" && (
-                <span
-                  aria-hidden="true"
-                  className="bg-border absolute right-[7px] bottom-1.5 left-[7px] block h-[3px] overflow-hidden rounded-sm"
-                >
-                  <span
-                    className="bg-success block h-full rounded-sm transition-[width] duration-[400ms] motion-reduce:transition-none"
-                    style={{ width: `${total > 0 ? (answered / total) * 100 : 0}%` }}
-                  />
-                </span>
-              )}
-            </li>
-          )
-        })}
-      </ol>
+      {placement && total > 0 && (
+        <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-0.5">
+          <span className="text-sm font-semibold">{t("scalePage", { page, pages })}</span>
+          <span className="text-muted-foreground text-[13px]">
+            {pagesLeft > 0 ? t("scalePagesLeft", { n: pagesLeft }) : t("scaleLastPage")}
+          </span>
+        </div>
+      )}
 
       {placement && total > 0 && (
-        <>
-          <div aria-hidden="true" className="mt-0.5 flex items-center gap-2">
-            <span
-              className={cn(
-                "rounded-lg px-2 py-0.5 text-xs font-semibold whitespace-nowrap transition-colors duration-[400ms] motion-reduce:transition-none",
-                tone.chip,
-              )}
-            >
-              {passed ? `${passed} → ${level}` : level}
-            </span>
-            <div className="flex flex-1 items-center gap-1">
-              {Array.from({ length: total }, (_, i) => {
-                const on = i < answered
-                const delay = wave ? (mode === "done" ? i : total - 1 - i) * waveMs : 0
-
-                return (
-                  <span
-                    key={i}
-                    style={{ transitionDelay: `${delay}ms` }}
-                    className={cn(
-                      "box-border h-2 flex-1 rounded-[5px] border-[1.5px] transition-all duration-[350ms] lg:h-2.5 motion-reduce:transition-none",
-                      on ? `${tone.fill} border-solid` : "border-border border-dashed bg-transparent",
-                      fresh === i && "motion-safe:animate-[tick-pop_450ms_ease]",
-                      mode === "done" && "shadow-[0_0_0_3px_var(--success-wash)]",
-                    )}
-                  />
-                )
-              })}
-            </div>
-          </div>
-
-          <div className="flex flex-wrap items-center justify-between gap-x-2.5 gap-y-1.5">
-            <span className="text-muted-foreground text-[13px]">
-              {mode === "done"
-                ? t("scaleReady")
-                : t.rich("scaleLeft", {
-                    n: left,
-                    num: (chunks) => (
-                      <span
-                        className={cn(
-                          "mx-px text-lg font-semibold tabular-nums transition-colors duration-[400ms] lg:text-xl motion-reduce:transition-none",
-                          tone.text,
-                        )}
-                      >
-                        {chunks}
-                      </span>
-                    ),
-                  })}
-            </span>
+        <div className="space-y-2.5">
+          <div className="flex items-end justify-between gap-3">
+            <p className="flex items-baseline gap-2" aria-hidden="true">
+              <span
+                className={cn(
+                  "text-3xl leading-none font-semibold tabular-nums transition-colors duration-[400ms] motion-reduce:transition-none",
+                  tone.text,
+                )}
+              >
+                {answered}
+              </span>
+              <span className="text-muted-foreground text-sm">
+                {t("scaleOutOf", { total })}
+              </span>
+            </p>
             {mode !== "norm" && (
               <span
                 className={cn(
@@ -293,23 +219,99 @@ export function LevelScale(props: LevelScaleProps) {
               </span>
             )}
           </div>
-        </>
-      )}
 
-      {placement && (
-        <div className="flex min-h-[22px] items-center justify-between gap-2">
-          <span className="text-sm font-semibold lg:text-[15px]">{status}</span>
-          <span
-            aria-hidden="true"
-            className={cn(
-              "bg-success/15 text-success rounded-full px-2.5 py-0.5 text-xs font-semibold transition-opacity duration-500 motion-reduce:transition-none",
-              passed ? "opacity-100" : "opacity-0",
-            )}
-          >
-            {t("levelPassed", { level: passed ?? level })}
-          </span>
+          <div aria-hidden="true" className="flex items-center gap-1">
+            {Array.from({ length: total }, (_, i) => {
+              const on = i < answered
+              const delay = wave ? (mode === "done" ? i : total - 1 - i) * waveMs : 0
+
+              return (
+                <span
+                  key={i}
+                  style={{ transitionDelay: `${delay}ms` }}
+                  className={cn(
+                    "box-border h-3 flex-1 rounded-md border-[1.5px] transition-all duration-[350ms] lg:h-3.5 motion-reduce:transition-none",
+                    on ? `${tone.fill} border-solid` : "border-border border-dashed bg-transparent",
+                    fresh === i && "motion-safe:animate-[tick-pop_450ms_ease]",
+                    mode === "done" && "shadow-[0_0_0_3px_var(--success-wash)]",
+                  )}
+                />
+              )
+            })}
+          </div>
+
+          <p className="text-muted-foreground text-[13px]">
+            {mode === "done"
+              ? t("scaleReady")
+              : t.rich("scaleLeft", {
+                  n: left,
+                  num: (chunks) => (
+                    <span
+                      className={cn(
+                        "mx-px text-lg font-semibold tabular-nums transition-colors duration-[400ms] motion-reduce:transition-none",
+                        tone.text,
+                      )}
+                    >
+                      {chunks}
+                    </span>
+                  ),
+                })}
+          </p>
         </div>
       )}
+
+      <div className="space-y-1.5">
+        {placement && (
+          <div className="flex min-h-[22px] items-center justify-between gap-2">
+            <span className="text-[13px] font-semibold">
+              {passed ? `${passed} → ${level}` : t("scaleLevelLine", { level })}
+            </span>
+            <span
+              aria-hidden="true"
+              className={cn(
+                "bg-success/15 text-success rounded-full px-2.5 py-0.5 text-xs font-semibold transition-opacity duration-500 motion-reduce:transition-none",
+                passed ? "opacity-100" : "opacity-0",
+              )}
+            >
+              {t("levelPassed", { level: passed ?? level })}
+            </span>
+          </div>
+        )}
+
+        <ol aria-label={t("scaleLabel")} className="m-0 flex list-none gap-1 p-0">
+          {LEVELS.map((name, i) => {
+            const step = stepOf(i)
+            const label = {
+              done: t("stepDone"),
+              cur: t("stepCurrent"),
+              fin: t("stepDetermined"),
+              up: t("stepNext"),
+            }[step]
+
+            return (
+              <li
+                key={name}
+                aria-label={`${name}, ${label}`}
+                aria-current={step === "cur" || step === "fin" ? "step" : undefined}
+                className={cn(
+                  "box-border flex h-8 min-w-0 flex-1 items-center justify-center gap-0.5 rounded-lg text-xs font-semibold transition-all duration-[400ms] lg:h-9 lg:text-[13px] motion-reduce:transition-none",
+                  pop === i && "motion-safe:scale-[1.08]",
+                  step === "done" && "border-success bg-success border-[1.5px] text-white dark:text-zinc-950",
+                  step === "cur" && "border-success bg-success/15 text-success border-2",
+                  step === "fin" &&
+                    "border-success bg-success ring-success/20 border-[1.5px] text-white ring-[3px] dark:text-zinc-950",
+                  step === "up" && "border-border text-muted-foreground border-[1.5px] border-dashed",
+                )}
+              >
+                <span aria-hidden="true">
+                  {step === "done" ? "✓ " : step === "fin" ? "★ " : ""}
+                  {name}
+                </span>
+              </li>
+            )
+          })}
+        </ol>
+      </div>
 
       <p className="text-muted-foreground text-[13px] leading-[18px] text-pretty">
         {passed ? t("scaleNewStage") : t(placement ? "scaleCaption" : "scaleDoneCaption")}

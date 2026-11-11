@@ -34,6 +34,9 @@ type StartTest struct {
 	Kind                string // "placement" or "final"
 	Language            string
 	TranslationLanguage string
+	// StartLevel is where a placement begins when it is not at A1: the rung
+	// after the level a final test has just confirmed. Empty means A1.
+	StartLevel string
 }
 
 type TestHandler struct {
@@ -101,6 +104,11 @@ func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathT
 	level := string(placement.A1)
 	if cmd.Kind == "final" {
 		level = path.Level
+	} else if cmd.StartLevel != "" {
+		level, err = h.nextLevel(ctx, cmd)
+		if err != nil {
+			return db.LearningPathTest{}, err
+		}
 	}
 
 	// The first batch doubles as the check that the agent can be reached: no
@@ -138,6 +146,31 @@ func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathT
 	}
 
 	return test, tx.Commit(ctx)
+}
+
+// nextLevel checks a placement that starts above A1: the learner must have
+// confirmed a level in a final test, and the start can only be the rung right
+// above it, so the climb carries on from where they proved themselves.
+func (h TestHandler) nextLevel(ctx context.Context, cmd StartTest) (string, error) {
+	history, err := h.q.ListLearningPathHistory(ctx, ids.ToPg(cmd.UserID))
+	if err != nil {
+		return "", err
+	}
+
+	for _, path := range history {
+		if path.Language != cmd.Language || path.Status != db.LearningPathStatusFinished {
+			continue
+		}
+
+		next, ok := placement.Next(placement.Level(path.Level))
+		if ok && string(next) == cmd.StartLevel {
+			return cmd.StartLevel, nil
+		}
+
+		break // only the newest finished program counts
+	}
+
+	return "", apperr.NewInvalid("a test can start above A1 only at the level after the one you confirmed")
 }
 
 // generate has the learner's agent write one batch of a level. Prompts already
@@ -235,6 +268,9 @@ type TestProgress struct {
 	Asked     int                  // answered on the current level
 	Correct   int                  // right on the current level
 	Needed    int                  // questions of the current level's batch
+	// StartLevel is the rung the test began at, so a screen can say how many
+	// pages (one per rung) a test can have at most.
+	StartLevel string
 }
 
 // Progress reads a test and computes where it stands. It is the shared back of
@@ -275,7 +311,13 @@ func (h TestHandler) stored(ctx context.Context, testID pgtype.UUID) ([]db.Learn
 // stands. Answers of passed levels stay in the table as history; only the
 // current level counts.
 func progressOf(test db.LearningPathTest, answers []db.LearningPathTestAnswer, questions []db.LearningPathTestQuestion) TestProgress {
-	p := TestProgress{Test: test, Needed: placement.BatchNeed(string(test.Kind))}
+	p := TestProgress{Test: test, Needed: placement.BatchNeed(string(test.Kind)), StartLevel: test.Level}
+
+	for _, r := range questions {
+		if placement.Index(placement.Level(r.Level)) < placement.Index(placement.Level(p.StartLevel)) {
+			p.StartLevel = r.Level
+		}
+	}
 
 	answered := map[string]bool{}
 	for _, a := range answers {

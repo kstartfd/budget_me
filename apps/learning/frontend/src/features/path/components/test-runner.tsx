@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input"
 import { useMutation } from "@tanstack/react-query"
 import { analyzeTest, answerBatch } from "../api"
 import { usePathTest } from "../hooks"
-import { LevelScale } from "./level-scale"
+import { LevelScale, nextLevel } from "./level-scale"
 import type { PathTest, Preferences } from "../schemas"
 
 /**
@@ -16,7 +16,16 @@ import type { PathTest, Preferences } from "../schemas"
  * pass, and a finished placement hands over to the analysis that builds the
  * program.
  */
-export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: boolean) => void }) {
+export function TestRunner({
+  id,
+  onClose,
+  onNextLevel,
+}: {
+  id: string
+  onClose: (analyzed: boolean) => void
+  /** Starts a new test at the given rung, after a final test is passed. */
+  onNextLevel?: (level: string) => void
+}) {
   const t = useTranslations("path.test")
   const query = usePathTest(id)
   const [picked, setPicked] = useState<Record<string, string>>({})
@@ -62,6 +71,7 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
       <Done
         test={current}
         onClose={onClose}
+        onNextLevel={onNextLevel}
         onAnalyzed={() => setAnalyzed(true)}
       />
     )
@@ -83,6 +93,7 @@ export function TestRunner({ id, onClose }: { id: string; onClose: (analyzed: bo
       <LevelScale
         mode={current.kind === "final" ? "final" : "placement"}
         level={current.level}
+        startLevel={current.startLevel}
         answered={answeredCount}
         total={current.questions.length}
       />
@@ -215,14 +226,18 @@ function QuestionCard({
 function Done({
   test,
   onClose,
+  onNextLevel,
   onAnalyzed,
 }: {
   test: PathTest
   onClose: (analyzed: boolean) => void
+  onNextLevel?: (level: string) => void
   onAnalyzed: () => void
 }) {
   const t = useTranslations("path.test")
   const [prefs, setPrefs] = useState<Preferences>({})
+  // A passed final test confirms the level; the way on is the test of the next one.
+  const next = test.kind === "final" && test.passed ? nextLevel(test.levelReached) : undefined
   const analyze = useMutation({
     mutationFn: () => analyzeTest(test.id, prefs),
     onSuccess: () => {
@@ -242,7 +257,13 @@ function Done({
       </h1>
       <p className="text-muted-foreground text-sm leading-relaxed">
         {test.kind === "final"
-          ? t(test.passed ? "finalPassedHint" : "finalFailedHint")
+          ? t(
+              test.passed
+                ? next
+                  ? "finalPassedHint"
+                  : "finalPassedTop"
+                : "finalFailedHint",
+            )
           : t("placedHint")}
       </p>
       {test.kind === "placement" && <LevelScale mode="determined" level={test.levelReached} />}
@@ -254,7 +275,12 @@ function Done({
           {analyze.error.message}
         </p>
       )}
-      <div className="flex justify-center gap-3">
+      <div className="flex flex-wrap justify-center gap-3">
+        {next && onNextLevel && (
+          <Button onClick={() => onNextLevel(next)} size="lg" className="px-4 text-[13px]">
+            {t("nextLevelTest", { level: next })}
+          </Button>
+        )}
         <Button variant="secondary" onClick={() => onClose(analyze.isSuccess)}>
           {t("exit")}
         </Button>

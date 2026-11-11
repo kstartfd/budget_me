@@ -49,12 +49,17 @@ async function request<T>(
   return parse(body.data)
 }
 
-export const startPlacement = (language: string, translationLanguage: string): Promise<PathTest> =>
+/** level starts the test above A1: the rung after a confirmed final test. */
+export const startPlacement = (
+  language: string,
+  translationLanguage: string,
+  level?: string,
+): Promise<PathTest> =>
   request(
     "/path/tests",
     "POST",
     (d) => pathTestSchema.parse(d),
-    { language, translationLanguage },
+    { language, translationLanguage, ...(level ? { level } : {}) },
   )
 
 export const startFinalTest = (language: string, translationLanguage: string): Promise<PathTest> =>

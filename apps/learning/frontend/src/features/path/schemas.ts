@@ -23,6 +23,7 @@ export const pathTestSchema = z.object({
   asked: z.number(),
   correct: z.number(),
   needed: z.number(),
+  startLevel: z.string().optional(),
   createdAt: z.string(),
   completedAt: z.string().nullable(),
 })

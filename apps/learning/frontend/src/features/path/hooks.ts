@@ -25,7 +25,7 @@ export function usePath(language: string, nativeLanguage: string) {
   })
 
   const startPlacement = useMutation({
-    mutationFn: () => api.startPlacement(language, nativeLanguage),
+    mutationFn: (level?: string) => api.startPlacement(language, nativeLanguage, level),
     onSuccess: refresh,
   })
 

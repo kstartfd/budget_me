@@ -41,6 +41,7 @@ type testResponse struct {
 	Language            string             `json:"language"`
 	TranslationLanguage string             `json:"translationLanguage"`
 	Level               string             `json:"level"`
+	StartLevel          string             `json:"startLevel"`
 	LevelReached        string             `json:"levelReached"`
 	Passed              bool               `json:"passed"`
 	Status              string             `json:"status"`
@@ -59,6 +60,7 @@ func testDTO(p commands.TestProgress) testResponse {
 		Language:            p.Test.Language,
 		TranslationLanguage: p.Test.TranslationLanguage,
 		Level:               p.Test.Level,
+		StartLevel:          p.StartLevel,
 		LevelReached:        p.Test.LevelReached,
 		Passed:              p.Test.Passed,
 		Status:              string(p.Test.Status),

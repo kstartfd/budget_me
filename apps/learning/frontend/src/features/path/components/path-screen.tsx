@@ -72,6 +72,13 @@ export function PathScreen({
     return (
       <TestRunner
         id={testId}
+        onNextLevel={(level) => {
+          // The finished test is dropped first so the new one mounts fresh.
+          setTestId(null)
+          path.startPlacement.mutate(level, {
+            onSuccess: (test) => setTestId(test.id),
+          })
+        }}
         onClose={(analyzed) => {
           setTestId(null)
           if (analyzed) path.active.refetch()

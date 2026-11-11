@@ -539,8 +539,8 @@ func TestQuestionsAreWrittenForEachTest(t *testing.T) {
 
 	first := questions[0].(map[string]any)["prompt"].(string)
 	state := answerBatch(t, e, testID, questions, true)
-	if state["level"] != "A2" {
-		t.Fatalf("the ladder did not climb: %v", state["level"])
+	if state["level"] != "A2" || state["startLevel"] != "A1" {
+		t.Fatalf("the ladder did not climb from A1: %v %v", state["level"], state["startLevel"])
 	}
 
 	// One call for the examiner, one for the A2 batch, which carries the A1 prompts.
@@ -754,6 +754,40 @@ func TestFinalTestFinishesThePath(t *testing.T) {
 	}
 	if paths[0]["status"] != "finished" {
 		t.Fatalf("newest history entry: %v", paths[0])
+	}
+}
+
+// TestNextLevelTestStartsAboveTheConfirmedLevel: after a program is confirmed
+// by its final test, a placement can start at the rung above and nowhere else.
+func TestNextLevelTestStartsAboveTheConfirmedLevel(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	analyze(t, e, climb(t, e, "A1"))
+
+	code, body := request(t, e.e, "POST", "/api/v1/learning/path/final-tests", e.session, map[string]any{"language": "en", "translationLanguage": "ru"})
+	if code != http.StatusCreated {
+		t.Fatalf("start final: %d %v", code, body)
+	}
+	state := answerBatch(t, e, data(t, body)["id"].(string), data(t, body)["questions"].([]any), true)
+	if state["passed"] != true {
+		t.Fatalf("final: %v", state)
+	}
+
+	start := func(level string) (int, map[string]any) {
+		return request(t, e.e, "POST", "/api/v1/learning/path/tests", e.session, map[string]any{
+			"language": "en", "translationLanguage": "ru", "level": level,
+		})
+	}
+
+	if code, body := start("B1"); code != http.StatusBadRequest {
+		t.Fatalf("skipping a rung must be refused: %d %v", code, body)
+	}
+
+	code, body = start("A2")
+	if code != http.StatusCreated || data(t, body)["level"] != "A2" || data(t, body)["startLevel"] != "A2" {
+		t.Fatalf("the next rung must start the test: %d %v", code, body)
 	}
 }
 

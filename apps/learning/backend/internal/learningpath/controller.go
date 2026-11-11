@@ -121,6 +121,7 @@ func (c *Controller) startTest(ctx echo.Context) error {
 		Kind:                "placement",
 		Language:            req.Language,
 		TranslationLanguage: req.TranslationLanguage,
+		StartLevel:          req.Level,
 	})
 	if err = agentError(err); err != nil {
 		return err
