@@ -38,9 +38,9 @@ type stubProvider struct {
 
 func (p *stubProvider) serve(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
 
 	if r.Method != http.MethodPost {
+		w.WriteHeader(http.StatusOK)
 		_, _ = w.Write([]byte(`{"data":[]}`))
 		return
 	}
@@ -56,11 +56,21 @@ func (p *stubProvider) serve(w http.ResponseWriter, r *http.Request) {
 	p.prompts = append(p.prompts, string(raw))
 	p.mu.Unlock()
 
+	if strings.Contains(string(raw), `"stream":true`) && !strings.HasSuffix(r.URL.Path, "/v1/messages") && !strings.HasSuffix(r.URL.Path, "/responses") {
+		w.Header().Set("Content-Type", "text/event-stream")
+	}
+	w.WriteHeader(http.StatusOK)
+
 	switch {
 	case strings.HasSuffix(r.URL.Path, "/v1/messages"):
 		_, _ = w.Write([]byte(`{"id":"msg_1","type":"message","role":"assistant","model":"m","content":[{"type":"text","text":` + quote(text) + `}],"stop_reason":"end_turn","usage":{"input_tokens":1,"output_tokens":1}}`))
 	case strings.HasSuffix(r.URL.Path, "/responses"):
 		_, _ = w.Write([]byte(`{"output":[{"type":"message","content":[{"type":"output_text","text":` + quote(text) + `}]}]}`))
+	case strings.Contains(string(raw), `"stream":true`):
+		// A streamed chat turn (deepseek): the text in one delta, then the usage.
+		_, _ = w.Write([]byte("data: {\"choices\":[{\"delta\":{\"content\":" + quote(text) + "}}]}\n\n" +
+			"data: {\"choices\":[],\"usage\":{\"prompt_tokens\":1,\"completion_tokens\":1,\"prompt_cache_hit_tokens\":0}}\n\n" +
+			"data: [DONE]\n\n"))
 	default:
 		_, _ = w.Write([]byte(`{"choices":[{"message":{"content":` + quote(text) + `}}]}`))
 	}
@@ -751,8 +761,10 @@ func TestLessonTimerKeepsRunning(t *testing.T) {
 	if next["id"] == lessonID {
 		t.Fatal("the lesson of another topic reused the first")
 	}
-	list := lessonCall(t, e, "GET", "topics/"+topicID+"/lessons", http.StatusOK)
-	_ = list
+	code, body := request(t, e.e, "GET", "/api/v1/learning/path/topics/"+topicID+"/lessons", e.session, nil)
+	if code != http.StatusOK || len(listPayload(t, body)) != 1 {
+		t.Fatalf("lessons of the topic: %d %v", code, body)
+	}
 
 	// Time running out closes it at the end moment.
 	if _, err := e.pool.Exec(t.Context(), "UPDATE learning_path_lessons SET ends_at = now() - interval '1 minute' WHERE id = $1", next["id"]); err != nil {
@@ -777,7 +789,15 @@ func TestPathTopicChat(t *testing.T) {
 	path := analyze(t, e, climb(t, e, "A1"))
 	topicID := path["topics"].([]any)[0].(map[string]any)["id"].(string)
 
-	code, body := request(t, e.e, "GET", "/api/v1/learning/path/topics/"+topicID+"/chat", e.session, nil)
+	// Chat is built for deepseek only; the program above came from the agent.
+	code, body := request(t, e.e, "PUT", "/api/v1/learning/ai/settings", e.session, map[string]any{
+		"provider": "deepseek", "model": "deepseek-flash", "level": "high", "apiKey": "sk-deepseek-test-1234",
+	})
+	if code != http.StatusOK {
+		t.Fatalf("choose chat agent: %d %v", code, body)
+	}
+
+	code, body = request(t, e.e, "GET", "/api/v1/learning/path/topics/"+topicID+"/chat", e.session, nil)
 	if code != http.StatusOK {
 		t.Fatalf("get chat: %d %v", code, body)
 	}
