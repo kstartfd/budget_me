@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/features/auth"
 import * as api from "./api"
-import { preparingPollMs } from "./progress"
+import { preparingPollMs, topicPollMs } from "./progress"
 import type { PathLesson, Practice } from "./schemas"
 
 /** Everything the path tab reads and writes, keyed per learner. */
@@ -116,6 +116,9 @@ export function useTopicDetail(topicId: string | null) {
     queryKey: key,
     queryFn: () => api.fetchTopicDetail(topicId!),
     enabled: !!user && !!topicId,
+    // A topic opened while the program's exercises are still being written
+    // gets its set here as soon as it exists.
+    refetchInterval: (query) => topicPollMs(query.state.data, Date.now()),
   })
 
   const refresh = () =>

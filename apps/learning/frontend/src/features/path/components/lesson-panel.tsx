@@ -44,9 +44,12 @@ function useRemaining(endsAt: string | undefined) {
 export function LessonPanel({
   topicId,
   onPausedChange,
+  onStart,
 }: {
   topicId: string
   onPausedChange: (paused: boolean) => void
+  /** The learner pressed "start a lesson": the topic may need its exercises. */
+  onStart?: () => void
 }) {
   const t = useTranslations("path.lesson")
   const format = useFormatter()
@@ -98,6 +101,7 @@ export function LessonPanel({
           onClick={() => {
             setLast(null)
             start.mutate()
+            onStart?.()
           }}
           disabled={start.isPending}
           className="w-full text-[13px]"

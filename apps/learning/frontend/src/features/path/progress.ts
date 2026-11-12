@@ -7,6 +7,13 @@ import type { Path, PathTopic } from "./schemas"
  */
 const preparingWindowMs = 25 * 60 * 1000
 
+/**
+ * The first minute or two after a program is built, its first topics are being
+ * written: a learner who starts one of them then waits for the set instead of
+ * asking for a second.
+ */
+const headStartMs = 90 * 1000
+
 /** After this much of the window the screen asks less often. */
 const quickPollMs = 3 * 60 * 1000
 
@@ -44,5 +51,38 @@ export function exercisesPreparing(path: Path, now: number): boolean {
 export function preparingPollMs(path: Path | null | undefined, now: number) {
   if (!path || !exercisesPreparing(path, now)) return false
 
-  return now - Date.parse(path.createdAt) < quickPollMs ? 5_000 : 15_000
+  return pollEvery(path, now)
 }
+
+/**
+ * Whether a topic opened right after its program was built may still get its
+ * set from the background writer: it has none yet and the program is fresh.
+ */
+export function topicSetComing(
+  path: Path,
+  exercises: number,
+  now: number,
+): boolean {
+  if (exercises > 0 || path.status !== "active") return false
+
+  return now - Date.parse(path.createdAt) < preparingWindowMs
+}
+
+/** Whether the background writer is certainly still on its first sets. */
+export const writerHasHeadStart = (path: Path, now: number) =>
+  now - Date.parse(path.createdAt) < headStartMs
+
+/** How long to wait before asking a fresh topic again; false when it is settled. */
+export function topicPollMs(
+  detail: { path: Path; exercises: unknown[] } | null | undefined,
+  now: number,
+) {
+  if (!detail || !topicSetComing(detail.path, detail.exercises.length, now)) {
+    return false
+  }
+
+  return pollEvery(detail.path, now)
+}
+
+const pollEvery = (path: Path, now: number) =>
+  now - Date.parse(path.createdAt) < quickPollMs ? 5_000 : 15_000

@@ -8,6 +8,7 @@ import {
   IconCheck,
   IconMessageCircle,
   IconMicrophone,
+  IconRefresh,
   IconX,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
@@ -18,6 +19,7 @@ import { PathTopicChat } from "@/features/chat/components/path-topic-chat"
 import { useLearning } from "@/features/learning/hooks"
 import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
+import { topicSetComing, writerHasHeadStart } from "../progress"
 import { LessonPanel } from "./lesson-panel"
 import { PlayButton } from "./play-button"
 import { RuleCard } from "./rule-card"
@@ -115,7 +117,23 @@ export function TopicRunner({ topicId }: { topicId: string }) {
         </div>
       )}
       {topic.status !== "completed" && (
-        <LessonPanel topicId={topicId} onPausedChange={onPausedChange} />
+        <LessonPanel
+          topicId={topicId}
+          onPausedChange={onPausedChange}
+          // The set is written ahead of the learner; if it was not (the writer
+          // failed, or it is an old program), starting the lesson writes it.
+          // Right after the build the writer is still on its first sets, and
+          // the topic polls for its own.
+          onStart={() => {
+            if (
+              exercises.length === 0 &&
+              !generate.isPending &&
+              !writerHasHeadStart(path, detail.dataUpdatedAt)
+            ) {
+              generate.mutate(false)
+            }
+          }}
+        />
       )}
       {topic.vocabulary.length > 0 && (
         <Vocabulary
@@ -164,39 +182,44 @@ export function TopicRunner({ topicId }: { topicId: string }) {
           ))}
 
           <div className="space-y-2 pt-1">
-            <TopicActions
-              hasExercises
-              generating={generate.isPending}
-              onGenerate={() => generate.mutate(false)}
-              onReset={() => generate.mutate(true)}
-            />
-            {topic.status !== "completed" && (
-              <>
-                {complete.isError && (
-                  <p role="alert" className="text-destructive text-sm">
-                    {complete.error.message}
-                  </p>
-                )}
+            {topic.status !== "completed" && complete.isError && (
+              <p role="alert" className="text-destructive text-sm">
+                {complete.error.message}
+              </p>
+            )}
+            <div className="flex items-center gap-2">
+              {topic.status !== "completed" && (
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={() => complete.mutate()}
                   disabled={complete.isPending || generate.isPending}
-                  className="w-full text-[13px]"
+                  className="min-w-0 flex-1 text-[13px]"
                 >
                   {t(complete.isPending ? "completing" : "complete")}
                 </Button>
-              </>
-            )}
+              )}
+              <RefreshExercises
+                generating={generate.isPending}
+                onRefresh={() => generate.mutate(true)}
+              />
+            </div>
           </div>
         </>
       )}
       {!away && exercises.length === 0 && (
-        <TopicActions
-          generating={generate.isPending}
-          onGenerate={() => generate.mutate(false)}
-          onReset={() => generate.mutate(true)}
-        />
+        <p
+          role="status"
+          className="text-muted-foreground bg-muted rounded-lg px-3.5 py-3 text-[13px]"
+        >
+          {t(
+            generate.isPending
+              ? "generating"
+              : topicSetComing(path, 0, detail.dataUpdatedAt)
+                ? "exercisesComing"
+                : "exercisesOnStart",
+          )}
+        </p>
       )}
       <PathTopicChat
         topicId={topicId}
@@ -209,34 +232,34 @@ export function TopicRunner({ topicId }: { topicId: string }) {
   )
 }
 
-function TopicActions({
-  hasExercises = false,
+/**
+ * Asks for a new set of exercises: a small round button that stays out of the
+ * way, since the set is written when the program is built and this is only for
+ * a learner who wants another. The topic's count starts over with the new set.
+ */
+function RefreshExercises({
   generating,
-  onGenerate,
-  onReset,
+  onRefresh,
 }: {
-  hasExercises?: boolean
   generating: boolean
-  onGenerate: () => void
-  onReset: () => void
+  onRefresh: () => void
 }) {
   const t = useTranslations("path.topic")
+
   return (
-    <Button
-      variant={hasExercises ? "outline" : "default"}
-      size="lg"
-      onClick={hasExercises ? onReset : onGenerate}
+    <button
+      type="button"
+      onClick={onRefresh}
       disabled={generating}
-      className="w-full text-[13px]"
+      aria-label={t("refreshExercises")}
+      title={t("refreshExercises")}
+      className="border-border/60 bg-foreground/5 text-muted-foreground hover:bg-foreground/10 hover:text-foreground focus-visible:ring-ring/50 ml-auto inline-flex size-9 shrink-0 cursor-pointer items-center justify-center rounded-full border opacity-70 transition hover:opacity-100 focus-visible:ring-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-40"
     >
-      {t(
-        generating
-          ? "generating"
-          : hasExercises
-            ? "resetExercises"
-            : "generate",
-      )}
-    </Button>
+      <IconRefresh
+        aria-hidden
+        className={cn("size-4", generating && "animate-spin motion-reduce:animate-none")}
+      />
+    </button>
   )
 }
 

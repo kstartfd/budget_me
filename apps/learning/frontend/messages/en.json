@@ -494,7 +494,6 @@
     },
     "topic": {
       "loading": "Loading…",
-      "generate": "Generate exercises",
       "generating": "The teacher is writing exercises…",
       "complete": "Complete the topic",
       "completing": "Completing…",
@@ -528,7 +527,9 @@
       "chatOptions": "Options: {options}",
       "chatMyAnswer": "My answer: {answer}",
       "chatQuestion": "Help me with this exercise from the topic \"{topic}\":\n\n{prompt}\n\nExplain the rule behind it, but do not give me the answer.",
-      "resetExercises": "Reset exercises",
+      "refreshExercises": "Refresh exercises",
+      "exercisesComing": "The exercises for this topic are still being written — they will show up here on their own.",
+      "exercisesOnStart": "The exercises will appear when you start a lesson.",
       "pastAttempts": "Previous exercises: {count} attempts, {correct} correct",
       "away": "You are paused. The lesson clock keeps running: press Resume to get back to the exercises.",
       "vocabulary": "Words of the topic",
