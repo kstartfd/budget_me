@@ -10,6 +10,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ApiError } from "../api"
 import { useRule, useRules } from "../hooks"
 import { RuleCard, rulePath } from "./rule-card"
+import { RulePractice } from "./rule-practice"
 
 const wrap = "anim-fade space-y-4 lg:mx-auto lg:w-full lg:max-w-[704px]"
 
@@ -151,9 +152,12 @@ export function RulePage({ id }: { id: string }) {
         ))}
 
       {rule.isSuccess && (
-        <div className="bg-background border-border rounded-lg border p-5">
-          <RuleCard rule={rule.data} withTitle />
-        </div>
+        <>
+          <div className="bg-background border-border rounded-lg border p-5">
+            <RuleCard rule={rule.data} withTitle />
+          </div>
+          <RulePractice ruleId={id} />
+        </>
       )}
     </div>
   )

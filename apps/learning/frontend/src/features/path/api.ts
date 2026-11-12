@@ -11,6 +11,8 @@ import {
   pathTestSchema,
   pathTopicDetailSchema,
   pathTopicSchema,
+  practiceCheckSchema,
+  practiceSchema,
   type Path,
   type PathAttempt,
   type PathJob,
@@ -22,6 +24,8 @@ import {
   type PathTest,
   type PathTopic,
   type PathTopicDetail,
+  type Practice,
+  type PracticeCheck,
   type Preferences,
 } from "./schemas"
 
@@ -220,3 +224,56 @@ export const changeLesson = (
   request(`/path/lessons/${id}/${action}`, "POST", (d) =>
     pathLessonSchema.parse(d),
   )
+
+const practicePath = (ruleId: string) => `/path/rules/${ruleId}/practice`
+
+/** What the learner has on a rule; opening it also tells the server they are back. */
+export const fetchPractice = (ruleId: string): Promise<Practice> =>
+  request(practicePath(ruleId), "GET", (d) => practiceSchema.parse(d))
+
+/** The agent writes more sentences for the rule. */
+export const writeExamples = (ruleId: string): Promise<Practice> =>
+  request(`${practicePath(ruleId)}/examples`, "POST", (d) => practiceSchema.parse(d))
+
+/** The agent writes a fresh set of drills for the rule. */
+export const writeExercises = (ruleId: string): Promise<Practice> =>
+  request(`${practicePath(ruleId)}/exercises`, "POST", (d) => practiceSchema.parse(d))
+
+export const checkPracticeItem = (
+  ruleId: string,
+  block: string,
+  item: string,
+  answer: string,
+): Promise<PracticeCheck> =>
+  request(`${practicePath(ruleId)}/check`, "POST", (d) => practiceCheckSchema.parse(d), {
+    block,
+    item,
+    answer,
+  })
+
+/** The key of a line, for a learner who gives up on it. */
+export const fetchPracticeKey = (
+  ruleId: string,
+  block: string,
+  item: string,
+): Promise<PracticeCheck> =>
+  request(`${practicePath(ruleId)}/key`, "POST", (d) => practiceCheckSchema.parse(d), {
+    block,
+    item,
+  })
+
+/**
+ * Tells the server the learner has left the rule's page, so it can drop what
+ * was written for them. `keepalive` lets the request outlive the page; nobody
+ * waits for it, and a lost one only means the server drops it a few hours later.
+ */
+export function leavePractice(ruleId: string): void {
+  const token = readToken()
+
+  void fetch(`/api/v1/learning${practicePath(ruleId)}/leave`, {
+    method: "POST",
+    keepalive: true,
+    cache: "no-store",
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  }).catch(() => undefined)
+}

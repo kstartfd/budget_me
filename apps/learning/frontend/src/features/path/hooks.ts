@@ -3,7 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/features/auth"
 import * as api from "./api"
-import type { PathLesson } from "./schemas"
+import type { PathLesson, Practice } from "./schemas"
 
 /** Everything the path tab reads and writes, keyed per learner. */
 export function usePath(language: string, nativeLanguage: string) {
@@ -201,3 +201,43 @@ export function useLesson(topicId: string) {
 
   return { lesson, history, start, change }
 }
+
+export function practiceKey(userId: string | undefined, ruleId: string) {
+  return ["path", userId, "practice", ruleId] as const
+}
+
+/**
+ * What the learner has on a rule. It is never served from a cache: opening it
+ * is what tells the server the learner is back, and what was kept for a few
+ * minutes after they left may be gone by now.
+ */
+export function usePractice(ruleId: string) {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: practiceKey(user?.id, ruleId),
+    queryFn: () => api.fetchPractice(ruleId),
+    enabled: !!user,
+    staleTime: 0,
+    gcTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: false,
+    retry: false,
+  })
+}
+
+function useWritePractice(ruleId: string, write: (ruleId: string) => Promise<Practice>) {
+  const { user } = useAuth()
+  const client = useQueryClient()
+
+  return useMutation({
+    mutationFn: () => write(ruleId),
+    onSuccess: (practice) => client.setQueryData(practiceKey(user?.id, ruleId), practice),
+  })
+}
+
+/** More example sentences for the rule, written by the learner's agent. */
+export const useWriteExamples = (ruleId: string) => useWritePractice(ruleId, api.writeExamples)
+
+/** A fresh set of drills for the rule. */
+export const useWriteExercises = (ruleId: string) => useWritePractice(ruleId, api.writeExercises)

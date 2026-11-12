@@ -137,6 +137,50 @@ export const pathRuleSchema = pathRuleRefSchema.extend({
 })
 export type PathRule = z.infer<typeof pathRuleSchema>
 
+/** A sentence the learner's agent wrote to show a rule. */
+export const practiceExampleSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  translation: z.string(),
+})
+export type PracticeExample = z.infer<typeof practiceExampleSchema>
+
+/** The kinds of drill, after English Grammar in Use. */
+export const practiceKinds = ["form", "choose", "correct", "make"] as const
+export type PracticeKind = (typeof practiceKinds)[number]
+
+/** One line of a drill, without its key: the key comes with a check. */
+export const practiceItemSchema = z.object({
+  id: z.string(),
+  text: z.string(),
+  hint: z.string(),
+  options: z.array(z.string()),
+})
+export type PracticeItem = z.infer<typeof practiceItemSchema>
+
+export const practiceBlockSchema = z.object({
+  id: z.string(),
+  kind: z.enum(practiceKinds),
+  instruction: z.string(),
+  items: z.array(practiceItemSchema),
+})
+export type PracticeBlock = z.infer<typeof practiceBlockSchema>
+
+/** What the learner has on a rule right now: it goes when they leave its page. */
+export const practiceSchema = z.object({
+  examples: z.array(practiceExampleSchema),
+  blocks: z.array(practiceBlockSchema),
+})
+export type Practice = z.infer<typeof practiceSchema>
+
+/** The verdict on a line: whether the answer was right, and the key with its reason. */
+export const practiceCheckSchema = z.object({
+  correct: z.boolean(),
+  key: z.string(),
+  note: z.string(),
+})
+export type PracticeCheck = z.infer<typeof practiceCheckSchema>
+
 export const pathTopicDetailSchema = z.object({
   path: pathSchema,
   topic: pathTopicSchema,

@@ -14,9 +14,11 @@ import {
   fetchChat,
   fetchDialog,
   fetchDialogs,
+  fetchExampleChat,
   fetchPathTopicChat,
   fetchTopicChat,
   streamChat,
+  streamExampleChat,
   streamPathTopicChat,
   streamTopicChat,
 } from "./api"
@@ -256,4 +258,41 @@ export function useClearPathTopicChat(topicId: string) {
         (old) => old && { ...old, messages: [] },
       ),
   })
+}
+
+export function exampleChatKey(userId: string | undefined, ruleId: string, exampleId: string) {
+  return ["learning", userId, "example-chat", ruleId, exampleId] as const
+}
+
+/**
+ * The chat about one sentence of a rule's practice; always the teacher. It is
+ * never cached: the sentence goes when the learner leaves the page, and the
+ * next sitting reuses its ids for other sentences.
+ */
+export function useExampleChat(ruleId: string, exampleId: string) {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: exampleChatKey(user?.id, ruleId, exampleId),
+    queryFn: () => fetchExampleChat(ruleId, exampleId),
+    enabled: !!user,
+    staleTime: 0,
+    gcTime: 0,
+    retry: false,
+  })
+}
+
+export function useExampleChatTurn(ruleId: string, exampleId: string) {
+  const { user } = useAuth()
+  const key = useMemo(
+    () => exampleChatKey(user?.id, ruleId, exampleId),
+    [user?.id, ruleId, exampleId],
+  )
+  const stream = useCallback(
+    (text: string, onDelta: (piece: string) => void) =>
+      streamExampleChat(ruleId, exampleId, text, onDelta),
+    [ruleId, exampleId],
+  )
+
+  return useTurn(key, stream)
 }

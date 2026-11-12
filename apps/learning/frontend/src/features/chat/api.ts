@@ -67,6 +67,10 @@ export const fetchPathTopicChat = (topicId: string) =>
 export const clearPathTopicChat = (topicId: string) =>
   call(`/path/topics/${topicId}/chat`, "DELETE", () => undefined)
 
+/** The chat about one sentence of a rule's practice. */
+export const fetchExampleChat = (ruleId: string, exampleId: string) =>
+  call(`/path/rules/${ruleId}/examples/${exampleId}/chat`, "GET", (d) => chatSchema.parse(d))
+
 type StreamEvent = { name: string; data: unknown }
 
 /** One server-sent event: `event: name` and `data: {json}` lines. */
@@ -112,6 +116,13 @@ export const streamPathTopicChat = (
   text: string,
   onDelta: (piece: string) => void,
 ) => streamAnswer(`/path/topics/${topicId}/chat`, text, onDelta)
+
+export const streamExampleChat = (
+  ruleId: string,
+  exampleId: string,
+  text: string,
+  onDelta: (piece: string) => void,
+) => streamAnswer(`/path/rules/${ruleId}/examples/${exampleId}/chat`, text, onDelta)
 
 async function streamAnswer(
   path: string,

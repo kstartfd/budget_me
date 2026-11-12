@@ -591,6 +591,46 @@
       "minutesValue": "{n} min",
       "days": "Days per week",
       "daysValue": "{n} days"
+    },
+    "practice": {
+      "title": "Practise this rule",
+      "note": "What you write here lives while you are on this page. Leave it and it is gone.",
+      "writing": "Writing…",
+      "examplesTitle": "Examples",
+      "examplesMake": "Generate examples",
+      "examplesMore": "More examples",
+      "examplesEmpty": "Ask your agent for new sentences that show this rule. Each one can be discussed with the teacher.",
+      "discuss": "Discuss this sentence",
+      "discussHide": "Hide the chat",
+      "exercisesTitle": "Exercises",
+      "exercisesMake": "Write exercises",
+      "exercisesNew": "New exercises",
+      "exercisesEmpty": "Four short drills on this rule, like in English Grammar in Use: put the verb in the right form, choose, correct the mistake, make a question or a negative.",
+      "placeholderWord": "The missing word",
+      "placeholderSentence": "Write the whole sentence",
+      "check": "Check",
+      "showAnswer": "Show answer",
+      "right": "Correct",
+      "wrong": "Not quite",
+      "keyIs": "Correct answer",
+      "score": "{right} of {total} correct",
+      "chat": {
+        "hint": "The teacher has this sentence and its rule in front of them. Ask why it is built this way, or pick a question below.",
+        "quick": {
+          "why": {
+            "label": "Why this way?",
+            "prompt": "Explain why this sentence is built this way: what each part does and why this form is used here."
+          },
+          "turn": {
+            "label": "Question and negative",
+            "prompt": "Turn this sentence into a question and into a negative, and explain what changes."
+          },
+          "more": {
+            "label": "More like it",
+            "prompt": "Give me three more sentences like this one, with a translation, in different situations."
+          }
+        }
+      }
     }
   }
 }
