@@ -133,6 +133,12 @@ tokens get **401** on these endpoints.
 - `DELETE /ai/settings` — forgets the agent and deletes the stored key. Safe to repeat.
 - `POST /ai/complete` — runs one prompt through the chosen agent and returns its text, so a client
   can use the agent without ever holding the key. See below.
+- `POST /entries/:id/fill` — has the agent write the fields a saved entry still lacks (transcription,
+  translation, explanation, native usage, example, rule) and returns the entry. Fields already on the
+  card are neither asked for nor replaced; a complete card comes back untouched, without a call. The
+  account's session only (an extension token gets `401`: it spends the user's own key). **400** when no
+  agent is chosen or the provider rejected the key, **404** for an entry that is not the user's, **502**
+  when the provider is down or its answer held nothing to write from; the card is left as it was.
 
 | `provider` | `model` | `level` |
 | --- | --- | --- |

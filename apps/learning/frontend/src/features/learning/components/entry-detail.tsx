@@ -2,10 +2,12 @@
 
 import { useState } from "react"
 import { useTranslations } from "next-intl"
-import { IconPencil, IconTrash } from "@tabler/icons-react"
+import Link from "next/link"
+import { IconPencil, IconSettings, IconSparkles, IconTrash } from "@tabler/icons-react"
 import { BottomBar } from "@/components/bottom-bar"
 import { InlineMarkdown } from "@/components/inline-markdown"
 import { Button } from "@/components/ui/button"
+import { useAiSettings } from "@/features/ai"
 import { EntryChat } from "@/features/chat"
 import { cn } from "@/lib/utils"
 import { useLearning } from "../hooks"
@@ -25,7 +27,8 @@ export function EntryDetail({
   onDelete: () => void
 }) {
   const t = useTranslations("learning")
-  const { deleteEntry, saveEntry } = useLearning()
+  const { deleteEntry, saveEntry, fillEntry } = useLearning()
+  const ai = useAiSettings()
   const [confirm, setConfirm] = useState(false)
   const page = variant === "page"
   return (
@@ -148,13 +151,44 @@ export function EntryDetail({
             <p className="text-muted-foreground text-sm leading-relaxed">
               {t("unfilledHint")}
             </p>
-            <Button
-              variant="ghost"
-              className="mt-2 px-0 underline underline-offset-4"
-              onClick={onEdit}
-            >
-              {t("fillEntry")}
-            </Button>
+            <div className="mt-3 flex flex-wrap items-center gap-x-3 gap-y-2">
+              {ai.isSuccess && !ai.data ? (
+                // No agent yet: say so and lead to where it is connected.
+                <Button asChild variant="outline" size="lg" className="text-[13px]">
+                  <Link href="/learning/settings">
+                    <IconSettings size={14} />
+                    {t("fillNeedsAgent")}
+                  </Link>
+                </Button>
+              ) : (
+                <Button
+                  size="lg"
+                  disabled={fillEntry.isPending || ai.isPending}
+                  onClick={() => fillEntry.mutate(entry.id)}
+                  className="text-[13px]"
+                >
+                  <IconSparkles
+                    size={14}
+                    aria-hidden="true"
+                    className={cn(fillEntry.isPending && "animate-pulse")}
+                  />
+                  {t(fillEntry.isPending ? "filling" : "fillEntry")}
+                </Button>
+              )}
+              <Button
+                variant="ghost"
+                disabled={fillEntry.isPending}
+                className="text-muted-foreground px-0 text-[13px] underline underline-offset-4"
+                onClick={onEdit}
+              >
+                {t("fillEntryManual")}
+              </Button>
+            </div>
+            {fillEntry.isError && (
+              <p role="alert" className="text-destructive mt-2 text-xs leading-snug">
+                {fillEntry.error.message}
+              </p>
+            )}
           </div>
         )}
       <EntryChat entryId={entry.id} page={page} />

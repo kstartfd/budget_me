@@ -65,6 +65,9 @@ export const saveEntry = (input: EntryInput & { id?: string }) =>
     (d) => entrySchema.parse(d),
     entryInputSchema.parse(input),
   )
+/** Has the learner's AI agent write the fields the entry still lacks. */
+export const fillEntry = (id: string) =>
+  call(`/entries/${id}/fill`, "POST", (d) => entrySchema.parse(d))
 export const fetchEntry = (id: string) =>
   call(`/entries/${id}`, "GET", (d) => entrySchema.parse(d))
 export async function fetchEntryAudio(id: string): Promise<Blob> {

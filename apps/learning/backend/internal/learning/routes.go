@@ -16,3 +16,9 @@ func (c *Controller) Routes(group *echo.Group) {
 	group.POST("/captures", c.enqueue)
 	group.GET("/captures/:id", c.getCapture)
 }
+
+// AgentRoutes are the calls that spend the learner's own AI key. They sit on the
+// account's session group, which a topic-scoped extension token does not reach.
+func (c *Controller) AgentRoutes(protected *echo.Group) {
+	protected.POST("/learning/entries/:id/fill", c.fillEntry)
+}

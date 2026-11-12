@@ -2,6 +2,7 @@ package learning
 
 import (
 	"encoding/hex"
+	"errors"
 	"net/http"
 	"strconv"
 	"time"
@@ -17,18 +18,46 @@ import (
 	"learning_app/backend/internal/learning/commands"
 	"learning_app/backend/internal/learning/queries"
 	"learning_app/backend/internal/learningaudio"
+	"learning_app/backend/internal/llm"
+	"learning_app/backend/internal/secretbox"
 )
 
 type Controller struct {
 	topics   commands.TopicHandler
 	entries  commands.EntryHandler
 	captures commands.CaptureHandler
+	fills    commands.FillHandler
 	read     queries.ReadHandler
 	audio    learningaudio.Service
 }
 
-func NewController(q *db.Queries, clk clock.Clock, audio learningaudio.Service) *Controller {
-	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), read: queries.NewReadHandler(q), audio: audio}
+func NewController(q *db.Queries, clk clock.Clock, audio learningaudio.Service, vault secretbox.Box, agent commands.Completer) *Controller {
+	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), read: queries.NewReadHandler(q), audio: audio}
+}
+
+// fillEntry has the learner's agent write the fields the entry still lacks. It
+// spends the learner's own key, so it is served to the account's own session only,
+// never to a topic-scoped extension token.
+func (c *Controller) fillEntry(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid entry id")
+	}
+
+	row, err := c.fills.Handle(ctx.Request().Context(), commands.FillEntry{UserID: httpx.UserIDFromContext(ctx.Request().Context()), EntryID: id})
+
+	switch {
+	case errors.Is(err, llm.ErrRejected):
+		return apperr.NewInvalid("the provider rejected your API key: enter it again in settings")
+	case errors.Is(err, llm.ErrTemporary), errors.Is(err, commands.ErrFillFailed):
+		return httpx.AgentUnavailable
+	case err != nil:
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, entryDTO(row))
 }
 
 func (c *Controller) listTopics(ctx echo.Context) error {

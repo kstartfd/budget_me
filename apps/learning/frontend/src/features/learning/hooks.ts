@@ -37,7 +37,11 @@ export function useLearning() {
     mutationFn: api.deleteEntry,
     onSuccess: refresh,
   })
-  return { topics, saveTopic, deleteTopic, saveEntry, deleteEntry }
+  const fillEntry = useMutation({
+    mutationFn: api.fillEntry,
+    onSuccess: refresh,
+  })
+  return { topics, saveTopic, deleteTopic, saveEntry, deleteEntry, fillEntry }
 }
 
 export function useEntries(
