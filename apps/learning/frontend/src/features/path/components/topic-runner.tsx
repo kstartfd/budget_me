@@ -20,7 +20,6 @@ import { useLearning } from "@/features/learning/hooks"
 import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useLesson, useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { topicSetComing, writerHasHeadStart } from "../progress"
-import { StartLesson } from "./lesson-bar"
 import { PlayButton } from "./play-button"
 import { englishClass, Mixed, Prose, RuleCard } from "./rule-card"
 import { listenOnce, speechSupported } from "../speech"
@@ -148,7 +147,6 @@ export function TopicRunner({ topicId }: { topicId: string }) {
           {topic.theory && <Prose text={topic.theory} className="text-sm" />}
         </div>
       )}
-      {topic.status !== "completed" && <StartLesson />}
       {topic.vocabulary.length > 0 && (
         <Vocabulary
           topicId={topicId}

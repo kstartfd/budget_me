@@ -289,32 +289,3 @@ export function LessonBar() {
     </>
   )
 }
-
-/**
- * The start of a lesson from inside a topic, so the learner need not scroll to
- * the top of the program for it. It shows only while no lesson runs.
- */
-export function StartLesson() {
-  const t = useTranslations("path.lesson")
-  const { lesson, start } = useLesson()
-
-  if (lesson) return null
-
-  return (
-    <div className="space-y-2">
-      {start.isError && (
-        <p role="alert" className="text-destructive text-sm">
-          {start.error.message}
-        </p>
-      )}
-      <Button
-        size="lg"
-        onClick={() => start.mutate()}
-        disabled={start.isPending}
-        className="w-full text-[13px]"
-      >
-        {t(start.isPending ? "starting" : "start")}
-      </Button>
-    </div>
-  )
-}
