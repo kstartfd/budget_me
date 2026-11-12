@@ -4,9 +4,11 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
 
+import { SectionKicker, sectionCard } from "@/components/section";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 
 import {
   normalizeWord,
@@ -112,13 +114,11 @@ export function TriggersSection() {
     );
 
   return (
-    <section className="flex flex-col gap-[9px]">
-      <span className="text-faint px-0.5 font-mono text-[10px] font-semibold tracking-[0.07em] uppercase">
-        {t("title")}
-      </span>
+    <section className="flex flex-col gap-3">
+      <SectionKicker>{t("title")}</SectionKicker>
 
-      <div className="bg-card border-border space-y-4 rounded-[18px] border p-4 shadow-[var(--shadow-card)]">
-        <p className="text-muted-foreground text-sm">{t("hint")}</p>
+      <div className={cn(sectionCard, "space-y-4 p-4")}>
+        <p className="text-sm leading-[1.45]">{t("hint")}</p>
 
         <div className="overflow-x-auto">
           <table className="w-full min-w-[34rem] border-separate border-spacing-y-1.5 text-sm">

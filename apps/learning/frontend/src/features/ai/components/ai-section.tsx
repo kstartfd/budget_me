@@ -6,6 +6,12 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
 import { IconCheck, IconKey } from "@tabler/icons-react"
 
+import {
+  SectionKicker,
+  sectionCard,
+  sectionHint,
+  StatusPill,
+} from "@/components/section"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
@@ -40,17 +46,10 @@ export function AiSection() {
   const settings = useAiSettings()
 
   return (
-    <section className="flex flex-col gap-[9px]">
-      <div className="flex items-center justify-between gap-3 px-0.5">
-        <span className="text-faint font-mono text-[10px] font-semibold tracking-[0.07em] uppercase">
-          {t("kicker")}
-        </span>
-        {settings.data && (
-          <span className="flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--success-wash)] px-2.5 py-1 text-[11px] font-semibold text-[color:var(--success)]">
-            <IconCheck size={12} />
-            {t("connected")}
-          </span>
-        )}
+    <section className="flex flex-col gap-3">
+      <div className="flex items-center justify-between gap-3">
+        <SectionKicker>{t("kicker")}</SectionKicker>
+        {settings.data && <StatusPill>{t("connected")}</StatusPill>}
       </div>
 
       {settings.isError ? (
@@ -58,14 +57,12 @@ export function AiSection() {
           {t("loadError")}
         </p>
       ) : settings.isPending ? (
-        <Skeleton className="h-[330px] rounded-[18px]" />
+        <Skeleton className="h-[330px] rounded-[14px]" />
       ) : (
         <AiForm saved={settings.data} />
       )}
 
-      <p className="text-faint px-0.5 text-[11.5px] leading-[1.4]">
-        {t("sectionHint")}
-      </p>
+      <p className={sectionHint}>{t("sectionHint")}</p>
     </section>
   )
 }
@@ -159,13 +156,13 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
     <form
       onSubmit={handleSubmit(onSubmit)}
       noValidate
-      className="bg-card border-border divide-border divide-y rounded-[18px] border shadow-[var(--shadow-card)]"
+      className={cn(sectionCard, "divide-border divide-y")}
     >
       <Block label={t("provider")}>
         <div
           role="radiogroup"
           aria-label={t("provider")}
-          className="grid grid-cols-2 gap-2 sm:grid-cols-4"
+          className="grid grid-cols-2 gap-[9px] sm:grid-cols-4"
         >
           {providers.map((item) => {
             const active = item.id === provider.id
@@ -178,27 +175,27 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
                 aria-checked={active}
                 onClick={() => pickProvider(item.id)}
                 className={cn(
-                  "focus-visible:ring-primary flex min-w-0 flex-col items-start gap-2 rounded-[14px] border p-3 text-left transition-colors outline-none focus-visible:ring-2",
+                  "focus-visible:ring-primary flex min-h-[104px] min-w-0 flex-col items-start justify-between gap-3 rounded-xl border p-[13px] text-left transition-colors outline-none focus-visible:ring-2",
                   active
-                    ? "border-primary bg-[color:var(--primary-wash)]"
-                    : "border-border hover:bg-secondary/60",
+                    ? "border-primary bg-muted ring-primary ring-1"
+                    : "border-border hover:bg-muted/60",
                 )}
               >
                 <span
                   className={cn(
-                    "flex size-[34px] items-center justify-center rounded-full text-[14px] font-bold",
+                    "flex size-[34px] items-center justify-center rounded-full text-[13px] font-semibold",
                     active
                       ? "bg-primary text-primary-foreground"
-                      : "bg-secondary text-muted-foreground",
+                      : "bg-secondary text-foreground/80",
                   )}
                 >
                   {item.badge}
                 </span>
-                <span className="min-w-0">
-                  <span className="block truncate text-[13.5px] font-semibold">
+                <span className="w-full min-w-0">
+                  <span className="block truncate text-sm font-semibold">
                     {item.label}
                   </span>
-                  <span className="text-faint mt-px block truncate text-[11px]">
+                  <span className="text-muted-foreground mt-1 block truncate text-xs">
                     {t(`api.${item.id}`)}
                   </span>
                 </span>
@@ -212,7 +209,7 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
         <div
           role="group"
           aria-label={t("agent")}
-          className="flex flex-wrap gap-2"
+          className="flex flex-wrap gap-[11px]"
         >
           {provider.models.map((item) => (
             <Pill
@@ -224,7 +221,7 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
             </Pill>
           ))}
         </div>
-        <code className="text-faint mt-2.5 block font-mono text-[11px]">
+        <code className="text-muted-foreground mt-4 block font-mono text-xs">
           {model.id}
         </code>
       </Block>
@@ -233,7 +230,7 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
         <div
           role="group"
           aria-label={t(model.kind)}
-          className="flex flex-wrap gap-2"
+          className="flex flex-wrap gap-[11px]"
         >
           {model.levels.map((item) => (
             <Pill
@@ -245,9 +242,7 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
             </Pill>
           ))}
         </div>
-        <p className="text-muted-foreground mt-2.5 text-[11.5px] leading-[1.4]">
-          {t(`${model.kind}Hint`)}
-        </p>
+        <p className={cn(sectionHint, "mt-3.5")}>{t(`${model.kind}Hint`)}</p>
         {errors.level && (
           <p role="alert" className="text-destructive mt-2 text-xs">
             {t(`errors.${errors.level.message}`)}
@@ -263,18 +258,13 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
             onCheckedChange={(checked) =>
               setValue("teacher", checked === true, { shouldDirty: true })
             }
-            className="mt-0.5"
+            className="mt-px rounded-full"
           />
           <div className="min-w-0">
-            <Label
-              htmlFor="ai-teacher"
-              className="text-[13.5px] font-semibold"
-            >
+            <Label htmlFor="ai-teacher" className="text-sm font-semibold">
               {t("teacherLabel")}
             </Label>
-            <p className="text-muted-foreground mt-1 text-[11.5px] leading-[1.4]">
-              {t("teacherHint")}
-            </p>
+            <p className={cn(sectionHint, "mt-2")}>{t("teacherHint")}</p>
           </div>
         </div>
       </Block>
@@ -315,12 +305,12 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
           </div>
         ) : (
           <div className="flex items-center gap-3">
-            <span className="text-primary flex size-[38px] shrink-0 items-center justify-center rounded-xl bg-[color:var(--primary-wash)]">
-              <IconKey size={18} />
+            <span className="bg-muted text-foreground/75 flex size-[38px] shrink-0 items-center justify-center rounded-[10px]">
+              <IconKey size={18} aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="text-[13.5px] font-semibold">{t("keySaved")}</div>
-              <div className="text-faint mt-[2px] truncate font-mono text-[11.5px]">
+              <div className="text-sm font-semibold">{t("keySaved")}</div>
+              <div className="text-muted-foreground mt-1 truncate font-mono text-xs">
                 ••••{storedKeyHint}
               </div>
             </div>
@@ -328,7 +318,7 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
               type="button"
               variant="secondary"
               onClick={() => setReplacing(true)}
-              className="h-auto shrink-0 rounded-xl px-3.5 py-2 text-[12.5px] font-semibold"
+              className="h-auto shrink-0 rounded-[9px] px-3.5 py-[9px] text-[13px] font-semibold"
             >
               {t("replaceKey")}
             </Button>
@@ -336,11 +326,16 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
         )}
       </Block>
 
-      <div className="p-[14px]">
+      <div className="px-[14px] pt-[15px] pb-[22px]">
         <Button
           type="submit"
           disabled={save.isPending || justSaved}
-          className="text-primary-foreground h-auto w-full rounded-[14px] py-3 text-[13.5px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
+          className={cn(
+            "h-11 w-full rounded-[10px] text-sm font-semibold",
+            // Saved is a resting state, not a greyed-out action: flat grey, white text.
+            justSaved &&
+              "disabled:bg-muted-foreground disabled:text-background disabled:opacity-100",
+          )}
         >
           {save.isPending ? (
             t("saving")
@@ -368,7 +363,7 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
                 onSuccess: () => setReplacing(false),
               })
             }
-            className="text-muted-foreground mt-1.5 h-auto w-full rounded-[14px] py-2.5 text-[12.5px] font-semibold"
+            className="text-foreground mt-3 h-auto w-full rounded-[10px] py-2 text-[13px] font-semibold"
           >
             {disconnect.isPending ? t("disconnecting") : t("disconnect")}
           </Button>
@@ -386,10 +381,8 @@ function Block({
   children: React.ReactNode
 }) {
   return (
-    <div className="p-[14px]">
-      <div className="text-muted-foreground mb-2.5 text-[11.5px] font-semibold">
-        {label}
-      </div>
+    <div className="px-[14px] pt-4 pb-[14px]">
+      <div className="mb-3 text-xs font-semibold">{label}</div>
       {children}
     </div>
   )
@@ -405,18 +398,18 @@ function Pill({
   children: React.ReactNode
 }) {
   return (
-    <Button
+    <button
       type="button"
-      variant="secondary"
-      size="sm"
       aria-pressed={active}
       onClick={onClick}
       className={cn(
-        "h-auto rounded-full px-4 py-2 text-[13px] font-medium",
-        active ? "bg-primary/15 text-primary" : "text-foreground/75",
+        "focus-visible:ring-primary flex h-[34px] items-center rounded-full px-[15px] text-[13px] font-medium transition-colors outline-none focus-visible:ring-2",
+        active
+          ? "bg-secondary text-foreground"
+          : "bg-page text-foreground/75 hover:bg-secondary/60",
       )}
     >
       {children}
-    </Button>
+    </button>
   )
 }

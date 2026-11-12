@@ -2,9 +2,16 @@
 
 import { useState } from "react"
 import { useTranslations } from "next-intl"
-import { IconBrandTelegram, IconCheck, IconMail } from "@tabler/icons-react"
+import { IconBrandTelegram, IconMail } from "@tabler/icons-react"
 
+import {
+  SectionKicker,
+  sectionCard,
+  sectionHint,
+  StatusPill,
+} from "@/components/section"
 import { Button } from "@/components/ui/button"
+import { cn } from "@/lib/utils"
 
 import { useAccount } from "../queries"
 import { LinkEmailSheet } from "./link-email-sheet"
@@ -26,12 +33,10 @@ export function AccountSection() {
     : t("telegramNotLinked")
 
   return (
-    <section className="flex flex-col gap-[9px]">
-      <span className="text-faint px-0.5 font-mono text-[10px] font-semibold tracking-[0.07em] uppercase">
-        {t("kicker")}
-      </span>
+    <section className="flex flex-col gap-3">
+      <SectionKicker>{t("kicker")}</SectionKicker>
 
-      <div className="bg-card border-border divide-border divide-y rounded-[18px] border shadow-[var(--shadow-card)]">
+      <div className={cn(sectionCard, "divide-border divide-y")}>
         <IdentityRow
           icon={<IconMail size={18} />}
           label={t("emailLabel")}
@@ -43,7 +48,7 @@ export function AccountSection() {
               <Button
                 type="button"
                 onClick={() => setEmailOpen(true)}
-                className="text-primary-foreground mt-3 h-auto w-full rounded-[14px] py-3 text-[13.5px] font-bold shadow-[0_8px_20px_-6px_var(--primary-glow)]"
+                className="mt-3 h-11 w-full rounded-[10px] text-sm font-semibold"
               >
                 <IconMail size={16} />
                 {t("addEmail")}
@@ -62,9 +67,7 @@ export function AccountSection() {
         />
       </div>
 
-      <p className="text-faint px-0.5 text-[11.5px] leading-[1.4]">
-        {t("sectionHint")}
-      </p>
+      <p className={sectionHint}>{t("sectionHint")}</p>
 
       {emailOpen && <LinkEmailSheet onClose={() => setEmailOpen(false)} />}
     </section>
@@ -89,21 +92,16 @@ function IdentityRow({
   return (
     <div className="p-[14px]">
       <div className="flex items-center gap-3">
-        <span className="text-primary flex size-[38px] shrink-0 items-center justify-center rounded-xl bg-[color:var(--primary-wash)]">
+        <span className="bg-muted text-foreground/75 flex size-[38px] shrink-0 items-center justify-center rounded-[10px]">
           {icon}
         </span>
         <div className="min-w-0 flex-1">
-          <div className="text-[13.5px] font-semibold">{label}</div>
-          <div className="text-faint mt-[2px] truncate text-[11.5px]">
+          <div className="text-sm font-semibold">{label}</div>
+          <div className="text-muted-foreground mt-1 truncate text-xs">
             {value}
           </div>
         </div>
-        {linked && (
-          <span className="flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--success-wash)] px-2.5 py-1 text-[11px] font-semibold text-[color:var(--success)]">
-            <IconCheck size={12} />
-            {linkedText}
-          </span>
-        )}
+        {linked && <StatusPill>{linkedText}</StatusPill>}
       </div>
       {cta}
     </div>

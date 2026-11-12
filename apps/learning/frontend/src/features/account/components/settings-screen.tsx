@@ -15,16 +15,16 @@ export function SettingsScreen() {
   const t = useTranslations("learning");
 
   return (
-    <div className="anim-fade max-w-2xl space-y-[18px]">
-      <header>
+    <div className="anim-fade mx-auto flex w-full max-w-[705px] flex-col gap-7 lg:pt-[38px]">
+      <header className="flex flex-col gap-3.5">
         <Link
           href="/learning"
-          className="text-muted-foreground mb-2 inline-flex items-center gap-1 text-xs"
+          className="text-foreground flex w-fit items-center gap-1 text-[13px] font-medium"
         >
-          <IconArrowLeft size={14} />
+          <IconArrowLeft size={14} aria-hidden="true" />
           {t("title")}
         </Link>
-        <h1 className="text-[22px] font-bold tracking-tight">
+        <h1 className="text-[25px] leading-tight font-semibold tracking-[-0.01em]">
           {t("settings")}
         </h1>
       </header>

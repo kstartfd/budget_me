@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useFormatter, useTranslations } from "next-intl"
 
+import { SectionKicker } from "@/components/section"
 import { useAuth } from "@/features/auth"
 
 import {
@@ -35,18 +36,16 @@ export function DeleteAccountSection() {
   const failed = request.isError || cancel.isError
 
   return (
-    <section className="flex flex-col gap-[9px]">
-      <span className="text-faint px-0.5 font-mono text-[10px] font-semibold tracking-[0.07em] uppercase">
-        {t("dangerKicker")}
-      </span>
+    <section className="flex flex-col gap-3">
+      <SectionKicker>{t("dangerKicker")}</SectionKicker>
 
-      <div className="bg-card rounded-[18px] border border-[color:var(--destructive)]/30 p-[14px] shadow-[var(--shadow-card)]">
+      <div className="bg-card rounded-[14px] border border-[color:var(--destructive)]/30 p-[14px] shadow-[0_1px_0_var(--border)]">
         {deleteAt ? (
           <>
             <div className="text-destructive text-[14px] font-semibold">
               {t("deleteScheduled", { date: deleteAtLabel })}
             </div>
-            <p className="text-muted-foreground mt-[3px] text-[11.5px]">
+            <p className="text-muted-foreground mt-[3px] text-xs">
               {t("deleteScheduledHint")}
             </p>
             <button
@@ -63,7 +62,7 @@ export function DeleteAccountSection() {
             <div className="text-destructive text-[14px] font-semibold">
               {t("deleteConfirmTitle")}
             </div>
-            <p className="text-muted-foreground mt-[3px] text-[11.5px]">
+            <p className="text-muted-foreground mt-[3px] text-xs">
               {t("deleteConfirmHint")}
             </p>
             <div className="mt-3 flex gap-2">
@@ -95,7 +94,7 @@ export function DeleteAccountSection() {
           <div className="flex items-center gap-3">
             <div className="min-w-0 flex-1">
               <div className="text-[14px] font-semibold">{t("deleteTitle")}</div>
-              <p className="text-muted-foreground mt-[3px] text-[11.5px]">
+              <p className="text-muted-foreground mt-[3px] text-xs">
                 {t("deleteHint")}
               </p>
             </div>
