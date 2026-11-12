@@ -19,6 +19,10 @@ type Querier interface {
 	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
 	CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error)
+	// What each topic's current exercise set holds, and how many of its exercises the
+	// learner has answered right. Only the current set counts: a regenerated topic
+	// starts from nothing again, whatever was answered in the sets before.
+	CountLearningPathExercises(ctx context.Context, arg CountLearningPathExercisesParams) ([]CountLearningPathExercisesRow, error)
 	CountLearningPathTopics(ctx context.Context, dollar_1 []pgtype.UUID) ([]CountLearningPathTopicsRow, error)
 	DeleteArchivedTopicChat(ctx context.Context, arg DeleteArchivedTopicChatParams) (int64, error)
 	// A sitting whose time has run out goes, with the chats about its sentences.

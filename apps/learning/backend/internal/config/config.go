@@ -14,6 +14,10 @@ import (
 // going; cancelling inside it saves everything.
 const defaultDeletionGrace = 30 * 24 * time.Hour
 
+// allTopics is more than a program can have (it holds at most sixteen), for
+// the settings that count topics from the first: it means every one.
+const allTopics = 32
+
 type Config struct {
 	Env         string
 	Port        string
@@ -38,10 +42,11 @@ type Config struct {
 	// ChatRate is how fast one user may use the chat. Never read from the
 	// environment: blank means the defaults, and tests loosen or tighten it.
 	ChatRate ratelimit.Config
-	// PathPrefetch is how many topics of a new program get their exercises
-	// written in the background right after it is built. Never read from the
-	// environment: Load sets the default, tests leave it at zero so the stub
-	// provider only sees the calls a test makes itself.
+	// PathPrefetch is how many topics of a new program, from the first, get
+	// their exercises written in the background right after it is built. Never
+	// read from the environment: Load sets the default (every topic, as a program
+	// has at most sixteen), tests leave it at zero so the stub provider only sees
+	// the calls a test makes itself.
 	PathPrefetch int
 }
 
@@ -57,7 +62,7 @@ func Load() (Config, error) {
 		TelegramBotToken:     os.Getenv("TELEGRAM_BOT_TOKEN"),
 		TelegramMiniAppURL:   value("TELEGRAM_MINIAPP_URL", "http://localhost:3001"),
 		AudioCacheDir:        value("AUDIO_CACHE_DIR", "/var/lib/learning/audio"),
-		PathPrefetch:         3,
+		PathPrefetch:         allTopics,
 	}
 	if cfg.DatabaseURL == "" {
 		return cfg, errors.New("DATABASE_URL is required")

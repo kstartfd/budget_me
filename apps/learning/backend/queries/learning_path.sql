@@ -226,6 +226,27 @@ DELETE FROM learning_teachers WHERE id = $1 AND user_id = $2;
 -- name: ListActiveLearningPaths :many
 SELECT * FROM learning_paths WHERE user_id = $1 AND status = 'active';
 
+-- name: CountLearningPathExercises :many
+-- What each topic's current exercise set holds, and how many of its exercises the
+-- learner has answered right. Only the current set counts: a regenerated topic
+-- starts from nothing again, whatever was answered in the sets before.
+SELECT e.topic_id,
+       count(*)::int AS total,
+       (count(*) FILTER (WHERE EXISTS (
+           SELECT 1 FROM learning_path_attempts a
+           WHERE a.exercise_id = e.id AND a.user_id = $2 AND a.correct
+       )))::int AS done
+FROM learning_path_exercises e
+JOIN learning_path_exercise_versions v ON v.exercise_id = e.id
+JOIN learning_path_topics t ON t.id = e.topic_id
+WHERE t.path_id = $1
+  AND v.generation = (
+      SELECT MAX(current.generation)
+      FROM learning_path_exercise_versions current
+      WHERE current.topic_id = e.topic_id
+  )
+GROUP BY e.topic_id;
+
 -- name: CountLearningPathTopics :many
 SELECT path_id, count(*)::int AS total, (count(*) FILTER (WHERE status = 'completed'))::int AS done
 FROM learning_path_topics WHERE path_id = ANY($1::uuid[]) GROUP BY path_id;

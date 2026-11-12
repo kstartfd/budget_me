@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log/slog"
+	"sync"
 	"time"
 
 	"github.com/google/uuid"
@@ -17,9 +18,15 @@ import (
 )
 
 const (
-	// jobTimeout is the whole budget of one build: planning, then the first
-	// exercise sets.
+	// jobTimeout is the budget of planning a program, the part the learner waits for.
 	jobTimeout = 12 * time.Minute
+	// prepareTimeout is the budget of writing the exercise sets of the whole
+	// program after it is saved; what it does not get to is written when the
+	// learner opens that topic.
+	prepareTimeout = 25 * time.Minute
+	// prepareWorkers is how many sets are written at once: enough to be done in
+	// minutes, few enough not to hit the provider's rate limit on the learner's key.
+	prepareWorkers = 3
 	// jobStale is how long a queued or running job may stay silent before it is
 	// taken for lost (the server restarted under it) and a new one may start.
 	jobStale = 15 * time.Minute
@@ -41,8 +48,9 @@ type BuildHandler struct {
 	clock     clock.Clock
 	analysis  AnalyzeHandler
 	exercises ExerciseHandler
-	// prefetch is how many of the first topics get their exercises written
-	// right after the program is saved, so opening one is instant.
+	// prefetch is how many topics, from the first, get their exercises written
+	// right after the program is saved, so opening one is instant and the
+	// program's scale can count them. Zero writes none.
 	prefetch int
 }
 
@@ -125,7 +133,7 @@ func (h BuildHandler) Job(ctx context.Context, userID, jobID uuid.UUID) (db.Lear
 
 // Run does the job, on its own context: the request that queued it is long
 // gone. The program is saved first and the job is done from then on, since the
-// learner can start; the first exercise sets are written after, quietly.
+// learner can start; the exercise sets of its topics are written after, quietly.
 func (h BuildHandler) Run(job db.LearningPathJob) {
 	ctx, cancel := context.WithTimeout(context.Background(), jobTimeout)
 	defer cancel()
@@ -161,13 +169,75 @@ func (h BuildHandler) Run(job db.LearningPathJob) {
 		return
 	}
 
-	for i := 0; i < min(h.prefetch, len(topics)); i++ {
-		if _, err := h.exercises.Handle(ctx, GenerateExercises{UserID: userID, TopicID: ids.FromPg(topics[i].ID), Prefetch: true}); err != nil {
-			slog.Warn("learning path exercises were not prepared", "topic_id", ids.FromPg(topics[i].ID), "err", err)
+	h.prepareExercises(userID, topics)
+}
 
-			return
+// prepareExercises has the learner's agent write the exercise set of each topic
+// of a fresh program, a few at a time and in the program's order, so the first
+// topics are ready first. It works on its own context since the build is done
+// and the learner may be anywhere. A topic whose set fails is left for when
+// the learner opens it; the rest go on, unless the failure would repeat for all
+// of them: a key the provider turned down, or a program that is no longer there.
+func (h BuildHandler) prepareExercises(userID uuid.UUID, topics []db.LearningPathTopic) {
+	topics = topics[:min(h.prefetch, len(topics))]
+	if len(topics) == 0 {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), prepareTimeout)
+	defer cancel()
+
+	var wg sync.WaitGroup
+
+	queue := make(chan db.LearningPathTopic)
+
+	for range min(prepareWorkers, len(topics)) {
+		wg.Go(func() {
+			for topic := range queue {
+				if ctx.Err() != nil {
+					continue
+				}
+
+				_, err := h.exercises.Handle(ctx, GenerateExercises{UserID: userID, TopicID: ids.FromPg(topic.ID), Prefetch: true})
+				if err == nil {
+					continue
+				}
+
+				slog.Warn("learning path exercises were not prepared", "topic_id", ids.FromPg(topic.ID), "err", err)
+
+				if endsPreparing(err) {
+					cancel()
+				}
+			}
+		})
+	}
+
+	for _, topic := range topics {
+		select {
+		case queue <- topic:
+		case <-ctx.Done():
 		}
 	}
+
+	close(queue)
+	wg.Wait()
+}
+
+// endsPreparing says whether a failed set means the others would fail the same.
+// A call that ran out of time or got an answer nobody could read says nothing
+// of the next topic's, so those go on.
+func endsPreparing(err error) bool {
+	var app *apperr.Error
+
+	switch {
+	case errors.Is(err, llm.ErrRejected):
+		return true
+	case errors.As(err, &app):
+		// The program was reset or finished, the topic is gone, or the key cannot be read.
+		return app.Kind == apperr.NotFound || app.Kind == apperr.Conflict
+	}
+
+	return false
 }
 
 // FailureMessage words a failed run the way the learner can act on it.

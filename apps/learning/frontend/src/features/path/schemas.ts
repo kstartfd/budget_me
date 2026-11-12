@@ -58,6 +58,14 @@ export const pathTopicSchema = z.object({
   vocabulary: z.array(z.object({ word: z.string(), translation: z.string() })),
   status: z.enum(["not_started", "in_progress", "completed"]),
   completedAt: z.string().nullable(),
+  /**
+   * What the topic's current exercise set holds and how much of it is answered
+   * right. A set that is not written yet is 0 of 0, and so is a topic read
+   * where counts are not asked for.
+   */
+  exercises: z
+    .object({ total: z.number(), done: z.number() })
+    .default({ total: 0, done: 0 }),
 })
 export type PathTopic = z.infer<typeof pathTopicSchema>
 

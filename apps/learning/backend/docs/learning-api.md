@@ -312,10 +312,17 @@ under `/api/v1/learning/path`.
 | `GET /tests/:id`, `POST /tests/:id/answers` | The state of a test, and one batch of answers; a full batch goes to the examiner (the agent), which climbs or places the learner. |
 | `POST /tests/:id/analyze` | Queues building the program from a finished placement test and answers `202` with a job; asking again hands the same job back. |
 | `GET /jobs/:id` | `queued`, `running`, `done` (with the program) or `failed` (with why). |
-| `GET /?language=`, `GET /history`, `POST /reset` | The running program of a language, the closed ones, and closing the running one. |
+| `GET /?language=`, `GET /history`, `POST /reset` | The running program of a language, the closed ones, and closing the running one. Each topic of a program carries `exercises: {total, done}`: how many exercises its current set holds (0 while it is not written) and how many of them the learner has answered right. A regenerated set starts from `done: 0`. |
 | `GET /topics/:id`, `POST /topics/:id/exercises`, `POST /topics/:id/complete` | A topic with its rule and words, its exercise set (`?regenerate=1` writes a new one), and completing it. |
 | `POST /exercises/:id/attempt` | Checks one answer. Kinds: `choice`, `fill`, `listen` are graded here; `speak` is compared with the phrase; `translate` and `write` are judged by the agent. |
 | `GET /exercises/:id/audio`, `GET /topics/:id/words/:index/audio` | The voice of a listening sentence or a phrase to repeat, and of a key word of a topic. |
+
+Once a program is saved the job is done and the learner can start; the agent then
+writes the exercise set of every topic in the background (a few at a time, in the
+program's order), so each topic opens with its exercises ready and the program's
+scale can be counted by them. A set that fails to write is left for when the
+learner opens the topic, and the learner can regenerate any set: the counts follow
+the current set.
 
 For a language pair that has a library (English for Russian speakers, A1 to B2)
 the program is planned from it: the agent only picks topics, and each topic

@@ -50,6 +50,9 @@ type stubProvider struct {
 	examiner func(level string, correct, asked int) string
 	// breakQuestions makes the question writer answer garbage.
 	breakQuestions bool
+	// answer, when set, may answer a call itself, whatever is queued: it gets
+	// the request body and says whether it did. It runs under the lock.
+	answer func(prompt string) (string, bool)
 }
 
 const (
@@ -139,6 +142,11 @@ func (p *stubProvider) serve(w http.ResponseWriter, r *http.Request) {
 		if len(p.queue) > 0 {
 			text = p.queue[0]
 			p.queue = p.queue[1:]
+		}
+		if p.answer != nil {
+			if reply, ok := p.answer(string(raw)); ok {
+				text = reply
+			}
 		}
 		p.prompts = append(p.prompts, string(raw))
 	}

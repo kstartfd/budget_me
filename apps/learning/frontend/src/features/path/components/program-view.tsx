@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { useRules } from "../hooks"
+import { exercisesPreparing } from "../progress"
 import type { Path } from "../schemas"
 import { ProgramScale } from "./program-scale"
 import { SkillIcon } from "./skills"
@@ -35,8 +36,11 @@ export function ProgramView({
   onReset,
   startError,
   starting,
+  asOf,
 }: {
   path: Path
+  /** When the program was last read (ms): the moment its exercises are judged at. */
+  asOf: number
   onStartFinal: () => void
   onReset: () => void
   startError: string | null
@@ -50,6 +54,8 @@ export function ProgramView({
   // the request is refused and the button stays out.
   const rules = useRules()
   const finished = path.topics.length > 0 && done === path.topics.length
+  // The server is still writing the program's exercises, so the scale says so.
+  const preparing = exercisesPreparing(path, asOf)
 
   return (
     <div className="space-y-4">
@@ -126,7 +132,7 @@ export function ProgramView({
         </div>
       </section>
 
-      <ProgramScale topics={path.topics} />
+      <ProgramScale topics={path.topics} preparing={preparing} />
 
       <section className="space-y-3">
         {path.topics.map((topic, index) => {

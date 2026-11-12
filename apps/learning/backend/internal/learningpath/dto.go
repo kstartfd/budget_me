@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"time"
 
+	"github.com/google/uuid"
+
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/learningpath/commands"
@@ -134,6 +136,16 @@ type topicResponse struct {
 	Vocabulary  []wordResponse `json:"vocabulary"`
 	Status      string         `json:"status"`
 	CompletedAt *time.Time     `json:"completedAt"`
+	// Exercises is what the topic's current exercise set holds and how much of
+	// it is answered right; left out where it was not asked for (a single topic).
+	Exercises *exerciseCountResponse `json:"exercises,omitempty"`
+}
+
+// exerciseCountResponse is the progress of a topic by its exercises. A topic
+// whose set is not written yet has a total of 0.
+type exerciseCountResponse struct {
+	Total int `json:"total"`
+	Done  int `json:"done"`
 }
 
 // wordResponse is one key word of a topic.
@@ -167,10 +179,13 @@ func topicDTO(t db.LearningPathTopic) topicResponse {
 	return out
 }
 
-func topicsDTO(list []db.LearningPathTopic) []topicResponse {
+func topicsDTO(list []db.LearningPathTopic, counts map[uuid.UUID]queries.ExerciseCount) []topicResponse {
 	out := make([]topicResponse, len(list))
 	for i, t := range list {
 		out[i] = topicDTO(t)
+
+		count := counts[ids.FromPg(t.ID)]
+		out[i].Exercises = &exerciseCountResponse{Total: count.Total, Done: count.Done}
 	}
 
 	return out
@@ -200,7 +215,7 @@ func pathDTO(p queries.PathWithTopics) pathResponse {
 		Summary:             p.Path.Summary,
 		Status:              string(p.Path.Status),
 		Source:              p.Path.Source,
-		Topics:              topicsDTO(p.Topics),
+		Topics:              topicsDTO(p.Topics, p.Exercises),
 		CreatedAt:           p.Path.CreatedAt.Time,
 		Preferences:         map[string]any{},
 	}

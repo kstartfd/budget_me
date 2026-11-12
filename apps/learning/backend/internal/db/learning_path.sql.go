@@ -101,6 +101,59 @@ func (q *Queries) CompleteLearningPathTopicIfExercisesPassed(ctx context.Context
 	return result.RowsAffected(), nil
 }
 
+const countLearningPathExercises = `-- name: CountLearningPathExercises :many
+SELECT e.topic_id,
+       count(*)::int AS total,
+       (count(*) FILTER (WHERE EXISTS (
+           SELECT 1 FROM learning_path_attempts a
+           WHERE a.exercise_id = e.id AND a.user_id = $2 AND a.correct
+       )))::int AS done
+FROM learning_path_exercises e
+JOIN learning_path_exercise_versions v ON v.exercise_id = e.id
+JOIN learning_path_topics t ON t.id = e.topic_id
+WHERE t.path_id = $1
+  AND v.generation = (
+      SELECT MAX(current.generation)
+      FROM learning_path_exercise_versions current
+      WHERE current.topic_id = e.topic_id
+  )
+GROUP BY e.topic_id
+`
+
+type CountLearningPathExercisesParams struct {
+	PathID pgtype.UUID
+	UserID pgtype.UUID
+}
+
+type CountLearningPathExercisesRow struct {
+	TopicID pgtype.UUID
+	Total   int32
+	Done    int32
+}
+
+// What each topic's current exercise set holds, and how many of its exercises the
+// learner has answered right. Only the current set counts: a regenerated topic
+// starts from nothing again, whatever was answered in the sets before.
+func (q *Queries) CountLearningPathExercises(ctx context.Context, arg CountLearningPathExercisesParams) ([]CountLearningPathExercisesRow, error) {
+	rows, err := q.db.Query(ctx, countLearningPathExercises, arg.PathID, arg.UserID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []CountLearningPathExercisesRow{}
+	for rows.Next() {
+		var i CountLearningPathExercisesRow
+		if err := rows.Scan(&i.TopicID, &i.Total, &i.Done); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const countLearningPathTopics = `-- name: CountLearningPathTopics :many
 SELECT path_id, count(*)::int AS total, (count(*) FILTER (WHERE status = 'completed'))::int AS done
 FROM learning_path_topics WHERE path_id = ANY($1::uuid[]) GROUP BY path_id

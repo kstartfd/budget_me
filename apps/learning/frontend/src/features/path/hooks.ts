@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { useAuth } from "@/features/auth"
 import * as api from "./api"
+import { preparingPollMs } from "./progress"
 import type { PathLesson, Practice } from "./schemas"
 
 /** Everything the path tab reads and writes, keyed per learner. */
@@ -16,6 +17,9 @@ export function usePath(language: string, nativeLanguage: string) {
     queryKey: [...key, "active", language],
     queryFn: () => api.fetchActivePath(language),
     enabled: !!user && !!language,
+    // A fresh program gets its exercises written in the background: ask again
+    // until they are there, so the scale fills without a reload.
+    refetchInterval: (query) => preparingPollMs(query.state.data, Date.now()),
   })
 
   const history = useQuery({

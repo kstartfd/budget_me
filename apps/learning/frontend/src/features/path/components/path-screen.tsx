@@ -142,6 +142,7 @@ function Program({
           onReset={() => path.reset.mutate()}
           startError={path.startFinal.isError ? path.startFinal.error.message : null}
           starting={path.startFinal.isPending}
+          asOf={path.active.dataUpdatedAt}
         />
       ) : (
         <section className="bg-background border-border space-y-3 rounded-lg border p-5">

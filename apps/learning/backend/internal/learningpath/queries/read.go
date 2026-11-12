@@ -12,10 +12,19 @@ import (
 	"learning_app/backend/internal/ids"
 )
 
+// ExerciseCount is what a topic's current exercise set holds and how much of it
+// the learner has answered right.
+type ExerciseCount struct {
+	Total int
+	Done  int
+}
+
 // PathWithTopics is a program and its steps, what the program screen renders.
+// Exercises counts the current set of each topic that has one.
 type PathWithTopics struct {
-	Path   db.LearningPath
-	Topics []db.LearningPathTopic
+	Path      db.LearningPath
+	Topics    []db.LearningPathTopic
+	Exercises map[uuid.UUID]ExerciseCount
 }
 
 // TopicDetail is one step of the program with its exercises and every attempt
@@ -47,12 +56,27 @@ func (h ReadHandler) Active(ctx context.Context, userID uuid.UUID, language stri
 		return PathWithTopics{}, err
 	}
 
+	return h.withTopics(ctx, userID, path)
+}
+
+// withTopics adds the steps of a program, and what each one's exercises hold.
+func (h ReadHandler) withTopics(ctx context.Context, userID uuid.UUID, path db.LearningPath) (PathWithTopics, error) {
 	topics, err := h.q.ListLearningPathTopics(ctx, path.ID)
 	if err != nil {
 		return PathWithTopics{}, err
 	}
 
-	return PathWithTopics{Path: path, Topics: topics}, nil
+	counts, err := h.q.CountLearningPathExercises(ctx, db.CountLearningPathExercisesParams{PathID: path.ID, UserID: ids.ToPg(userID)})
+	if err != nil {
+		return PathWithTopics{}, err
+	}
+
+	exercises := make(map[uuid.UUID]ExerciseCount, len(counts))
+	for _, c := range counts {
+		exercises[ids.FromPg(c.TopicID)] = ExerciseCount{Total: int(c.Total), Done: int(c.Done)}
+	}
+
+	return PathWithTopics{Path: path, Topics: topics, Exercises: exercises}, nil
 }
 
 // PathByID returns a program of the learner with its topics.
@@ -66,12 +90,7 @@ func (h ReadHandler) PathByID(ctx context.Context, userID, pathID uuid.UUID) (Pa
 		return PathWithTopics{}, err
 	}
 
-	topics, err := h.q.ListLearningPathTopics(ctx, path.ID)
-	if err != nil {
-		return PathWithTopics{}, err
-	}
-
-	return PathWithTopics{Path: path, Topics: topics}, nil
+	return h.withTopics(ctx, userID, path)
 }
 
 // ExerciseSpeech is what a learner may hear of an exercise, and in which
@@ -147,12 +166,10 @@ func (h ReadHandler) History(ctx context.Context, userID uuid.UUID) ([]PathWithT
 
 	out := make([]PathWithTopics, len(paths))
 	for i, path := range paths {
-		topics, err := h.q.ListLearningPathTopics(ctx, path.ID)
+		out[i], err = h.withTopics(ctx, userID, path)
 		if err != nil {
 			return nil, err
 		}
-
-		out[i] = PathWithTopics{Path: path, Topics: topics}
 	}
 
 	return out, nil

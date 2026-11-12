@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"learning_app/backend/internal/apperr"
@@ -102,6 +103,21 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 	if _, err := tq.LockLearningPathTopic(ctx, topic.ID); err != nil {
 		return nil, err
 	}
+
+	// The agent took a while, and the program's background preparation writes
+	// sets while the learner opens topics: whoever got here first has written
+	// the set, and a second one would replace the exercises being answered.
+	if !cmd.Regenerate {
+		written, err := tq.ListLearningPathExercises(ctx, topic.ID)
+		if err != nil {
+			return nil, err
+		}
+
+		if len(written) > 0 {
+			return written, h.startIfAsked(ctx, tq, topic, cmd, tx)
+		}
+	}
+
 	generation, err := tq.GetNextLearningPathExerciseGeneration(ctx, topic.ID)
 	if err != nil {
 		return nil, err
@@ -138,13 +154,19 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 		}
 	}
 
+	return out, h.startIfAsked(ctx, tq, topic, cmd, tx)
+}
+
+// startIfAsked starts the topic when the learner opened it (not the background
+// preparation), then commits.
+func (h ExerciseHandler) startIfAsked(ctx context.Context, tq *db.Queries, topic db.LearningPathTopic, cmd GenerateExercises, tx pgx.Tx) error {
 	if !cmd.Prefetch && (topic.Status == db.LearningPathTopicStatusNotStarted || topic.Status == db.LearningPathTopicStatusCompleted) {
 		if _, err := tq.StartLearningPathTopic(ctx, db.StartLearningPathTopicParams{ID: topic.ID, PathID: topic.PathID}); err != nil {
-			return nil, err
+			return err
 		}
 	}
 
-	return out, tx.Commit(ctx)
+	return tx.Commit(ctx)
 }
 
 // topic loads a topic with its path and checks the path is the learner's.

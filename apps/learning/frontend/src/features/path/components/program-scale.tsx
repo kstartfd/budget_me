@@ -1,6 +1,7 @@
 "use client"
 
 import { useTranslations } from "next-intl"
+import { awaitsExercises, topicProgress } from "../progress"
 import type { PathTopic } from "../schemas"
 import { SkillIcon, skillBar, skillOrder } from "./skills"
 
@@ -9,12 +10,34 @@ import { SkillIcon, skillBar, skillOrder } from "./skills"
  * whole programme as one line, and under it a line for every skill the program
  * teaches, so the learner sees at a glance that it has reading, listening and
  * speaking and not only exercises, and how much of each is done.
+ *
+ * Progress counts by exercises: each topic is a segment that fills with the
+ * share of its exercises answered right, a topic without a set yet is empty,
+ * and a completed one is whole. A learner who asks for a new set sees that
+ * topic's segment start over, with nothing else to recompute.
  */
-export function ProgramScale({ topics }: { topics: PathTopic[] }) {
+export function ProgramScale({
+  topics,
+  preparing = false,
+}: {
+  topics: PathTopic[]
+  /** The exercises are still being written: say so, and count what is there. */
+  preparing?: boolean
+}) {
   const t = useTranslations("path")
 
   const total = topics.length
   const done = topics.filter((topic) => topic.status === "completed").length
+  const progress = topics.reduce((sum, topic) => sum + topicProgress(topic), 0)
+
+  const exercises = topics.reduce(
+    (sum, topic) => ({
+      total: sum.total + topic.exercises.total,
+      done: sum.done + topic.exercises.done,
+    }),
+    { total: 0, done: 0 },
+  )
+  const waiting = topics.filter(awaitsExercises).length
 
   const rows = skillOrder
     .map((skill) => {
@@ -22,11 +45,11 @@ export function ProgramScale({ topics }: { topics: PathTopic[] }) {
 
       return {
         skill,
-        total: own.length,
+        topics: own,
         done: own.filter((topic) => topic.status === "completed").length,
       }
     })
-    .filter((row) => row.total > 0)
+    .filter((row) => row.topics.length > 0)
 
   if (total === 0) return null
 
@@ -46,14 +69,30 @@ export function ProgramScale({ topics }: { topics: PathTopic[] }) {
           role="progressbar"
           aria-valuemin={0}
           aria-valuemax={total}
-          aria-valuenow={done}
+          aria-valuenow={progress}
+          aria-valuetext={t("scaleDone", { done, total })}
           className="bg-border h-2 overflow-hidden rounded-full"
         >
           <div
             className="bg-success h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none"
-            style={{ width: `${(done / total) * 100}%` }}
+            style={{ width: `${(progress / total) * 100}%` }}
           />
         </div>
+        {(exercises.total > 0 || preparing) && (
+          <p
+            aria-live="polite"
+            className="text-muted-foreground flex flex-wrap gap-x-2 text-xs tabular-nums"
+          >
+            {exercises.total > 0 && (
+              <span>{t("scaleExercises", exercises)}</span>
+            )}
+            {preparing && waiting > 0 && (
+              <span>
+                {t("scalePreparing", { ready: total - waiting, total })}
+              </span>
+            )}
+          </p>
+        )}
       </div>
 
       <ul className="grid gap-x-5 gap-y-2.5 sm:grid-cols-2">
@@ -63,26 +102,27 @@ export function ProgramScale({ topics }: { topics: PathTopic[] }) {
               <SkillIcon skill={row.skill} />
               <span className="min-w-0 flex-1 truncate">{t(`skill.${row.skill}`)}</span>
               <span className="text-muted-foreground text-xs tabular-nums">
-                {row.done}/{row.total}
+                {row.done}/{row.topics.length}
               </span>
             </div>
             <div
               role="progressbar"
               aria-label={t(`skill.${row.skill}`)}
               aria-valuemin={0}
-              aria-valuemax={row.total}
+              aria-valuemax={row.topics.length}
               aria-valuenow={row.done}
               className="flex gap-0.5"
             >
-              {Array.from({ length: row.total }, (_, i) => (
+              {row.topics.map((topic) => (
                 <span
-                  key={i}
-                  className={
-                    i < row.done
-                      ? `h-1.5 flex-1 rounded-full ${skillBar(row.skill)}`
-                      : "bg-border h-1.5 flex-1 rounded-full"
-                  }
-                />
+                  key={topic.id}
+                  className="bg-border relative h-1.5 flex-1 overflow-hidden rounded-full"
+                >
+                  <span
+                    className={`absolute inset-y-0 left-0 rounded-full transition-[width] duration-300 motion-reduce:transition-none ${skillBar(row.skill)}`}
+                    style={{ width: `${topicProgress(topic) * 100}%` }}
+                  />
+                </span>
               ))}
             </div>
           </li>
