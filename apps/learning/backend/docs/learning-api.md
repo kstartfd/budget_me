@@ -321,6 +321,30 @@ For a language pair that has a library (English for Russian speakers, A1 to B2)
 the program is planned from it: the agent only picks topics, and each topic
 carries the library's own rule, words and goal.
 
+## Rule book and practice on a rule (session only)
+
+The rule book is the library's grammar rules of the pair a learner has a teacher
+for (`403` without one), written by people and never by an agent. Practice is
+what the learner's own agent adds to a rule: more example sentences, drills in
+the manner of English Grammar in Use, and a chat about each sentence. It is a
+*sitting*, not a record: there is one per learner and rule, and it goes away
+when the learner leaves the rule's page. Paths are under `/api/v1/learning/path`.
+
+| Method and path | What it does |
+| --- | --- |
+| `GET /rules`, `GET /rules/:id` | The rules by level, and one rule with its forms, examples, mistakes and the rules it refers to. |
+| `GET /rules/:id/practice` | The sitting: `{examples: [{id, text, translation}], blocks: [{id, kind, instruction, items: [{id, text, hint, options}]}]}`, empty when there is none. Opening it lifts the expiry that leaving set. The keys never come with it. |
+| `POST /rules/:id/practice/examples` | The agent writes five more sentences for the rule, never repeating one already shown (up to 20 per sitting; `409` after that). |
+| `POST /rules/:id/practice/exercises` | The agent writes four drills of five lines, one of each kind, replacing the sitting's drills. Kinds: `form` (put the word in brackets into the right form), `choose`, `correct` (the sentence has a mistake), `make` (turn it into a question, a negative…). |
+| `POST /rules/:id/practice/check` | `{block, item, answer}`. Grades one line by its key (case, spacing and punctuation are ignored) and answers `{correct, key, note}`. It asks no agent. |
+| `POST /rules/:id/practice/key` | `{block, item}`. The key and the reason for a learner who gives up. |
+| `POST /rules/:id/practice/leave` | The learner has left the page: the sitting is kept for ten minutes, then goes with its chats. Coming back within that time (`GET`) keeps it for six hours again, and a sitting nobody leaves ends after six hours. |
+| `GET`, `POST /rules/:id/examples/:example/chat` | The chat about one sentence: always the teacher, in the learner's language, with the usual `✏️` corrections. It streams like the other chats and shares their budget and limits; it ends with the sitting (`404` after). |
+
+A sitting is swept lazily, when its learner next asks for anything of it, so no
+background job is needed. Writing examples or drills spends the learner's key and
+is paced like the rest of the program's calls.
+
 ## Session-only management
 
 - `POST /topics`, `PUT /topics/<uuid>` — `name`, `language`, `translationLanguage`.

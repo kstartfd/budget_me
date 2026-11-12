@@ -2,12 +2,15 @@ package commands
 
 import (
 	"context"
+	"encoding/json"
 	"log/slog"
 	"strings"
 	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"learning_app/backend/internal/apperr"
@@ -46,7 +49,11 @@ type Send struct {
 	// PathTopicID is a topic of the learner's program: its own chat with the
 	// teacher, about what that topic teaches.
 	PathTopicID uuid.UUID
-	Text        string
+	// RuleID and ExampleID name a sentence of the learner's sitting on a rule
+	// of the rule book: a chat about that sentence alone.
+	RuleID    string
+	ExampleID string
+	Text      string
 }
 
 type Reply struct {
@@ -123,6 +130,8 @@ type target struct {
 	entry *db.LearningEntry
 	// lesson is set for the chat of a program topic, which has no notebook.
 	lesson *lessonSubject
+	// example is set for the chat of one sentence of a sitting on a rule.
+	example *exampleSubject
 }
 
 // lessonSubject is a program topic and the program it belongs to.
@@ -134,6 +143,12 @@ type lessonSubject struct {
 // find resolves whose chat this is before anything else is looked at: whose
 // it is must not depend on what the caller has set up.
 func (h SendHandler) find(ctx context.Context, cmd Send) (target, error) {
+	if cmd.ExampleID != "" {
+		subject, err := h.exampleSubject(ctx, cmd.UserID, cmd.RuleID, cmd.ExampleID)
+
+		return target{example: subject}, err
+	}
+
 	if cmd.PathTopicID != uuid.Nil {
 		subject, err := h.lessonSubject(ctx, cmd.UserID, cmd.PathTopicID)
 
@@ -165,6 +180,13 @@ func (h SendHandler) find(ctx context.Context, cmd Send) (target, error) {
 
 // chat is created with the first question.
 func (h SendHandler) ensureChat(ctx context.Context, t target, now time.Time) (db.LearningChat, error) {
+	if t.example != nil {
+		return h.q.EnsureLearningChatForExample(ctx, db.EnsureLearningChatForExampleParams{
+			ID: ids.ToPg(ids.New()), UserID: t.example.practice.UserID, PracticeID: t.example.practice.ID,
+			ExampleID: pgtype.Text{String: t.example.sentence.ID, Valid: true}, CreatedAt: db.Time(now),
+		})
+	}
+
 	if t.lesson != nil {
 		return h.q.EnsureLearningChatForPathTopic(ctx, db.EnsureLearningChatForPathTopicParams{ID: ids.ToPg(ids.New()), UserID: t.lesson.path.UserID, PathTopicID: t.lesson.topic.ID, CreatedAt: db.Time(now)})
 	}
@@ -179,6 +201,10 @@ func (h SendHandler) ensureChat(ctx context.Context, t target, now time.Time) (d
 // system is what the model is told before the conversation. The free chat is
 // always the teacher; a chat about an entry follows the learner's setting.
 func (t target) system(summary string, teacher bool) string {
+	if t.example != nil {
+		return exampleSystem(*t.example, summary)
+	}
+
 	if t.lesson != nil {
 		return lessonSystem(t.lesson.path, t.lesson.topic, summary)
 	}
@@ -485,4 +511,48 @@ func (h SendHandler) ClearLesson(ctx context.Context, userID, topicID uuid.UUID)
 	}
 
 	return h.forget(ctx, chat)
+}
+
+// exampleSubject is one sentence of a sitting on a rule of the rule book, with
+// the sitting it belongs to (which keeps the rule and the languages).
+type exampleSubject struct {
+	practice db.LearningRulePractice
+	sentence exampleSentence
+}
+
+// exampleSentence is a sentence as the sitting stores it.
+type exampleSentence struct {
+	ID          string `json:"id"`
+	Text        string `json:"text"`
+	Translation string `json:"translation"`
+}
+
+// exampleSubject loads a sentence the learner can still see: the sitting goes
+// when its time runs out, and a chat about a sentence goes with it.
+func (h SendHandler) exampleSubject(ctx context.Context, userID uuid.UUID, ruleID, exampleID string) (*exampleSubject, error) {
+	row, err := h.q.GetLearningRulePractice(ctx, db.GetLearningRulePracticeParams{UserID: ids.ToPg(userID), RuleID: ruleID})
+	if err == nil && !row.ExpiresAt.Time.After(h.clock.Now()) {
+		err = pgx.ErrNoRows
+	}
+
+	if db.IsNotFound(err) {
+		return nil, apperr.NewNotFound("these sentences are gone: write new ones")
+	}
+
+	if err != nil {
+		return nil, err
+	}
+
+	var sentences []exampleSentence
+	if err := json.Unmarshal(row.Examples, &sentences); err != nil {
+		return nil, err
+	}
+
+	for _, s := range sentences {
+		if s.ID == exampleID {
+			return &exampleSubject{practice: row, sentence: s}, nil
+		}
+	}
+
+	return nil, apperr.NewNotFound("sentence not found")
 }

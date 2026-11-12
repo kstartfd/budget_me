@@ -18,6 +18,9 @@ func (c *Controller) Routes(protected *echo.Group) {
 	protected.POST("/learning/path/topics/:id/chat", c.sendPathTopic, echomw.BodyLimit("16K"))
 	protected.DELETE("/learning/path/topics/:id/chat", c.clearPathTopic)
 
+	protected.GET("/learning/path/rules/:id/examples/:example/chat", c.getExample)
+	protected.POST("/learning/path/rules/:id/examples/:example/chat", c.sendExample, echomw.BodyLimit("16K"))
+
 	protected.GET("/learning/chat-dialogs/:id", c.dialog)
 	protected.DELETE("/learning/chat-dialogs/:id", c.deleteDialog)
 }

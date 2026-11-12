@@ -124,6 +124,22 @@ func (c *Controller) sendPathTopic(ctx echo.Context) error {
 	return c.stream(ctx, commands.Send{UserID: userOf(ctx), PathTopicID: id})
 }
 
+// getExample reads the conversation about one sentence of a rule's sitting.
+func (c *Controller) getExample(ctx echo.Context) error {
+	chat, err := c.read.GetExample(ctx.Request().Context(), userOf(ctx), ctx.Param("id"), ctx.Param("example"))
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, chatDTO(chat))
+}
+
+func (c *Controller) sendExample(ctx echo.Context) error {
+	return c.stream(ctx, commands.Send{UserID: userOf(ctx), RuleID: ctx.Param("id"), ExampleID: ctx.Param("example")})
+}
+
 func (c *Controller) clearPathTopic(ctx echo.Context) error {
 	id, err := topicID(ctx)
 	if err != nil {

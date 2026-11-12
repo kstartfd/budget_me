@@ -114,3 +114,12 @@ INSERT INTO learning_chats (id, user_id, path_topic_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $4)
 ON CONFLICT (path_topic_id) WHERE path_topic_id IS NOT NULL DO UPDATE SET path_topic_id = EXCLUDED.path_topic_id
 RETURNING *;
+
+-- name: GetLearningChatByExample :one
+SELECT * FROM learning_chats WHERE practice_id = $1 AND example_id = $2 AND user_id = $3;
+
+-- name: EnsureLearningChatForExample :one
+INSERT INTO learning_chats (id, user_id, practice_id, example_id, created_at, updated_at)
+VALUES ($1, $2, $3, $4, $5, $5)
+ON CONFLICT (practice_id, example_id) WHERE practice_id IS NOT NULL DO UPDATE SET example_id = EXCLUDED.example_id
+RETURNING *;

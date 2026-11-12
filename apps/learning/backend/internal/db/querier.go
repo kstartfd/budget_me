@@ -21,6 +21,8 @@ type Querier interface {
 	CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error)
 	CountLearningPathTopics(ctx context.Context, dollar_1 []pgtype.UUID) ([]CountLearningPathTopicsRow, error)
 	DeleteArchivedTopicChat(ctx context.Context, arg DeleteArchivedTopicChatParams) (int64, error)
+	// A sitting whose time has run out goes, with the chats about its sentences.
+	DeleteExpiredLearningRulePractice(ctx context.Context, arg DeleteExpiredLearningRulePracticeParams) error
 	DeleteLearningAISettings(ctx context.Context, userID pgtype.UUID) (int64, error)
 	DeleteLearningChatMarks(ctx context.Context, userID pgtype.UUID) (int64, error)
 	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
@@ -32,7 +34,10 @@ type Querier interface {
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
+	EnsureLearningChatForExample(ctx context.Context, arg EnsureLearningChatForExampleParams) (LearningChat, error)
 	EnsureLearningChatForPathTopic(ctx context.Context, arg EnsureLearningChatForPathTopicParams) (LearningChat, error)
+	// The sitting is made with the first thing written into it.
+	EnsureLearningRulePractice(ctx context.Context, arg EnsureLearningRulePracticeParams) (LearningRulePractice, error)
 	EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicChatParams) (LearningChat, error)
 	FinishLearningPathJob(ctx context.Context, arg FinishLearningPathJobParams) error
 	// Closing a lesson also closes a pause that was still open, so the paused
@@ -48,6 +53,7 @@ type Querier interface {
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
 	GetLearningChatByEntry(ctx context.Context, arg GetLearningChatByEntryParams) (LearningChat, error)
+	GetLearningChatByExample(ctx context.Context, arg GetLearningChatByExampleParams) (LearningChat, error)
 	GetLearningChatByPathTopic(ctx context.Context, arg GetLearningChatByPathTopicParams) (LearningChat, error)
 	GetLearningChatMarks(ctx context.Context, userID pgtype.UUID) (LearningChatMark, error)
 	GetLearningEntry(ctx context.Context, arg GetLearningEntryParams) (LearningEntry, error)
@@ -57,6 +63,8 @@ type Querier interface {
 	GetLearningPathLesson(ctx context.Context, arg GetLearningPathLessonParams) (LearningPathLesson, error)
 	GetLearningPathTest(ctx context.Context, arg GetLearningPathTestParams) (LearningPathTest, error)
 	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
+	GetLearningRulePractice(ctx context.Context, arg GetLearningRulePracticeParams) (LearningRulePractice, error)
+	GetLearningRulePracticeByID(ctx context.Context, arg GetLearningRulePracticeByIDParams) (LearningRulePractice, error)
 	GetLearningTeacher(ctx context.Context, arg GetLearningTeacherParams) (LearningTeacher, error)
 	GetLearningTeacherByLanguage(ctx context.Context, arg GetLearningTeacherByLanguageParams) (LearningTeacher, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
@@ -85,6 +93,8 @@ type Querier interface {
 	InsertLearningTopic(ctx context.Context, arg InsertLearningTopicParams) (LearningTopic, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
 	KnownLearningTextHashes(ctx context.Context, arg KnownLearningTextHashesParams) ([][]byte, error)
+	// Leaving the page of a rule: the sitting stays for a short while, then goes.
+	LeaveLearningRulePractice(ctx context.Context, arg LeaveLearningRulePracticeParams) error
 	ListActiveLearningPaths(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error)
 	ListArchivedTopicChats(ctx context.Context, arg ListArchivedTopicChatsParams) ([]ListArchivedTopicChatsRow, error)
 	ListLearningChatMessages(ctx context.Context, chatID pgtype.UUID) ([]LearningChatMessage, error)
@@ -106,6 +116,7 @@ type Querier interface {
 	LockLearningCaptureLease(ctx context.Context, arg LockLearningCaptureLeaseParams) (LearningCapture, error)
 	LockLearningChat(ctx context.Context, arg LockLearningChatParams) (LearningChat, error)
 	LockLearningPathTopic(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
+	LockLearningRulePractice(ctx context.Context, arg LockLearningRulePracticeParams) (LearningRulePractice, error)
 	// The account is the source of truth for identity; this row keeps a copy.
 	MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error)
 	// The next dialog carries over what the closed one spent in its budget window,
@@ -122,9 +133,13 @@ type Querier interface {
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
 	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error
+	SaveLearningRulePracticeExamples(ctx context.Context, arg SaveLearningRulePracticeExamplesParams) (LearningRulePractice, error)
+	SaveLearningRulePracticeExercises(ctx context.Context, arg SaveLearningRulePracticeExercisesParams) (LearningRulePractice, error)
 	SetLearningPathJobRunning(ctx context.Context, arg SetLearningPathJobRunningParams) error
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
 	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)
+	// Opening the page of a rule lifts the expiry that leaving it set.
+	TouchLearningRulePractice(ctx context.Context, arg TouchLearningRulePracticeParams) (LearningRulePractice, error)
 	UnlockLearningChat(ctx context.Context, id pgtype.UUID) error
 	UpdateLearningAIChoice(ctx context.Context, arg UpdateLearningAIChoiceParams) (LearningAiSetting, error)
 	UpdateLearningEntry(ctx context.Context, arg UpdateLearningEntryParams) (LearningEntry, error)

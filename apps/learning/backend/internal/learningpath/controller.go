@@ -52,6 +52,7 @@ type Controller struct {
 	topics    commands.TopicHandler
 	teachers  commands.TeacherHandler
 	lessons   commands.LessonHandler
+	practices commands.PracticeHandler
 	resets    commands.ResetHandler
 	read      queries.ReadHandler
 	limit     *ratelimit.Limiter
@@ -72,6 +73,7 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 		topics:    commands.NewTopicHandler(q, clk),
 		teachers:  commands.NewTeacherHandler(q, clk),
 		lessons:   commands.NewLessonHandler(q, clk),
+		practices: commands.NewPracticeHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
 		resets:    commands.NewResetHandler(q, clk),
 		read:      queries.NewReadHandler(q),
 		limit:     ratelimit.New(aiRate),

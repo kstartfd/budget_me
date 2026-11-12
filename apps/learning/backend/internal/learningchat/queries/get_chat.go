@@ -2,9 +2,13 @@ package queries
 
 import (
 	"context"
+	"encoding/json"
+	"slices"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgtype"
 
 	"learning_app/backend/internal/apperr"
 	"learning_app/backend/internal/clock"
@@ -195,4 +199,44 @@ func (h ChatHandler) topicExists(ctx context.Context, userID, topicID uuid.UUID)
 	}
 
 	return err
+}
+
+// sentenceRef is the part of a stored sentence that names it.
+type sentenceRef struct {
+	ID string `json:"id"`
+}
+
+// GetExample returns the conversation about one sentence of the learner's
+// sitting on a rule, empty until the first question. It is always the teacher.
+func (h ChatHandler) GetExample(ctx context.Context, userID uuid.UUID, ruleID, exampleID string) (Chat, error) {
+	row, err := h.q.GetLearningRulePractice(ctx, db.GetLearningRulePracticeParams{UserID: ids.ToPg(userID), RuleID: ruleID})
+	if err == nil && !row.ExpiresAt.Time.After(h.clock.Now()) {
+		err = pgx.ErrNoRows
+	}
+
+	if db.IsNotFound(err) {
+		return Chat{}, apperr.NewNotFound("these sentences are gone: write new ones")
+	}
+
+	if err != nil {
+		return Chat{}, err
+	}
+
+	var sentences []sentenceRef
+	if err := json.Unmarshal(row.Examples, &sentences); err != nil {
+		return Chat{}, err
+	}
+
+	if !slices.ContainsFunc(sentences, func(s sentenceRef) bool { return s.ID == exampleID }) {
+		return Chat{}, apperr.NewNotFound("sentence not found")
+	}
+
+	chat, err := h.q.GetLearningChatByExample(ctx, db.GetLearningChatByExampleParams{
+		PracticeID: row.ID, ExampleID: pgtype.Text{String: exampleID, Valid: true}, UserID: ids.ToPg(userID),
+	})
+	if err != nil && !db.IsNotFound(err) {
+		return Chat{}, err
+	}
+
+	return h.state(ctx, userID, chat, err == nil, true)
 }

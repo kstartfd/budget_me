@@ -672,6 +672,8 @@ type LearningChat struct {
 	TopicID       pgtype.UUID
 	ArchivedAt    pgtype.Timestamptz
 	PathTopicID   pgtype.UUID
+	PracticeID    pgtype.UUID
+	ExampleID     pgtype.Text
 }
 
 type LearningChatMark struct {
@@ -847,6 +849,22 @@ type LearningPathTopic struct {
 	Theory      string
 	Vocabulary  []byte
 	SourceID    string
+}
+
+type LearningRulePractice struct {
+	ID                  pgtype.UUID
+	UserID              pgtype.UUID
+	RuleID              string
+	Language            string
+	TranslationLanguage string
+	Level               string
+	Title               string
+	Theory              string
+	Examples            []byte
+	Exercises           []byte
+	CreatedAt           pgtype.Timestamptz
+	UpdatedAt           pgtype.Timestamptz
+	ExpiresAt           pgtype.Timestamptz
 }
 
 type LearningScan struct {
