@@ -74,6 +74,21 @@ export const startPlacement = (
     { language, translationLanguage, ...(level ? { level } : {}) },
   )
 
+/**
+ * Picks a level the learner has already reached instead of taking the test
+ * again: answers with a finished placement the program is built from.
+ */
+export const chooseLevel = (
+  language: string,
+  translationLanguage: string,
+  level: string,
+): Promise<PathTest> =>
+  request("/path/levels", "POST", (d) => pathTestSchema.parse(d), {
+    language,
+    translationLanguage,
+    level,
+  })
+
 export const startFinalTest = (language: string, translationLanguage: string): Promise<PathTest> =>
   request(
     "/path/final-tests",

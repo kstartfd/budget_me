@@ -26,6 +26,7 @@ const (
 
 const planSystem = "You are an experienced language teacher planning a study program for one learner from a fixed library of topics.\n\n" +
 	"You receive the result of a placement test: the CEFR level the learner reached, how many questions of each kind they answered and got right, and every question they answered wrong with the answer they chose. You also receive the library: the topics you may choose from, each with an id, a CEFR level, a skill, a title and tags naming the mistakes it fixes.\n\n" +
+	"When questionsAnswered is 0 the learner did not take the test: they picked a level they had proved earlier, so there are no mistakes to go by. Plan that level in full, from its foundations, and say so in the summary instead of naming mistakes.\n\n" +
 	"Reply with one JSON object and nothing else: no markdown, no code fence. Its exact shape:\n" +
 	`{"summary": string, "topics": [{"id": string, "why": string}]}` + "\n" +
 	"summary is 2-4 sentences in the learner's own language: the level you place them at, what they clearly command, and what holds them back.\n" +

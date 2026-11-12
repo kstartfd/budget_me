@@ -11,6 +11,25 @@ export function nextLevel(level: string): string | undefined {
   return LEVELS[LEVELS.indexOf(level as (typeof LEVELS)[number]) + 1]
 }
 
+/**
+ * The levels of a language a learner may build a program at without a test:
+ * from A1 up to the highest level any closed program of theirs was built at,
+ * since the history is the proof they have been there. Empty without one.
+ */
+export function pickableLevels(
+  history: { language: string; level: string }[],
+  language: string,
+): string[] {
+  const top = Math.max(
+    -1,
+    ...history
+      .filter((item) => item.language === language)
+      .map((item) => LEVELS.indexOf(item.level as (typeof LEVELS)[number])),
+  )
+
+  return LEVELS.slice(0, top + 1)
+}
+
 /** How long the "A2 passed" pill and the "new stage" caption stay. */
 const toastMs = 1800
 /** How long the finished rung stays enlarged. */

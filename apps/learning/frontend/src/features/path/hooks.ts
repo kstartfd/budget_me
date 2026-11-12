@@ -33,6 +33,11 @@ export function usePath(language: string, nativeLanguage: string) {
     onSuccess: refresh,
   })
 
+  const chooseLevel = useMutation({
+    mutationFn: (level: string) => api.chooseLevel(language, nativeLanguage, level),
+    onSuccess: refresh,
+  })
+
   const reset = useMutation({
     mutationFn: () => api.resetPath(language),
     onSuccess: refresh,
@@ -48,7 +53,7 @@ export function usePath(language: string, nativeLanguage: string) {
     onSuccess: refresh,
   })
 
-  return { active, history, startPlacement, reset, clearHistory, startFinal }
+  return { active, history, startPlacement, chooseLevel, reset, clearHistory, startFinal }
 }
 
 const hour = 60 * 60 * 1000

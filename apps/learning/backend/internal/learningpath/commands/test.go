@@ -3,6 +3,7 @@ package commands
 import (
 	"context"
 	"encoding/json"
+	"slices"
 	"strings"
 	"unicode/utf8"
 
@@ -191,6 +192,124 @@ func (h TestHandler) nextLevel(ctx context.Context, cmd StartTest) (string, erro
 	}
 
 	return "", apperr.NewInvalid("a test can start above A1 only at the level after the one you confirmed")
+}
+
+// ChooseLevel picks a level the learner has already reached instead of taking
+// the test again: after a reset the program is built straight at a level they
+// proved before. Nothing else grants a level without a test, so the history is
+// the proof: a language with no closed program has no level to pick.
+type ChooseLevel struct {
+	UserID              uuid.UUID
+	Language            string
+	TranslationLanguage string
+	Level               string
+}
+
+// ReachedLevel is the highest level any closed program of a language was built
+// at, which is how far the learner has proved themselves in it. The bool is
+// false when there is none.
+func ReachedLevel(history []db.LearningPath, language string) (placement.Level, bool) {
+	best, found := placement.A1, false
+
+	for _, path := range history {
+		if path.Language != language {
+			continue
+		}
+
+		level := placement.Level(path.Level)
+		if !slices.Contains(placement.Levels, level) {
+			continue
+		}
+
+		if !found || placement.Index(level) > placement.Index(best) {
+			best, found = level, true
+		}
+	}
+
+	return best, found
+}
+
+// Choose records a placement that is already done at the picked level, so the
+// program is built from it exactly as from a test the learner has just taken
+// (survey, job, the same screens). It holds no questions and no answers.
+func (h TestHandler) Choose(ctx context.Context, cmd ChooseLevel) (db.LearningPathTest, error) {
+	for _, code := range []string{cmd.Language, cmd.TranslationLanguage} {
+		if _, err := language.Parse(code); err != nil || code == "" || len(code) > 35 {
+			return db.LearningPathTest{}, apperr.NewInvalid("invalid language code")
+		}
+	}
+
+	level := placement.Level(cmd.Level)
+	if !slices.Contains(placement.Levels, level) {
+		return db.LearningPathTest{}, apperr.NewInvalid("invalid level")
+	}
+
+	// A teacher fixes the pair of its language, as it does for a test.
+	teacher, err := h.q.GetLearningTeacherByLanguage(ctx, db.GetLearningTeacherByLanguageParams{UserID: ids.ToPg(cmd.UserID), Language: cmd.Language})
+	if err == nil {
+		cmd.TranslationLanguage = teacher.TranslationLanguage
+	} else if !db.IsNotFound(err) {
+		return db.LearningPathTest{}, err
+	}
+
+	if _, err := h.q.GetActiveLearningPath(ctx, db.GetActiveLearningPathParams{UserID: ids.ToPg(cmd.UserID), Language: cmd.Language}); err == nil {
+		return db.LearningPathTest{}, apperr.NewConflict("a program for this language is already running: finish it or reset it first")
+	} else if !db.IsNotFound(err) {
+		return db.LearningPathTest{}, err
+	}
+
+	history, err := h.q.ListLearningPathHistory(ctx, ids.ToPg(cmd.UserID))
+	if err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	reached, ok := ReachedLevel(history, cmd.Language)
+	if !ok || placement.Index(level) > placement.Index(reached) {
+		return db.LearningPathTest{}, apperr.NewInvalid("only a level you have already reached can be picked: take the test for a new one")
+	}
+
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	tq := h.q.WithTx(tx)
+	now := db.Time(h.clock.Now())
+
+	if _, err := tq.InsertLearningTeacher(ctx, db.InsertLearningTeacherParams{
+		ID:                  ids.ToPg(ids.New()),
+		UserID:              ids.ToPg(cmd.UserID),
+		Language:            cmd.Language,
+		TranslationLanguage: cmd.TranslationLanguage,
+		CreatedAt:           now,
+	}); err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	test, err := tq.InsertLearningPathTest(ctx, db.InsertLearningPathTestParams{
+		ID:                  ids.ToPg(ids.New()),
+		UserID:              ids.ToPg(cmd.UserID),
+		Kind:                db.LearningPathTestKindPlacement,
+		Language:            cmd.Language,
+		TranslationLanguage: cmd.TranslationLanguage,
+		Level:               cmd.Level,
+		CreatedAt:           now,
+	})
+	if err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	if err := tq.FinishLearningPathTest(ctx, db.FinishLearningPathTestParams{ID: test.ID, UserID: test.UserID, LevelReached: cmd.Level, Passed: false, CompletedAt: now}); err != nil {
+		return db.LearningPathTest{}, err
+	}
+
+	test.Status = db.LearningPathTestStatusDone
+	test.LevelReached = cmd.Level
+	test.CompletedAt = now
+
+	return test, tx.Commit(ctx)
 }
 
 // generate has the learner's agent write one batch of a level. Prompts already

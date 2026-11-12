@@ -315,6 +315,7 @@ under `/api/v1/learning/path`.
 | `DELETE /teachers/:id` | Removes a teacher. Its running program is closed into the history, not thrown away. |
 | `POST /tests` | Opens a placement test (`{language, translationLanguage, level?}`; `level` starts above A1 and is accepted only as the rung after a confirmed final test). The first batch is written by the agent before the test exists, so without a reachable agent it fails and leaves nothing open. |
 | `POST /final-tests` | Opens the final test of the running program's level. |
+| `POST /levels` | `{language, translationLanguage, level}`. Picks a level the learner has already reached instead of taking the test again: it answers `201` with a finished placement at that level (no questions, no agent call), which is built into a program with `POST /tests/:id/analyze` like any other, the program's `source` is then `chosen`. The levels that can be picked are `A1` up to the highest level of the language's closed programs (the history is the proof), so `400` with no history or above it, `409` while a program is running. |
 | `GET /tests/:id`, `POST /tests/:id/answers` | The state of a test, and one batch of answers; a full batch goes to the examiner (the agent), which climbs or places the learner. |
 | `POST /tests/:id/analyze` | Queues building the program from a finished placement test and answers `202` with a job; asking again hands the same job back. |
 | `GET /jobs/:id` | `queued`, `running`, `done` (with the program) or `failed` (with why). |

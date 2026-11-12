@@ -4,8 +4,9 @@ package learningpath
 type startTestRequest struct {
 	Language            string `json:"language"`
 	TranslationLanguage string `json:"translationLanguage"`
-	// Level starts a placement above A1. Only the rung after the level the
-	// learner has just confirmed in a final test is accepted.
+	// Level starts a placement above A1 (only the rung after the level the
+	// learner has just confirmed in a final test is accepted), or, on
+	// POST /path/levels, is the already reached level to build a program at.
 	Level string `json:"level"`
 }
 

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { IconCheck, IconChevronLeft } from "@tabler/icons-react"
 import { usePath } from "../hooks"
+import { pickableLevels } from "./level-scale"
 import { ProgramView } from "./program-view"
 import { StartError } from "./start-error"
 import { TeachersList, type TeacherPair } from "./teachers-list"
@@ -73,10 +74,13 @@ function Program({
   const t = useTranslations("path")
   const locale = useLocale()
   const [testId, setTestId] = useState<string | null>(null)
+  // The test on screen is a level picked from the reached ones, not a taken test.
+  const [chosen, setChosen] = useState(false)
   const path = usePath(language, nativeLanguage)
   const languageNames = new Intl.DisplayNames([locale], { type: "language" })
   const languageName = languageNames.of(language) ?? language
   const active = path.active.data
+  const pickable = pickableLevels(path.history.data ?? [], language)
 
   useEffect(() => {
     onTestChange?.(testId !== null)
@@ -86,15 +90,18 @@ function Program({
     return (
       <TestRunner
         id={testId}
+        chosen={chosen}
         onNextLevel={(level) => {
           // The finished test is dropped first so the new one mounts fresh.
           setTestId(null)
+          setChosen(false)
           path.startPlacement.mutate(level, {
             onSuccess: (test) => setTestId(test.id),
           })
         }}
         onClose={(analyzed) => {
           setTestId(null)
+          setChosen(false)
           if (analyzed) path.active.refetch()
         }}
       />
@@ -145,41 +152,80 @@ function Program({
           asOf={path.active.dataUpdatedAt}
         />
       ) : (
-        <section className="bg-background border-border space-y-3 rounded-lg border p-5">
-          <div className="space-y-2.5">
-            <h2 className="text-base font-semibold">{t("placementTitle")}</h2>
-            <ul className="max-w-[65ch] space-y-2 text-[15px] leading-[1.6]">
-              {(["Writer", "Ladder", "Mistakes"] as const).map((point) => (
-                <li key={point} className="flex gap-2.5">
-                  <IconCheck
-                    size={16}
-                    aria-hidden="true"
-                    className="text-success mt-1 shrink-0"
-                  />
-                  <span>{t(`placementPoint${point}`)}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="bg-muted text-muted-foreground inline-block rounded-full px-3 py-1 text-xs font-medium">
-              {t("placementNeeds")}
-            </p>
-          </div>
-          {path.startPlacement.isError && (
-            <StartError message={path.startPlacement.error.message} />
+        <>
+          {pickable.length > 0 && (
+            <section className="bg-background border-border space-y-3 rounded-lg border p-5">
+              <div className="space-y-1.5">
+                <h2 className="text-base font-semibold">{t("pickTitle")}</h2>
+                <p className="text-muted-foreground max-w-[65ch] text-[13px] leading-relaxed">
+                  {t("pickHint")}
+                </p>
+              </div>
+              <div role="group" aria-label={t("pickTitle")} className="flex flex-wrap gap-2">
+                {pickable.map((level) => (
+                  <Button
+                    key={level}
+                    variant="outline"
+                    size="lg"
+                    disabled={path.chooseLevel.isPending}
+                    aria-label={t("pickLevel", { level })}
+                    onClick={() =>
+                      path.chooseLevel.mutate(level, {
+                        onSuccess: (test) => {
+                          setChosen(true)
+                          setTestId(test.id)
+                        },
+                      })
+                    }
+                    className="min-w-14 px-4 text-[13px] font-semibold"
+                  >
+                    {level}
+                  </Button>
+                ))}
+              </div>
+              {path.chooseLevel.isError && (
+                <p role="alert" className="text-destructive text-xs">
+                  {path.chooseLevel.error.message}
+                </p>
+              )}
+            </section>
           )}
-          <Button
-            onClick={() =>
-              path.startPlacement.mutate(undefined, {
-                onSuccess: (test) => setTestId(test.id),
-              })
-            }
-            disabled={path.startPlacement.isPending}
-            size="lg"
-            className="px-4 text-[13px]"
-          >
-            {t(path.startPlacement.isPending ? "starting" : "startPlacement")}
-          </Button>
-        </section>
+          <section className="bg-background border-border space-y-3 rounded-lg border p-5">
+            <div className="space-y-2.5">
+              <h2 className="text-base font-semibold">{t("placementTitle")}</h2>
+              <ul className="max-w-[65ch] space-y-2 text-[15px] leading-[1.6]">
+                {(["Writer", "Ladder", "Mistakes"] as const).map((point) => (
+                  <li key={point} className="flex gap-2.5">
+                    <IconCheck
+                      size={16}
+                      aria-hidden="true"
+                      className="text-success mt-1 shrink-0"
+                    />
+                    <span>{t(`placementPoint${point}`)}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="bg-muted text-muted-foreground inline-block rounded-full px-3 py-1 text-xs font-medium">
+                {t("placementNeeds")}
+              </p>
+            </div>
+            {path.startPlacement.isError && (
+              <StartError message={path.startPlacement.error.message} />
+            )}
+            <Button
+              onClick={() =>
+                path.startPlacement.mutate(undefined, {
+                  onSuccess: (test) => setTestId(test.id),
+                })
+              }
+              disabled={path.startPlacement.isPending}
+              size="lg"
+              className="px-4 text-[13px]"
+            >
+              {t(path.startPlacement.isPending ? "starting" : "startPlacement")}
+            </Button>
+          </section>
+        </>
       )}
 
       <History language={language} nativeLanguage={nativeLanguage} />

@@ -186,6 +186,33 @@ func (c *Controller) startFinal(ctx echo.Context) error {
 	return httpx.Created(ctx, testDTO(p))
 }
 
+// chooseLevel starts a program at a level the learner has already reached,
+// with no test: it answers with the finished placement the program is built
+// from, like the end of a test. Nothing is asked of the agent here.
+func (c *Controller) chooseLevel(ctx echo.Context) error {
+	var req startTestRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	test, err := c.tests.Choose(ctx.Request().Context(), commands.ChooseLevel{
+		UserID:              userOf(ctx),
+		Language:            req.Language,
+		TranslationLanguage: req.TranslationLanguage,
+		Level:               req.Level,
+	})
+	if err != nil {
+		return err
+	}
+
+	p, err := c.tests.Progress(ctx.Request().Context(), userOf(ctx), ids.FromPg(test.ID))
+	if err != nil {
+		return err
+	}
+
+	return httpx.Created(ctx, testDTO(p))
+}
+
 func (c *Controller) testState(ctx echo.Context) error {
 	id, err := idParam(ctx, "test")
 	if err != nil {

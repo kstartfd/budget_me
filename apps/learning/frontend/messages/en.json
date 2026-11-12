@@ -416,6 +416,9 @@
     "retakeButton": "Take the test again",
     "startPlacement": "Start the level test",
     "starting": "Starting…",
+    "pickTitle": "Pick up from a level you reached",
+    "pickHint": "You have taken the test before. Pick a level you already reached and the teacher builds a program for it straight away, with no new test.",
+    "pickLevel": "Build a {level} program",
     "programTitle": "Program · level {level}",
     "progressTopics": "{done} of {total} topics",
     "finalTest": "Take the final test",
@@ -425,7 +428,7 @@
     "level": "Level",
     "history": "History",
     "historyClear": "Clear",
-    "historyClearConfirm": "Delete the program history of this language? Its finished topics, exercises and the level you confirmed go with it: the next test starts from A1. The running program stays.",
+    "historyClearConfirm": "Delete the program history of this language? Its finished topics, exercises and the level you confirmed go with it: the next test starts from A1, and you can no longer pick a reached level without a test. The running program stays.",
     "historyClearYes": "Yes, clear it",
     "historyClearing": "Clearing…",
     "status": {
@@ -435,7 +438,8 @@
     },
     "source": {
       "placement": "first analysis",
-      "reset": "re-analysis"
+      "reset": "re-analysis",
+      "chosen": "picked level"
     },
     "topicStatus": {
       "not_started": "not started",
@@ -490,6 +494,8 @@
       "finalTitle": "Final test · {level}",
       "placed": "Your level: {level}",
       "placedHint": "Now the teacher reads the test — the wrong answers above all — and writes your program.",
+      "chosenTitle": "Level {level} picked",
+      "chosenHint": "You picked a level you already reached, so there is no test. Tell the teacher what you are into and they write the program.",
       "analyze": "Build my program",
       "buildingHint": "The program is being built in the background. You can close the app: it finishes on its own and will be here when you come back.",
       "analyzeAgain": "Try again",

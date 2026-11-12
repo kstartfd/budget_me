@@ -18,10 +18,13 @@ import type { PathTest, Preferences } from "../schemas"
  */
 export function TestRunner({
   id,
+  chosen = false,
   onClose,
   onNextLevel,
 }: {
   id: string
+  /** The level was picked from the ones already reached: no test was taken. */
+  chosen?: boolean
   onClose: (analyzed: boolean) => void
   /** Starts a new test at the given rung, after a final test is passed. */
   onNextLevel?: (level: string) => void
@@ -70,6 +73,7 @@ export function TestRunner({
     return (
       <Done
         test={current}
+        chosen={chosen}
         onClose={onClose}
         onNextLevel={onNextLevel}
         onAnalyzed={() => setAnalyzed(true)}
@@ -225,11 +229,13 @@ function QuestionCard({
 /** Done is the verdict screen: analyze a placement, hear a final's result. */
 function Done({
   test,
+  chosen,
   onClose,
   onNextLevel,
   onAnalyzed,
 }: {
   test: PathTest
+  chosen: boolean
   onClose: (analyzed: boolean) => void
   onNextLevel?: (level: string) => void
   onAnalyzed: () => void
@@ -269,7 +275,7 @@ function Done({
           ? t(test.passed ? "finalPassed" : "finalFailed", {
               level: test.levelReached,
             })
-          : t("placed", { level: test.levelReached })}
+          : t(chosen ? "chosenTitle" : "placed", { level: test.levelReached })}
       </h1>
       <p className="text-muted-foreground text-sm leading-relaxed">
         {test.kind === "final"
@@ -280,7 +286,7 @@ function Done({
                   : "finalPassedTop"
                 : "finalFailedHint",
             )
-          : t("placedHint")}
+          : t(chosen ? "chosenHint" : "placedHint")}
       </p>
       {test.kind === "placement" && <LevelScale mode="determined" level={test.levelReached} />}
       {test.kind === "placement" && (
