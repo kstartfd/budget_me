@@ -390,11 +390,10 @@ func topicDetailDTO(d queries.TopicDetail, rule *ruleResponse) topicDetailRespon
 	}
 }
 
-// lessonResponse is a timed lesson. The clock is the server's: the client
+// lessonResponse is a timed lesson of the learner. The clock is the server's: the client
 // counts down to endsAt, so a reload or another device shows the same time.
 type lessonResponse struct {
 	ID            string     `json:"id"`
-	TopicID       string     `json:"topicId"`
 	Status        string     `json:"status"`
 	StartedAt     time.Time  `json:"startedAt"`
 	EndsAt        time.Time  `json:"endsAt"`
@@ -409,7 +408,6 @@ type lessonResponse struct {
 func lessonDTO(l db.LearningPathLesson, s commands.Stats) lessonResponse {
 	out := lessonResponse{
 		ID:            ids.FromPg(l.ID).String(),
-		TopicID:       ids.FromPg(l.TopicID).String(),
 		Status:        string(l.Status),
 		StartedAt:     l.StartedAt.Time,
 		EndsAt:        l.EndsAt.Time,

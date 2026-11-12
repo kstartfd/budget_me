@@ -297,7 +297,8 @@
     "api": {
       "anthropic": "Anthropic API",
       "openai": "OpenAI API",
-      "deepseek": "DeepSeek API"
+      "deepseek": "DeepSeek API",
+      "kimi": "Kimi API"
     },
     "agent": "Agent",
     "effort": "Effort",
@@ -567,7 +568,11 @@
       "pause": "Pause",
       "resume": "Resume",
       "finish": "Finish lesson",
-      "pausedNote": "The lesson clock does not stop: a pause only marks that you stepped away.",
+      "idleTitle": "A 30-minute lesson",
+      "idleHint": "One timer for the whole lesson: move between topics as you like and your answers count to it. The clock does not stop, a pause only marks that you stepped away. When the time is up you get a reminder to rest.",
+      "restTitle": "The lesson is over",
+      "restBody": "Thirty minutes are done. Time to rest: stand up, stretch, drink some water. What you learned settles better when your head gets a break.",
+      "restOk": "Good, I'm resting",
       "finished": "Lesson finished",
       "result": "Studied {minutes} min, answers: {attempts}, correct: {correct}. The result is saved.",
       "history": "Lessons held: {count}",

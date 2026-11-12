@@ -90,6 +90,45 @@ func TestAISettingsAreValidatedSealedAndWriteOnly(t *testing.T) {
 	}
 }
 
+// TestKimiCanBeConnected: Kimi is an agent like the others - its models and
+// the three depths of its reasoning are accepted (it always reasons, so there is
+// no "off"), anything else is refused, and the key is checked and sealed.
+func TestKimiCanBeConnected(t *testing.T) {
+	env := setupAI(t)
+
+	for name, req := range map[string]map[string]any{
+		"thinking off":       choice("kimi", "kimi-k3.1-pro", "off", "sk-moon-test-1234"),
+		"a level it lacks":   choice("kimi", "kimi-k3.1-pro", "medium", "sk-moon-test-1234"),
+		"a model of another": choice("kimi", "deepseek-flash", "high", "sk-moon-test-1234"),
+		"a retired model":    choice("kimi", "kimi-k2.6", "high", "sk-moon-test-1234"),
+	} {
+		if code, body := request(t, env.e, "PUT", settingsPath, env.session, req, ""); code != 400 {
+			t.Errorf("%s: %d %v", name, code, body)
+		}
+	}
+
+	for _, model := range []string{"kimi-k3.1-pro", "kimi-k3.1-pro-highspeed", "kimi-k3"} {
+		code, body := request(t, env.e, "PUT", settingsPath, env.session, choice("kimi", model, "max", "  sk-moon-secret-WXYZ  "), "")
+		if code != 200 || data(t, body)["provider"] != "kimi" || data(t, body)["model"] != model || data(t, body)["keyHint"] != "WXYZ" {
+			t.Fatalf("save %s: %d %v", model, code, body)
+		}
+	}
+
+	row, err := env.q.GetLearningAISettings(context.Background(), ids.ToPg(env.user))
+	if err != nil || row.Provider != db.LearningAiProviderKimi {
+		t.Fatalf("stored: %v %v", row.Provider, err)
+	}
+
+	if bytes.Contains(row.KeyCiphertext, []byte("sk-moon-secret")) {
+		t.Fatal("key stored in the clear")
+	}
+
+	// The key is the one Moonshot gave: it does not follow the user to another provider.
+	if code, body := request(t, env.e, "PUT", settingsPath, env.session, choice("deepseek", "deepseek-flash", "high", ""), ""); code != 400 {
+		t.Fatalf("a Kimi key must not be reused for another provider: %d %v", code, body)
+	}
+}
+
 func TestAISettingsRememberTheTeacherSwitch(t *testing.T) {
 	env := setupAI(t)
 

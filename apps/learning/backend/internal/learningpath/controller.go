@@ -756,14 +756,9 @@ func (c *Controller) lessonReply(ctx echo.Context, lesson db.LearningPathLesson,
 	return httpx.OK(ctx, body)
 }
 
-// startLesson opens the 30-minute lesson of a topic, or hands back the one running.
+// startLesson opens the learner's 30-minute lesson, or hands back the one running.
 func (c *Controller) startLesson(ctx echo.Context) error {
-	id, err := idParam(ctx, "topic")
-	if err != nil {
-		return err
-	}
-
-	lesson, err := c.lessons.Start(ctx.Request().Context(), userOf(ctx), id)
+	lesson, err := c.lessons.Start(ctx.Request().Context(), userOf(ctx))
 	if err != nil {
 		return err
 	}
@@ -771,14 +766,9 @@ func (c *Controller) startLesson(ctx echo.Context) error {
 	return c.lessonReply(ctx, lesson, false)
 }
 
-// listLessons lists the lessons held on a topic, newest first.
+// listLessons lists the learner's lessons, newest first.
 func (c *Controller) listLessons(ctx echo.Context) error {
-	id, err := idParam(ctx, "topic")
-	if err != nil {
-		return err
-	}
-
-	list, stats, err := c.lessons.List(ctx.Request().Context(), userOf(ctx), id)
+	list, stats, err := c.lessons.List(ctx.Request().Context(), userOf(ctx))
 	if err != nil {
 		return err
 	}

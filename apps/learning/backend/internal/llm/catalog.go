@@ -8,6 +8,7 @@ const (
 	Anthropic Provider = "anthropic"
 	OpenAI    Provider = "openai"
 	DeepSeek  Provider = "deepseek"
+	Kimi      Provider = "kimi"
 )
 
 type Model struct {
@@ -20,6 +21,8 @@ var (
 	gptLevels      = []string{"low", "medium", "high", "xhigh", "max"}
 	gptLightLevels = []string{"none", "low", "medium", "high", "xhigh", "max"}
 	deepseekLevels = []string{"off", "low", "high", "max"}
+	// Kimi K3 always reasons: there is no "off", only how hard.
+	kimiLevels = []string{"low", "high", "max"}
 )
 
 var catalog = map[Provider][]Model{
@@ -38,6 +41,11 @@ var catalog = map[Provider][]Model{
 	DeepSeek: {
 		{ID: "deepseek-v4-pro", Levels: deepseekLevels},
 		{ID: "deepseek-flash", Levels: deepseekLevels},
+	},
+	Kimi: {
+		{ID: "kimi-k3.1-pro", Levels: kimiLevels},
+		{ID: "kimi-k3.1-pro-highspeed", Levels: kimiLevels},
+		{ID: "kimi-k3", Levels: kimiLevels},
 	},
 }
 

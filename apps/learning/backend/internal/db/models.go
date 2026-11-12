@@ -64,6 +64,7 @@ const (
 	LearningAiProviderAnthropic LearningAiProvider = "anthropic"
 	LearningAiProviderOpenai    LearningAiProvider = "openai"
 	LearningAiProviderDeepseek  LearningAiProvider = "deepseek"
+	LearningAiProviderKimi      LearningAiProvider = "kimi"
 )
 
 func (e *LearningAiProvider) Scan(src interface{}) error {

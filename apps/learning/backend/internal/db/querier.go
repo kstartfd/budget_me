@@ -112,7 +112,7 @@ type Querier interface {
 	ListLearningPathExercises(ctx context.Context, topicID pgtype.UUID) ([]LearningPathExercise, error)
 	ListLearningPathHistory(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error)
 	ListLearningPathLessonStats(ctx context.Context, lessonIds []pgtype.UUID) ([]ListLearningPathLessonStatsRow, error)
-	ListLearningPathLessons(ctx context.Context, arg ListLearningPathLessonsParams) ([]LearningPathLesson, error)
+	ListLearningPathLessons(ctx context.Context, userID pgtype.UUID) ([]LearningPathLesson, error)
 	ListLearningPathTestAnswers(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestAnswer, error)
 	ListLearningPathTestQuestions(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestQuestion, error)
 	ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID) ([]LearningPathTopic, error)

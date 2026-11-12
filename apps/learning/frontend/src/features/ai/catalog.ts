@@ -1,4 +1,4 @@
-export const providerIds = ["anthropic", "openai", "deepseek"] as const
+export const providerIds = ["anthropic", "openai", "deepseek", "kimi"] as const
 export type ProviderId = (typeof providerIds)[number]
 
 /**
@@ -27,6 +27,8 @@ const claudeLevels = ["low", "medium", "high", "xhigh", "max"] as const
 const gptLevels = ["low", "medium", "high", "xhigh", "max"] as const
 const gptLightLevels = ["none", ...gptLevels] as const
 const deepseekLevels = ["off", "low", "high", "max"] as const
+// Kimi K3 always reasons: there is no "off", only how hard.
+const kimiLevels = ["low", "high", "max"] as const
 
 /**
  * The agents a user can pick; the backend keeps the same list and rejects
@@ -125,6 +127,35 @@ export const providers: readonly ProviderSpec[] = [
         label: "V4 Pro",
         kind: "thinking",
         levels: deepseekLevels,
+        defaultLevel: "high",
+      },
+    ],
+  },
+  {
+    id: "kimi",
+    label: "Kimi",
+    badge: "K",
+    keyPlaceholder: "sk-…",
+    models: [
+      {
+        id: "kimi-k3.1-pro",
+        label: "K3.1 Pro",
+        kind: "effort",
+        levels: kimiLevels,
+        defaultLevel: "high",
+      },
+      {
+        id: "kimi-k3.1-pro-highspeed",
+        label: "K3.1 Pro Highspeed",
+        kind: "effort",
+        levels: kimiLevels,
+        defaultLevel: "high",
+      },
+      {
+        id: "kimi-k3",
+        label: "K3",
+        kind: "effort",
+        levels: kimiLevels,
         defaultLevel: "high",
       },
     ],

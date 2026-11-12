@@ -162,8 +162,8 @@ WHERE e.topic_id = $1 AND a.user_id = $2
 ORDER BY a.created_at, a.id;
 
 -- name: InsertLearningPathLesson :one
-INSERT INTO learning_path_lessons (id, user_id, topic_id, status, started_at, ends_at)
-VALUES ($1, $2, $3, 'active', $4, $5) RETURNING *;
+INSERT INTO learning_path_lessons (id, user_id, status, started_at, ends_at)
+VALUES ($1, $2, 'active', $3, $4) RETURNING *;
 
 -- name: GetActiveLearningPathLesson :one
 SELECT * FROM learning_path_lessons WHERE user_id = $1 AND status = 'active';
@@ -173,7 +173,7 @@ SELECT * FROM learning_path_lessons WHERE id = $1 AND user_id = $2;
 
 -- name: ListLearningPathLessons :many
 SELECT * FROM learning_path_lessons
-WHERE user_id = $1 AND topic_id = $2
+WHERE user_id = $1
 ORDER BY started_at DESC, id DESC
 LIMIT 30;
 

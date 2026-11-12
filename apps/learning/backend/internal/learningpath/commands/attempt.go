@@ -95,12 +95,20 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 		Answer:     answer,
 		Correct:    correct,
 		Feedback:   feedback,
-		LessonID:   h.lessonOf(ctx, cmd.UserID, topic.ID),
+		LessonID:   h.lessonOf(ctx, cmd.UserID),
 		CreatedAt:  db.Time(h.clock.Now()),
 	})
 	if err != nil {
 		return AttemptResult{}, err
 	}
+
+	// Answering is what starts a topic: the lesson no longer belongs to one.
+	if topic.Status == db.LearningPathTopicStatusNotStarted {
+		if _, err := h.q.StartLearningPathTopic(ctx, db.StartLearningPathTopicParams{ID: topic.ID, PathID: topic.PathID}); err != nil {
+			return AttemptResult{}, err
+		}
+	}
+
 	if correct {
 		if _, err := h.q.CompleteLearningPathTopicIfExercisesPassed(ctx, db.CompleteLearningPathTopicIfExercisesPassedParams{
 			ID:          topic.ID,
@@ -211,11 +219,11 @@ func (h AttemptHandler) exercise(ctx context.Context, userID, exerciseID uuid.UU
 }
 
 // lessonOf is the lesson an attempt belongs to: the learner's running lesson,
-// when it is on this very topic and its time is not up. Otherwise the attempt
-// is simply a free one.
-func (h AttemptHandler) lessonOf(ctx context.Context, userID uuid.UUID, topicID pgtype.UUID) pgtype.UUID {
+// whatever topic it is on, while its time is not up. Otherwise the attempt is
+// simply a free one.
+func (h AttemptHandler) lessonOf(ctx context.Context, userID uuid.UUID) pgtype.UUID {
 	lesson, err := h.q.GetActiveLearningPathLesson(ctx, ids.ToPg(userID))
-	if err != nil || lesson.TopicID != topicID || !h.clock.Now().Before(lesson.EndsAt.Time) {
+	if err != nil || !h.clock.Now().Before(lesson.EndsAt.Time) {
 		return pgtype.UUID{}
 	}
 

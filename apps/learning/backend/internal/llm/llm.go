@@ -1,4 +1,4 @@
-// Package llm calls the three providers a user can pick an agent from. It
+// Package llm calls the providers a user can pick an agent from. It
 // only phrases text: every call is one system prompt and one prompt in, plain
 // text out, with the user's own API key.
 package llm
@@ -27,6 +27,7 @@ type URLs struct {
 	Anthropic string
 	OpenAI    string
 	DeepSeek  string
+	Kimi      string
 }
 
 var DefaultURLs = URLs{
@@ -56,6 +57,7 @@ func New(urls URLs) Client {
 	urls.Anthropic = cmp.Or(urls.Anthropic, DefaultURLs.Anthropic)
 	urls.OpenAI = cmp.Or(urls.OpenAI, DefaultURLs.OpenAI)
 	urls.DeepSeek = cmp.Or(urls.DeepSeek, DefaultURLs.DeepSeek)
+	urls.Kimi = cmp.Or(urls.Kimi, DefaultURLs.Kimi)
 
 	return Client{urls: urls, http: &http.Client{}}
 }
@@ -68,6 +70,8 @@ func (c Client) Complete(ctx context.Context, req Request) (string, error) {
 		return c.completeOpenAI(ctx, req)
 	case DeepSeek:
 		return c.completeDeepSeek(ctx, req)
+	case Kimi:
+		return c.completeKimi(ctx, req)
 	}
 
 	return "", fmt.Errorf("llm: unknown provider %q", req.Provider)
@@ -84,6 +88,8 @@ func (c Client) Verify(ctx context.Context, provider Provider, key string) error
 		return c.verifyBearer(ctx, c.urls.OpenAI+"/models", key)
 	case DeepSeek:
 		return c.verifyBearer(ctx, c.urls.DeepSeek+"/models", key)
+	case Kimi:
+		return c.verifyBearer(ctx, c.urls.Kimi+"/models", key)
 	}
 
 	return fmt.Errorf("llm: unknown provider %q", provider)

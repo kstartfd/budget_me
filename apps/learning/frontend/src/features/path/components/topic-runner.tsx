@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
 import {
@@ -18,9 +18,9 @@ import { cn } from "@/lib/utils"
 import { PathTopicChat } from "@/features/chat/components/path-topic-chat"
 import { useLearning } from "@/features/learning/hooks"
 import type { EntryInput, Topic } from "@/features/learning/schemas"
-import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
+import { useLesson, useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { topicSetComing, writerHasHeadStart } from "../progress"
-import { LessonPanel } from "./lesson-panel"
+import { StartLesson } from "./lesson-bar"
 import { PlayButton } from "./play-button"
 import { Prose, RuleCard } from "./rule-card"
 import { listenOnce, speechSupported } from "../speech"
@@ -65,8 +65,29 @@ export function TopicRunner({ topicId }: { topicId: string }) {
   const t = useTranslations("path.topic")
   const { detail, generate, complete } = useTopicDetail(topicId)
   const { topics, saveEntry } = useLearning()
-  const [away, setAway] = useState(false)
-  const onPausedChange = useCallback((paused: boolean) => setAway(paused), [])
+  // The lesson is the learner's, not this topic's: while one runs, whatever
+  // topic is open is studied in it, and a paused one hides the exercises.
+  const { lesson } = useLesson()
+  const away = !!lesson?.pausedAt
+  const lessonRunning = !!lesson
+
+  // The set is written ahead of the learner; if it was not (the writer failed,
+  // or it is an old program), a topic opened during a lesson gets it written.
+  // Right after the build the writer is still on its first sets, and the topic
+  // polls for its own.
+  const loaded = detail.data
+  const needsSet =
+    !!loaded &&
+    loaded.topic.status !== "completed" &&
+    loaded.exercises.length === 0 &&
+    !writerHasHeadStart(loaded.path, detail.dataUpdatedAt)
+  const { mutate: writeSet, isPending: writing } = generate
+  const asked = useRef(false)
+  useEffect(() => {
+    if (!lessonRunning || !needsSet || writing || asked.current) return
+    asked.current = true
+    writeSet(false)
+  }, [lessonRunning, needsSet, writing, writeSet])
 
   if (detail.isPending)
     return (
@@ -123,25 +144,7 @@ export function TopicRunner({ topicId }: { topicId: string }) {
           {topic.theory && <Prose text={topic.theory} className="text-sm" />}
         </div>
       )}
-      {topic.status !== "completed" && (
-        <LessonPanel
-          topicId={topicId}
-          onPausedChange={onPausedChange}
-          // The set is written ahead of the learner; if it was not (the writer
-          // failed, or it is an old program), starting the lesson writes it.
-          // Right after the build the writer is still on its first sets, and
-          // the topic polls for its own.
-          onStart={() => {
-            if (
-              exercises.length === 0 &&
-              !generate.isPending &&
-              !writerHasHeadStart(path, detail.dataUpdatedAt)
-            ) {
-              generate.mutate(false)
-            }
-          }}
-        />
-      )}
+      {topic.status !== "completed" && <StartLesson />}
       {topic.vocabulary.length > 0 && (
         <Vocabulary
           topicId={topicId}

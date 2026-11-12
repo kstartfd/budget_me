@@ -224,10 +224,8 @@ export const completeTopic = (topicId: string): Promise<PathTopic> =>
     pathTopicSchema.parse(d),
   )
 
-export const startLesson = (topicId: string): Promise<PathLesson> =>
-  request(`/path/topics/${topicId}/lessons`, "POST", (d) =>
-    pathLessonSchema.parse(d),
-  )
+export const startLesson = (): Promise<PathLesson> =>
+  request("/path/lessons", "POST", (d) => pathLessonSchema.parse(d))
 
 /** The running lesson of the learner, or null when none is running. */
 export const fetchActiveLesson = (): Promise<PathLesson | null> =>
@@ -235,10 +233,9 @@ export const fetchActiveLesson = (): Promise<PathLesson | null> =>
     d === null ? null : pathLessonSchema.parse(d),
   )
 
-export const fetchLessons = (topicId: string): Promise<PathLesson[]> =>
-  request(`/path/topics/${topicId}/lessons`, "GET", (d) =>
-    pathLessonSchema.array().parse(d),
-  )
+/** The learner's latest lessons, newest first. */
+export const fetchLessons = (): Promise<PathLesson[]> =>
+  request("/path/lessons", "GET", (d) => pathLessonSchema.array().parse(d))
 
 export const changeLesson = (
   id: string,

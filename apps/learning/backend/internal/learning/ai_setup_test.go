@@ -159,7 +159,7 @@ func setupAIWith(t *testing.T, tune func(*config.Config)) aiEnv {
 	}))
 	t.Cleanup(providers.Close)
 
-	cfg := config.Config{AuthSecret: authSecret, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL}}
+	cfg := config.Config{AuthSecret: authSecret, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL, Kimi: providers.URL}}
 	if tune != nil {
 		tune(&cfg)
 	}

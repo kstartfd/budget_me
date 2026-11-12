@@ -98,7 +98,7 @@ func setupChatRate(t *testing.T, rate ratelimit.Config) chatEnv {
 	srv := httptest.NewServer(provider)
 	t.Cleanup(srv.Close)
 
-	cfg := config.Config{AuthSecret: authSecret, ChatRate: rate, LLMURLs: llm.URLs{Anthropic: srv.URL, OpenAI: srv.URL, DeepSeek: srv.URL}}
+	cfg := config.Config{AuthSecret: authSecret, ChatRate: rate, LLMURLs: llm.URLs{Anthropic: srv.URL, OpenAI: srv.URL, DeepSeek: srv.URL, Kimi: srv.URL}}
 	e := server.New(cfg, pool, testdb.AccountPool(t))
 	session := token.NewCodec(authSecret).Issue(user, time.Now().UTC(), time.Hour)
 

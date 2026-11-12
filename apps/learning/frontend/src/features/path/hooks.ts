@@ -173,15 +173,16 @@ export function useTopicExerciseAttempt(topicId: string) {
 }
 
 /**
- * The lesson clock of a topic: the learner's running lesson (null when none is
- * running or it runs on another topic), the history of the topic's lessons and
- * the moves on the clock. Every move answers with the lesson as the server has it.
+ * The lesson clock of the learner: their running lesson (null when none is
+ * running), the history of their lessons and the moves on the clock. The
+ * lesson is theirs, not a topic's, so it stays the same while they move
+ * between topics. Every move answers with the lesson as the server has it.
  */
-export function useLesson(topicId: string) {
+export function useLesson() {
   const { user } = useAuth()
   const client = useQueryClient()
   const activeKey = ["path", "lesson", "active", user?.id] as const
-  const listKey = ["path", "lessons", topicId] as const
+  const listKey = ["path", "lessons", user?.id] as const
 
   const active = useQuery({
     queryKey: activeKey,
@@ -191,24 +192,19 @@ export function useLesson(topicId: string) {
 
   const history = useQuery({
     queryKey: listKey,
-    queryFn: () => api.fetchLessons(topicId),
+    queryFn: api.fetchLessons,
     enabled: !!user,
   })
 
   const settle = (lesson: PathLesson) => {
-    client.setQueryData(
-      activeKey,
-      lesson.status === "active" ? lesson : null,
-    )
+    client.setQueryData(activeKey, lesson.status === "active" ? lesson : null)
+
     return client.invalidateQueries({ queryKey: listKey })
   }
 
   const start = useMutation({
-    mutationFn: () => api.startLesson(topicId),
-    onSuccess: async (lesson) => {
-      await settle(lesson)
-      await client.invalidateQueries({ queryKey: ["path"] })
-    },
+    mutationFn: api.startLesson,
+    onSuccess: settle,
   })
 
   const change = useMutation({
@@ -217,9 +213,7 @@ export function useLesson(topicId: string) {
     onSuccess: settle,
   })
 
-  const lesson = active.data?.topicId === topicId ? active.data : null
-
-  return { lesson, history, start, change }
+  return { lesson: active.data ?? null, history, start, change }
 }
 
 export function practiceKey(userId: string | undefined, ruleId: string) {

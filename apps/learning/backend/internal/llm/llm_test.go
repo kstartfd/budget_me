@@ -36,7 +36,7 @@ func provider(t *testing.T, status int, reply string) (llm.Client, *seen) {
 	}))
 	t.Cleanup(srv.Close)
 
-	return llm.New(llm.URLs{Anthropic: srv.URL, OpenAI: srv.URL, DeepSeek: srv.URL}), got
+	return llm.New(llm.URLs{Anthropic: srv.URL, OpenAI: srv.URL, DeepSeek: srv.URL, Kimi: srv.URL}), got
 }
 
 const claudeReply = `{"id":"msg_1","type":"message","role":"assistant","model":"claude-opus-5-5","content":[{"type":"text","text":"привет"}],"stop_reason":"end_turn","usage":{"input_tokens":1,"output_tokens":1}}`
@@ -110,8 +110,48 @@ func TestDeepSeekLevelsMapOntoThinking(t *testing.T) {
 	}
 }
 
+func TestKimiRequestShapeAndText(t *testing.T) {
+	c, got := provider(t, 200, `{"choices":[{"message":{"reasoning_content":"thinking about it","content":"привет"}}]}`)
+
+	text, err := c.Complete(context.Background(), llm.Request{Provider: llm.Kimi, Model: "kimi-k3.1-pro", Level: "high", Key: "sk-moon-secret", System: "sys", Prompt: "hi"})
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if text != "привет" {
+		t.Fatalf("only the answer is kept, not the reasoning: %q", text)
+	}
+
+	if got.path != "/chat/completions" || got.header.Get("Authorization") != "Bearer sk-moon-secret" {
+		t.Fatalf("path %q header %v", got.path, got.header)
+	}
+
+	if got.body["model"] != "kimi-k3.1-pro" || got.body["reasoning_effort"] != "high" || got.body["max_completion_tokens"] != float64(32000) {
+		t.Fatalf("body: %v", got.body)
+	}
+
+	for _, key := range []string{"thinking", "max_tokens", "temperature"} {
+		if _, ok := got.body[key]; ok {
+			t.Fatalf("%s must not be sent to K3: %v", key, got.body)
+		}
+	}
+
+	msgs := got.body["messages"].([]any)
+	if len(msgs) != 2 || msgs[0].(map[string]any)["role"] != "system" || msgs[1].(map[string]any)["content"] != "hi" {
+		t.Fatalf("messages: %v", msgs)
+	}
+}
+
+func TestKimiAnswerWithNoTextIsAnError(t *testing.T) {
+	c, _ := provider(t, 200, `{"choices":[{"message":{"reasoning_content":"only thoughts","content":"  "}}]}`)
+
+	if _, err := c.Complete(context.Background(), llm.Request{Provider: llm.Kimi, Model: "kimi-k3", Level: "low", Key: "k", System: "s", Prompt: "p"}); err == nil {
+		t.Fatal("an answer with no text must be an error")
+	}
+}
+
 func TestProviderStatusesAreSortedForCallers(t *testing.T) {
-	for _, p := range []llm.Provider{llm.Anthropic, llm.OpenAI, llm.DeepSeek} {
+	for _, p := range []llm.Provider{llm.Anthropic, llm.OpenAI, llm.DeepSeek, llm.Kimi} {
 		for status, check := range map[int]func(error) bool{
 			401: func(err error) bool { return errors.Is(err, llm.ErrRejected) },
 			429: func(err error) bool { return errors.Is(err, llm.ErrTemporary) },
@@ -135,7 +175,7 @@ func TestProviderStatusesAreSortedForCallers(t *testing.T) {
 }
 
 func TestVerifyOnlyRejectsAnInvalidKey(t *testing.T) {
-	for _, p := range []llm.Provider{llm.Anthropic, llm.OpenAI, llm.DeepSeek} {
+	for _, p := range []llm.Provider{llm.Anthropic, llm.OpenAI, llm.DeepSeek, llm.Kimi} {
 		c, _ := provider(t, 200, `{"data":[],"has_more":false,"first_id":null,"last_id":null}`)
 		if err := c.Verify(context.Background(), p, "k"); err != nil {
 			t.Errorf("%s: %v", p, err)
@@ -154,9 +194,9 @@ func TestVerifyOnlyRejectsAnInvalidKey(t *testing.T) {
 }
 
 func TestUnreachableProviderIsTemporary(t *testing.T) {
-	c := llm.New(llm.URLs{Anthropic: "http://127.0.0.1:1", OpenAI: "http://127.0.0.1:1", DeepSeek: "http://127.0.0.1:1"})
+	c := llm.New(llm.URLs{Anthropic: "http://127.0.0.1:1", OpenAI: "http://127.0.0.1:1", DeepSeek: "http://127.0.0.1:1", Kimi: "http://127.0.0.1:1"})
 
-	for _, p := range []llm.Provider{llm.Anthropic, llm.OpenAI, llm.DeepSeek} {
+	for _, p := range []llm.Provider{llm.Anthropic, llm.OpenAI, llm.DeepSeek, llm.Kimi} {
 		_, err := c.Complete(context.Background(), llm.Request{Provider: p, Model: "m", Level: "low", Key: "k", System: "s", Prompt: "p"})
 		if !errors.Is(err, llm.ErrTemporary) {
 			t.Errorf("%s: want temporary, got %v", p, err)
@@ -177,6 +217,11 @@ func TestValidChoice(t *testing.T) {
 		{llm.DeepSeek, "deepseek-flash", "off", true},
 		{llm.DeepSeek, "deepseek-flash", "xhigh", false},
 		{llm.DeepSeek, "claude-opus-5-5", "high", false},
+		{llm.Kimi, "kimi-k3.1-pro", "max", true},
+		{llm.Kimi, "kimi-k3", "low", true},
+		{llm.Kimi, "kimi-k3.1-pro", "off", false}, // K3 always reasons
+		{llm.Kimi, "kimi-k3.1-pro", "medium", false},
+		{llm.Kimi, "deepseek-flash", "high", false},
 		{"nobody", "x", "low", false},
 	} {
 		if got := llm.Valid(tc.provider, tc.model, tc.level); got != tc.want {

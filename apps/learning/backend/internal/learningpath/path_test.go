@@ -244,7 +244,7 @@ func setupPrefetch(t *testing.T, defaultReply string, prefetch int) env {
 	t.Cleanup(tts.Close)
 
 	audioDir := t.TempDir()
-	cfg := config.Config{AuthSecret: authSecret, PathPrefetch: prefetch, TTSURL: tts.URL, AudioCacheDir: audioDir, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL}}
+	cfg := config.Config{AuthSecret: authSecret, PathPrefetch: prefetch, TTSURL: tts.URL, AudioCacheDir: audioDir, LLMURLs: llm.URLs{Anthropic: providers.URL, OpenAI: providers.URL, DeepSeek: providers.URL, Kimi: providers.URL}}
 
 	return env{e: server.New(cfg, pool, testdb.AccountPool(t)), q: q, pool: pool, user: user, session: raw, provider: provider, audioDir: audioDir}
 }
@@ -1295,9 +1295,11 @@ func lessonCall(t *testing.T, e env, method, path string, want int) map[string]a
 	return data(t, body)
 }
 
-// TestLessonTimerKeepsRunning: a lesson is 30 minutes from its start, pausing
-// does not move the end, the attempts made in it are counted, and a lesson
-// past its end is closed at that end.
+// TestLessonTimerKeepsRunning: a lesson is the learner's own 30 minutes, not a
+// topic's. It runs from its start, pausing does not move the end, what is
+// answered in it counts to it on whichever topic, a second start while it runs
+// hands it back, answering starts a topic, and a lesson past its end is closed
+// at that end.
 func TestLessonTimerKeepsRunning(t *testing.T) {
 	e := setup(t)
 	chooseAgent(t, e)
@@ -1310,8 +1312,10 @@ func TestLessonTimerKeepsRunning(t *testing.T) {
 
 	e.provider.enqueue(exercisesReply)
 	exercises := generateExercises(t, e, topicID)
+	e.provider.enqueue(exercisesReply)
+	others := generateExercises(t, e, otherID)
 
-	lesson := lessonCall(t, e, "POST", "topics/"+topicID+"/lessons", http.StatusOK)
+	lesson := lessonCall(t, e, "POST", "lessons", http.StatusOK)
 	lessonID := lesson["id"].(string)
 	started, _ := time.Parse(time.RFC3339Nano, lesson["startedAt"].(string))
 	ends, _ := time.Parse(time.RFC3339Nano, lesson["endsAt"].(string))
@@ -1319,8 +1323,8 @@ func TestLessonTimerKeepsRunning(t *testing.T) {
 		t.Fatalf("lesson: %v", lesson)
 	}
 
-	// Starting again on the same topic hands the same lesson back.
-	if again := lessonCall(t, e, "POST", "topics/"+topicID+"/lessons", http.StatusOK); again["id"] != lessonID {
+	// Starting again hands the same lesson back.
+	if again := lessonCall(t, e, "POST", "lessons", http.StatusOK); again["id"] != lessonID {
 		t.Fatalf("a second lesson opened: %v", again)
 	}
 
@@ -1333,6 +1337,7 @@ func TestLessonTimerKeepsRunning(t *testing.T) {
 		t.Fatalf("resume: %v", resumed)
 	}
 
+	// Answers on two different topics both count to the one lesson.
 	right := exercises[0].(map[string]any)["answer"].(string)
 	attempt(t, e, exercises[0].(map[string]any)["id"].(string), right, true, "")
 
@@ -1341,26 +1346,45 @@ func TestLessonTimerKeepsRunning(t *testing.T) {
 		t.Fatalf("active: %v", active)
 	}
 
-	// Another topic's lesson closes this one.
-	next := lessonCall(t, e, "POST", "topics/"+otherID+"/lessons", http.StatusOK)
-	if next["id"] == lessonID {
-		t.Fatal("the lesson of another topic reused the first")
+	if status := topicDetail(t, e, topicID)["topic"].(map[string]any)["status"]; status != "in_progress" {
+		t.Fatalf("answering must start the topic: %v", status)
 	}
-	code, body := request(t, e.e, "GET", "/api/v1/learning/path/topics/"+topicID+"/lessons", e.session, nil)
+
+	rightOther := others[0].(map[string]any)["answer"].(string)
+	attempt(t, e, others[0].(map[string]any)["id"].(string), rightOther, true, "")
+
+	if active = lessonCall(t, e, "GET", "lessons/active", http.StatusOK); active["id"] != lessonID || active["attempts"] != float64(2) {
+		t.Fatalf("an answer on another topic must count to the same lesson: %v", active)
+	}
+
+	// Moving to another topic does not start another lesson.
+	if again := lessonCall(t, e, "POST", "lessons", http.StatusOK); again["id"] != lessonID {
+		t.Fatalf("the lesson changed with the topic: %v", again)
+	}
+
+	code, body := request(t, e.e, "GET", "/api/v1/learning/path/lessons", e.session, nil)
 	if code != http.StatusOK || len(listPayload(t, body)) != 1 {
-		t.Fatalf("lessons of the topic: %d %v", code, body)
+		t.Fatalf("lessons: %d %v", code, body)
 	}
 
 	// Time running out closes it at the end moment.
-	if _, err := e.pool.Exec(t.Context(), "UPDATE learning_path_lessons SET ends_at = now() - interval '1 minute' WHERE id = $1", next["id"]); err != nil {
+	if _, err := e.pool.Exec(t.Context(), "UPDATE learning_path_lessons SET ends_at = now() - interval '1 minute' WHERE id = $1", lessonID); err != nil {
 		t.Fatal(err)
 	}
 	if got := lessonCall(t, e, "GET", "lessons/active", http.StatusOK); got != nil {
 		t.Fatalf("an expired lesson is still active: %v", got)
 	}
-	finished := lessonCall(t, e, "POST", "lessons/"+next["id"].(string)+"/finish", http.StatusOK)
-	if finished["status"] != "finished" || finished["finishedAt"] == nil {
+
+	// An answer after the end is a free one, and the next start is a new lesson.
+	attempt(t, e, exercises[1].(map[string]any)["id"].(string), exercises[1].(map[string]any)["answer"].(string), true, "")
+
+	finished := lessonCall(t, e, "POST", "lessons/"+lessonID+"/finish", http.StatusOK)
+	if finished["status"] != "finished" || finished["finishedAt"] == nil || finished["attempts"] != float64(2) {
 		t.Fatalf("finish: %v", finished)
+	}
+
+	if next := lessonCall(t, e, "POST", "lessons", http.StatusOK); next["id"] == lessonID {
+		t.Fatal("a finished lesson was handed back")
 	}
 }
 

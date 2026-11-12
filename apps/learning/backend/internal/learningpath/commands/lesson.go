@@ -18,9 +18,11 @@ import (
 // away.
 const LessonLength = 30 * time.Minute
 
-// LessonHandler runs the timed lessons of the program's topics. A learner has
-// one lesson at a time; one that ran past its end is closed at that end the
-// next time anyone looks, so no timer has to run on the server.
+// LessonHandler runs the timed lessons of a learner. A lesson is the learner's
+// own sitting, not a topic's: they move between the topics of the program while
+// it runs, and what they answer in the meantime counts to it. A learner has one
+// lesson at a time; one that ran past its end is closed at that end the next
+// time anyone looks, so no timer has to run on the server.
 type LessonHandler struct {
 	q     *db.Queries
 	clock clock.Clock
@@ -30,58 +32,22 @@ func NewLessonHandler(q *db.Queries, clk clock.Clock) LessonHandler {
 	return LessonHandler{q: q, clock: clk}
 }
 
-// Start opens a lesson on a topic, or hands back the one already running on it.
-// A lesson running on another topic is closed first.
-func (h LessonHandler) Start(ctx context.Context, userID, topicID uuid.UUID) (db.LearningPathLesson, error) {
-	topic, err := h.q.GetLearningPathTopic(ctx, db.GetLearningPathTopicParams{ID: ids.ToPg(topicID), UserID: ids.ToPg(userID)})
-	if db.IsNotFound(err) {
-		return db.LearningPathLesson{}, apperr.NewNotFound("topic not found")
-	}
-
-	if err != nil {
-		return db.LearningPathLesson{}, err
-	}
-
-	path, err := h.q.GetLearningPath(ctx, db.GetLearningPathParams{ID: topic.PathID, UserID: ids.ToPg(userID)})
-	if err != nil {
-		return db.LearningPathLesson{}, err
-	}
-
-	if path.Status != db.LearningPathStatusActive {
-		return db.LearningPathLesson{}, apperr.NewConflict("this program is not active")
-	}
-
-	if topic.Status == db.LearningPathTopicStatusCompleted {
-		return db.LearningPathLesson{}, apperr.NewConflict("this topic is already completed")
-	}
-
-	now := h.clock.Now()
-
+// Start opens a lesson, or hands back the one already running.
+func (h LessonHandler) Start(ctx context.Context, userID uuid.UUID) (db.LearningPathLesson, error) {
 	running, err := h.Active(ctx, userID)
 	if err != nil {
 		return db.LearningPathLesson{}, err
 	}
 
 	if running != nil {
-		if running.TopicID == topic.ID {
-			return *running, nil
-		}
-
-		if _, err := h.q.FinishLearningPathLesson(ctx, db.FinishLearningPathLessonParams{ID: running.ID, UserID: running.UserID, FinishedAt: db.Time(now)}); err != nil && !db.IsNotFound(err) {
-			return db.LearningPathLesson{}, err
-		}
+		return *running, nil
 	}
 
-	if topic.Status == db.LearningPathTopicStatusNotStarted {
-		if _, err := h.q.StartLearningPathTopic(ctx, db.StartLearningPathTopicParams{ID: topic.ID, PathID: topic.PathID}); err != nil {
-			return db.LearningPathLesson{}, err
-		}
-	}
+	now := h.clock.Now()
 
 	return h.q.InsertLearningPathLesson(ctx, db.InsertLearningPathLessonParams{
 		ID:        ids.ToPg(ids.New()),
 		UserID:    ids.ToPg(userID),
-		TopicID:   topic.ID,
 		StartedAt: db.Time(now),
 		EndsAt:    db.Time(now.Add(LessonLength)),
 	})
@@ -185,14 +151,14 @@ type Stats struct {
 	Correct  int
 }
 
-// List is the lessons of one topic, newest first, each with its stats.
-func (h LessonHandler) List(ctx context.Context, userID, topicID uuid.UUID) ([]db.LearningPathLesson, map[uuid.UUID]Stats, error) {
+// List is the learner's lessons, newest first, each with its stats.
+func (h LessonHandler) List(ctx context.Context, userID uuid.UUID) ([]db.LearningPathLesson, map[uuid.UUID]Stats, error) {
 	// Settle an expired lesson first so the list shows it finished.
 	if _, err := h.Active(ctx, userID); err != nil {
 		return nil, nil, err
 	}
 
-	lessons, err := h.q.ListLearningPathLessons(ctx, db.ListLearningPathLessonsParams{UserID: ids.ToPg(userID), TopicID: ids.ToPg(topicID)})
+	lessons, err := h.q.ListLearningPathLessons(ctx, ids.ToPg(userID))
 	if err != nil {
 		return nil, nil, err
 	}

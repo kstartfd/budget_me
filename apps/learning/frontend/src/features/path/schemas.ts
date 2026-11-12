@@ -198,10 +198,12 @@ export const pathTopicDetailSchema = z.object({
 })
 export type PathTopicDetail = z.infer<typeof pathTopicDetailSchema>
 
-/** A timed lesson on one topic. The clock is the server's: count down to endsAt. */
+/**
+ * A timed lesson of the learner: one sitting across the topics of the program.
+ * The clock is the server's: count down to endsAt.
+ */
 export const pathLessonSchema = z.object({
   id: z.string(),
-  topicId: z.string(),
   status: z.enum(["active", "finished"]),
   startedAt: z.string(),
   endsAt: z.string(),

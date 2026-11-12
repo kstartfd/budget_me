@@ -7,9 +7,10 @@ import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import Link from "next/link"
-import { useRules } from "../hooks"
+import { useLesson, useRules } from "../hooks"
 import { exercisesPreparing } from "../progress"
 import type { Path } from "../schemas"
+import { LessonBar, lessonBarHeight } from "./lesson-bar"
 import { rulesPath } from "./rule-card"
 import { ProgramScale } from "./program-scale"
 import { SkillIcon } from "./skills"
@@ -55,6 +56,10 @@ export function ProgramView({
   // the request is refused and the button stays out.
   const rules = useRules(path.language)
   const finished = path.topics.length > 0 && done === path.topics.length
+  // While a lesson runs its bar sticks under the app bar, and the open topic's
+  // row sticks right under the bar.
+  const { lesson } = useLesson()
+  const lessonRunning = !!lesson
   // The server is still writing the program's exercises, so the scale says so.
   const preparing = exercisesPreparing(path, asOf)
 
@@ -133,6 +138,8 @@ export function ProgramView({
         </div>
       </section>
 
+      <LessonBar />
+
       <ProgramScale topics={path.topics} preparing={preparing} />
 
       <section className="space-y-3">
@@ -166,7 +173,13 @@ export function ProgramView({
                   "hover:bg-muted/50 relative flex w-full min-w-0 cursor-pointer items-center gap-3 px-4 py-3.5 text-left transition-colors",
                   topic.status === "in_progress" && "bg-muted",
                   open &&
-                    "border-border bg-background hover:bg-muted sticky top-[61px] z-10 border-b lg:top-0",
+                    cn(
+                      "border-border bg-background hover:bg-muted sticky z-10 border-b",
+                      // the app bar is 61px, the lesson bar 52px (lessonBarHeight)
+                      lessonRunning && lessonBarHeight === 52
+                        ? "top-[113px] lg:top-[52px]"
+                        : "top-[61px] lg:top-0",
+                    ),
                   open && topic.status === "in_progress" && "bg-muted",
                 )}
               >

@@ -850,14 +850,13 @@ func (q *Queries) InsertLearningPathJob(ctx context.Context, arg InsertLearningP
 }
 
 const insertLearningPathLesson = `-- name: InsertLearningPathLesson :one
-INSERT INTO learning_path_lessons (id, user_id, topic_id, status, started_at, ends_at)
-VALUES ($1, $2, $3, 'active', $4, $5) RETURNING id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count
+INSERT INTO learning_path_lessons (id, user_id, status, started_at, ends_at)
+VALUES ($1, $2, 'active', $3, $4) RETURNING id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count
 `
 
 type InsertLearningPathLessonParams struct {
 	ID        pgtype.UUID
 	UserID    pgtype.UUID
-	TopicID   pgtype.UUID
 	StartedAt pgtype.Timestamptz
 	EndsAt    pgtype.Timestamptz
 }
@@ -866,7 +865,6 @@ func (q *Queries) InsertLearningPathLesson(ctx context.Context, arg InsertLearni
 	row := q.db.QueryRow(ctx, insertLearningPathLesson,
 		arg.ID,
 		arg.UserID,
-		arg.TopicID,
 		arg.StartedAt,
 		arg.EndsAt,
 	)
@@ -1272,18 +1270,13 @@ func (q *Queries) ListLearningPathLessonStats(ctx context.Context, lessonIds []p
 
 const listLearningPathLessons = `-- name: ListLearningPathLessons :many
 SELECT id, user_id, topic_id, status, started_at, ends_at, finished_at, paused_at, paused_seconds, pause_count FROM learning_path_lessons
-WHERE user_id = $1 AND topic_id = $2
+WHERE user_id = $1
 ORDER BY started_at DESC, id DESC
 LIMIT 30
 `
 
-type ListLearningPathLessonsParams struct {
-	UserID  pgtype.UUID
-	TopicID pgtype.UUID
-}
-
-func (q *Queries) ListLearningPathLessons(ctx context.Context, arg ListLearningPathLessonsParams) ([]LearningPathLesson, error) {
-	rows, err := q.db.Query(ctx, listLearningPathLessons, arg.UserID, arg.TopicID)
+func (q *Queries) ListLearningPathLessons(ctx context.Context, userID pgtype.UUID) ([]LearningPathLesson, error) {
+	rows, err := q.db.Query(ctx, listLearningPathLessons, userID)
 	if err != nil {
 		return nil, err
 	}
