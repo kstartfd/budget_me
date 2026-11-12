@@ -159,15 +159,23 @@ export async function fetchPathAudio(path: string): Promise<Blob> {
 export const deleteTeacher = (id: string): Promise<void> =>
   request(`/path/teachers/${id}`, "DELETE", () => undefined)
 
-/** The rule book of the learner's teacher; 403 when no teacher opens it. */
-export const fetchRules = (): Promise<PathRuleRef[]> =>
-  request("/path/rules", "GET", (d) => pathRuleRefSchema.array().parse(d))
+/** The query that says whose rule book is asked for: the teacher of this language. */
+const bookOf = (language?: string) =>
+  language ? `?language=${encodeURIComponent(language)}` : ""
 
-export const fetchRule = (id: string): Promise<PathRule> =>
-  request(`/path/rules/${id}`, "GET", (d) => pathRuleSchema.parse(d))
+/** The rule book of the learner's teacher of a language; 403 when that pair has none. */
+export const fetchRules = (language?: string): Promise<PathRuleRef[]> =>
+  request(`/path/rules${bookOf(language)}`, "GET", (d) => pathRuleRefSchema.array().parse(d))
+
+export const fetchRule = (id: string, language?: string): Promise<PathRule> =>
+  request(`/path/rules/${id}${bookOf(language)}`, "GET", (d) => pathRuleSchema.parse(d))
 
 export const fetchHistory = (): Promise<Path[]> =>
   request("/path/history", "GET", (d) => pathSchema.array().parse(d))
+
+/** Deletes the learner's closed programs of a language; the running one stays. */
+export const clearHistory = (language: string): Promise<void> =>
+  request(`/path/history?language=${encodeURIComponent(language)}`, "DELETE", () => undefined)
 
 export const resetPath = (language: string): Promise<void> =>
   request("/path/reset", "POST", () => undefined, { language })

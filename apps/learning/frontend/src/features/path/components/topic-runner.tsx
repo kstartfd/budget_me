@@ -22,9 +22,20 @@ import { useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { topicSetComing, writerHasHeadStart } from "../progress"
 import { LessonPanel } from "./lesson-panel"
 import { PlayButton } from "./play-button"
-import { RuleCard } from "./rule-card"
+import { Prose, RuleCard } from "./rule-card"
 import { listenOnce, speechSupported } from "../speech"
 import type { PathAttempt, PathExercise } from "../schemas"
+
+/**
+ * The writer ends a task with the word to work from in brackets, "I ... a book.
+ * (buy)". It is a hint, not part of the task: it goes on a grey line under it.
+ */
+function splitHint(prompt: string): { task: string; hint: string } {
+  const found = prompt.match(/^([\s\S]*\S)\s*\(([^()]{1,40})\)\s*$/)
+  if (!found) return { task: prompt, hint: "" }
+
+  return { task: found[1], hint: `(${found[2]})` }
+}
 
 const baseLanguage = (code: string) => code.split("-")[0].toLowerCase()
 
@@ -94,26 +105,22 @@ export function TopicRunner({ topicId }: { topicId: string }) {
         // The rule comes first: what the topic is about is read before it is practised.
         <div className="space-y-3">
           <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3">
-            <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+            <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
               {t("goal")}
             </p>
             <p className="text-[13px] leading-relaxed">{topic.goal}</p>
           </div>
           <div className="border-border rounded-lg border p-4">
-            <RuleCard rule={detail.data.rule} />
+            <RuleCard rule={detail.data.rule} language={path.language} />
           </div>
         </div>
       ) : (
         <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3">
-          <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             {t("rule")}
           </p>
           <p className="text-[13px] leading-relaxed">{topic.goal}</p>
-          {topic.theory && (
-            <p className="text-[13px] leading-relaxed whitespace-pre-line">
-              {topic.theory}
-            </p>
-          )}
+          {topic.theory && <Prose text={topic.theory} className="text-sm" />}
         </div>
       )}
       {topic.status !== "completed" && (
@@ -344,23 +351,24 @@ function ExerciseCard({
     })
   }
 
+  const { task, hint } = splitHint(exercise.prompt)
   const done = result ? result.correct : solved
   const failed = !!result && !result.correct
   // A word or a phrase worth keeping can go to the notebook once it is answered.
   const keepable = !!chatTopicId && !!result && isWordOrPhrase(exercise)
 
   return (
-    <section className="border-border space-y-3 border-t pt-4 first-of-type:border-t-0 first-of-type:pt-0">
+    <section className="border-border space-y-3 border-t-2 pt-5 first-of-type:border-t-0 first-of-type:pt-0">
       {exercise.text && !(exercise.kind === "listen" && !result) && (
         <p className="text-muted-foreground text-sm leading-relaxed italic">
           {exercise.text}
         </p>
       )}
       <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-        <span className="text-muted-foreground text-xs tabular-nums">
+        <span className="bg-muted text-muted-foreground rounded-full px-2.5 py-0.5 text-xs font-semibold tabular-nums">
           {index} / {total}
         </span>
-        <p className="text-sm leading-snug font-semibold">{exercise.prompt}</p>
+        <p className="text-[15px] leading-snug font-semibold">{task}</p>
         {(done || failed) && (
           <span
             className={cn(
@@ -375,12 +383,22 @@ function ExerciseCard({
         )}
       </div>
 
+      {hint && <p className="text-muted-foreground -mt-1.5 text-[13px]">{hint}</p>}
+
       {exercise.kind === "choice" || exercise.kind === "listen" ? (
         <div className="space-y-2">
           {exercise.kind === "listen" && (
             <PlayButton path={`/path/exercises/${exercise.id}/audio`} label={t("hear")} />
           )}
-          <div className="grid gap-2">
+          <div
+            className={cn(
+              "grid gap-2",
+              // Short options sit two by two, long ones one under another.
+              exercise.options.every((option) => option.length <= 22)
+                ? "grid-cols-2"
+                : "sm:grid-cols-2",
+            )}
+          >
           {exercise.options.map((option) => {
             const picked = result?.answer === option
             const right = picked && result.correct
@@ -485,6 +503,8 @@ function ExerciseCard({
           <div className="flex w-full gap-2 sm:w-auto">
             <Button
               type="submit"
+              // Outlined and dull while there is nothing to check; it fills in when there is.
+              variant={value.trim() ? "default" : "outline"}
               disabled={attempt.isPending || !value.trim()}
               className="h-10 flex-1 px-5 text-sm sm:flex-none"
             >
@@ -492,10 +512,10 @@ function ExerciseCard({
             </Button>
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               onClick={() => setRevealed((open) => !open)}
               aria-expanded={revealed}
-              className="h-10 flex-1 px-4 text-sm sm:flex-none"
+              className="text-muted-foreground h-10 px-3 text-sm underline underline-offset-4 hover:bg-transparent"
             >
               {t(revealed ? "hideAnswer" : "showAnswer")}
             </Button>
@@ -507,7 +527,7 @@ function ExerciseCard({
       )}
       {exercise.kind === "write" && result && (
         <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3 text-[13px] leading-relaxed">
-          <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             {t("sampleAnswer")}
           </p>
           <p>{exercise.answer}</p>
@@ -644,7 +664,7 @@ function Vocabulary({
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between gap-3">
-        <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+        <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
           {heading}
         </p>
         {notebookId && (

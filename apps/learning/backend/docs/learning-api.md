@@ -312,6 +312,7 @@ under `/api/v1/learning/path`.
 | `GET /tests/:id`, `POST /tests/:id/answers` | The state of a test, and one batch of answers; a full batch goes to the examiner (the agent), which climbs or places the learner. |
 | `POST /tests/:id/analyze` | Queues building the program from a finished placement test and answers `202` with a job; asking again hands the same job back. |
 | `GET /jobs/:id` | `queued`, `running`, `done` (with the program) or `failed` (with why). |
+| `DELETE /history?language=` | Clears the learner's history of a language: its closed programs, with their topics, exercises, attempts and lessons (`{deleted: n}`). The running program stays. The newest finished program is also what lets a test start above A1, so after clearing the next test starts from A1. |
 | `GET /?language=`, `GET /history`, `POST /reset` | The running program of a language, the closed ones, and closing the running one. Each topic of a program carries `exercises: {total, done}`: how many exercises its current set holds (0 while it is not written) and how many of them the learner has answered right. A regenerated set starts from `done: 0`. |
 | `GET /topics/:id`, `POST /topics/:id/exercises`, `POST /topics/:id/complete` | A topic with its rule and words, its exercise set (`?regenerate=1` writes a new one), and completing it. |
 | `POST /exercises/:id/attempt` | Checks one answer. Kinds: `choice`, `fill`, `listen` are graded here; `speak` is compared with the phrase; `translate` and `write` are judged by the agent. |
@@ -339,7 +340,7 @@ when the learner leaves the rule's page. Paths are under `/api/v1/learning/path`
 
 | Method and path | What it does |
 | --- | --- |
-| `GET /rules`, `GET /rules/:id` | The rules by level, and one rule with its forms, examples, mistakes and the rules it refers to. |
+| `GET /rules`, `GET /rules/:id` | The rules by level, and one rule with its forms, examples, mistakes and the rules it refers to. `?language=` says whose book is asked for: the learner's teacher of that language, and `403` when that pair has no book (a learner who studies English and Polish gets no English rules on the Polish teacher's screen). Without it, the first teacher whose book has the rule. |
 | `GET /rules/:id/practice` | The sitting: `{examples: [{id, text, translation}], blocks: [{id, kind, instruction, items: [{id, text, hint, options}]}]}`, empty when there is none. Opening it lifts the expiry that leaving set. The keys never come with it. |
 | `POST /rules/:id/practice/examples` | The agent writes five more sentences for the rule, never repeating one already shown (up to 20 per sitting; `409` after that). |
 | `POST /rules/:id/practice/exercises` | The agent writes four drills of five lines, one of each kind, replacing the sitting's drills. Kinds: `form` (put the word in brackets into the right form), `choose`, `correct` (the sentence has a mistake), `make` (turn it into a question, a negative…). |

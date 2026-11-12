@@ -20,6 +20,7 @@ func (c *Controller) Routes(protected *echo.Group) {
 	protected.DELETE("/learning/path/teachers/:id", c.deleteTeacher)
 	protected.GET("/learning/path", c.current)
 	protected.GET("/learning/path/history", c.history)
+	protected.DELETE("/learning/path/history", c.clearHistory)
 	protected.POST("/learning/path/reset", c.reset, echomw.BodyLimit("16K"))
 	protected.GET("/learning/path/rules", c.listRules)
 	protected.GET("/learning/path/rules/:id", c.getRule)

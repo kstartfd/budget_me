@@ -10,6 +10,7 @@ import Link from "next/link"
 import { useRules } from "../hooks"
 import { exercisesPreparing } from "../progress"
 import type { Path } from "../schemas"
+import { rulesPath } from "./rule-card"
 import { ProgramScale } from "./program-scale"
 import { SkillIcon } from "./skills"
 import { StartError } from "./start-error"
@@ -52,7 +53,7 @@ export function ProgramView({
   const done = path.topics.filter((topic) => topic.status === "completed").length
   // The rule book is there for a teacher whose language it covers; for any other
   // the request is refused and the button stays out.
-  const rules = useRules()
+  const rules = useRules(path.language)
   const finished = path.topics.length > 0 && done === path.topics.length
   // The server is still writing the program's exercises, so the scale says so.
   const preparing = exercisesPreparing(path, asOf)
@@ -94,7 +95,7 @@ export function ProgramView({
           </Button>
           {rules.isSuccess && rules.data.length > 0 && (
             <Button asChild variant="outline" size="lg" className="px-4 text-[13px]">
-              <Link href="/learning/path/rules">{t("rulesOpen")}</Link>
+              <Link href={rulesPath(path.language)}>{t("rulesOpen")}</Link>
             </Button>
           )}
           {confirmReset ? (
@@ -149,7 +150,9 @@ export function ProgramView({
               )}
             <div
               className={cn(
-                "bg-background min-w-0 overflow-hidden rounded-lg border",
+                // clip, not hidden: the open topic's row sticks under the app bar (61px tall, see
+                // app-shell; none at lg) while its exercises scroll
+                "bg-background min-w-0 overflow-clip rounded-lg border",
                 topic.status === "in_progress"
                   ? "border-foreground"
                   : "border-border",
@@ -160,9 +163,11 @@ export function ProgramView({
                 aria-expanded={open}
                 onClick={() => setOpenTopic(open ? null : topic.id)}
                 className={cn(
-                  "hover:bg-muted/50 flex w-full min-w-0 cursor-pointer items-center gap-3 px-4 py-3.5 text-left transition-colors",
+                  "hover:bg-muted/50 relative flex w-full min-w-0 cursor-pointer items-center gap-3 px-4 py-3.5 text-left transition-colors",
                   topic.status === "in_progress" && "bg-muted",
-                  open && "border-border border-b",
+                  open &&
+                    "border-border bg-background hover:bg-muted sticky top-[61px] z-10 border-b lg:top-0",
+                  open && topic.status === "in_progress" && "bg-muted",
                 )}
               >
                 <span className="bg-secondary flex size-8 shrink-0 items-center justify-center rounded-full text-[13px] font-semibold">
@@ -191,6 +196,23 @@ export function ProgramView({
                   <IconChevronUp size={13} className="text-faint shrink-0" />
                 ) : (
                   <IconChevronRight size={13} className="text-faint shrink-0" />
+                )}
+                {topic.status !== "completed" && topic.exercises.total > 0 && (
+                  <span
+                    role="progressbar"
+                    aria-label={t("topicExercisesDone", topic.exercises)}
+                    aria-valuemin={0}
+                    aria-valuemax={topic.exercises.total}
+                    aria-valuenow={topic.exercises.done}
+                    className="bg-border absolute inset-x-0 bottom-0 h-0.5"
+                  >
+                    <span
+                      className="bg-success block h-full transition-[width] duration-300 motion-reduce:transition-none"
+                      style={{
+                        width: `${(topic.exercises.done / topic.exercises.total) * 100}%`,
+                      }}
+                    />
+                  </span>
                 )}
               </button>
               {open && <TopicRunner topicId={topic.id} />}

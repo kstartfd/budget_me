@@ -52,6 +52,11 @@ SELECT * FROM learning_paths
 WHERE user_id = $1 AND status <> 'active'
 ORDER BY created_at DESC, id DESC;
 
+-- name: DeleteLearningPathHistory :execrows
+-- Closed programs of one language, with everything under them (topics, exercises,
+-- attempts, lessons, topic chats, final tests: all go with the program).
+DELETE FROM learning_paths WHERE user_id = $1 AND language = $2 AND status <> 'active';
+
 -- name: InsertLearningPathTopic :one
 INSERT INTO learning_path_topics (id, path_id, position, skill, title, goal, unit, theory, vocabulary, status, created_at, source_id)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, 'not_started', $10, $11) RETURNING *;

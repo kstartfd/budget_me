@@ -32,6 +32,9 @@ type Querier interface {
 	DeleteLearningChatMessages(ctx context.Context, chatID pgtype.UUID) error
 	DeleteLearningEntry(ctx context.Context, arg DeleteLearningEntryParams) (int64, error)
 	DeleteLearningPathExercises(ctx context.Context, topicID pgtype.UUID) error
+	// Closed programs of one language, with everything under them (topics, exercises,
+	// attempts, lessons, topic chats, final tests: all go with the program).
+	DeleteLearningPathHistory(ctx context.Context, arg DeleteLearningPathHistoryParams) (int64, error)
 	DeleteLearningTeacher(ctx context.Context, arg DeleteLearningTeacherParams) (int64, error)
 	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
 	DeleteOldLearningChatUsage(ctx context.Context, day pgtype.Date) error

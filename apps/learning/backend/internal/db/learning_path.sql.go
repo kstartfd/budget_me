@@ -194,6 +194,25 @@ func (q *Queries) DeleteLearningPathExercises(ctx context.Context, topicID pgtyp
 	return err
 }
 
+const deleteLearningPathHistory = `-- name: DeleteLearningPathHistory :execrows
+DELETE FROM learning_paths WHERE user_id = $1 AND language = $2 AND status <> 'active'
+`
+
+type DeleteLearningPathHistoryParams struct {
+	UserID   pgtype.UUID
+	Language string
+}
+
+// Closed programs of one language, with everything under them (topics, exercises,
+// attempts, lessons, topic chats, final tests: all go with the program).
+func (q *Queries) DeleteLearningPathHistory(ctx context.Context, arg DeleteLearningPathHistoryParams) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteLearningPathHistory, arg.UserID, arg.Language)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const deleteLearningTeacher = `-- name: DeleteLearningTeacher :execrows
 DELETE FROM learning_teachers WHERE id = $1 AND user_id = $2
 `

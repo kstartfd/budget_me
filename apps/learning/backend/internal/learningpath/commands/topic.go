@@ -113,3 +113,30 @@ func (h ResetHandler) Handle(ctx context.Context, cmd ResetPath) error {
 
 	return nil
 }
+
+// ClearHistory deletes the closed programs of one language, with their topics,
+// exercises, attempts and lessons. The running program stays. What the history
+// holds is also what lets a learner start a level test above A1 (the newest
+// finished program says which level they confirmed), so after this the next test
+// of the language starts from A1.
+type ClearHistory struct {
+	UserID   uuid.UUID
+	Language string
+}
+
+type ClearHistoryHandler struct {
+	q *db.Queries
+}
+
+func NewClearHistoryHandler(q *db.Queries) ClearHistoryHandler {
+	return ClearHistoryHandler{q: q}
+}
+
+// Handle returns how many programs went.
+func (h ClearHistoryHandler) Handle(ctx context.Context, cmd ClearHistory) (int64, error) {
+	if cmd.Language == "" {
+		return 0, apperr.NewInvalid("language is required")
+	}
+
+	return h.q.DeleteLearningPathHistory(ctx, db.DeleteLearningPathHistoryParams{UserID: ids.ToPg(cmd.UserID), Language: cmd.Language})
+}

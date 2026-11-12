@@ -38,23 +38,31 @@ export function usePath(language: string, nativeLanguage: string) {
     onSuccess: refresh,
   })
 
+  const clearHistory = useMutation({
+    mutationFn: () => api.clearHistory(language),
+    onSuccess: refresh,
+  })
+
   const startFinal = useMutation({
     mutationFn: (native?: string) => api.startFinalTest(language, native ?? nativeLanguage),
     onSuccess: refresh,
   })
 
-  return { active, history, startPlacement, reset, startFinal }
+  return { active, history, startPlacement, reset, clearHistory, startFinal }
 }
 
 const hour = 60 * 60 * 1000
 
-/** The rule book: the list of rules. Closed (403) without the right teacher. */
-export function useRules() {
+/**
+ * The rule book of the teacher of a language: the list of rules. Closed (403)
+ * when the learner has no teacher of that language or its pair has no book.
+ */
+export function useRules(language?: string) {
   const { user } = useAuth()
 
   return useQuery({
-    queryKey: ["path", user?.id, "rules"],
-    queryFn: api.fetchRules,
+    queryKey: ["path", user?.id, "rules", language ?? null],
+    queryFn: () => api.fetchRules(language),
     enabled: !!user,
     staleTime: hour,
     retry: false,
@@ -62,12 +70,12 @@ export function useRules() {
 }
 
 /** One rule of the rule book. */
-export function useRule(id: string) {
+export function useRule(id: string, language?: string) {
   const { user } = useAuth()
 
   return useQuery({
-    queryKey: ["path", user?.id, "rule", id],
-    queryFn: () => api.fetchRule(id),
+    queryKey: ["path", user?.id, "rule", id, language ?? null],
+    queryFn: () => api.fetchRule(id, language),
     enabled: !!user,
     staleTime: hour,
     retry: false,

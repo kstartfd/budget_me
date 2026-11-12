@@ -75,7 +75,7 @@ type checkResponse struct {
 
 // ruleSubject is the rule of the URL, as far as the learner's teacher covers it.
 func (c *Controller) ruleSubject(ctx echo.Context) (commands.RuleSubject, error) {
-	language, native, err := c.ruleBook(ctx)
+	language, native, err := c.ruleBook(ctx, ctx.Param("id"))
 	if err != nil {
 		return commands.RuleSubject{}, err
 	}

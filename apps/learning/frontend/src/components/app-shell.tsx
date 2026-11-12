@@ -115,6 +115,7 @@ function Frame({ children }: { children: React.ReactNode }) {
       <Sidebar />
       <div className="min-w-0 flex-1">
         {!fullScreen && (
+          // 61px tall: what sticks under it (the open topic's row) sits at that offset.
           <header className="bg-background border-border sticky top-0 z-20 border-b lg:hidden">
             <div className="mx-auto flex w-full max-w-md items-center justify-between px-4 py-3">
               <Logo />

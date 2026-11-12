@@ -4,7 +4,7 @@ import { useEffect, useState } from "react"
 import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
-import { IconChevronLeft } from "@tabler/icons-react"
+import { IconCheck, IconChevronLeft } from "@tabler/icons-react"
 import { usePath } from "../hooks"
 import { ProgramView } from "./program-view"
 import { StartError } from "./start-error"
@@ -146,7 +146,24 @@ function Program({
         />
       ) : (
         <section className="bg-background border-border space-y-3 rounded-lg border p-5">
-          <p className="text-sm leading-relaxed">{t("placementIntro")}</p>
+          <div className="space-y-2.5">
+            <h2 className="text-base font-semibold">{t("placementTitle")}</h2>
+            <ul className="max-w-[65ch] space-y-2 text-[15px] leading-[1.6]">
+              {(["Writer", "Ladder", "Mistakes"] as const).map((point) => (
+                <li key={point} className="flex gap-2.5">
+                  <IconCheck
+                    size={16}
+                    aria-hidden="true"
+                    className="text-success mt-1 shrink-0"
+                  />
+                  <span>{t(`placementPoint${point}`)}</span>
+                </li>
+              ))}
+            </ul>
+            <p className="bg-muted text-muted-foreground inline-block rounded-full px-3 py-1 text-xs font-medium">
+              {t("placementNeeds")}
+            </p>
+          </div>
           {path.startPlacement.isError && (
             <StartError message={path.startPlacement.error.message} />
           )}
@@ -172,17 +189,66 @@ function Program({
 
 function History({ language, nativeLanguage }: { language: string; nativeLanguage: string }) {
   const t = useTranslations("path")
-  const { history } = usePath(language, nativeLanguage)
+  const { history, clearHistory } = usePath(language, nativeLanguage)
+  const [confirming, setConfirming] = useState(false)
 
-  if (!history.data || history.data.length === 0) return null
+  const shown = (history.data ?? []).filter((item) => item.language === language)
+
+  if (shown.length === 0) return null
 
   return (
     <section className="space-y-2.5">
-      <h2 className="text-sm font-semibold">{t("history")}</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold">{t("history")}</h2>
+        {!confirming && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setConfirming(true)}
+            className="text-muted-foreground -mr-2 h-auto px-2 py-1 text-xs"
+          >
+            {t("historyClear")}
+          </Button>
+        )}
+      </div>
+      {confirming && (
+        <div
+          role="alertdialog"
+          aria-label={t("historyClear")}
+          className="border-destructive/30 bg-destructive/5 space-y-2.5 rounded-lg border p-4"
+        >
+          <p className="text-[13px] leading-relaxed">{t("historyClearConfirm")}</p>
+          {clearHistory.isError && (
+            <p role="alert" className="text-destructive text-xs">
+              {clearHistory.error.message}
+            </p>
+          )}
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="destructive"
+              size="lg"
+              disabled={clearHistory.isPending}
+              onClick={() =>
+                clearHistory.mutate(undefined, { onSuccess: () => setConfirming(false) })
+              }
+              className="px-4 text-[13px]"
+            >
+              {t(clearHistory.isPending ? "historyClearing" : "historyClearYes")}
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
+              disabled={clearHistory.isPending}
+              onClick={() => setConfirming(false)}
+              className="px-4 text-[13px]"
+            >
+              {t("cancel")}
+            </Button>
+          </div>
+        </div>
+      )}
       <ul className="space-y-2">
-        {history.data
-          .filter((item) => item.language === language)
-          .map((item) => (
+        {shown.map((item) => (
           <li
             key={item.id}
             className="bg-background border-border flex items-center gap-3 rounded-lg border p-4"

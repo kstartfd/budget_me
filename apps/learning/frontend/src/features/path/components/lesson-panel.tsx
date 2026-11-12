@@ -148,7 +148,7 @@ export function LessonPanel({
     <div className="bg-muted space-y-3 rounded-lg px-3.5 py-3">
       <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="text-muted-foreground text-[10px] font-semibold tracking-wider uppercase">
+          <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             {t(paused ? "paused" : "running")}
           </p>
           <p

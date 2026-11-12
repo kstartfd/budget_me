@@ -9,7 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ApiError } from "../api"
 import { useRule, useRules } from "../hooks"
-import { RuleCard, rulePath } from "./rule-card"
+import { RuleCard, rulePath, rulesPath } from "./rule-card"
 import { RulePractice } from "./rule-practice"
 
 const wrap = "anim-fade space-y-4 lg:mx-auto lg:w-full lg:max-w-[704px]"
@@ -32,9 +32,9 @@ function Closed() {
  * RulesIndex is the rule book: every rule of the learner's teacher, by level,
  * with a search. A rule opens on a page of its own.
  */
-export function RulesIndex() {
+export function RulesIndex({ language }: { language?: string }) {
   const t = useTranslations("path")
-  const rules = useRules()
+  const rules = useRules(language)
   const [query, setQuery] = useState("")
 
   if (rules.isError)
@@ -104,7 +104,7 @@ export function RulesIndex() {
               .map((rule) => (
                 <li key={rule.id}>
                   <Link
-                    href={rulePath(rule.id)}
+                    href={rulePath(rule.id, language)}
                     className="bg-background border-border hover:bg-muted/50 flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors"
                   >
                     <span className="min-w-0 flex-1 text-sm leading-snug font-medium">
@@ -122,14 +122,14 @@ export function RulesIndex() {
 }
 
 /** One rule on a page of its own, reached from the book or from another rule. */
-export function RulePage({ id }: { id: string }) {
+export function RulePage({ id, language }: { id: string; language?: string }) {
   const t = useTranslations("path")
-  const rule = useRule(id)
+  const rule = useRule(id, language)
 
   return (
     <div className={wrap}>
       <Button asChild variant="ghost" size="sm" className="-ml-2 h-auto px-2 py-1 text-xs">
-        <Link href="/learning/path/rules">
+        <Link href={rulesPath(language)}>
           <IconChevronLeft size={14} />
           {t("rulesBack")}
         </Link>
@@ -154,7 +154,7 @@ export function RulePage({ id }: { id: string }) {
       {rule.isSuccess && (
         <>
           <div className="bg-background border-border rounded-lg border p-5">
-            <RuleCard rule={rule.data} withTitle />
+            <RuleCard rule={rule.data} language={language} withTitle />
           </div>
           <RulePractice ruleId={id} />
         </>

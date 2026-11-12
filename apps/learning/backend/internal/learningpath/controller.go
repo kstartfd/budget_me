@@ -54,6 +54,7 @@ type Controller struct {
 	lessons   commands.LessonHandler
 	practices commands.PracticeHandler
 	resets    commands.ResetHandler
+	clears    commands.ClearHistoryHandler
 	read      queries.ReadHandler
 	limit     *ratelimit.Limiter
 	audio     learningaudio.Service
@@ -75,6 +76,7 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 		lessons:   commands.NewLessonHandler(q, clk),
 		practices: commands.NewPracticeHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
 		resets:    commands.NewResetHandler(q, clk),
+		clears:    commands.NewClearHistoryHandler(q),
 		read:      queries.NewReadHandler(q),
 		limit:     ratelimit.New(aiRate),
 		testLimit: ratelimit.New(testRate),
@@ -411,6 +413,16 @@ func (c *Controller) reset(ctx echo.Context) error {
 	return httpx.OK(ctx, nil)
 }
 
+// clearHistory deletes the closed programs of a language; the running one stays.
+func (c *Controller) clearHistory(ctx echo.Context) error {
+	deleted, err := c.clears.Handle(ctx.Request().Context(), commands.ClearHistory{UserID: userOf(ctx), Language: ctx.QueryParam("language")})
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, map[string]int64{"deleted": deleted})
+}
+
 func (c *Controller) topic(ctx echo.Context) error {
 	id, err := idParam(ctx, "topic")
 	if err != nil {
@@ -487,16 +499,49 @@ func ruleOf(d queries.TopicDetail) *ruleResponse {
 // ruleBook is the pair whose rules the learner may read: the one of a teacher
 // they have, and only if that pair has a rule book. Without such a teacher the
 // rules are not served.
-func (c *Controller) ruleBook(ctx echo.Context) (string, string, error) {
+//
+// The screen says whose book it asks for with ?language=: the learner who
+// studies English and Polish must get the Polish teacher's book (or none, when
+// the pair has no book) on the Polish teacher's screen, never the English one.
+// Without it the first teacher whose book has the rule is taken, which is what
+// the practice calls on a rule's page rely on. A rule that no book has still
+// answers from the first book there is, so the caller finds it missing (404)
+// instead of the book being closed (403).
+func (c *Controller) ruleBook(ctx echo.Context, ruleID string) (string, string, error) {
 	teachers, err := c.read.Teachers(ctx.Request().Context(), userOf(ctx))
 	if err != nil {
 		return "", "", err
 	}
 
+	want := ctx.QueryParam("language")
+
+	var firstLanguage, firstNative string
+
 	for _, t := range teachers {
-		if len(curriculum.Rules(t.Teacher.Language, t.Teacher.TranslationLanguage)) > 0 {
-			return t.Teacher.Language, t.Teacher.TranslationLanguage, nil
+		language, native := t.Teacher.Language, t.Teacher.TranslationLanguage
+		if want != "" && language != want {
+			continue
 		}
+
+		if len(curriculum.Rules(language, native)) == 0 {
+			continue
+		}
+
+		if ruleID == "" {
+			return language, native, nil
+		}
+
+		if rule, ok := curriculum.Find(language, native, ruleID); ok && rule.Extra != nil {
+			return language, native, nil
+		}
+
+		if firstLanguage == "" {
+			firstLanguage, firstNative = language, native
+		}
+	}
+
+	if firstLanguage != "" {
+		return firstLanguage, firstNative, nil
 	}
 
 	return "", "", apperr.NewForbidden("the rule book is for a teacher whose language it covers")
@@ -504,7 +549,7 @@ func (c *Controller) ruleBook(ctx echo.Context) (string, string, error) {
 
 // listRules lists the rules of the learner's rule book, by level.
 func (c *Controller) listRules(ctx echo.Context) error {
-	language, native, err := c.ruleBook(ctx)
+	language, native, err := c.ruleBook(ctx, "")
 	if err != nil {
 		return err
 	}
@@ -521,7 +566,7 @@ func (c *Controller) listRules(ctx echo.Context) error {
 
 // getRule reads one rule, with the rules it refers to.
 func (c *Controller) getRule(ctx echo.Context) error {
-	language, native, err := c.ruleBook(ctx)
+	language, native, err := c.ruleBook(ctx, ctx.Param("id"))
 	if err != nil {
 		return err
 	}
