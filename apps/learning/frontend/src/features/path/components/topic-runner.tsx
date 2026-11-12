@@ -426,7 +426,10 @@ function ExerciseCard({
         </div>
       ) : (
         <form
-          className={cn("flex gap-2", exercise.kind === "write" && "flex-wrap")}
+          className={cn(
+            "flex gap-2",
+            exercise.kind === "write" ? "flex-wrap" : "flex-col sm:flex-row",
+          )}
           onSubmit={(e) => {
             e.preventDefault()
             submit(value)
@@ -456,22 +459,24 @@ function ExerciseCard({
               className="bg-background h-10 text-sm md:text-sm"
             />
           )}
-          <Button
-            type="submit"
-            disabled={attempt.isPending || !value.trim()}
-            className="h-10 px-5 text-sm"
-          >
-            {t(attempt.isPending ? "checking" : "check")}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setRevealed((open) => !open)}
-            aria-expanded={revealed}
-            className="h-10 px-4 text-sm"
-          >
-            {t(revealed ? "hideAnswer" : "showAnswer")}
-          </Button>
+          <div className="flex w-full gap-2 sm:w-auto">
+            <Button
+              type="submit"
+              disabled={attempt.isPending || !value.trim()}
+              className="h-10 flex-1 px-5 text-sm sm:flex-none"
+            >
+              {t(attempt.isPending ? "checking" : "check")}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setRevealed((open) => !open)}
+              aria-expanded={revealed}
+              className="h-10 flex-1 px-4 text-sm sm:flex-none"
+            >
+              {t(revealed ? "hideAnswer" : "showAnswer")}
+            </Button>
+          </div>
         </form>
       )}
       {exercise.kind === "speak" && voiceFailed !== null && (
