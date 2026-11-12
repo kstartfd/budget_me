@@ -11,7 +11,7 @@ import { useLesson, useRules } from "../hooks"
 import { exercisesPreparing } from "../progress"
 import type { Path } from "../schemas"
 import { LessonBar, lessonBarHeight } from "./lesson-bar"
-import { rulesPath } from "./rule-card"
+import { Mixed, rulesPath } from "./rule-card"
 import { ProgramScale } from "./program-scale"
 import { SkillIcon } from "./skills"
 import { StartError } from "./start-error"
@@ -76,7 +76,7 @@ export function ProgramView({
         </div>
         {path.summary && (
           <p className="text-muted-foreground text-sm leading-relaxed">
-            {path.summary}
+            <Mixed text={path.summary} />
           </p>
         )}
         {finished && (

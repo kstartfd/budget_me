@@ -22,7 +22,7 @@ import { useLesson, useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { topicSetComing, writerHasHeadStart } from "../progress"
 import { StartLesson } from "./lesson-bar"
 import { PlayButton } from "./play-button"
-import { Prose, RuleCard } from "./rule-card"
+import { englishClass, Mixed, Prose, RuleCard } from "./rule-card"
 import { listenOnce, speechSupported } from "../speech"
 import type { PathAttempt, PathExercise } from "../schemas"
 
@@ -129,7 +129,9 @@ export function TopicRunner({ topicId }: { topicId: string }) {
             <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
               {t("goal")}
             </p>
-            <p className="text-[13px] leading-relaxed">{topic.goal}</p>
+            <p className="text-[13px] leading-relaxed">
+              <Mixed text={topic.goal} />
+            </p>
           </div>
           <div className="border-border rounded-lg border p-4">
             <RuleCard rule={detail.data.rule} language={path.language} />
@@ -140,7 +142,9 @@ export function TopicRunner({ topicId }: { topicId: string }) {
           <p className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
             {t("rule")}
           </p>
-          <p className="text-[13px] leading-relaxed">{topic.goal}</p>
+          <p className="text-[13px] leading-relaxed">
+              <Mixed text={topic.goal} />
+            </p>
           {topic.theory && <Prose text={topic.theory} className="text-sm" />}
         </div>
       )}
@@ -542,7 +546,11 @@ function ExerciseCard({
             <span className="text-muted-foreground">{t("correctAnswer")}: </span>
             <strong>{exercise.answer}</strong>
           </p>
-          {exercise.rule && <p className="text-muted-foreground">{exercise.rule}</p>}
+          {exercise.rule && (
+            <p className="text-muted-foreground">
+              <Mixed text={exercise.rule} />
+            </p>
+          )}
         </div>
       )}
 
@@ -629,7 +637,12 @@ function QuotedEmphasis({ text }: { text: string }) {
   return (
     <>
       {parts.map((part, index) => {
-        if (index % 4 === 2) return <strong key={index}>{part}</strong>
+        if (index % 4 === 2)
+          return (
+            <span key={index} className={englishClass}>
+              {part}
+            </span>
+          )
         return part
       })}
     </>

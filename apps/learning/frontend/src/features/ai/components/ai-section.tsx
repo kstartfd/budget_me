@@ -165,7 +165,7 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
         <div
           role="radiogroup"
           aria-label={t("provider")}
-          className="grid grid-cols-3 gap-2"
+          className="grid grid-cols-2 gap-2 sm:grid-cols-4"
         >
           {providers.map((item) => {
             const active = item.id === provider.id

@@ -31,8 +31,26 @@ const Heading = SectionLabel
 /** A run of Latin letters, with the spaces, commas and plus signs that join its words. */
 const english = /([A-Za-z][A-Za-z0-9'’/\-]*(?:[ ,+]+[A-Za-z0-9][A-Za-z0-9'’/\-]*)*[.?!]?)/g
 
-/** Splits a text into what is written in the learner's language and the English in it. */
+/** A letter of a script other than Latin: the text is written in the learner's own language. */
+const otherScript = /(?!\p{Script=Latin})\p{L}/u
+
+/**
+ * The look of the learned language inside an explanation: the readability
+ * sheet's blue wash, 8:1 on the card in both themes, in place of a heavier
+ * weight that was hard to tell from the text around it.
+ */
+export const englishClass =
+  "bg-lang text-lang-foreground rounded-[4px] px-[3px] py-px font-medium [box-decoration-break:clone]"
+
+/**
+ * Splits a text into what is written in the learner's language and the English
+ * in it. A text with no letters of another script is not an explanation of
+ * English at all (the learner's own language is written in Latin too), so
+ * there is nothing to pick out and it stays as it is.
+ */
 function withEnglish(text: string) {
+  if (!otherScript.test(text)) return text
+
   return text.split(english).map((part, index) => {
     if (index % 2 === 0) return part
 
@@ -41,11 +59,16 @@ function withEnglish(text: string) {
 
     return (
       <span key={index}>
-        <span className="text-foreground font-medium">{stop ? part.slice(0, -1) : part}</span>
+        <span className={englishClass}>{stop ? part.slice(0, -1) : part}</span>
         {stop}
       </span>
     )
   })
+}
+
+/** An explanation in the learner's language, the English in it picked out; one line of text, no paragraphs. */
+export function Mixed({ text }: { text: string }) {
+  return <>{withEnglish(text)}</>
 }
 
 /** The share of a sentence's letters that are Latin: an example in English is nearly all of them. */
@@ -76,7 +99,7 @@ export function paragraphsOf(text: string): string[] {
 /**
  * Prose is an explanation in the learner's language that holds English: cut
  * into short paragraphs, a line no wider than it reads comfortably, the
- * English picked out in a heavier weight.
+ * English picked out on a blue wash.
  */
 export function Prose({ text, className }: { text: string; className?: string }) {
   return (
@@ -179,7 +202,7 @@ export function RuleCard({
                 </div>
                 {mistake.note && (
                   <p className="text-muted-foreground max-w-[65ch] text-[13px] leading-snug">
-                    {mistake.note}
+                    <Mixed text={mistake.note} />
                   </p>
                 )}
               </li>
