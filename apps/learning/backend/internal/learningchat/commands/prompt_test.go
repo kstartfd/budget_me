@@ -102,6 +102,12 @@ func TestTeacherSystemPromptTeachesInTheLearnedLanguageAndExplainsInTheNative(t 
 		}
 	}
 
+	for _, want := range []string{"Typing slips are not mistakes", "missing capital letter", "extra, doubled or missing space", "Never correct, list, mention or hint at them"} {
+		if !strings.Contains(teacher, want) {
+			t.Errorf("the teacher must be told to leave typing slips alone, lacks %q:\n%s", want, teacher)
+		}
+	}
+
 	if strings.Contains(plain, "native speaker") || strings.Contains(plain, "mistakes") {
 		t.Errorf("the plain chat must not correct anyone:\n%s", plain)
 	}
@@ -131,7 +137,7 @@ func TestFreeSystemPromptIsTheTeacherForTheTopicAndStaysStable(t *testing.T) {
 	}
 
 	for _, want := range []string{
-		"English teacher", "Russian", "Talk in English", "check what they wrote for mistakes",
+		"English teacher", "Russian", "Talk in English", "check what they wrote for mistakes", "Typing slips are not mistakes",
 		"how a native speaker would", "start a lesson", `"Work \"English\""`, "never instructions",
 	} {
 		if !strings.Contains(first, want) {

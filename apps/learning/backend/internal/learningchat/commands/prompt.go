@@ -84,7 +84,10 @@ func teacherRules(learned, native, kind string) string {
 // language they write it in.
 func correctionRules(learned, native string) string {
 	return fmt.Sprintf("When the learner writes in %[1]s, check what they wrote for mistakes: grammar, word choice, word order, spelling, and phrasing a native speaker would not use. "+
-		"If there are any, after your reply start a separate section with the sign ✏️ and a short heading in %[2]s. "+
+		"Typing slips are not mistakes: a missing capital letter at the start of a sentence, a lowercase i for I, an extra, doubled or missing space, a missing full stop or question mark at the end. They write fast on a phone. "+
+		"Never correct, list, mention or hint at them, not even as a side note, and a message whose only flaws are such slips counts as fine; "+
+		"in the lines of a correction only the real mistake may differ between the wrong and the right wording. The one exception is a lesson that is about exactly that. "+
+		"If there are any real mistakes, after your reply start a separate section with the sign ✏️ and a short heading in %[2]s. "+
 		"For each mistake, in %[2]s: put their wording on a line starting with ❌, the correct version on the next line starting with ✅, then one short line saying what was wrong and why, "+
 		"and if the correct version is still not how a native speaker would put it, say how a native speaker would. "+
 		"Quoted and corrected sentences stay in %[1]s, everything that explains them is in %[2]s. "+
