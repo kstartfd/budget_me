@@ -10,8 +10,6 @@ import (
 
 	"context"
 
-	"github.com/jackc/pgx/v5/pgtype"
-
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
@@ -28,15 +26,13 @@ func NewRecorder(q *db.Queries, clk clock.Clock) Recorder {
 	return Recorder{q: q, clock: clk}
 }
 
-// Record adds a call to the sums of its day (UTC). A failure is logged and
-// swallowed: counting must never fail the learner's call.
+// Record adds a call to the sums of its hour (UTC): what a call costs can
+// depend on the hour it was made in. A failure is logged and swallowed:
+// counting must never fail the learner's call.
 func (r Recorder) Record(ctx context.Context, call llm.Call) {
-	now := r.clock.Now()
-	day := pgtype.Date{Time: time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, time.UTC), Valid: true}
-
 	err := r.q.AddLearningAgentUsage(ctx, db.AddLearningAgentUsageParams{
 		UserID:       ids.ToPg(call.UserID),
-		Day:          day,
+		Hour:         db.Time(r.clock.Now().UTC().Truncate(time.Hour)),
 		Provider:     string(call.Provider),
 		Model:        call.Model,
 		Purpose:      call.Purpose,

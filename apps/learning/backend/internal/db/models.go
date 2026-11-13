@@ -619,7 +619,6 @@ func (ns NullLearningTokenScope) Value() (driver.Value, error) {
 
 type LearningAgentUsage struct {
 	UserID       pgtype.UUID
-	Day          pgtype.Date
 	Provider     string
 	Model        string
 	Purpose      string
@@ -627,6 +626,7 @@ type LearningAgentUsage struct {
 	InputTokens  int64
 	CachedTokens int64
 	OutputTokens int64
+	Hour         pgtype.Timestamptz
 }
 
 type LearningAiSetting struct {
