@@ -116,7 +116,7 @@ func cleanExamples(list []exampleOut, seen []string) ([]exampleOut, error) {
 	var out []exampleOut
 
 	for _, e := range list {
-		e.Text, e.Translation = strings.TrimSpace(e.Text), strings.TrimSpace(e.Translation)
+		e.Text, e.Translation = strings.TrimSpace(plain(e.Text)), strings.TrimSpace(plain(e.Translation))
 
 		if e.Text == "" || e.Translation == "" {
 			return nil, fmt.Errorf("every example needs a text and a translation")
@@ -197,7 +197,11 @@ func validateBlocks(blocks []blockOut) error {
 }
 
 func validateItem(kind string, it *itemOut) error {
-	it.Text, it.Hint, it.Note = strings.TrimSpace(it.Text), strings.TrimSpace(it.Hint), strings.TrimSpace(it.Note)
+	it.Text, it.Hint, it.Note = strings.TrimSpace(plain(it.Text)), strings.TrimSpace(plain(it.Hint)), strings.TrimSpace(it.Note)
+
+	for i := range it.Options {
+		it.Options[i] = plain(it.Options[i])
+	}
 
 	if it.Text == "" || utf8.RuneCountInString(it.Text) > maxItemRunes {
 		return fmt.Errorf("missing or overlong text")
@@ -210,7 +214,7 @@ func validateItem(kind string, it *itemOut) error {
 	answers := make([]string, 0, len(it.Answers))
 
 	for _, a := range it.Answers {
-		a = strings.TrimSpace(a)
+		a = strings.TrimSpace(plain(a))
 		if a != "" && utf8.RuneCountInString(a) <= maxItemRunes {
 			answers = append(answers, a)
 		}

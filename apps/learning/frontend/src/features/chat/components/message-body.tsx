@@ -1,3 +1,4 @@
+import { Example } from "@/components/example";
 import { InlineMarkdown } from "@/components/inline-markdown";
 import { cn } from "@/lib/utils";
 
@@ -244,11 +245,7 @@ export function Inline({ text }: { text: string }) {
       {text.split(quotePattern).map((part, i) => {
         if (i % 2 === 0) return <Marked key={i} text={part} />;
         if (part.startsWith("`")) {
-          return (
-            <code key={i} className={cn(chipClass, "font-mono")}>
-              {part.slice(1, -1)}
-            </code>
-          );
+          return <Example key={i}>{part.slice(1, -1)}</Example>;
         }
         return (
           <q

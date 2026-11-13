@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useTranslations } from "next-intl"
 import { IconCheck, IconChevronRight, IconX } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
+import { exampleLineClass, withExamples } from "@/components/example"
 import type { PathRule } from "../schemas"
 
 /** The path of a rule's own page, in the rule book of the teacher of a language. */
@@ -43,14 +44,20 @@ export const englishClass =
   "bg-lang text-lang-foreground rounded-[4px] px-[3px] py-px font-medium [box-decoration-break:clone]"
 
 /**
- * Splits a text into what is written in the learner's language and the English
- * in it. A text with no letters of another script is not an explanation of
+ * Sets the examples of a text (between backticks) in their own font, and in the
+ * rest of it, when it is written in another script than Latin, picks out the
+ * English. A text with no letters of another script is not an explanation of
  * English at all (the learner's own language is written in Latin too), so
- * there is nothing to pick out and it stays as it is.
+ * there is nothing more to pick out and it stays as it is.
  */
-function withEnglish(text: string) {
-  if (!otherScript.test(text)) return text
+function withMarks(text: string) {
+  const mixed = otherScript.test(text)
 
+  return withExamples(text, (part) => (mixed ? withEnglish(part) : part))
+}
+
+/** The English in a part of an explanation written in the learner's language, on a blue wash. */
+function withEnglish(text: string) {
   return text.split(english).map((part, index) => {
     if (index % 2 === 0) return part
 
@@ -68,7 +75,7 @@ function withEnglish(text: string) {
 
 /** An explanation in the learner's language, the English in it picked out; one line of text, no paragraphs. */
 export function Mixed({ text }: { text: string }) {
-  return <>{withEnglish(text)}</>
+  return <>{withMarks(text)}</>
 }
 
 /** The share of a sentence's letters that are Latin: an example in English is nearly all of them. */
@@ -80,16 +87,21 @@ const latinShare = (sentence: string) => {
 }
 
 /**
- * Cuts an explanation into paragraphs: a sentence in the learner's language
- * opens a new one, and the English sentences that follow (the examples) stay
- * with it. The library writes a rule as one run of text, which read as a wall.
+ * Cuts an explanation into paragraphs: a sentence opens a new one, and the
+ * examples that follow it stay with it. An example is a sentence set between
+ * backticks; in a text of the learner's own language, English sentences with no
+ * mark count as examples too (older texts have none). The library writes a rule
+ * as one run of text, which read as a wall.
  */
 export function paragraphsOf(text: string): string[] {
-  const sentences = text.split(/(?<=[.!?])\s+(?=[A-ZА-ЯЁ])/u)
+  const sentences = text.split(/(?<=[.!?]`?)\s+(?=`?[A-ZА-ЯЁ])/u)
+  const mixed = otherScript.test(text)
   const out: string[] = []
 
   for (const sentence of sentences) {
-    if (out.length > 0 && latinShare(sentence) > 0.8) out[out.length - 1] += ` ${sentence}`
+    const example = sentence.startsWith("`") || (mixed && latinShare(sentence) > 0.8)
+
+    if (out.length > 0 && example) out[out.length - 1] += ` ${sentence}`
     else out.push(sentence)
   }
 
@@ -105,7 +117,7 @@ export function Prose({ text, className }: { text: string; className?: string })
   return (
     <div className={cn("max-w-[65ch] space-y-2.5 text-[15px] leading-[1.6]", className)}>
       {paragraphsOf(text).map((paragraph) => (
-        <p key={paragraph}>{withEnglish(paragraph)}</p>
+        <p key={paragraph}>{withMarks(paragraph)}</p>
       ))}
     </div>
   )
@@ -170,7 +182,7 @@ export function RuleCard({
           <ul className="space-y-2">
             {rule.examples.map((example) => (
               <li key={example.text} className="border-border border-l-2 pl-3">
-                <p className="text-[15px] leading-snug font-medium">{example.text}</p>
+                <p className={cn("text-[14px] leading-snug font-medium", exampleLineClass)}>{example.text}</p>
                 <p className="text-muted-foreground text-[13px] leading-snug">{example.translation}</p>
               </li>
             ))}
@@ -190,14 +202,14 @@ export function RuleCard({
                       <IconX size={14} aria-hidden="true" />
                       {t("ruleWrong")}
                     </p>
-                    <p className="text-[14px] leading-snug">{mistake.wrong}</p>
+                    <p className={cn("text-[13px] leading-snug", exampleLineClass)}>{mistake.wrong}</p>
                   </div>
                   <div className="border-success/30 bg-success/5 space-y-1 rounded-lg border px-3 py-2.5">
                     <p className="text-success flex items-center gap-1 text-xs font-semibold">
                       <IconCheck size={14} aria-hidden="true" />
                       {t("ruleRight")}
                     </p>
-                    <p className="text-[14px] leading-snug font-medium">{mistake.right}</p>
+                    <p className={cn("text-[13px] leading-snug font-medium", exampleLineClass)}>{mistake.right}</p>
                   </div>
                 </div>
                 {mistake.note && (

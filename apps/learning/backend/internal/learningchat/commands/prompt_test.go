@@ -177,3 +177,18 @@ func TestALessonChatExplainsInTheLanguageTheTeacherIsSetTo(t *testing.T) {
 		t.Fatal("the system prompt must be byte-identical between turns, or the provider cache is lost")
 	}
 }
+
+// TestTheChatAsksForExamplesInBackticks: the chat screen sets backticked text
+// in a font of its own, so every teacher prompt asks for the marks.
+func TestTheChatAsksForExamplesInBackticks(t *testing.T) {
+	for name, system := range map[string]string{
+		"free":    freeTeacherRules("English", "Russian"),
+		"format":  formatRules,
+		"lesson":  lessonSystem(db.LearningPath{Language: "en", Level: "B1"}, db.LearningPathTopic{Title: "Past Simple"}, "ru", ""),
+		"example": exampleSystem(exampleSubject{practice: db.LearningRulePractice{Language: "en", TranslationLanguage: "ru"}}, ""),
+	} {
+		if !strings.Contains(system, "in backticks") {
+			t.Errorf("%s does not ask for examples in backticks", name)
+		}
+	}
+}

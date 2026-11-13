@@ -34,7 +34,14 @@ const (
 // understand something. The learner picks the language of explanations: their
 // own, or the one they are learning. In the second case the words must be ones
 // they can read, or the explanation is no help at all.
-const explanationNote = "explanationLanguage is the language of everything you write for the learner to understand (the program, rules, instructions, explanations). When it is the learned language itself, write it in short, plain sentences with common words, easier than the learner's CEFR level, so it can be read without a dictionary, and never fall back to another language.\n"
+const explanationNote = "explanationLanguage is the language of everything you write for the learner to understand (the program, rules, instructions, explanations). When it is the learned language itself, write it in short, plain sentences with common words, easier than the learner's CEFR level, so it can be read without a dictionary, and never fall back to another language.\n" + exampleNote
+
+// exampleNote is the one convention for showing an example: in an explanation
+// the page sets everything between backticks in a font of its own, so the
+// learner sees at once which words are an example and which are the
+// explanation. The backticks are plain characters inside the JSON strings.
+const exampleNote = "Mark every example in an explanation (summary, goal, rule, feedback, note) by wrapping it in backticks, its own end punctuation inside: the rule is used for habits, for example `I get up at 7.` Put in backticks only examples, whole sentences or short phrases of the learned language, and each one separately; never a rule name, a term, a single word of the explanation itself or a label. " +
+	"Never use backticks in text, prompt, options, answer, hint or any other field the learner is asked to work on, only in explanations.\n"
 
 var topicSkills = map[string]bool{"grammar": true, "vocabulary": true, "reading": true, "writing": true, "listening": true, "speaking": true}
 
@@ -74,10 +81,10 @@ const reviewSystem = "You check a learner's answer to one language exercise.\n\n
 	"A write exercise is a text the learner wrote on their own, so there is no single right answer: the answer given is only a sample. Read the text the way a native speaker would read it and count every real mistake in it: grammar, word choice, word order, spelling, and wording a native speaker would not use (stiff, bookish or foreign-sounding phrasing counts, even when it is grammatical). " +
 	"Typing slips are not mistakes: a missing capital letter at the start of a sentence, a lowercase i for I, an extra, doubled or missing space, a missing full stop or question mark at the end. Never count, mention or hint at them. " +
 	"mistakes is that count: one for each separate problem, 0 when the text is fine. correct is true only when mistakes is 0 and the text does what the task asks, at the learner's level. " +
-	"When the text is correct, feedback is empty: the answer is simply accepted. Otherwise feedback explains every mistake in the explanation language, one short paragraph for each: quote the learner's wording, give the version a native speaker would say, and say in one sentence why. " +
+	"When the text is correct, feedback is empty: the answer is simply accepted. Otherwise feedback explains every mistake in the explanation language, one short paragraph for each: quote the learner's wording in backticks, give the version a native speaker would say in backticks, and say in one sentence why. " +
 	"If the text has no mistakes but does not do what the task asks, mistakes is 0, correct is false and feedback says what is missing.\n\n" +
 	"For every other kind of exercise mistakes is 0. correct is your judgement of the learner's answer. When the exercise's right answer is given, the learner is right only when their answer means the same; small spelling slips that do not change the meaning still count as correct. When nothing is given (a free translation), use your own judgement of what a learner at this level was asked for. " +
-	"feedback is empty when the answer is right and needed nothing. Otherwise, in the explanation language, explain in two or three sentences what was wrong and how to get it right; quote the correct version in the learned language.\n" +
+	"feedback is empty when the answer is right and needed nothing. Otherwise, in the explanation language, explain in two or three sentences what was wrong and how to get it right; quote the correct version in the learned language, in backticks.\n" +
 	explanationNote
 
 // analyzePrompt packs everything the analyst needs into one JSON user prompt.
@@ -307,8 +314,22 @@ func parseExercises(text string) ([]exercise, error) {
 		return nil, fmt.Errorf("exercises are not JSON: %w", err)
 	}
 
+	// What the learner works on is never marked up: a stray backtick there would
+	// show in the task and break the comparison with the answer.
+	for i := range set.Exercises {
+		e := &set.Exercises[i]
+		e.Text, e.Prompt, e.Answer = plain(e.Text), plain(e.Prompt), plain(e.Answer)
+
+		for j := range e.Options {
+			e.Options[j] = plain(e.Options[j])
+		}
+	}
+
 	return set.Exercises, validateExercises(set.Exercises)
 }
+
+// plain is a text with the backticks of the example mark taken out.
+func plain(s string) string { return strings.ReplaceAll(s, "`", "") }
 
 // validateExercises checks the shape of every exercise the writer was asked
 // for, so a broken one never reaches the learner.

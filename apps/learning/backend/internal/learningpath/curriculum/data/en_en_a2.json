@@ -5,7 +5,7 @@
     "unit": "The past",
     "title": "Past Simple: regular verbs",
     "goal": "Say what you did yesterday, at the weekend and on holiday.",
-    "theory": "We use the Past Simple for finished actions in the past. With regular verbs we add -ed: work - worked, play - played. If a verb ends in -e, we add only -d: live - lived. A consonant + y becomes -ied: study - studied. A short verb with one vowel and one consonant doubles the consonant: stop - stopped. The form is the same for every person: I worked, she worked, they worked. Time words: yesterday, last week, two days ago, in 2019.",
+    "theory": "We use the Past Simple for finished actions in the past. With regular verbs we add -ed: work - worked, play - played. If a verb ends in -e, we add only -d: live - lived. A consonant + y becomes -ied: study - studied. A short verb with one vowel and one consonant doubles the consonant: stop - stopped. The form is the same for every person: `I worked, she worked, they worked.` Time words: `yesterday, last week, two days ago, in 2019.`",
     "tags": ["past simple", "regular verbs", "-ed", "yesterday ago"]
   },
   {
@@ -14,7 +14,7 @@
     "unit": "The past",
     "title": "Past Simple: irregular verbs and to be",
     "goal": "Use common irregular verbs and was/were to tell a story about the past.",
-    "theory": "Many common verbs have special past forms that you must learn: go - went, see - saw, have - had, do - did, make - made, take - took, come - came, buy - bought, eat - ate, write - wrote. To be in the past: I/he/she/it was, you/we/they were. Examples: We went to the sea last summer. She was tired. They were at home. Negatives and questions with was/were are made without did: Was he late? They weren't there.",
+    "theory": "Many common verbs have special past forms that you must learn: go - went, see - saw, have - had, do - did, make - made, take - took, come - came, buy - bought, eat - ate, write - wrote. To be in the past: `I/he/she/it was, you/we/they were.` Examples: `We went to the sea last summer.` `She was tired.` `They were at home.` Negatives and questions with was/were are made without did: `Was he late?` `They weren't there.`",
     "tags": ["past simple", "irregular verbs", "was were", "went saw"]
   },
   {
@@ -23,7 +23,7 @@
     "unit": "The past",
     "title": "Past Simple: negatives and questions with did",
     "goal": "Ask questions about the past and answer them.",
-    "theory": "For negatives and questions in the past we need did, and the main verb goes back to its base form: I didn't go to work. Did you see the film? What did she buy? Where did they go? Short answers: Yes, I did. No, he didn't. Important: after did, the verb has no -ed ending and is not an irregular form. Wrong: Did you went? Right: Did you go?",
+    "theory": "For negatives and questions in the past we need did, and the main verb goes back to its base form: `I didn't go to work.` `Did you see the film?` `What did she buy?` `Where did they go?` Short answers: `Yes, I did.` `No, he didn't.` Important: after did, the verb has no -ed ending and is not an irregular form. Wrong: `Did you went?` Right: `Did you go?`",
     "tags": ["did", "didn't", "questions in the past", "past simple"]
   },
   {
@@ -32,7 +32,7 @@
     "unit": "Present tenses",
     "title": "Present Continuous: happening now",
     "goal": "Talk about what is happening at this moment and in the near future.",
-    "theory": "The Present Continuous is made with to be + a verb with -ing: I am working, she is reading, they are playing. It describes an action at the moment of speaking (Look! It is raining) and temporary situations (I'm staying with a friend this week). Spelling of -ing: write - writing (we drop the e), run - running (we double the consonant). Negative: He isn't sleeping. Question: Are you listening? What are you doing? We do not use it with state verbs: know, like, want, understand.",
+    "theory": "The Present Continuous is made with to be + a verb with -ing: `I am working, she is reading, they are playing.` It describes an action at the moment of speaking (`Look!` `It is raining`) and temporary situations (`I'm staying with a friend this week`). Spelling of -ing: write - writing (we drop the e), run - running (we double the consonant). Negative: `He isn't sleeping.` Question: `Are you listening?` `What are you doing?` We do not use it with state verbs: know, like, want, understand.",
     "tags": ["present continuous", "-ing", "now", "to be + ing"]
   },
   {
@@ -41,7 +41,7 @@
     "unit": "Present tenses",
     "title": "Present Simple or Present Continuous",
     "goal": "Choose between a habit and an action happening now.",
-    "theory": "We use the Present Simple for habits, timetables and permanent facts: I get up at 7. Water boils at 100 degrees. We use the Present Continuous for what is happening now or for a temporary situation: I am drinking coffee now. She is working abroad this year. Clues: always, every day, usually go with the Simple; now, at the moment, today, this week go with the Continuous. Verbs like like, love, know, need and want are usually not used in the Continuous.",
+    "theory": "We use the Present Simple for habits, timetables and permanent facts: `I get up at 7.` `Water boils at 100 degrees.` We use the Present Continuous for what is happening now or for a temporary situation: `I am drinking coffee now.` `She is working abroad this year.` Clues: always, every day, usually go with the Simple; now, at the moment, today, this week go with the Continuous. Verbs like like, love, know, need and want are usually not used in the Continuous.",
     "tags": ["present simple", "present continuous", "comparing tenses", "state verbs"]
   },
   {
@@ -50,7 +50,7 @@
     "unit": "The future",
     "title": "Be going to: plans and intentions",
     "goal": "Talk about your plans and about things that are sure to happen.",
-    "theory": "We use be going to + a verb for plans we have already decided and for things that are about to happen: I am going to visit my aunt on Sunday. Look at the clouds! It is going to rain. Negative: We aren't going to travel this year. Question: Are you going to study tonight? What are you going to do? After to, we use the base form of the verb. In speech you often hear gonna.",
+    "theory": "We use be going to + a verb for plans we have already decided and for things that are about to happen: `I am going to visit my aunt on Sunday.` `Look at the clouds!` `It is going to rain.` Negative: `We aren't going to travel this year.` Question: `Are you going to study tonight?` `What are you going to do?` After to, we use the base form of the verb. In speech you often hear gonna.",
     "tags": ["going to", "plans", "future", "intentions"]
   },
   {
@@ -59,7 +59,7 @@
     "unit": "The future",
     "title": "Will: decisions, predictions, promises",
     "goal": "Make quick decisions, promise things and say what you think will happen.",
-    "theory": "We use will + the base form of the verb for decisions made at the moment of speaking (I'll have tea), promises (I will call you) and predictions (It will be hot tomorrow). Short forms: I'll, he'll, won't (= will not). Question: Will you help me? Do not mix it up with going to: a plan you have already decided is going to; a decision you make now is will.",
+    "theory": "We use will + the base form of the verb for decisions made at the moment of speaking (`I'll have tea`), promises (`I will call you`) and predictions (`It will be hot tomorrow`). Short forms: I'll, he'll, won't (= will not). Question: `Will you help me?` Do not mix it up with going to: a plan you have already decided is going to; a decision you make now is will.",
     "tags": ["will", "won't", "future", "promises", "will vs going to"]
   },
   {
@@ -68,7 +68,7 @@
     "unit": "Describing and comparing",
     "title": "Comparatives and superlatives",
     "goal": "Compare people, places and things and say which is the best.",
-    "theory": "Short adjectives take -er and -est: tall - taller - the tallest; big - bigger - the biggest; easy - easier - the easiest. Long adjectives (two syllables or more) take more and the most: more interesting, the most expensive. Exceptions: good - better - the best, bad - worse - the worst. We use than to compare: This bag is cheaper than that one. To say two things are equal, use as ... as: He is as tall as me.",
+    "theory": "Short adjectives take -er and -est: tall - taller - the tallest; big - bigger - the biggest; easy - easier - the easiest. Long adjectives (two syllables or more) take more and the most: `more interesting, the most expensive.` Exceptions: good - better - the best, bad - worse - the worst. We use than to compare: `This bag is cheaper than that one.` To say two things are equal, use as ... as: `He is as tall as me.`",
     "tags": ["comparatives", "superlatives", "than", "better best"]
   },
   {
@@ -77,7 +77,7 @@
     "unit": "Nouns",
     "title": "Countable and uncountable: some, any, much, many",
     "goal": "Talk about quantity: how many, how much, a little, a lot.",
-    "theory": "We can count countable nouns (an apple, two apples), but not uncountable ones (water, milk, money, information). With plural countable nouns we use many, a few, some, any: How many books? A few friends. With uncountable nouns we use much, a little, some, any: How much water? A little sugar. A lot of works with both. We use some in positive sentences and any in questions and negatives: I have some milk. Do you have any juice?",
+    "theory": "We can count countable nouns (`an apple, two apples`), but not uncountable ones (water, milk, money, information). With plural countable nouns we use many, a few, some, any: `How many books?` `A few friends.` With uncountable nouns we use much, a little, some, any: `How much water?` `A little sugar.` A lot of works with both. We use some in positive sentences and any in questions and negatives: `I have some milk.` `Do you have any juice?`",
     "tags": ["some any", "much many", "countable", "uncountable", "a lot of"]
   },
   {
@@ -86,7 +86,7 @@
     "unit": "Modal verbs",
     "title": "Have to, must, should: duty and advice",
     "goal": "Say what is necessary, what is forbidden and what is a good idea.",
-    "theory": "Have to and must show that something is necessary: I have to get up early. You must wear a seat belt. Don't have to means it is not necessary, but mustn't means it is forbidden: You don't have to come (you can stay at home). You mustn't park here (it is not allowed). Should gives advice: You should see a doctor. A question with have to uses do: Do you have to work on Saturday?",
+    "theory": "Have to and must show that something is necessary: `I have to get up early.` `You must wear a seat belt.` Don't have to means it is not necessary, but mustn't means it is forbidden: `You don't have to come` (you can stay at home). `You mustn't park here` (it is not allowed). Should gives advice: `You should see a doctor.` A question with have to uses do: `Do you have to work on Saturday?`",
     "tags": ["have to", "must", "mustn't", "should", "advice"]
   },
   {
@@ -95,7 +95,7 @@
     "unit": "Describing and comparing",
     "title": "Adverbs of manner and frequency",
     "goal": "Describe how and how often something happens.",
-    "theory": "Adverbs of manner are usually made from adjectives by adding -ly: slow - slowly, careful - carefully. Exceptions: good - well, fast - fast, hard - hard. Adverbs of frequency (always, usually, often, sometimes, never) go before the main verb but after to be: She always walks. He is never late. An adverb of manner goes after the verb: He drives carefully.",
+    "theory": "Adverbs of manner are usually made from adjectives by adding -ly: slow - slowly, careful - carefully. Exceptions: good - well, fast - fast, hard - hard. Adverbs of frequency (always, usually, often, sometimes, never) go before the main verb but after to be: `She always walks.` `He is never late.` An adverb of manner goes after the verb: `He drives carefully.`",
     "tags": ["adverbs", "-ly", "always never", "word order"]
   },
   {
@@ -104,7 +104,7 @@
     "unit": "Words",
     "title": "Travel and transport",
     "goal": "Buy a ticket, ask the way and book a room.",
-    "theory": "For trips you need words about transport and polite phrases. To buy a ticket: A return ticket to London, please. To ask the way: How do I get to the station? Is it far? To book a room: I'd like to book a double room for two nights. Know the difference between trip (a short visit somewhere), journey (the time and distance you travel) and travel (usually a verb).",
+    "theory": "For trips you need words about transport and polite phrases. To buy a ticket: `A return ticket to London, please.` To ask the way: `How do I get to the station?` `Is it far?` To book a room: `I'd like to book a double room for two nights.` Know the difference between trip (a short visit somewhere), journey (the time and distance you travel) and travel (usually a verb).",
     "tags": ["travel", "transport", "tickets", "hotel"]
   },
   {
@@ -113,7 +113,7 @@
     "unit": "Words",
     "title": "Shopping and clothes",
     "goal": "Choose something in a shop and ask about the price and the size.",
-    "theory": "These phrases are useful in a shop: How much is it? Do you have this in a larger size? Can I try it on? I'll take it. The word clothes is always plural: These clothes are new. The size is size, the room where you try things on is the fitting room, and the paper you get after paying is the receipt.",
+    "theory": "These phrases are useful in a shop: `How much is it?` `Do you have this in a larger size?` `Can I try it on?` `I'll take it.` The word clothes is always plural: `These clothes are new.` The size is size, the room where you try things on is the `fitting room`, and the paper you get after paying is the receipt.",
     "tags": ["shopping", "clothes", "shop"]
   },
   {
@@ -122,7 +122,7 @@
     "unit": "Words",
     "title": "Health and the body",
     "goal": "Tell a doctor what hurts and understand simple advice.",
-    "theory": "To say what is wrong, use I have a + the problem: I have a headache, a sore throat, a temperature. Or use my + part of the body + hurts: My back hurts. A doctor may say: Take this medicine twice a day. Stay in bed. Drink a lot of water. The word ill is used after the verb to be (She is ill). In American English sick is also common, and it can mean that you feel like vomiting.",
+    "theory": "To say what is wrong, use `I have a` + the problem: `I have a headache, a sore throat, a temperature.` Or use my + part of the body + hurts: `My back hurts.` A doctor may say: `Take this medicine twice a day.` `Stay in bed.` `Drink a lot of water.` The word ill is used after the verb to be (`She is ill`). In American English sick is also common, and it can mean that you feel like vomiting.",
     "tags": ["health", "doctor", "body"]
   },
   {
@@ -131,7 +131,7 @@
     "unit": "Reading and writing",
     "title": "Reading messages and short stories",
     "goal": "Understand a personal message or a simple story and answer questions about the text.",
-    "theory": "First read the whole text and understand what it is about: who, what, when, where. Only then answer the questions. You can often guess a new word from the context. In messages and stories, look at linking words: first, then, after that, but, because. They show the order of events and the reasons.",
+    "theory": "First read the whole text and understand what it is about: who, what, when, where. Only then answer the questions. You can often guess a new word from the context. In messages and stories, look at linking words: `first, then, after that, but, because`. They show the order of events and the reasons.",
     "tags": ["reading", "stories", "messages", "linking words"]
   },
   {
@@ -140,7 +140,7 @@
     "unit": "Reading and writing",
     "title": "Writing a message to a friend and a postcard",
     "goal": "Write a short personal message: invite someone, say thank you, tell about your weekend.",
-    "theory": "In an informal message, begin with Hi or Dear + a name, and end with See you soon, Best wishes or Love. Write about your weekend in the Past Simple and add details: Last weekend I went to the park with my friends. The weather was great. An invitation: Would you like to come to my party on Saturday? Thanks: Thank you for your help!",
+    "theory": "In an informal message, begin with Hi or Dear + a name, and end with `See you soon, Best wishes` or `Love.` Write about your weekend in the Past Simple and add details: `Last weekend I went to the park with my friends.` `The weather was great.` An invitation: `Would you like to come to my party on Saturday?` Thanks: `Thank you for your help!`",
     "tags": ["writing", "message", "postcard", "invitation"]
   },
   {
@@ -158,7 +158,7 @@
     "unit": "Listening",
     "title": "Listening to stories about the past",
     "goal": "Understand a short story about what happened and answer questions about it.",
-    "theory": "A story about the past is usually told in the Past Simple. Listen for sequence words: first, then, after that, finally, and for question words such as what, who, where. The -ed ending is weak when you hear it, so the words yesterday, last week and ago are important. After listening, try to retell in your own words who did what.",
+    "theory": "A story about the past is usually told in the Past Simple. Listen for sequence words: `first, then, after that, finally`, and for question words such as what, who, where. The -ed ending is weak when you hear it, so the words yesterday, last week and ago are important. After listening, try to retell in your own words who did what.",
     "tags": ["listening", "story", "past simple"]
   },
   {
@@ -167,7 +167,7 @@
     "unit": "Speaking",
     "title": "Speaking about plans and weekends",
     "goal": "Say what you did and what you are going to do.",
-    "theory": "For plans, use be going to: I'm going to visit my parents. To talk about the past, use the Past Simple: I went to the cinema. Speak in short, complete sentences and add details: with whom, when, where. Do not be afraid of pauses, but try not to change to your own language: replace a word you do not know with a simple description.",
+    "theory": "For plans, use be going to: `I'm going to visit my parents.` To talk about the past, use the Past Simple: `I went to the cinema.` Speak in short, complete sentences and add details: with whom, when, where. Do not be afraid of pauses, but try not to change to your own language: replace a word you do not know with a simple description.",
     "tags": ["speaking", "plans", "going to", "past simple"]
   },
   {
@@ -176,7 +176,7 @@
     "unit": "Speaking",
     "title": "Speaking: asking the way and asking for help",
     "goal": "Ask the way, understand the answer and ask again if you did not understand.",
-    "theory": "Begin a request for help with Excuse me. People explain the way like this: go straight on, turn left/right, it's next to ..., it's on the corner. If you did not understand, ask again: Sorry, could you say that again? Say the phrase out loud, slowly and clearly: in the street people will understand you better than if you speak fast and unclearly.",
+    "theory": "Begin a request for help with `Excuse me.` People explain the way like this: `go straight on, turn left/right, it's next to` ..., `it's on the corner.` If you did not understand, ask again: `Sorry, could you say that again?` Say the phrase out loud, slowly and clearly: in the street people will understand you better than if you speak fast and unclearly.",
     "tags": ["speaking", "directions", "politeness", "requests"]
   },
   {

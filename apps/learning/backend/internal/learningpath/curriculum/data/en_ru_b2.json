@@ -5,7 +5,7 @@
     "unit": "Перфектные времена",
     "title": "Present Perfect Continuous",
     "goal": "Говорить о длительных действиях, которые идут до сих пор или только что закончились.",
-    "theory": "Present Perfect Continuous строится так: have/has been + -ing. Он подчёркивает длительность или процесс: I have been working here for five years. She has been crying — her eyes are red (процесс, оставивший след). Сравните: I have read the book (результат, книга прочитана) и I have been reading the book (процесс, неясно, дочитана ли). С глаголами состояния (know, like, be) вместо него используют Present Perfect.",
+    "theory": "Present Perfect Continuous строится так: have/has been + -ing. Он подчёркивает длительность или процесс: `I have been working here for five years.` `She has been crying` — `her eyes are red` (процесс, оставивший след). Сравните: `I have read the book` (результат, книга прочитана) и `I have been reading the book` (процесс, неясно, дочитана ли). С глаголами состояния (know, like, be) вместо него используют Present Perfect.",
     "tags": ["present perfect continuous", "have been doing", "длительность", "for since"]
   },
   {
@@ -14,7 +14,7 @@
     "unit": "Перфектные времена",
     "title": "Past Perfect: что было до прошлого",
     "goal": "Рассказывать о событиях, которые предшествовали другим событиям в прошлом.",
-    "theory": "Past Perfect (had + V3) показывает действие, которое произошло раньше другого прошлого действия: When I arrived, the film had already started. She told me she had lost her bag. Часто используется с after, before, by the time, already, just. Если порядок событий очевиден из слов (after, before), Past Perfect можно заменить на Past Simple. Past Perfect Continuous (had been doing) подчёркивает длительность до момента в прошлом.",
+    "theory": "Past Perfect (had + V3) показывает действие, которое произошло раньше другого прошлого действия: `When I arrived, the film had already started.` `She told me she had lost her bag.` Часто используется с `after, before, by the time, already, just.` Если порядок событий очевиден из слов (after, before), Past Perfect можно заменить на Past Simple. Past Perfect Continuous (had been doing) подчёркивает длительность до момента в прошлом.",
     "tags": ["past perfect", "had done", "порядок событий", "by the time"]
   },
   {
@@ -23,7 +23,7 @@
     "unit": "Будущее время",
     "title": "Future Continuous и Future Perfect",
     "goal": "Говорить о действиях, которые будут идти или завершатся к определённому моменту в будущем.",
-    "theory": "Future Continuous (will be + -ing) — действие, которое будет происходить в определённый момент: This time tomorrow I will be flying to Rome. Future Perfect (will have + V3) — действие, которое завершится к определённому моменту: By next June I will have finished my degree. Future Perfect Continuous (will have been + -ing) — длительность к моменту: By May we will have been living here for ten years. Маркеры: by, by the time, in two years.",
+    "theory": "Future Continuous (will be + -ing) — действие, которое будет происходить в определённый момент: `This time tomorrow I will be flying to Rome.` Future Perfect (will have + V3) — действие, которое завершится к определённому моменту: `By next June I will have finished my degree.` Future Perfect Continuous (will have been + -ing) — длительность к моменту: `By May we will have been living here for ten years.` Маркеры: `by, by the time, in two years.`",
     "tags": ["future continuous", "future perfect", "will be doing", "will have done"]
   },
   {
@@ -32,7 +32,7 @@
     "unit": "Условные предложения",
     "title": "Третий и смешанный тип условных предложений",
     "goal": "Говорить о нереализованном прошлом и его последствиях.",
-    "theory": "Третий тип описывает невозможное прошлое: If I had studied harder, I would have passed the exam (но я не учился и не сдал). В if-части — Past Perfect, в главной — would have + V3. Смешанный тип соединяет прошлое условие и настоящее следствие: If I had taken that job, I would be rich now. Или настоящее условие и прошлое следствие: If she weren't so shy, she would have spoken. Вместо would можно использовать could, might.",
+    "theory": "Третий тип описывает невозможное прошлое: `If I had studied harder, I would have passed the exam` (но я не учился и не сдал). В if-части — Past Perfect, в главной — would have + V3. Смешанный тип соединяет прошлое условие и настоящее следствие: `If I had taken that job, I would be rich now.` Или настоящее условие и прошлое следствие: `If she weren't so shy, she would have spoken.` Вместо would можно использовать could, might.",
     "tags": ["third conditional", "mixed conditionals", "would have done", "if I had"]
   },
   {
@@ -41,7 +41,7 @@
     "unit": "Условные предложения",
     "title": "Wish и if only: сожаление и желание",
     "goal": "Выражать сожаление о настоящем и прошлом и желание что-то изменить.",
-    "theory": "Wish + Past Simple выражает сожаление о настоящем: I wish I had more time (но времени нет). Wish + Past Perfect — о прошлом: I wish I had gone to the party. Wish + would — недовольство чужим поведением: I wish you would stop shouting. If only звучит эмоциональнее: If only I knew the answer! С to be используют were: I wish I were taller. После wish не ставят will и would для себя: I wish I could, а не I wish I would.",
+    "theory": "Wish + Past Simple выражает сожаление о настоящем: `I wish I had more time` (но времени нет). Wish + Past Perfect — о прошлом: `I wish I had gone to the party.` Wish + would — недовольство чужим поведением: `I wish you would stop shouting.` `If only` звучит эмоциональнее: `If only I knew the answer!` С to be используют were: `I wish I were taller.` После wish не ставят will и would для себя: `I wish I could`, а не `I wish I would.`",
     "tags": ["wish", "if only", "сожаление", "wish I had"]
   },
   {
@@ -50,7 +50,7 @@
     "unit": "Страдательный залог",
     "title": "Пассив во всех временах и безличные конструкции",
     "goal": "Использовать пассив в разных временах и в безличных предложениях.",
-    "theory": "Пассив строят во всех временах, изменяя форму to be: is being built (Present Continuous), has been built (Present Perfect), will be built (Future), had been built (Past Perfect). С модальными глаголами: The report must be finished today. Безличные конструкции: It is said that he is rich или He is said to be rich. Каузатив: I had my car repaired (мне отремонтировали машину, я не делал это сам).",
+    "theory": "Пассив строят во всех временах, изменяя форму to be: `is being built` (Present Continuous), `has been built` (Present Perfect), `will be built` (Future), `had been built` (Past Perfect). С модальными глаголами: `The report must be finished today.` Безличные конструкции: `It is said that he is rich` или `He is said to be rich.` Каузатив: `I had my car repaired` (мне отремонтировали машину, я не делал это сам).",
     "tags": ["passive", "has been done", "it is said", "causative", "have something done"]
   },
   {
@@ -59,7 +59,7 @@
     "unit": "Сложные предложения",
     "title": "Косвенная речь: вопросы, просьбы, глаголы пересказа",
     "goal": "Пересказывать вопросы, просьбы и приказы, выбирая точный глагол.",
-    "theory": "Общие вопросы пересказывают через if/whether: She asked if I was ready. Просьбы и приказы — через to + инфинитив: He told me to wait. She asked him not to smoke. Вместо say и tell выбирайте точные глаголы пересказа: suggest, admit, deny, promise, warn, refuse, offer. Они требуют разных конструкций: He admitted taking the money. She promised to call. They suggested going to the cinema.",
+    "theory": "Общие вопросы пересказывают через if/whether: `She asked if I was ready.` Просьбы и приказы — через to + инфинитив: `He told me to wait.` `She asked him not to smoke.` Вместо say и tell выбирайте точные глаголы пересказа: suggest, admit, deny, promise, warn, refuse, offer. Они требуют разных конструкций: `He admitted taking the money.` `She promised to call.` `They suggested going to the cinema.`",
     "tags": ["reported speech", "reporting verbs", "suggest admit deny", "reported questions"]
   },
   {
@@ -68,7 +68,7 @@
     "unit": "Сложные предложения",
     "title": "Неопределяющие придаточные и причастные обороты",
     "goal": "Добавлять дополнительную информацию и сокращать придаточные.",
-    "theory": "Неопределяющее придаточное даёт дополнительную информацию и выделяется запятыми: My brother, who lives in Berlin, is a teacher. Здесь нельзя использовать that, и местоимение нельзя опускать. Which может относиться ко всему предложению: He passed the exam, which surprised everyone. Причастные обороты сокращают придаточные: The man standing at the door is my uncle (who is standing). The book written by Orwell is famous (that was written).",
+    "theory": "Неопределяющее придаточное даёт дополнительную информацию и выделяется запятыми: `My brother, who lives in Berlin, is a teacher.` Здесь нельзя использовать that, и местоимение нельзя опускать. Which может относиться ко всему предложению: `He passed the exam, which surprised everyone.` Причастные обороты сокращают придаточные: `The man standing at the door is my uncle` (`who is standing`). `The book written by Orwell is famous` (`that was written`).",
     "tags": ["non-defining relative clauses", "which", "participle clauses", "-ing -ed clauses"]
   },
   {
@@ -77,7 +77,7 @@
     "unit": "Модальные глаголы",
     "title": "Модальные глаголы в прошлом: should have, could have",
     "goal": "Говорить о сожалении, упущенных возможностях и догадках о прошлом.",
-    "theory": "Should have + V3 — надо было сделать, но не сделали: You should have called me. Shouldn't have — не надо было: I shouldn't have said that. Could have — могли бы, но не сделали: We could have won. Might have — возможно, это случилось: She might have forgotten. Must have — наверняка случилось: He must have missed the bus. Can't have — не могло случиться: They can't have left already.",
+    "theory": "Should have + V3 — надо было сделать, но не сделали: `You should have called me.` Shouldn't have — не надо было: `I shouldn't have said that.` Could have — могли бы, но не сделали: `We could have won.` Might have — возможно, это случилось: `She might have forgotten.` Must have — наверняка случилось: `He must have missed the bus.` Can't have — не могло случиться: `They can't have left already.`",
     "tags": ["should have", "could have", "must have", "modals past", "упущенные возможности"]
   },
   {
@@ -86,7 +86,7 @@
     "unit": "Глагольные формы",
     "title": "Герундий и инфинитив: разница в значении",
     "goal": "Различать значения глаголов, которые меняются в зависимости от формы после них.",
-    "theory": "Некоторые глаголы меняют значение. Stop doing — прекратить: He stopped smoking. Stop to do — остановиться, чтобы сделать: He stopped to smoke. Remember doing — помнить, что делал: I remember locking the door. Remember to do — не забыть сделать: Remember to lock the door. Try doing — попробовать как эксперимент: Try restarting it. Try to do — постараться: I tried to open the window. Так же ведут себя forget, regret, go on.",
+    "theory": "Некоторые глаголы меняют значение. Stop doing — прекратить: `He stopped smoking.` Stop to do — остановиться, чтобы сделать: `He stopped to smoke.` Remember doing — помнить, что делал: `I remember locking the door.` Remember to do — не забыть сделать: `Remember to lock the door.` Try doing — попробовать как эксперимент: `Try restarting it.` Try to do — постараться: `I tried to open the window.` Так же ведут себя forget, regret, go on.",
     "tags": ["gerund", "infinitive", "stop doing", "remember to do", "try doing"]
   },
   {
@@ -95,7 +95,7 @@
     "unit": "Лексика и фразы",
     "title": "Фразовые глаголы",
     "goal": "Понимать и использовать самые частые фразовые глаголы и правильно ставить дополнение.",
-    "theory": "Фразовый глагол — это глагол + частица (up, out, off, on, in), значение часто не складывается из частей: give up (сдаться), look after (заботиться), run out of (исчерпать). Они бывают разделяемые: put on the jacket / put the jacket on / put it on (местоимение только между), и неразделяемые: look after the children / look after them. Многие имеют несколько значений: take off — снять, или взлететь.",
+    "theory": "Фразовый глагол — это глагол + частица (up, out, off, on, in), значение часто не складывается из частей: `give up` (сдаться), `look after` (заботиться), `run out of` (исчерпать). Они бывают разделяемые: `put on the jacket` / `put the jacket on` / `put it on` (местоимение только между), и неразделяемые: `look after the children` / `look after them.` Многие имеют несколько значений: `take off` — снять, или взлететь.",
     "tags": ["phrasal verbs", "give up", "look after", "put on", "разделяемые"]
   },
   {
@@ -104,7 +104,7 @@
     "unit": "Лексика и фразы",
     "title": "Слова-связки: moreover, nevertheless, whereas",
     "goal": "Строить связную аргументацию и выражать контраст и следствие.",
-    "theory": "Контраст: whereas и while (тогда как), nevertheless и nonetheless (тем не менее), on the contrary (напротив). Добавление: moreover, furthermore, besides (кроме того). Следствие: therefore, consequently, as a result (поэтому). Уступка: even though, despite the fact that. Эти слова чаще используют в письме и официальной речи. Пример: The plan was risky. Nevertheless, they went ahead.",
+    "theory": "Контраст: whereas и while (тогда как), nevertheless и nonetheless (тем не менее), `on the contrary` (напротив). Добавление: moreover, furthermore, besides (кроме того). Следствие: `therefore, consequently, as a result` (поэтому). Уступка: `even though, despite the fact that.` Эти слова чаще используют в письме и официальной речи. Пример: `The plan was risky.` `Nevertheless, they went ahead.`",
     "tags": ["discourse markers", "nevertheless", "moreover", "whereas", "therefore"]
   },
   {
@@ -113,7 +113,7 @@
     "unit": "Слова",
     "title": "Медиа, новости и общество",
     "goal": "Обсудить новости, влияние медиа и общественные темы.",
-    "theory": "Лексика о медиа строится на устойчивых сочетаниях: break the news (сообщить новость), go viral (стать вирусным), fake news (фейки), reliable source (надёжный источник), media coverage (освещение в СМИ). Различайте headline (заголовок) и title (название). Глаголы: report on, comment on, spread information, raise awareness.",
+    "theory": "Лексика о медиа строится на устойчивых сочетаниях: `break the news` (сообщить новость), `go viral` (стать вирусным), `fake news` (фейки), `reliable source` (надёжный источник), `media coverage` (освещение в СМИ). Различайте headline (заголовок) и title (название). Глаголы: `report on, comment on, spread information, raise awareness.`",
     "vocabulary": [
       {"word": "headline", "translation": "заголовок новости"},
       {"word": "reliable source", "translation": "надёжный источник"},
@@ -132,7 +132,7 @@
     "unit": "Слова",
     "title": "Абстрактные понятия и коллокации",
     "goal": "Говорить об идеях, причинах и последствиях с помощью устойчивых сочетаний.",
-    "theory": "На уровне B2 важно знать, какие слова сочетаются друг с другом: make a decision, take responsibility, meet a deadline, raise a question, reach a conclusion, face a challenge. Нельзя заменять глагол на «похожий»: do a decision — неправильно. Выучивайте слова в связке: heavy rain (не strong rain), strong coffee (не heavy coffee).",
+    "theory": "На уровне B2 важно знать, какие слова сочетаются друг с другом: `make a decision, take responsibility, meet a deadline, raise a question, reach a conclusion, face a challenge.` Нельзя заменять глагол на «похожий»: `do a decision` — неправильно. Выучивайте слова в связке: `heavy rain` (не `strong rain`), `strong coffee` (не `heavy coffee`).",
     "vocabulary": [
       {"word": "reach a conclusion", "translation": "прийти к выводу"},
       {"word": "take responsibility", "translation": "брать ответственность"},
@@ -151,7 +151,7 @@
     "unit": "Слова",
     "title": "Эмоции и характер",
     "goal": "Точно описывать чувства и черты характера, а не просто good и bad.",
-    "theory": "Вместо общих слов используйте точные: furious (в ярости) вместо angry, delighted вместо happy, exhausted вместо tired. Прилагательные с -ed описывают человека (I am bored), а с -ing — то, что вызывает чувство (The film is boring). Для характера: reliable, stubborn, generous, ambitious, easy-going. Устойчивые сочетания: be fond of, be keen on, be fed up with.",
+    "theory": "Вместо общих слов используйте точные: furious (в ярости) вместо angry, delighted вместо happy, exhausted вместо tired. Прилагательные с -ed описывают человека (`I am bored`), а с -ing — то, что вызывает чувство (`The film is boring`). Для характера: reliable, stubborn, generous, ambitious, easy-going. Устойчивые сочетания: `be fond of, be keen on, be fed up with.`",
     "vocabulary": [
       {"word": "furious", "translation": "в ярости"},
       {"word": "delighted", "translation": "в восторге"},
@@ -170,7 +170,7 @@
     "unit": "Чтение и письмо",
     "title": "Читаем аргументативные тексты",
     "goal": "Понимать позицию автора, его аргументы и скрытые оценки в сложном тексте.",
-    "theory": "В аргументативном тексте найдите тезис (позицию автора), аргументы и контраргументы, затем вывод. Следите за связками, которые меняют направление мысли: however, nevertheless, on the other hand. Различайте, что автор утверждает, что цитирует и что только допускает (may, might, it is possible that). Для сложных слов используйте контекст и словообразование: unhappy, careless, misunderstanding.",
+    "theory": "В аргументативном тексте найдите тезис (позицию автора), аргументы и контраргументы, затем вывод. Следите за связками, которые меняют направление мысли: `however, nevertheless, on the other hand.` Различайте, что автор утверждает, что цитирует и что только допускает (`may, might, it is possible that`). Для сложных слов используйте контекст и словообразование: unhappy, careless, misunderstanding.",
     "vocabulary": [
       {"word": "argue", "translation": "утверждать, спорить"},
       {"word": "claim", "translation": "заявлять"},
@@ -187,7 +187,7 @@
     "unit": "Чтение и письмо",
     "title": "Пишем формальные письма и эссе",
     "goal": "Написать формальное письмо и структурированное эссе с аргументами.",
-    "theory": "Формальное письмо начинается с Dear Sir/Madam или Dear Mr Smith и заканчивается Yours faithfully (если имени нет) или Yours sincerely (если имя известно). Без сокращений (I am, а не I'm), без разговорных слов. Эссе: вступление с тезисом, 2–3 абзаца с аргументами и примерами, вывод. Связки: Firstly, Moreover, However, In conclusion. Избегайте повторов: используйте синонимы и сложные конструкции.",
+    "theory": "Формальное письмо начинается с `Dear Sir/Madam` или `Dear Mr Smith` и заканчивается `Yours faithfully` (если имени нет) или `Yours sincerely` (если имя известно). Без сокращений (`I am`, а не I'm), без разговорных слов. Эссе: вступление с тезисом, 2–3 абзаца с аргументами и примерами, вывод. Связки: `Firstly, Moreover, However, In conclusion.` Избегайте повторов: используйте синонимы и сложные конструкции.",
     "tags": ["письмо", "формальное письмо", "эссе", "структура"]
   },
   {
@@ -196,7 +196,7 @@
     "unit": "Слушание",
     "title": "Слушаем лекции и презентации",
     "goal": "Понять структуру лекции, выделить тезис и главные аргументы.",
-    "theory": "В лекции есть структура: вступление, основные пункты, вывод. Слушайте слова-маркеры: firstly, moreover, in conclusion. Ведите краткие заметки ключевыми словами, а не целыми фразами. Определите тезис и аргументы, примеры можно пропускать. Если потеряли нить, дождитесь слов-маркеров: они возвращают к структуре.",
+    "theory": "В лекции есть структура: вступление, основные пункты, вывод. Слушайте слова-маркеры: `firstly, moreover, in conclusion.` Ведите краткие заметки ключевыми словами, а не целыми фразами. Определите тезис и аргументы, примеры можно пропускать. Если потеряли нить, дождитесь слов-маркеров: они возвращают к структуре.",
     "vocabulary": [
       {"word": "to sum up", "translation": "подводя итог"},
       {"word": "it's worth noting that", "translation": "стоит отметить, что"},
@@ -230,7 +230,7 @@
     "unit": "Говорение",
     "title": "Говорим: дискуссия и аргументация",
     "goal": "Вести дискуссию: высказать позицию, привести довод, уступить и подвести итог.",
-    "theory": "В дискуссии сначала озвучьте позицию, затем приведите аргумент и пример, затем подведите итог. Для уступки: admittedly, granted. Для сомнения: I'm not convinced that… Выражения-связки делают речь убедительной и дают время подумать. Репетируйте вслух: аргумент должен звучать за 30 секунд.",
+    "theory": "В дискуссии сначала озвучьте позицию, затем приведите аргумент и пример, затем подведите итог. Для уступки: admittedly, granted. Для сомнения: `I'm not convinced that`… Выражения-связки делают речь убедительной и дают время подумать. Репетируйте вслух: аргумент должен звучать за 30 секунд.",
     "vocabulary": [
       {"word": "I'd argue that…", "translation": "Я бы сказал, что…"},
       {"word": "Admittedly…", "translation": "Надо признать…"},
@@ -247,7 +247,7 @@
     "unit": "Говорение",
     "title": "Говорим: собеседование и презентация",
     "goal": "Уверенно рассказать о своём опыте, достижениях и планах на собеседовании или презентации.",
-    "theory": "На собеседовании отвечайте по схеме: ситуация, действие, результат. Говорите о достижениях в Past Simple и о планах в Future. Звучите уверенно: I managed to…, I was responsible for… Избегайте слов-паразитов и длинных пауз, лучше короткая фраза-связка. Прогоните ответ вслух несколько раз.",
+    "theory": "На собеседовании отвечайте по схеме: ситуация, действие, результат. Говорите о достижениях в Past Simple и о планах в Future. Звучите уверенно: `I managed to`…, `I was responsible for`… Избегайте слов-паразитов и длинных пауз, лучше короткая фраза-связка. Прогоните ответ вслух несколько раз.",
     "vocabulary": [
       {"word": "I was responsible for…", "translation": "Я отвечал за…"},
       {"word": "I managed to…", "translation": "Мне удалось…"},
@@ -264,7 +264,7 @@
     "unit": "Чтение и письмо",
     "title": "Читаем отчёты, статистику и обзоры",
     "goal": "Понять цель, данные и вывод отчёта и отличить факты от интерпретации автора.",
-    "theory": "В отчёте найдите цель, метод, данные и вывод. Обращайте внимание на слова-цифры: increase, decline, remain stable, a majority of. Различайте описание данных и интерпретацию автора: слова suggests, indicates, appears to обычно вводят интерпретацию. Выпишите ключевые цифры и сопоставьте их с выводом.",
+    "theory": "В отчёте найдите цель, метод, данные и вывод. Обращайте внимание на слова-цифры: `increase, decline, remain stable, a majority of.` Различайте описание данных и интерпретацию автора: слова `suggests, indicates, appears to` обычно вводят интерпретацию. Выпишите ключевые цифры и сопоставьте их с выводом.",
     "vocabulary": [
       {"word": "an increase", "translation": "рост"},
       {"word": "a decline", "translation": "снижение"},

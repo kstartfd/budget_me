@@ -9,6 +9,7 @@ import {
   IconSparkles,
   IconX,
 } from "@tabler/icons-react"
+import { exampleLineClass } from "@/components/example"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -23,6 +24,7 @@ import {
   useWriteExercises,
 } from "../hooks"
 import type { PracticeBlock, PracticeExample, PracticeItem } from "../schemas"
+import { Mixed } from "./rule-card"
 
 /** The most sentences a sitting holds: the same cap the server keeps. */
 const maxExamples = 20
@@ -162,7 +164,7 @@ function Example({ ruleId, example }: { ruleId: string; example: PracticeExample
   return (
     <li className="border-border space-y-2 border-l-2 pl-3">
       <div>
-        <p className="text-[14px] font-medium">{example.text}</p>
+        <p className={cn("text-[14px] font-medium", exampleLineClass)}>{example.text}</p>
         <p className="text-muted-foreground text-[13px]">{example.translation}</p>
       </div>
       <Button
@@ -209,7 +211,9 @@ function Block({
         <span className="bg-foreground text-background grid size-6 shrink-0 place-items-center rounded-full text-xs font-semibold">
           {number}
         </span>
-        <p className="text-[14px] leading-snug font-medium">{block.instruction}</p>
+        <p className="text-[14px] leading-snug font-medium">
+          <Mixed text={block.instruction} />
+        </p>
       </header>
 
       <ol className="divide-border divide-y">
@@ -416,7 +420,11 @@ function Line({
               <strong>{verdict.key}</strong>
             </p>
           )}
-          {verdict.note && <p className="text-muted-foreground">{verdict.note}</p>}
+          {verdict.note && (
+            <p className="text-muted-foreground">
+              <Mixed text={verdict.note} />
+            </p>
+          )}
         </div>
       )}
     </li>

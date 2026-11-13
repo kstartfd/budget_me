@@ -5,7 +5,7 @@
     "unit": "Прошедшее время",
     "title": "Past Simple: правильные глаголы",
     "goal": "Рассказать, что вы делали вчера, на выходных и в отпуске.",
-    "theory": "Past Simple описывает законченные действия в прошлом. У правильных глаголов добавляют -ed: work — worked, play — played. Если глагол оканчивается на -e, добавляют только -d: live — lived. Согласная + y меняется на -ied: study — studied. Один слог с одной согласной удваивает её: stop — stopped. Форма одна для всех лиц: I worked, she worked, they worked. Маркеры: yesterday, last week, two days ago, in 2019.",
+    "theory": "Past Simple описывает законченные действия в прошлом. У правильных глаголов добавляют -ed: work — worked, play — played. Если глагол оканчивается на -e, добавляют только -d: live — lived. Согласная + y меняется на -ied: study — studied. Один слог с одной согласной удваивает её: stop — stopped. Форма одна для всех лиц: `I worked, she worked, they worked.` Маркеры: `yesterday, last week, two days ago, in 2019.`",
     "tags": ["past simple", "правильные глаголы", "-ed", "yesterday ago"]
   },
   {
@@ -14,7 +14,7 @@
     "unit": "Прошедшее время",
     "title": "Past Simple: неправильные глаголы и to be",
     "goal": "Использовать частые неправильные глаголы и was/were в рассказе о прошлом.",
-    "theory": "Многие частые глаголы имеют особые формы, их надо выучить: go — went, see — saw, have — had, do — did, make — made, take — took, come — came, buy — bought, eat — ate, write — wrote. To be в прошлом: I/he/she/it was, you/we/they were. Примеры: We went to the sea last summer. She was tired. They were at home. Отрицание и вопросы с was/were строят без did: Was he late? They weren't there.",
+    "theory": "Многие частые глаголы имеют особые формы, их надо выучить: go — went, see — saw, have — had, do — did, make — made, take — took, come — came, buy — bought, eat — ate, write — wrote. To be в прошлом: `I/he/she/it was, you/we/they were.` Примеры: `We went to the sea last summer.` `She was tired.` `They were at home.` Отрицание и вопросы с was/were строят без did: `Was he late?` `They weren't there.`",
     "tags": ["past simple", "неправильные глаголы", "was were", "went saw"]
   },
   {
@@ -23,7 +23,7 @@
     "unit": "Прошедшее время",
     "title": "Past Simple: отрицания и вопросы с did",
     "goal": "Задавать вопросы о прошлом и отвечать на них.",
-    "theory": "Для отрицаний и вопросов в прошлом нужен did, а основной глагол возвращается в начальную форму: I didn't go to work. Did you see the film? What did she buy? Where did they go? Короткие ответы: Yes, I did. No, he didn't. Важно: после did нет окончания -ed и нет неправильной формы. Неправильно: Did you went? Правильно: Did you go?",
+    "theory": "Для отрицаний и вопросов в прошлом нужен did, а основной глагол возвращается в начальную форму: `I didn't go to work.` `Did you see the film?` `What did she buy?` `Where did they go?` Короткие ответы: `Yes, I did.` `No, he didn't.` Важно: после did нет окончания -ed и нет неправильной формы. Неправильно: `Did you went?` Правильно: `Did you go?`",
     "tags": ["did", "didn't", "вопросы в прошлом", "past simple"]
   },
   {
@@ -32,7 +32,7 @@
     "unit": "Настоящее время",
     "title": "Present Continuous: действие прямо сейчас",
     "goal": "Говорить о том, что происходит в этот момент и в ближайшее время.",
-    "theory": "Present Continuous строится из to be + глагол с -ing: I am working, she is reading, they are playing. Он описывает действие в момент речи (Look! It is raining) и временные ситуации (I'm staying with a friend this week). Правила -ing: write — writing (убираем e), run — running (удваиваем согласную). Отрицание: He isn't sleeping. Вопрос: Are you listening? What are you doing? Не используют с глаголами состояния: know, like, want, understand.",
+    "theory": "Present Continuous строится из to be + глагол с -ing: `I am working, she is reading, they are playing.` Он описывает действие в момент речи (`Look!` `It is raining`) и временные ситуации (`I'm staying with a friend this week`). Правила -ing: write — writing (убираем e), run — running (удваиваем согласную). Отрицание: `He isn't sleeping.` Вопрос: `Are you listening?` `What are you doing?` Не используют с глаголами состояния: know, like, want, understand.",
     "tags": ["present continuous", "-ing", "сейчас", "to be + ing"]
   },
   {
@@ -41,7 +41,7 @@
     "unit": "Настоящее время",
     "title": "Present Simple или Present Continuous",
     "goal": "Выбирать между привычкой и действием в данный момент.",
-    "theory": "Present Simple — для привычек, расписаний и постоянных фактов: I get up at 7. Water boils at 100 degrees. Present Continuous — для того, что происходит сейчас или временно: I am drinking coffee now. She is working abroad this year. Подсказки: always, every day, usually — Simple; now, at the moment, today, this week — Continuous. Глаголы like, love, know, need, want обычно не употребляют в Continuous.",
+    "theory": "Present Simple — для привычек, расписаний и постоянных фактов: `I get up at 7.` `Water boils at 100 degrees.` Present Continuous — для того, что происходит сейчас или временно: `I am drinking coffee now.` `She is working abroad this year.` Подсказки: always, every day, usually — Simple; now, at the moment, today, this week — Continuous. Глаголы like, love, know, need, want обычно не употребляют в Continuous.",
     "tags": ["present simple", "present continuous", "сравнение времён", "глаголы состояния"]
   },
   {
@@ -50,7 +50,7 @@
     "unit": "Будущее время",
     "title": "Be going to: планы и намерения",
     "goal": "Рассказывать о планах и о том, что точно случится.",
-    "theory": "Be going to + глагол говорит о заранее решённых планах и о событиях, которые вот-вот произойдут: I am going to visit my aunt on Sunday. Look at the clouds! It is going to rain. Отрицание: We aren't going to travel this year. Вопрос: Are you going to study tonight? What are you going to do? После to идёт глагол в начальной форме. В речи часто звучит gonna.",
+    "theory": "Be going to + глагол говорит о заранее решённых планах и о событиях, которые вот-вот произойдут: `I am going to visit my aunt on Sunday.` `Look at the clouds!` `It is going to rain.` Отрицание: `We aren't going to travel this year.` Вопрос: `Are you going to study tonight?` `What are you going to do?` После to идёт глагол в начальной форме. В речи часто звучит gonna.",
     "tags": ["going to", "планы", "будущее", "намерения"]
   },
   {
@@ -59,7 +59,7 @@
     "unit": "Будущее время",
     "title": "Will: решения, прогнозы, обещания",
     "goal": "Принимать решения на ходу, обещать и делать предположения о будущем.",
-    "theory": "Will + глагол в начальной форме используют для решений в момент речи (I'll have tea), обещаний (I will call you) и предположений (It will be hot tomorrow). Краткие формы: I'll, he'll, won't (= will not). Вопрос: Will you help me? Не путайте с going to: plan, о котором уже решили, — going to; решение здесь и сейчас — will.",
+    "theory": "Will + глагол в начальной форме используют для решений в момент речи (`I'll have tea`), обещаний (`I will call you`) и предположений (`It will be hot tomorrow`). Краткие формы: I'll, he'll, won't (= will not). Вопрос: `Will you help me?` Не путайте с going to: plan, о котором уже решили, — going to; решение здесь и сейчас — will.",
     "tags": ["will", "won't", "будущее", "обещания", "will vs going to"]
   },
   {
@@ -68,7 +68,7 @@
     "unit": "Описание и сравнение",
     "title": "Сравнительная и превосходная степень",
     "goal": "Сравнивать людей, места и вещи и выбирать лучшее.",
-    "theory": "Короткие прилагательные: -er и -est: tall — taller — the tallest; big — bigger — the biggest; easy — easier — the easiest. Длинные (от двух слогов): more и the most: more interesting, the most expensive. Исключения: good — better — the best, bad — worse — the worst. Для сравнения используют than: This bag is cheaper than that one. Для равенства: as … as: He is as tall as me.",
+    "theory": "Короткие прилагательные: -er и -est: tall — taller — the tallest; big — bigger — the biggest; easy — easier — the easiest. Длинные (от двух слогов): more и the most: `more interesting, the most expensive.` Исключения: good — better — the best, bad — worse — the worst. Для сравнения используют than: `This bag is cheaper than that one.` Для равенства: as … as: `He is as tall as me.`",
     "tags": ["сравнительная степень", "превосходная степень", "than", "better best"]
   },
   {
@@ -77,7 +77,7 @@
     "unit": "Существительные",
     "title": "Исчисляемые и неисчисляемые: some, any, much, many",
     "goal": "Говорить о количестве: сколько, мало, много.",
-    "theory": "Исчисляемые считают (an apple, two apples), неисчисляемые — нет (water, milk, money, information). С исчисляемыми во множественном числе: many, a few, some, any: How many books? With a few friends. С неисчисляемыми: much, a little, some, any: How much water? A little sugar. A lot of подходит для обоих. В утверждении — some, в вопросе и отрицании — any: I have some milk. Do you have any juice?",
+    "theory": "Исчисляемые считают (`an apple, two apples`), неисчисляемые — нет (water, milk, money, information). С исчисляемыми во множественном числе: many, a few, some, any: `How many books?` `With a few friends.` С неисчисляемыми: much, a little, some, any: `How much water?` `A little sugar.` A lot of подходит для обоих. В утверждении — some, в вопросе и отрицании — any: `I have some milk.` `Do you have any juice?`",
     "tags": ["some any", "much many", "исчисляемые", "неисчисляемые", "a lot of"]
   },
   {
@@ -86,7 +86,7 @@
     "unit": "Модальные глаголы",
     "title": "Have to, must, should: долг и совет",
     "goal": "Говорить, что нужно, что запрещено и что стоит сделать.",
-    "theory": "Have to и must выражают необходимость: I have to get up early. You must wear a seat belt. Don't have to означает «не нужно», а mustn't — «нельзя»: You don't have to come (можно не приходить). You mustn't park here (запрещено). Should даёт совет: You should see a doctor. Вопрос с have to строят через do: Do you have to work on Saturday?",
+    "theory": "Have to и must выражают необходимость: `I have to get up early.` `You must wear a seat belt.` Don't have to означает «не нужно», а mustn't — «нельзя»: `You don't have to come` (можно не приходить). `You mustn't park here` (запрещено). Should даёт совет: `You should see a doctor.` Вопрос с have to строят через do: `Do you have to work on Saturday?`",
     "tags": ["have to", "must", "mustn't", "should", "совет"]
   },
   {
@@ -95,7 +95,7 @@
     "unit": "Описание и сравнение",
     "title": "Наречия образа действия и частоты",
     "goal": "Описывать, как и как часто что-то происходит.",
-    "theory": "Наречия образа действия обычно образуются от прилагательных добавлением -ly: slow — slowly, careful — carefully. Исключения: good — well, fast — fast, hard — hard. Наречия частоты (always, usually, often, sometimes, never) стоят перед основным глаголом, но после to be: She always walks. He is never late. Наречие образа действия стоит после глагола: He drives carefully.",
+    "theory": "Наречия образа действия обычно образуются от прилагательных добавлением -ly: slow — slowly, careful — carefully. Исключения: good — well, fast — fast, hard — hard. Наречия частоты (always, usually, often, sometimes, never) стоят перед основным глаголом, но после to be: `She always walks.` `He is never late.` Наречие образа действия стоит после глагола: `He drives carefully.`",
     "tags": ["наречия", "-ly", "always never", "порядок слов"]
   },
   {
@@ -104,7 +104,7 @@
     "unit": "Слова",
     "title": "Путешествия и транспорт",
     "goal": "Купить билет, спросить дорогу и забронировать номер.",
-    "theory": "Для поездок нужны слова о транспорте и вежливые фразы. Купить билет: A return ticket to London, please. Спросить дорогу: How do I get to the station? Is it far? Заказать номер: I'd like to book a double room for two nights. Различайте trip (поездка), journey (путь) и travel (путешествовать — обычно глагол).",
+    "theory": "Для поездок нужны слова о транспорте и вежливые фразы. Купить билет: `A return ticket to London, please.` Спросить дорогу: `How do I get to the station?` `Is it far?` Заказать номер: `I'd like to book a double room for two nights.` Различайте trip (поездка), journey (путь) и travel (путешествовать — обычно глагол).",
     "vocabulary": [
       {"word": "ticket", "translation": "билет"},
       {"word": "platform", "translation": "платформа"},
@@ -123,7 +123,7 @@
     "unit": "Слова",
     "title": "Покупки и одежда",
     "goal": "Выбрать вещь в магазине, спросить цену и размер.",
-    "theory": "В магазине полезны фразы: How much is it? Do you have this in a larger size? Can I try it on? I'll take it. Слова clothes (одежда) всегда во множественном числе: These clothes are new. Размер — size, примерочная — fitting room, чек — receipt.",
+    "theory": "В магазине полезны фразы: `How much is it?` `Do you have this in a larger size?` `Can I try it on?` `I'll take it.` Слова clothes (одежда) всегда во множественном числе: `These clothes are new.` Размер — size, примерочная — `fitting room`, чек — receipt.",
     "vocabulary": [
       {"word": "size", "translation": "размер"},
       {"word": "try on", "translation": "примерять"},
@@ -142,7 +142,7 @@
     "unit": "Слова",
     "title": "Здоровье и тело",
     "goal": "Объяснить врачу, что болит, и понять простой совет.",
-    "theory": "Чтобы сказать, что болит, используйте I have a + боль: I have a headache, a sore throat, a temperature. Или my + часть тела + hurts: My back hurts. Врач может сказать: Take this medicine twice a day. Stay in bed. Drink a lot of water. Слово ill используется как «болеть» после глагола to be (She is ill), sick — чаще «тошнит» в американском варианте.",
+    "theory": "Чтобы сказать, что болит, используйте `I have a` + боль: `I have a headache, a sore throat, a temperature.` Или my + часть тела + hurts: `My back hurts.` Врач может сказать: `Take this medicine twice a day.` `Stay in bed.` `Drink a lot of water.` Слово ill используется как «болеть» после глагола to be (`She is ill`), sick — чаще «тошнит» в американском варианте.",
     "vocabulary": [
       {"word": "headache", "translation": "головная боль"},
       {"word": "sore throat", "translation": "больное горло"},
@@ -161,7 +161,7 @@
     "unit": "Чтение и письмо",
     "title": "Читаем сообщения и короткие истории",
     "goal": "Понять смысл личного сообщения или простой истории и ответить на вопросы по тексту.",
-    "theory": "Сначала прочитайте текст целиком и поймите, о чём он: кто, что, когда, где. Только потом отвечайте на вопросы. Незнакомое слово часто понятно из контекста. В сообщениях и историях смотрите на слова-связки: first, then, after that, but, because — они показывают порядок событий и причины.",
+    "theory": "Сначала прочитайте текст целиком и поймите, о чём он: кто, что, когда, где. Только потом отвечайте на вопросы. Незнакомое слово часто понятно из контекста. В сообщениях и историях смотрите на слова-связки: `first, then, after that, but, because` — они показывают порядок событий и причины.",
     "vocabulary": [
       {"word": "then", "translation": "потом, затем"},
       {"word": "after that", "translation": "после этого"},
@@ -178,7 +178,7 @@
     "unit": "Чтение и письмо",
     "title": "Пишем сообщение другу и открытку",
     "goal": "Написать короткое личное сообщение: пригласить, поблагодарить, рассказать о выходных.",
-    "theory": "В неформальном сообщении начинайте с Hi или Dear + имя, заканчивайте словами See you soon, Best wishes или Love. Сообщение о выходных пишите в Past Simple и добавляйте детали: Last weekend I went to the park with my friends. The weather was great. Приглашение: Would you like to come to my party on Saturday? Благодарность: Thank you for your help!",
+    "theory": "В неформальном сообщении начинайте с Hi или Dear + имя, заканчивайте словами `See you soon, Best wishes` или `Love.` Сообщение о выходных пишите в Past Simple и добавляйте детали: `Last weekend I went to the park with my friends.` `The weather was great.` Приглашение: `Would you like to come to my party on Saturday?` Благодарность: `Thank you for your help!`",
     "tags": ["письмо", "сообщение", "открытка", "приглашение"]
   },
   {
@@ -204,7 +204,7 @@
     "unit": "Слушание",
     "title": "Слушаем рассказы о прошлом",
     "goal": "Понять на слух короткий рассказ о том, что произошло, и ответить на вопросы по нему.",
-    "theory": "Рассказ о прошлом обычно строится в Past Simple. Слушайте слова-последовательность: first, then, after that, finally, и вопросительные слова what, who, where. Окончание -ed на слух слабое, поэтому важны слова yesterday, last week, ago. Попробуйте после прослушивания пересказать своими словами, кто что сделал.",
+    "theory": "Рассказ о прошлом обычно строится в Past Simple. Слушайте слова-последовательность: `first, then, after that, finally`, и вопросительные слова what, who, where. Окончание -ed на слух слабое, поэтому важны слова `yesterday, last week, ago.` Попробуйте после прослушивания пересказать своими словами, кто что сделал.",
     "vocabulary": [
       {"word": "last weekend", "translation": "на прошлых выходных"},
       {"word": "after that", "translation": "после этого"},
@@ -221,7 +221,7 @@
     "unit": "Говорение",
     "title": "Говорим о планах и выходных",
     "goal": "Рассказать, что вы делали и что собираетесь делать.",
-    "theory": "Для планов используйте be going to: I'm going to visit my parents. Для рассказа о прошлом Past Simple: I went to the cinema. Говорите короткими законченными фразами и добавляйте детали: с кем, когда, где. Не бойтесь пауз, но старайтесь не переходить на родной язык: замените слово простым описанием.",
+    "theory": "Для планов используйте be going to: `I'm going to visit my parents.` Для рассказа о прошлом Past Simple: `I went to the cinema.` Говорите короткими законченными фразами и добавляйте детали: с кем, когда, где. Не бойтесь пауз, но старайтесь не переходить на родной язык: замените слово простым описанием.",
     "vocabulary": [
       {"word": "I'm going to visit my friends", "translation": "Я собираюсь навестить друзей"},
       {"word": "What are you doing this weekend?", "translation": "Что ты делаешь на выходных?"},
@@ -238,7 +238,7 @@
     "unit": "Говорение",
     "title": "Говорим: спросить дорогу и попросить о помощи",
     "goal": "Спросить дорогу, понять ответ и переспросить, если не поняли.",
-    "theory": "Просьбу о помощи начинайте с Excuse me. Дорогу объясняют так: go straight on, turn left/right, it's next to…, it's on the corner. Если не поняли, переспросите: Sorry, could you say that again? Скажите фразу вслух медленно и чётко: на улице вас поймут лучше, чем быструю невнятную речь.",
+    "theory": "Просьбу о помощи начинайте с `Excuse me.` Дорогу объясняют так: `go straight on, turn left/right, it's next to`…, `it's on the corner.` Если не поняли, переспросите: `Sorry, could you say that again?` Скажите фразу вслух медленно и чётко: на улице вас поймут лучше, чем быструю невнятную речь.",
     "vocabulary": [
       {"word": "Excuse me, where is the bank?", "translation": "Извините, где банк?"},
       {"word": "Go straight on", "translation": "Идите прямо"},

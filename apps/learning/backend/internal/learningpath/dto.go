@@ -172,11 +172,17 @@ func localizedTopic(t db.LearningPathTopic, language, explain string) db.Learnin
 	}
 
 	lib, ok := curriculum.Find(language, explain, t.SourceID)
-	if !ok || lib.Title == t.Title {
+	if !ok {
 		return t
 	}
 
-	t.Title, t.Unit, t.Goal, t.Theory = lib.Title, lib.Unit, lib.Goal, lib.Theory
+	// The theory is the library's whatever the language: a program built before
+	// the examples were marked in it shows them marked too.
+	t.Theory = lib.Theory
+
+	if lib.Title != t.Title {
+		t.Title, t.Unit, t.Goal = lib.Title, lib.Unit, lib.Goal
+	}
 
 	return t
 }

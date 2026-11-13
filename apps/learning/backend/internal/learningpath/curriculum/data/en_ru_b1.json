@@ -5,7 +5,7 @@
     "unit": "Перфектные времена",
     "title": "Present Perfect: опыт и результат",
     "goal": "Говорить об опыте, о недавних событиях и о том, что длится до сих пор.",
-    "theory": "Present Perfect строится из have/has + третья форма глагола (V3): I have seen, she has finished. Он связывает прошлое с настоящим: опыт (I have been to Italy), недавний результат (I have lost my keys), действие, которое продолжается (I have lived here for ten years). Маркеры: ever, never, already, yet, just, for, since. For — период (for two years), since — точка отсчёта (since 2020). Нельзя употреблять с точным прошедшим временем: yesterday, in 2019.",
+    "theory": "Present Perfect строится из have/has + третья форма глагола (V3): `I have seen, she has finished.` Он связывает прошлое с настоящим: опыт (`I have been to Italy`), недавний результат (`I have lost my keys`), действие, которое продолжается (`I have lived here for ten years`). Маркеры: ever, never, already, yet, just, for, since. For — период (`for two years`), since — точка отсчёта (`since 2020`). Нельзя употреблять с точным прошедшим временем: `yesterday, in 2019.`",
     "tags": ["present perfect", "have has", "for since", "ever never", "just already yet"]
   },
   {
@@ -14,7 +14,7 @@
     "unit": "Перфектные времена",
     "title": "Present Perfect или Past Simple",
     "goal": "Правильно выбирать время для рассказа о прошлом.",
-    "theory": "Past Simple — когда время действия названо или понятно из контекста и оно закончилось: I saw this film last year. Present Perfect — когда важен результат или опыт, а время не названо: I have seen this film (и могу рассказать). С маркерами yesterday, last week, ago, in 2020 нужен только Past Simple. С just, already, yet, ever, never, for, since — обычно Present Perfect. Вопрос о времени события: When did you buy it? (Past Simple).",
+    "theory": "Past Simple — когда время действия названо или понятно из контекста и оно закончилось: `I saw this film last year.` Present Perfect — когда важен результат или опыт, а время не названо: `I have seen this film` (и могу рассказать). С маркерами `yesterday, last week, ago, in 2020` нужен только Past Simple. С just, already, yet, ever, never, for, since — обычно Present Perfect. Вопрос о времени события: `When did you buy it?` (Past Simple).",
     "tags": ["present perfect", "past simple", "сравнение времён", "yesterday ago"]
   },
   {
@@ -23,7 +23,7 @@
     "unit": "Прошедшее время",
     "title": "Past Continuous и Past Simple в рассказе",
     "goal": "Рассказывать истории: что происходило и что случилось в этот момент.",
-    "theory": "Past Continuous (was/were + -ing) описывает действие, которое шло в какой-то момент прошлого: I was cooking at 7. Он создаёт фон, а Past Simple — события на этом фоне: I was walking home when it started to rain. Для двух параллельных действий: While she was reading, he was cooking. Слова when и while: while — с длительным действием, when — чаще с коротким.",
+    "theory": "Past Continuous (was/were + -ing) описывает действие, которое шло в какой-то момент прошлого: `I was cooking at 7.` Он создаёт фон, а Past Simple — события на этом фоне: `I was walking home when it started to rain.` Для двух параллельных действий: `While she was reading, he was cooking.` Слова when и while: while — с длительным действием, when — чаще с коротким.",
     "tags": ["past continuous", "was were -ing", "when while", "история"]
   },
   {
@@ -32,7 +32,7 @@
     "unit": "Условные предложения",
     "title": "Условные предложения первого типа",
     "goal": "Говорить о реальных условиях и их последствиях в будущем.",
-    "theory": "Первый тип описывает реальное условие и его возможный результат: If it rains, we will stay at home. В части с if стоит Present Simple, в главной — will + глагол. Нельзя ставить will после if: If you will come — неправильно. Порядок частей можно менять: We will stay at home if it rains (запятая нужна только после if-части). Вместо will можно использовать can, may, might: If you study, you can pass the exam. Unless = if not.",
+    "theory": "Первый тип описывает реальное условие и его возможный результат: `If it rains, we will stay at home.` В части с if стоит Present Simple, в главной — will + глагол. Нельзя ставить will после if: `If you will come` — неправильно. Порядок частей можно менять: `We will stay at home if it rains` (запятая нужна только после if-части). Вместо will можно использовать can, may, might: `If you study, you can pass the exam.` Unless = if not.",
     "tags": ["first conditional", "if", "will", "unless", "реальное условие"]
   },
   {
@@ -41,7 +41,7 @@
     "unit": "Условные предложения",
     "title": "Условные предложения второго типа",
     "goal": "Говорить о нереальных и маловероятных ситуациях, давать советы.",
-    "theory": "Второй тип описывает нереальную или маловероятную ситуацию в настоящем и будущем: If I had a lot of money, I would travel the world. В части с if — Past Simple, в главной — would + глагол. С to be чаще используют were для всех лиц: If I were you, I would apply. Это же выражение — стандартный способ дать совет. Would можно заменить на could или might.",
+    "theory": "Второй тип описывает нереальную или маловероятную ситуацию в настоящем и будущем: `If I had a lot of money, I would travel the world.` В части с if — Past Simple, в главной — would + глагол. С to be чаще используют were для всех лиц: `If I were you, I would apply.` Это же выражение — стандартный способ дать совет. Would можно заменить на could или might.",
     "tags": ["second conditional", "would", "if I were", "нереальное условие"]
   },
   {
@@ -50,7 +50,7 @@
     "unit": "Страдательный залог",
     "title": "Страдательный залог: Present и Past Simple",
     "goal": "Говорить о действии, когда важнее результат, чем тот, кто его выполнил.",
-    "theory": "Пассив строится из to be + V3: The room is cleaned every day (Present), The room was cleaned yesterday (Past). Исполнителя добавляют через by, только если он важен: The book was written by Orwell. Пассив используют, когда исполнитель неизвестен или не важен: My bike was stolen. English is spoken all over the world. Вопрос: Where was it made? Was the letter sent?",
+    "theory": "Пассив строится из to be + V3: `The room is cleaned every day` (Present), `The room was cleaned yesterday` (Past). Исполнителя добавляют через by, только если он важен: `The book was written by Orwell.` Пассив используют, когда исполнитель неизвестен или не важен: `My bike was stolen.` `English is spoken all over the world.` Вопрос: `Where was it made?` `Was the letter sent?`",
     "tags": ["passive", "страдательный залог", "was made", "by"]
   },
   {
@@ -59,7 +59,7 @@
     "unit": "Прошедшее время",
     "title": "Used to и would: привычки в прошлом",
     "goal": "Рассказывать о том, что раньше было иначе.",
-    "theory": "Used to + глагол описывает привычку или состояние в прошлом, которых уже нет: I used to play the piano. She used to live in Paris. Отрицание и вопрос — через did: I didn't use to like coffee. Did you use to smoke? Для повторяющихся действий можно сказать would: When I was a child, we would visit my grandma every summer. Для состояний would нельзя: I used to be shy (не I would be shy).",
+    "theory": "Used to + глагол описывает привычку или состояние в прошлом, которых уже нет: `I used to play the piano.` `She used to live in Paris.` Отрицание и вопрос — через did: `I didn't use to like coffee.` `Did you use to smoke?` Для повторяющихся действий можно сказать would: `When I was a child, we would visit my grandma every summer.` Для состояний would нельзя: `I used to be shy` (не `I would be shy`).",
     "tags": ["used to", "would", "привычки в прошлом"]
   },
   {
@@ -68,7 +68,7 @@
     "unit": "Сложные предложения",
     "title": "Определительные придаточные: who, which, that",
     "goal": "Уточнять, о ком или о чём речь, и соединять предложения.",
-    "theory": "Относительные местоимения присоединяют уточнение к существительному. Who — для людей: The man who lives next door is a doctor. Which — для предметов: The book which I bought is great. That — для людей и предметов в определяющих придаточных: The film that we saw was long. Where — место, whose — принадлежность. Если местоимение не подлежащее, его можно опустить: The film (that) we saw.",
+    "theory": "Относительные местоимения присоединяют уточнение к существительному. Who — для людей: `The man who lives next door is a doctor.` Which — для предметов: `The book which I bought is great.` That — для людей и предметов в определяющих придаточных: `The film that we saw was long.` Where — место, whose — принадлежность. Если местоимение не подлежащее, его можно опустить: `The film` (that) `we saw.`",
     "tags": ["relative clauses", "who which that", "whose", "where"]
   },
   {
@@ -77,7 +77,7 @@
     "unit": "Сложные предложения",
     "title": "Косвенная речь: пересказываем сказанное",
     "goal": "Передавать чужие слова и вопросы.",
-    "theory": "В косвенной речи время обычно сдвигается назад: Present Simple → Past Simple, Present Continuous → Past Continuous, Present Perfect → Past Perfect, will → would, can → could. Меняются местоимения и обстоятельства: I → he/she, today → that day, tomorrow → the next day. Пример: She said, «I am tired» → She said (that) she was tired. В косвенных вопросах порядок слов прямой: He asked where I lived (не where did I live).",
+    "theory": "В косвенной речи время обычно сдвигается назад: Present Simple → Past Simple, Present Continuous → Past Continuous, Present Perfect → Past Perfect, will → would, can → could. Меняются местоимения и обстоятельства: I → he/she, today → `that day, tomorrow` → `the next day.` Пример: `She said`, «`I am tired`» → `She said` (that) `she was tired.` В косвенных вопросах порядок слов прямой: `He asked where I lived` (не `where did I live`).",
     "tags": ["reported speech", "косвенная речь", "said told asked", "сдвиг времён"]
   },
   {
@@ -86,7 +86,7 @@
     "unit": "Модальные глаголы",
     "title": "Must, might, can't: предположения",
     "goal": "Делать выводы и догадки о настоящем.",
-    "theory": "Для уверенных выводов используют must (наверняка): She must be at work — her car is outside. Для сомнения — might, may, could (возможно): He might be sleeping. Для уверенности в обратном — can't (не может быть): That can't be true. Для прошлого форма меняется: must have been, might have gone, can't have done. Не путайте must в выводе («должно быть») и must в долженствовании («обязан»).",
+    "theory": "Для уверенных выводов используют must (наверняка): `She must be at work` — `her car is outside.` Для сомнения — might, may, could (возможно): `He might be sleeping.` Для уверенности в обратном — can't (не может быть): `That can't be true.` Для прошлого форма меняется: `must have been, might have gone, can't have done.` Не путайте must в выводе («должно быть») и must в долженствовании («обязан»).",
     "tags": ["modals of deduction", "must be", "might", "can't be", "предположения"]
   },
   {
@@ -95,7 +95,7 @@
     "unit": "Глагольные формы",
     "title": "Герундий и инфинитив после глаголов",
     "goal": "Выбирать форму глагола после enjoy, want, decide и других.",
-    "theory": "После одних глаголов нужен герундий (-ing): enjoy, finish, mind, avoid, keep, suggest: I enjoy reading. After finish, mind, avoid: She avoided answering. После других нужен инфинитив с to: want, decide, hope, plan, learn, promise: He decided to leave. Некоторые глаголы допускают обе формы (like, love, start): I like to swim / I like swimming. После предлогов всегда герундий: interested in learning.",
+    "theory": "После одних глаголов нужен герундий (-ing): enjoy, finish, mind, avoid, keep, suggest: `I enjoy reading.` After finish, mind, avoid: `She avoided answering.` После других нужен инфинитив с to: want, decide, hope, plan, learn, promise: `He decided to leave.` Некоторые глаголы допускают обе формы (like, love, start): `I like to swim` / `I like swimming.` После предлогов всегда герундий: `interested in learning.`",
     "tags": ["gerund", "infinitive", "enjoy doing", "want to do", "-ing или to"]
   },
   {
@@ -104,7 +104,7 @@
     "unit": "Сложные предложения",
     "title": "Слова-связки: although, however, because, so",
     "goal": "Связывать мысли и делать речь и письмо более связными.",
-    "theory": "Причина — because (потому что), результат — so (поэтому): I was tired, so I went to bed. Контраст: but (но), although/though (хотя), however (однако — в начале предложения, после запятая): Although it was cold, we went out. It was cold. However, we went out. После although идёт целое предложение, после despite/in spite of — существительное или герундий: despite the rain. Дополнение: also, in addition, moreover.",
+    "theory": "Причина — because (потому что), результат — so (поэтому): `I was tired, so I went to bed.` Контраст: but (но), although/though (хотя), however (однако — в начале предложения, после запятая): `Although it was cold, we went out.` `It was cold.` `However, we went out.` После although идёт целое предложение, после `despite/in spite of` — существительное или герундий: `despite the rain.` Дополнение: `also, in addition, moreover.`",
     "tags": ["linking words", "although however", "because so", "despite"]
   },
   {
@@ -113,7 +113,7 @@
     "unit": "Слова",
     "title": "Работа и карьера",
     "goal": "Рассказать о своей работе и обсудить поиск работы.",
-    "theory": "Слова о работе часто составляют словосочетания: apply for a job, have an interview, earn money, get a promotion. Различайте: job (конкретная работа), work (труд, вообще), career (карьерный путь). Предлоги: work for a company, work on a project, be good at something. Salary — зарплата, обычно за месяц или год, wage — почасовая оплата.",
+    "theory": "Слова о работе часто составляют словосочетания: `apply for a job, have an interview, earn money, get a promotion.` Различайте: job (конкретная работа), work (труд, вообще), career (карьерный путь). Предлоги: `work for a company, work on a project, be good at something.` Salary — зарплата, обычно за месяц или год, wage — почасовая оплата.",
     "vocabulary": [
       {"word": "apply for", "translation": "подавать заявку на"},
       {"word": "interview", "translation": "собеседование"},
@@ -132,7 +132,7 @@
     "unit": "Слова",
     "title": "Окружающая среда и погода",
     "goal": "Обсудить природу, погоду и экологические проблемы.",
-    "theory": "Тема природы использует много устойчивых сочетаний: protect the environment, global warming, natural resources, reduce waste, recycle plastic. Для погоды: it's freezing (очень холодно), pouring (льёт), humid (влажно), forecast (прогноз). Слово weather неисчисляемое: The weather is nice (не weathers).",
+    "theory": "Тема природы использует много устойчивых сочетаний: `protect the environment, global warming, natural resources, reduce waste, recycle plastic.` Для погоды: `it's freezing` (очень холодно), pouring (льёт), humid (влажно), forecast (прогноз). Слово weather неисчисляемое: `The weather is nice` (не weathers).",
     "vocabulary": [
       {"word": "pollution", "translation": "загрязнение"},
       {"word": "recycle", "translation": "перерабатывать"},
@@ -151,7 +151,7 @@
     "unit": "Слова",
     "title": "Технологии и интернет",
     "goal": "Рассказать о гаджетах, приложениях и интернете.",
-    "theory": "Многие слова про технологии пришли из английского, но их оттенки важны: download (скачать), upload (загрузить), log in / log out (войти / выйти), update (обновить), password (пароль). Частые фразы: My phone is out of battery. The signal is weak. I'm online. Предлоги: be on social media, search for information, connect to Wi-Fi.",
+    "theory": "Многие слова про технологии пришли из английского, но их оттенки важны: download (скачать), upload (загрузить), log in / log out (войти / выйти), update (обновить), password (пароль). Частые фразы: `My phone is out of battery.` `The signal is weak.` `I'm online.` Предлоги: `be on social media, search for information, connect to Wi-Fi.`",
     "vocabulary": [
       {"word": "download", "translation": "скачивать"},
       {"word": "password", "translation": "пароль"},
@@ -170,7 +170,7 @@
     "unit": "Чтение и письмо",
     "title": "Читаем статьи и отзывы",
     "goal": "Понять основную мысль статьи или отзыва и найти в тексте нужные детали.",
-    "theory": "В статье сначала найдите главную мысль: обычно она в заголовке и первом абзаце. Затем отметьте, какие аргументы и примеры автор приводит. Обращайте внимание на слова оценки и мнения: in my opinion, I think, according to. Различайте факт и мнение: Paris is the capital of France (факт) — Paris is the most beautiful city (мнение).",
+    "theory": "В статье сначала найдите главную мысль: обычно она в заголовке и первом абзаце. Затем отметьте, какие аргументы и примеры автор приводит. Обращайте внимание на слова оценки и мнения: `in my opinion, I think, according to.` Различайте факт и мнение: `Paris is the capital of France` (факт) — `Paris is the most beautiful city` (мнение).",
     "vocabulary": [
       {"word": "according to", "translation": "согласно"},
       {"word": "in my opinion", "translation": "по моему мнению"},
@@ -187,7 +187,7 @@
     "unit": "Чтение и письмо",
     "title": "Пишем письма и мнение",
     "goal": "Написать неформальное письмо и небольшой текст с выражением собственного мнения.",
-    "theory": "В неформальном письме есть обращение (Dear Tom), приветствие (How are you?), основная часть с абзацами и прощание (Write soon, Best wishes). Для мнения используйте I think/I believe/In my opinion, затем причину с because и пример for example. Структура мини-эссе: тезис, две причины, вывод. Следите за абзацами и связками: firstly, in addition, in conclusion.",
+    "theory": "В неформальном письме есть обращение (`Dear Tom`), приветствие (`How are you?`), основная часть с абзацами и прощание (`Write soon, Best wishes`). Для мнения используйте `I think/I believe/In my opinion`, затем причину с because и пример `for example.` Структура мини-эссе: тезис, две причины, вывод. Следите за абзацами и связками: `firstly, in addition, in conclusion.`",
     "tags": ["письмо", "email", "мнение", "эссе", "структура"]
   },
   {
@@ -196,7 +196,7 @@
     "unit": "Слушание",
     "title": "Слушаем подкасты и интервью",
     "goal": "Понять основную мысль подкаста или интервью и выписать главные аргументы.",
-    "theory": "В интервью и подкасте слушайте сначала тему и вопрос, а потом ответ и примеры. Обращайте внимание на слова-сигналы: however, for example, the main reason. Не страшно, если вы не поймали слово: смысл держится на ключевых словах. После прослушивания перескажите основную мысль одним предложением.",
+    "theory": "В интервью и подкасте слушайте сначала тему и вопрос, а потом ответ и примеры. Обращайте внимание на слова-сигналы: `however, for example, the main reason.` Не страшно, если вы не поймали слово: смысл держится на ключевых словах. После прослушивания перескажите основную мысль одним предложением.",
     "vocabulary": [
       {"word": "the main reason is…", "translation": "главная причина в том, что…"},
       {"word": "for instance", "translation": "например"},
@@ -213,7 +213,7 @@
     "unit": "Слушание",
     "title": "Слушаем новости и инструкции",
     "goal": "Понять на слух новость или пошаговую инструкцию и выделить главное.",
-    "theory": "В новостях сначала идёт главное событие, затем детали: кто, что, где, когда. В инструкциях слушайте порядок действий: first, next, make sure, don't forget. Запоминайте числа, названия и последовательность. Если вы упустили деталь, продолжайте слушать: следующая фраза часто объясняет её.",
+    "theory": "В новостях сначала идёт главное событие, затем детали: кто, что, где, когда. В инструкциях слушайте порядок действий: `first, next, make sure, don't forget.` Запоминайте числа, названия и последовательность. Если вы упустили деталь, продолжайте слушать: следующая фраза часто объясняет её.",
     "vocabulary": [
       {"word": "according to reports", "translation": "по сообщениям"},
       {"word": "is expected to", "translation": "как ожидается"},
@@ -230,7 +230,7 @@
     "unit": "Говорение",
     "title": "Говорим: высказываем мнение и обсуждаем",
     "goal": "Высказать мнение с причиной, согласиться или вежливо возразить.",
-    "theory": "Мнение лучше сопровождать причиной: I think… because… Соглашаясь, используйте I agree или that's true, не соглашаясь: I see your point, but… Это вежливее, чем просто no. Для уточнения: What I mean is… Говорите вслух, не заучивая слово в слово: важнее связная мысль, чем идеальная грамматика.",
+    "theory": "Мнение лучше сопровождать причиной: `I think`… because… Соглашаясь, используйте `I agree` или `that's true`, не соглашаясь: `I see your point, but`… Это вежливее, чем просто no. Для уточнения: `What I mean is`… Говорите вслух, не заучивая слово в слово: важнее связная мысль, чем идеальная грамматика.",
     "vocabulary": [
       {"word": "In my opinion…", "translation": "По моему мнению…"},
       {"word": "I see your point, but…", "translation": "Понимаю вас, но…"},
@@ -247,7 +247,7 @@
     "unit": "Говорение",
     "title": "Говорим: рассказываем историю и впечатления",
     "goal": "Связно рассказать о случае из жизни: начало, события и итог.",
-    "theory": "Рассказ строится так: начало (When I was…), события (Suddenly… Then…), финал (In the end…). Используйте Past Simple для событий и Past Continuous для фона. Добавляйте эмоции: I was so surprised. Тренируйтесь рассказывать вслух одну и ту же историю, каждый раз добавляя новую деталь.",
+    "theory": "Рассказ строится так: начало (`When I was`…), события (Suddenly… Then…), финал (`In the end`…). Используйте Past Simple для событий и Past Continuous для фона. Добавляйте эмоции: `I was so surprised.` Тренируйтесь рассказывать вслух одну и ту же историю, каждый раз добавляя новую деталь.",
     "vocabulary": [
       {"word": "It all started when…", "translation": "Всё началось, когда…"},
       {"word": "Suddenly…", "translation": "Вдруг…"},
@@ -264,7 +264,7 @@
     "unit": "Чтение и письмо",
     "title": "Читаем рассказы и истории",
     "goal": "Понять сюжет рассказа, героев и причины событий, и пересказать главное.",
-    "theory": "В рассказе найдите героев, место и главное событие. Следите за временами: Past Simple описывает события, Past Continuous фон, Past Perfect то, что было раньше. Отмечайте слова чувств и причины (because, so, that's why). После чтения попробуйте пересказать сюжет в трёх предложениях.",
+    "theory": "В рассказе найдите героев, место и главное событие. Следите за временами: Past Simple описывает события, Past Continuous фон, Past Perfect то, что было раньше. Отмечайте слова чувств и причины (`because, so, that's why`). После чтения попробуйте пересказать сюжет в трёх предложениях.",
     "vocabulary": [
       {"word": "main character", "translation": "главный герой"},
       {"word": "plot", "translation": "сюжет"},

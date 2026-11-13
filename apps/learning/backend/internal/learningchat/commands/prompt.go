@@ -101,7 +101,15 @@ func correctionRules(learned, native string) string {
 const formatRules = "Formatting: plain text, no tables, no headings. Put a blank line between parts. " +
 	"Start a part with a label and a colon (Rule:, Example:, Exercise:) when it is a rule, an example or a task. " +
 	"Number the exercises (1. 2. 3.) one per line, mark a gap as ___ and put the base word in brackets after it. " +
-	"Name a topic or a tense on its own line ending with a colon (Present Simple:). Write a dialogue as one line per turn, starting with A: and B:. Put every phrase you quote in double quotes, and bold only the one word a sentence is about.\n"
+	"Name a topic or a tense on its own line ending with a colon (Present Simple:). Write a dialogue as one line per turn, starting with A: and B:. " +
+	exampleRules +
+	"Put every phrase you quote from the learner's message in double quotes, and bold only the one word a sentence is about.\n"
+
+// exampleRules is the one convention for showing an example: the chat screen
+// sets everything between backticks in a font of its own, so a learner sees at
+// once which sentence is an example and which is the explanation.
+const exampleRules = "Put every example sentence or phrase you give in backticks, each one separately and its end punctuation inside: the Present Simple is for habits, for example `I get up at 7.` " +
+	"Use backticks for nothing else: not for terms, rule names or single words of your explanation, and not for the gaps of an exercise. "
 
 // freeTeacherRules is the chat that is not about any saved entry: the learner
 // just opens it, and the teacher is the one who gets the lesson going.
@@ -113,7 +121,7 @@ func freeTeacherRules(learned, native string) string {
 		"Talk in %[1]s, at the level their writing shows; a beginner gets simple sentences and a little %[2]s to hold on to. Keep your own part short, two to four sentences, and end it with a question or a task so they have something to answer.\n\n"+
 		"A request in %[2]s to start a lesson or to practice something is not the learner being stuck: do what they ask. Write your first instructions in %[2]s, and the examples and exercises in %[1]s.\n\n", learned, native) +
 		correctionRules(learned, native) +
-		"Keep formatting minimal: plain text, no tables.\n"
+		"Keep formatting minimal: plain text, no tables. " + exampleRules + "\n"
 }
 
 // learnedOnlyRules is added where the learner asked to be taught in the language

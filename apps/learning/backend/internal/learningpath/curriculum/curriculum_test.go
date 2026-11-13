@@ -316,3 +316,44 @@ func TestTheEnglishLibraryMirrorsTheRussianOne(t *testing.T) {
 		}
 	}
 }
+
+// TestExamplesInTheTheoryAreMarkedInPairs: the page sets what is between
+// backticks in a font of its own, so a lone backtick would turn the rest of a
+// rule into an "example", and an empty pair would show as an empty box.
+func TestExamplesInTheTheoryAreMarkedInPairs(t *testing.T) {
+	for _, native := range []string{"ru", "en"} {
+		marked := 0
+
+		for _, topic := range curriculum.UpTo("en", native, placement.C2) {
+			if strings.Count(topic.Theory, "`")%2 != 0 {
+				t.Errorf("%s/%s: a backtick without its pair in the theory: %q", native, topic.ID, topic.Theory)
+			}
+
+			parts := strings.Split(topic.Theory, "`")
+			for i := 1; i < len(parts); i += 2 {
+				if strings.TrimSpace(parts[i]) == "" {
+					t.Errorf("%s/%s: an empty example", native, topic.ID)
+				}
+
+				if strings.ContainsAny(parts[i], "абвгдежзийклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ") {
+					t.Errorf("%s/%s: an example is of the learned language, not Russian: %q", native, topic.ID, parts[i])
+				}
+			}
+
+			if len(parts) > 1 {
+				marked++
+			}
+		}
+
+		if marked < 40 {
+			t.Errorf("%s: only %d topics mark their examples, the marks are gone", native, marked)
+		}
+	}
+
+	for _, native := range []string{"ru", "en"} {
+		topic, ok := curriculum.Find("en", native, "a2-present-simple-vs-continuous")
+		if !ok || !strings.Contains(topic.Theory, "`I am drinking coffee now.`") {
+			t.Errorf("%s: the example of the screenshot must be marked: %q", native, topic.Theory)
+		}
+	}
+}

@@ -21,6 +21,7 @@ import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useLesson, useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { topicSetComing, writerHasHeadStart } from "../progress"
 import { PlayButton } from "./play-button"
+import { withExamples } from "@/components/example"
 import { englishClass, Mixed, Prose, RuleCard } from "./rule-card"
 import { listenOnce, speechSupported } from "../speech"
 import type { PathAttempt, PathExercise } from "../schemas"
@@ -632,20 +633,21 @@ function ExerciseCard({
   )
 }
 
+/** A verdict's explanation: the examples and quoted wordings are in backticks, and the quotes of older verdicts keep the blue wash. */
 function QuotedEmphasis({ text }: { text: string }) {
-  const parts = text.split(/(["“«])([^"”»\n]+)(["”»])/g)
-
   return (
     <>
-      {parts.map((part, index) => {
-        if (index % 4 === 2)
-          return (
+      {withExamples(text, (part) =>
+        part.split(/(["“«])([^"”»\n]+)(["”»])/g).map((piece, index) =>
+          index % 4 === 2 ? (
             <span key={index} className={englishClass}>
-              {part}
+              {piece}
             </span>
-          )
-        return part
-      })}
+          ) : (
+            piece
+          ),
+        ),
+      )}
     </>
   )
 }
