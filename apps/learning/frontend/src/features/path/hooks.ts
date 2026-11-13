@@ -48,12 +48,17 @@ export function usePath(language: string, nativeLanguage: string) {
     onSuccess: refresh,
   })
 
+  const setGoal = useMutation({
+    mutationFn: (hoursPerWeek: number) => api.setWeeklyGoal(language, hoursPerWeek),
+    onSuccess: refresh,
+  })
+
   const startFinal = useMutation({
     mutationFn: (native?: string) => api.startFinalTest(language, native ?? nativeLanguage),
     onSuccess: refresh,
   })
 
-  return { active, history, startPlacement, chooseLevel, reset, clearHistory, startFinal }
+  return { active, history, startPlacement, chooseLevel, reset, clearHistory, startFinal, setGoal }
 }
 
 const hour = 60 * 60 * 1000
@@ -229,14 +234,19 @@ export function useLesson() {
 const lessonTotalsKey = (userId: string | undefined) =>
   ["path", "lessons", "totals", userId] as const
 
-/** The time the learner has studied in lessons: today, this week, this month. */
-export function useLessonTotals() {
+/**
+ * The time the learner has studied in lessons: today, this week, this month.
+ * While a lesson runs it is asked again every minute, so the week's scale
+ * moves with it.
+ */
+export function useLessonTotals(live = false) {
   const { user } = useAuth()
 
   return useQuery({
     queryKey: lessonTotalsKey(user?.id),
     queryFn: api.fetchLessonTotals,
     enabled: !!user,
+    refetchInterval: live ? 60_000 : false,
   })
 }
 

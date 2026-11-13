@@ -621,6 +621,16 @@
         }
       }
     },
+    "week": {
+      "title": "This week",
+      "done": "{done} of {goal}",
+      "reached": "The week's goal is reached",
+      "goal": "Hours per week",
+      "hoursValue": "{n} h",
+      "askGoal": "How many hours a week can you study? The scale of the week will count towards it.",
+      "pickGoal": "Hours per week. Press the chosen one again to take the goal away.",
+      "change": "Goal: {goal} a week · change"
+    },
     "survey": {
       "title": "Tell us about yourself",
       "hint": "The program is built around you. Everything is optional.",
@@ -630,10 +640,9 @@
       "goalPlaceholder": "moving abroad, work, an exam, chatting…",
       "variant": "Variant of the language",
       "variantPlaceholder": "British, American or any",
-      "minutes": "Minutes per day",
-      "minutesValue": "{n} min",
-      "days": "Days per week",
-      "daysValue": "{n} days"
+      "hours": "Hours per week",
+      "hoursValue": "{n} h",
+      "hoursHint": "How much you are ready to study. The program shows a scale of the week against it."
     },
     "practice": {
       "title": "Practise this rule",

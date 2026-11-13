@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { answerBatch, fetchJob, startBuild } from "../api"
 import { usePathTest } from "../hooks"
+import { hourOptions } from "../weekly-goal"
 import { LevelScale, nextLevel } from "./level-scale"
 import type { PathTest, Preferences } from "../schemas"
 
@@ -328,8 +329,6 @@ function Done({
 }
 
 
-const minuteOptions = [15, 30, 45, 60]
-const dayOptions = [3, 5, 7]
 
 /** Survey is the short questionnaire the program is built around. */
 function Survey({
@@ -390,12 +389,9 @@ function Survey({
         </label>
       ))}
       <div className="space-y-1.5 text-center">
-        <p className="text-[13px] font-medium">{t("minutes")}</p>
-        {chips(minuteOptions, value.minutesPerDay, (n) => set({ minutesPerDay: n }), (n) => t("minutesValue", { n }))}
-      </div>
-      <div className="space-y-1.5 text-center">
-        <p className="text-[13px] font-medium">{t("days")}</p>
-        {chips(dayOptions, value.daysPerWeek, (n) => set({ daysPerWeek: n }), (n) => t("daysValue", { n }))}
+        <p className="text-[13px] font-medium">{t("hours")}</p>
+        {chips(hourOptions, value.hoursPerWeek, (n) => set({ hoursPerWeek: n }), (n) => t("hoursValue", { n }))}
+        <p className="text-muted-foreground text-xs leading-relaxed">{t("hoursHint")}</p>
       </div>
     </div>
   )

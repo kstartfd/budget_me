@@ -153,6 +153,10 @@ type Querier interface {
 	SaveLearningRulePracticeExamples(ctx context.Context, arg SaveLearningRulePracticeExamplesParams) (LearningRulePractice, error)
 	SaveLearningRulePracticeExercises(ctx context.Context, arg SaveLearningRulePracticeExercisesParams) (LearningRulePractice, error)
 	SetLearningPathJobRunning(ctx context.Context, arg SetLearningPathJobRunningParams) error
+	// The hours a week the learner means to study, kept with the program's
+	// preferences. 0 takes the goal away. The two answers the survey used to ask
+	// (minutes a day, days a week) go too: the goal is one number now.
+	SetLearningPathWeeklyHours(ctx context.Context, arg SetLearningPathWeeklyHoursParams) (int64, error)
 	SetLearningTeacherExplain(ctx context.Context, arg SetLearningTeacherExplainParams) (LearningTeacher, error)
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
 	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)

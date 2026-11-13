@@ -25,9 +25,14 @@ type attemptRequest struct {
 
 // analyzeRequest carries the survey answers the program is built around.
 type analyzeRequest struct {
-	Interests     string `json:"interests"`
-	Variant       string `json:"variant"`
-	Goal          string `json:"goal"`
-	MinutesPerDay int    `json:"minutesPerDay"`
-	DaysPerWeek   int    `json:"daysPerWeek"`
+	Interests    string `json:"interests"`
+	Variant      string `json:"variant"`
+	Goal         string `json:"goal"`
+	HoursPerWeek int    `json:"hoursPerWeek"`
+}
+
+// goalRequest sets how many hours a week the learner means to study.
+type goalRequest struct {
+	Language     string `json:"language"`
+	HoursPerWeek int    `json:"hoursPerWeek"`
 }

@@ -87,10 +87,11 @@ export const pathSchema = z.object({
       interests: z.string().optional(),
       variant: z.string().optional(),
       goal: z.string().optional(),
-      minutesPerDay: z.number().optional(),
-      daysPerWeek: z.number().optional(),
+      hoursPerWeek: z.number().optional(),
     })
     .default({}),
+  /** The time the learner means to study each week, in minutes; 0 when they gave none. */
+  weeklyGoalMinutes: z.number().default(0),
   topics: z.array(pathTopicSchema),
   createdAt: z.string(),
   archivedAt: z.string().nullable(),
@@ -236,6 +237,6 @@ export interface Preferences {
   interests?: string
   variant?: string
   goal?: string
-  minutesPerDay?: number
-  daysPerWeek?: number
+  /** The hours a week the learner can study; the week's scale counts towards it. */
+  hoursPerWeek?: number
 }

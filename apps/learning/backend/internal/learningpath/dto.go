@@ -232,15 +232,18 @@ type pathResponse struct {
 	Language            string `json:"language"`
 	TranslationLanguage string `json:"translationLanguage"`
 	// ExplainLanguage is what the program's teacher explains in now.
-	ExplainLanguage string          `json:"explainLanguage"`
-	Level           string          `json:"level"`
-	Summary         string          `json:"summary"`
-	Status          string          `json:"status"`
-	Source          string          `json:"source"`
-	Preferences     map[string]any  `json:"preferences"`
-	Topics          []topicResponse `json:"topics"`
-	CreatedAt       time.Time       `json:"createdAt"`
-	ArchivedAt      *time.Time      `json:"archivedAt"`
+	ExplainLanguage string         `json:"explainLanguage"`
+	Level           string         `json:"level"`
+	Summary         string         `json:"summary"`
+	Status          string         `json:"status"`
+	Source          string         `json:"source"`
+	Preferences     map[string]any `json:"preferences"`
+	// WeeklyGoalMinutes is the time the learner means to study each week, in
+	// minutes; 0 when they gave none.
+	WeeklyGoalMinutes int             `json:"weeklyGoalMinutes"`
+	Topics            []topicResponse `json:"topics"`
+	CreatedAt         time.Time       `json:"createdAt"`
+	ArchivedAt        *time.Time      `json:"archivedAt"`
 }
 
 // pathDTO renders a program. explain is the language its teacher explains in
@@ -263,6 +266,7 @@ func pathDTO(p queries.PathWithTopics, explain string) pathResponse {
 		Topics:              topicsDTO(p.Topics, p.Exercises, p.Path.Language, explain),
 		CreatedAt:           p.Path.CreatedAt.Time,
 		Preferences:         map[string]any{},
+		WeeklyGoalMinutes:   commands.WeeklyGoalMinutes(p.Path.Preferences),
 	}
 
 	if len(p.Path.Preferences) > 0 {

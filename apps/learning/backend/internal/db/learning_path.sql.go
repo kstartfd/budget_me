@@ -1560,6 +1560,31 @@ func (q *Queries) SetLearningPathJobRunning(ctx context.Context, arg SetLearning
 	return err
 }
 
+const setLearningPathWeeklyHours = `-- name: SetLearningPathWeeklyHours :execrows
+UPDATE learning_paths SET preferences = CASE
+    WHEN $1::int = 0 THEN preferences - 'hoursPerWeek' - 'minutesPerDay' - 'daysPerWeek'
+    ELSE (preferences - 'minutesPerDay' - 'daysPerWeek') || jsonb_build_object('hoursPerWeek', $1::int)
+END
+WHERE user_id = $2 AND language = $3 AND status = 'active'
+`
+
+type SetLearningPathWeeklyHoursParams struct {
+	Hours    int32
+	UserID   pgtype.UUID
+	Language string
+}
+
+// The hours a week the learner means to study, kept with the program's
+// preferences. 0 takes the goal away. The two answers the survey used to ask
+// (minutes a day, days a week) go too: the goal is one number now.
+func (q *Queries) SetLearningPathWeeklyHours(ctx context.Context, arg SetLearningPathWeeklyHoursParams) (int64, error) {
+	result, err := q.db.Exec(ctx, setLearningPathWeeklyHours, arg.Hours, arg.UserID, arg.Language)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
 const setLearningTeacherExplain = `-- name: SetLearningTeacherExplain :one
 UPDATE learning_teachers SET explain_in_target = $3 WHERE id = $1 AND user_id = $2 RETURNING id, user_id, language, translation_language, created_at, explain_in_target
 `

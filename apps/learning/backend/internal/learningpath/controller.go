@@ -54,6 +54,7 @@ type Controller struct {
 	lessons   commands.LessonHandler
 	practices commands.PracticeHandler
 	resets    commands.ResetHandler
+	goals     commands.GoalHandler
 	clears    commands.ClearHistoryHandler
 	read      queries.ReadHandler
 	limit     *ratelimit.Limiter
@@ -76,6 +77,7 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 		lessons:   commands.NewLessonHandler(q, clk),
 		practices: commands.NewPracticeHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
 		resets:    commands.NewResetHandler(q, clk),
+		goals:     commands.NewGoalHandler(q),
 		clears:    commands.NewClearHistoryHandler(q),
 		read:      queries.NewReadHandler(q),
 		limit:     ratelimit.New(aiRate),
@@ -459,6 +461,21 @@ func (c *Controller) reset(ctx echo.Context) error {
 	}
 
 	if err := c.resets.Handle(ctx.Request().Context(), commands.ResetPath{UserID: userOf(ctx), Language: req.Language}); err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, nil)
+}
+
+// setGoal sets how many hours a week the learner means to study on the running
+// program of a language; 0 takes the goal away.
+func (c *Controller) setGoal(ctx echo.Context) error {
+	var req goalRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	if err := c.goals.Handle(ctx.Request().Context(), commands.SetWeeklyGoal{UserID: userOf(ctx), Language: req.Language, HoursPerWeek: req.HoursPerWeek}); err != nil {
 		return err
 	}
 

@@ -38,7 +38,7 @@ function studiedSeconds(lesson: PathLesson, now: number) {
 const minutes = (seconds: number) => Math.max(1, Math.round(seconds / 60))
 
 /** A time studied: a short one reads as minutes, a long one as hours and minutes. */
-function useSpent() {
+export function useSpent() {
   const t = useTranslations("path.lesson")
 
   return (seconds: number) => {

@@ -245,6 +245,16 @@ SELECT
     COALESCE(SUM(seconds) FILTER (WHERE started_at >= sqlc.arg(month_start)::timestamptz), 0)::bigint AS month
 FROM t;
 
+-- The hours a week the learner means to study, kept with the program's
+-- preferences. 0 takes the goal away. The two answers the survey used to ask
+-- (minutes a day, days a week) go too: the goal is one number now.
+-- name: SetLearningPathWeeklyHours :execrows
+UPDATE learning_paths SET preferences = CASE
+    WHEN sqlc.arg(hours)::int = 0 THEN preferences - 'hoursPerWeek' - 'minutesPerDay' - 'daysPerWeek'
+    ELSE (preferences - 'minutesPerDay' - 'daysPerWeek') || jsonb_build_object('hoursPerWeek', sqlc.arg(hours)::int)
+END
+WHERE user_id = sqlc.arg(user_id) AND language = sqlc.arg(language) AND status = 'active';
+
 -- name: ListLearningPathLessonStats :many
 SELECT lesson_id::uuid AS lesson_id,
     count(*)::integer AS attempts,

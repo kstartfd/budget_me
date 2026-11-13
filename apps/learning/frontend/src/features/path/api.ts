@@ -206,6 +206,10 @@ export const clearHistory = (language: string): Promise<void> =>
 export const resetPath = (language: string): Promise<void> =>
   request("/path/reset", "POST", () => undefined, { language })
 
+/** Sets the hours a week the learner means to study on the running program; 0 takes the goal away. */
+export const setWeeklyGoal = (language: string, hoursPerWeek: number): Promise<void> =>
+  request("/path/goal", "PUT", () => undefined, { language, hoursPerWeek })
+
 export const fetchTopicDetail = (id: string): Promise<PathTopicDetail> =>
   request(`/path/topics/${id}`, "GET", (d) => pathTopicDetailSchema.parse(d))
 

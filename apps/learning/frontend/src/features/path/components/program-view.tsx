@@ -19,6 +19,7 @@ import {
 } from "../return-point"
 import type { Path } from "../schemas"
 import { LessonBar, lessonBarHeight } from "./lesson-bar"
+import { WeeklyScale } from "./weekly-scale"
 import { Mixed, rulesPath } from "./rule-card"
 import { ProgramScale } from "./program-scale"
 import { SkillIcon } from "./skills"
@@ -215,6 +216,12 @@ export function ProgramView({
       </section>
 
       <LessonBar />
+
+      <WeeklyScale
+        language={path.language}
+        nativeLanguage={path.translationLanguage}
+        goalMinutes={path.weeklyGoalMinutes}
+      />
 
       <ProgramScale topics={path.topics} preparing={preparing} />
 
