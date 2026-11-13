@@ -18,6 +18,7 @@ import (
 	"learning_app/backend/internal/ids"
 	learningcommands "learning_app/backend/internal/learning/commands"
 	"learning_app/backend/internal/learningpath/placement"
+	"learning_app/backend/internal/llm"
 )
 
 const maxTestAnswerRunes = 400
@@ -321,7 +322,7 @@ func (h TestHandler) generate(ctx context.Context, userID uuid.UUID, kind, lang,
 	system, prompt := testQuestionsPrompt(learned, native, kind, level, count, asked)
 
 	var batch generatedBatch
-	if err := h.agent.completeJSON(ctx, userID, system, prompt, &batch, func() error {
+	if err := h.agent.completeJSON(ctx, userID, llm.PurposeTestQuestions, system, prompt, &batch, func() error {
 		return validateBatch(&batch, count)
 	}); err != nil {
 		return nil, err
@@ -675,7 +676,7 @@ func (h TestHandler) judge(ctx context.Context, test db.LearningPathTest, level 
 	system, prompt := testJudgePrompt(learned, native, string(test.Kind), level, batch)
 
 	var v verdict
-	if err := h.agent.completeJSON(ctx, ids.FromPg(test.UserID), system, prompt, &v, func() error {
+	if err := h.agent.completeJSON(ctx, ids.FromPg(test.UserID), llm.PurposeTestJudge, system, prompt, &v, func() error {
 		return validateVerdict(&v, level, p.Asked, p.Correct)
 	}); err != nil {
 		return verdict{}, err

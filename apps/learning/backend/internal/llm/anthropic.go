@@ -19,7 +19,7 @@ func (c Client) anthropicClient(key string) anthropic.Client {
 	)
 }
 
-func (c Client) completeAnthropic(ctx context.Context, req Request) (string, error) {
+func (c Client) completeAnthropic(ctx context.Context, req Request) (string, Usage, error) {
 	client := c.anthropicClient(req.Key)
 
 	resp, err := client.Messages.New(ctx, anthropic.MessageNewParams{
@@ -30,11 +30,19 @@ func (c Client) completeAnthropic(ctx context.Context, req Request) (string, err
 		Messages:     []anthropic.MessageParam{anthropic.NewUserMessage(anthropic.NewTextBlock(req.Prompt))},
 	})
 	if err != nil {
-		return "", anthropicError(err)
+		return "", Usage{}, anthropicError(err)
+	}
+
+	// Anthropic's input leaves what the cache served out; what it wrote to the
+	// cache is paid as input.
+	usage := Usage{
+		Input:  int(resp.Usage.InputTokens + resp.Usage.CacheCreationInputTokens),
+		Cached: int(resp.Usage.CacheReadInputTokens),
+		Output: int(resp.Usage.OutputTokens),
 	}
 
 	if resp.StopReason == anthropic.StopReasonRefusal {
-		return "", errors.New("llm: the model declined the request")
+		return "", usage, errors.New("llm: the model declined the request")
 	}
 
 	var text strings.Builder
@@ -46,10 +54,10 @@ func (c Client) completeAnthropic(ctx context.Context, req Request) (string, err
 	}
 
 	if strings.TrimSpace(text.String()) == "" {
-		return "", errors.New("llm: the model returned no text")
+		return "", usage, errors.New("llm: the model returned no text")
 	}
 
-	return text.String(), nil
+	return text.String(), usage, nil
 }
 
 func (c Client) verifyAnthropic(ctx context.Context, key string) error {

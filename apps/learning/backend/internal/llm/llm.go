@@ -13,6 +13,8 @@ import (
 	"io"
 	"net/http"
 	"strings"
+
+	"github.com/google/uuid"
 )
 
 var (
@@ -43,11 +45,15 @@ type Request struct {
 	Key      string
 	System   string
 	Prompt   string
+	// UserID and Purpose say whose call it is and what for, for the usage record.
+	UserID  uuid.UUID
+	Purpose string
 }
 
 type Client struct {
 	urls URLs
 	http *http.Client
+	rec  Recorder
 }
 
 // New fills any blank root with the real provider's and leaves the timeout to
@@ -63,18 +69,30 @@ func New(urls URLs) Client {
 }
 
 func (c Client) Complete(ctx context.Context, req Request) (string, error) {
+	var (
+		text  string
+		usage Usage
+		err   error
+	)
+
 	switch req.Provider {
 	case Anthropic:
-		return c.completeAnthropic(ctx, req)
+		text, usage, err = c.completeAnthropic(ctx, req)
 	case OpenAI:
-		return c.completeOpenAI(ctx, req)
+		text, usage, err = c.completeOpenAI(ctx, req)
 	case DeepSeek:
-		return c.completeDeepSeek(ctx, req)
+		text, usage, err = c.completeDeepSeek(ctx, req)
 	case Kimi:
-		return c.completeKimi(ctx, req)
+		text, usage, err = c.completeKimi(ctx, req)
+	default:
+		return "", fmt.Errorf("llm: unknown provider %q", req.Provider)
 	}
 
-	return "", fmt.Errorf("llm: unknown provider %q", req.Provider)
+	// Recorded even when the call failed after the provider answered: an empty
+	// or refused reply was still paid for.
+	c.record(ctx, Call{UserID: req.UserID, Purpose: req.Purpose, Provider: req.Provider, Model: req.Model, Usage: usage})
+
+	return text, err
 }
 
 // Verify asks the provider for its model list, which costs nothing. Only an

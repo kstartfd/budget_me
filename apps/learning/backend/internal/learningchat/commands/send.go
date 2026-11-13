@@ -288,6 +288,8 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		Key:      agent.key,
 		System:   subject.system(chat.Summary, agent.settings.Teacher),
 		Messages: history(stored, question),
+		UserID:   cmd.UserID,
+		Purpose:  llm.PurposeChat,
 	}, stream.Delta)
 	if err != nil {
 		return err
@@ -415,6 +417,8 @@ func (h SendHandler) compact(ctx context.Context, chat db.LearningChat, agent ch
 		Key:      agent.key,
 		System:   system,
 		Prompt:   prompt,
+		UserID:   ids.FromPg(chat.UserID),
+		Purpose:  llm.PurposeChatSummary,
 	})
 	if err != nil {
 		slog.Warn("learning chat compaction", "chat_id", ids.FromPg(chat.ID), "provider", agent.settings.Provider, "err", err)

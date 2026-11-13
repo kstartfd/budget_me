@@ -16,6 +16,7 @@ import (
 	"learning_app/backend/internal/ids"
 	learningcommands "learning_app/backend/internal/learning/commands"
 	"learning_app/backend/internal/learningpath/placement"
+	"learning_app/backend/internal/llm"
 	"learning_app/backend/internal/ratelimit"
 )
 
@@ -164,7 +165,7 @@ func (h AttemptHandler) ask(ctx context.Context, userID uuid.UUID, path db.Learn
 	system, prompt := reviewPrompt(learned, explain, path.Level, kind, exercise.Text, exercise.Prompt, exercise.Answer, answer, options)
 
 	if err := h.gated(ctx, userID, func(callCtx context.Context) error {
-		return h.agent.completeJSON(callCtx, userID, system, prompt, &verdict, func() error { return verdict.settle(kind) })
+		return h.agent.completeJSON(callCtx, userID, llm.PurposeReview, system, prompt, &verdict, func() error { return verdict.settle(kind) })
 	}); err != nil {
 		return review{}, err
 	}

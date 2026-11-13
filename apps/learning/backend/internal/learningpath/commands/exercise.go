@@ -13,6 +13,7 @@ import (
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
 	learningcommands "learning_app/backend/internal/learning/commands"
+	"learning_app/backend/internal/llm"
 )
 
 // GenerateExercises has the learner's agent write the exercise set of one
@@ -85,7 +86,7 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 	system, prompt := exercisesPrompt(learned, explain, path.Level, topic.Skill, topic.Title, topic.Goal, topic.Theory, words, len(attempts), correct)
 
 	var set exerciseSet
-	if err := h.agent.completeJSON(ctx, cmd.UserID, system, prompt, &set, func() error {
+	if err := h.agent.completeJSON(ctx, cmd.UserID, llm.PurposeExercises, system, prompt, &set, func() error {
 		return validateExercises(set.Exercises)
 	}); err != nil {
 		return nil, err

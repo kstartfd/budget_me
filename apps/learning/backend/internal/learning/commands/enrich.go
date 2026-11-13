@@ -125,6 +125,8 @@ func (h ProcessHandler) enrich(ctx context.Context, job db.LearningCapture, f En
 		Key:      string(key),
 		System:   system,
 		Prompt:   prompt,
+		UserID:   userID,
+		Purpose:  llm.PurposeEnrich,
 	})
 	if err != nil {
 		if errors.Is(err, llm.ErrTemporary) && job.Attempts < enrichRetries {

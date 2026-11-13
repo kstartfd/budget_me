@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // ErrChatUnsupported means chat is not built for the user's provider yet.
@@ -29,6 +31,9 @@ type ChatRequest struct {
 	Key      string
 	System   string
 	Messages []Message
+	// UserID and Purpose say whose turn it is and what for, for the usage record.
+	UserID  uuid.UUID
+	Purpose string
 }
 
 type ChatResult struct {
@@ -106,7 +111,15 @@ func (c Client) Chat(ctx context.Context, req ChatRequest, onDelta func(string))
 
 	switch req.Provider {
 	case DeepSeek:
-		return c.chatDeepSeek(ctx, req, profile, onDelta)
+		result, err := c.chatDeepSeek(ctx, req, profile, onDelta)
+		if err == nil {
+			c.record(ctx, Call{
+				UserID: req.UserID, Purpose: req.Purpose, Provider: req.Provider, Model: req.Model,
+				Usage: usageOf(result.PromptTokens, result.CacheHitTokens, result.CompletionTokens),
+			})
+		}
+
+		return result, err
 	}
 
 	return ChatResult{}, fmt.Errorf("%w: %s", ErrChatUnsupported, req.Provider)

@@ -14,6 +14,7 @@ import (
 	learningcommands "learning_app/backend/internal/learning/commands"
 	"learning_app/backend/internal/learningpath/curriculum"
 	"learning_app/backend/internal/learningpath/placement"
+	"learning_app/backend/internal/llm"
 )
 
 // Analyze reads a finished placement test and has the learner's agent turn it
@@ -125,7 +126,7 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 	} else {
 		system, prompt := analyzePrompt(learned, explain, reached, asked, correct, wrong, prefs)
 
-		if err := h.agent.completeJSON(ctx, cmd.UserID, system, prompt, &plan, func() error {
+		if err := h.agent.completeJSON(ctx, cmd.UserID, llm.PurposeProgram, system, prompt, &plan, func() error {
 			return validateProgram(&plan)
 		}); err != nil {
 			return db.LearningPath{}, nil, err

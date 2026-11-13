@@ -11,6 +11,7 @@ import (
 )
 
 type Querier interface {
+	AddLearningAgentUsage(ctx context.Context, arg AddLearningAgentUsageParams) error
 	AddLearningChatUsage(ctx context.Context, arg AddLearningChatUsageParams) error
 	AdvanceLearningPathTest(ctx context.Context, arg AdvanceLearningPathTestParams) error
 	ArchiveLearningChat(ctx context.Context, arg ArchiveLearningChatParams) error

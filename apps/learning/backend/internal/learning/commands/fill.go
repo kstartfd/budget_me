@@ -105,6 +105,8 @@ func (h FillHandler) Handle(ctx context.Context, cmd FillEntry) (db.LearningEntr
 		Key:      string(key),
 		System:   system,
 		Prompt:   prompt,
+		UserID:   cmd.UserID,
+		Purpose:  llm.PurposeFill,
 	})
 	if err != nil {
 		if errors.Is(err, llm.ErrRejected) || errors.Is(err, llm.ErrTemporary) {

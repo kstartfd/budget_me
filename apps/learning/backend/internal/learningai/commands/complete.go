@@ -77,6 +77,8 @@ func (h CompleteHandler) Handle(ctx context.Context, cmd Complete) (string, erro
 		Key:      string(key),
 		System:   cmd.System,
 		Prompt:   cmd.Prompt,
+		UserID:   cmd.UserID,
+		Purpose:  llm.PurposeComplete,
 	})
 	if err != nil {
 		slog.Warn("learning ai completion failed", "user_id", cmd.UserID, "provider", settings.Provider, "err", err)

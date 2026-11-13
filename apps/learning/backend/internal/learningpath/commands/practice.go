@@ -15,6 +15,7 @@ import (
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
+	"learning_app/backend/internal/llm"
 )
 
 // A sitting on a rule lives while the learner is on its page. Leaving it only
@@ -213,7 +214,7 @@ func (h PracticeHandler) AddExamples(ctx context.Context, userID uuid.UUID, rule
 		fresh []exampleOut
 	)
 
-	if err := h.agent.completeJSON(ctx, userID, examplesSystem, examplesPrompt(rule, seen), &set, func() error {
+	if err := h.agent.completeJSON(ctx, userID, llm.PurposePracticeExamples, examplesSystem, examplesPrompt(rule, seen), &set, func() error {
 		var err error
 		fresh, err = cleanExamples(set.Examples, seen)
 
@@ -297,7 +298,7 @@ func (h PracticeHandler) WriteExercises(ctx context.Context, userID uuid.UUID, r
 
 	var set blockSetOut
 
-	if err := h.agent.completeJSON(ctx, userID, practiceSystem, rulePrompt(rule, nil), &set, func() error {
+	if err := h.agent.completeJSON(ctx, userID, llm.PurposePracticeDrills, practiceSystem, rulePrompt(rule, nil), &set, func() error {
 		return validateBlocks(set.Blocks)
 	}); err != nil {
 		return Practice{}, err

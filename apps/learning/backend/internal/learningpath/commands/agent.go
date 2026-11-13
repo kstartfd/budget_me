@@ -50,7 +50,7 @@ func NewAgent(q *db.Queries, vault secretbox.Box, client Completer) Agent {
 // with the JSON object of the reply. parse checks what unmarshalling cannot
 // (shape rules); when it complains, the call is made once more with the
 // complaint in the prompt — the system prompt stays untouched.
-func (a Agent) completeJSON(ctx context.Context, userID uuid.UUID, system, prompt string, out any, parse func() error) error {
+func (a Agent) completeJSON(ctx context.Context, userID uuid.UUID, purpose, system, prompt string, out any, parse func() error) error {
 	settings, err := a.q.GetLearningAISettings(ctx, ids.ToPg(userID))
 	if db.IsNotFound(err) {
 		return apperr.NewInvalid("this needs an AI agent: set one up in settings")
@@ -78,6 +78,8 @@ func (a Agent) completeJSON(ctx context.Context, userID uuid.UUID, system, promp
 			Key:      string(key),
 			System:   system,
 			Prompt:   p,
+			UserID:   userID,
+			Purpose:  purpose,
 		})
 	}
 

@@ -20,7 +20,7 @@ type kimiRequest struct {
 
 // completeKimi reads only `content` of the answer, so the reasoning trace the
 // API returns next to it (reasoning_content) is never kept.
-func (c Client) completeKimi(ctx context.Context, req Request) (string, error) {
+func (c Client) completeKimi(ctx context.Context, req Request) (string, Usage, error) {
 	var res chatResponse
 
 	err := c.doJSON(ctx, http.MethodPost, c.urls.Kimi+"/chat/completions", req.Key, kimiRequest{
@@ -33,12 +33,12 @@ func (c Client) completeKimi(ctx context.Context, req Request) (string, error) {
 		MaxCompletionTokens: 32000,
 	}, &res)
 	if err != nil {
-		return "", err
+		return "", Usage{}, err
 	}
 
 	if len(res.Choices) == 0 || strings.TrimSpace(res.Choices[0].Message.Content) == "" {
-		return "", errors.New("llm: the model returned no text")
+		return "", res.usage(), errors.New("llm: the model returned no text")
 	}
 
-	return res.Choices[0].Message.Content, nil
+	return res.Choices[0].Message.Content, res.usage(), nil
 }

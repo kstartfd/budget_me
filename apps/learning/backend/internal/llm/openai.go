@@ -27,9 +27,17 @@ type responsesResponse struct {
 			Text string `json:"text"`
 		} `json:"content"`
 	} `json:"output"`
+	// Usage counts the cache inside input_tokens, and the thinking inside output_tokens.
+	Usage struct {
+		InputTokens        int `json:"input_tokens"`
+		InputTokensDetails struct {
+			CachedTokens int `json:"cached_tokens"`
+		} `json:"input_tokens_details"`
+		OutputTokens int `json:"output_tokens"`
+	} `json:"usage"`
 }
 
-func (c Client) completeOpenAI(ctx context.Context, req Request) (string, error) {
+func (c Client) completeOpenAI(ctx context.Context, req Request) (string, Usage, error) {
 	var res responsesResponse
 
 	err := c.doJSON(ctx, http.MethodPost, c.urls.OpenAI+"/responses", req.Key, responsesRequest{
@@ -40,8 +48,10 @@ func (c Client) completeOpenAI(ctx context.Context, req Request) (string, error)
 		MaxOutputTokens: 25000,
 	}, &res)
 	if err != nil {
-		return "", err
+		return "", Usage{}, err
 	}
+
+	usage := usageOf(res.Usage.InputTokens, res.Usage.InputTokensDetails.CachedTokens, res.Usage.OutputTokens)
 
 	var text strings.Builder
 
@@ -58,8 +68,8 @@ func (c Client) completeOpenAI(ctx context.Context, req Request) (string, error)
 	}
 
 	if strings.TrimSpace(text.String()) == "" {
-		return "", errors.New("llm: the model returned no text")
+		return "", usage, errors.New("llm: the model returned no text")
 	}
 
-	return text.String(), nil
+	return text.String(), usage, nil
 }

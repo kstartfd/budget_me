@@ -10,6 +10,7 @@ import (
 
 	"learning_app/backend/internal/learningpath/curriculum"
 	"learning_app/backend/internal/learningpath/placement"
+	"learning_app/backend/internal/llm"
 )
 
 // A program for a language pair that has a library is planned, not written:
@@ -219,7 +220,7 @@ func (h AnalyzeHandler) planFromLibrary(ctx context.Context, userID uuid.UUID, l
 	system, prompt := planPrompt(learned, explain, reached, asked, correct, wrong, prefs, library)
 
 	var pick catalogPlan
-	if err := h.agent.completeJSON(ctx, userID, system, prompt, &pick, func() error {
+	if err := h.agent.completeJSON(ctx, userID, llm.PurposePlan, system, prompt, &pick, func() error {
 		return validateCatalogPlan(&pick, allowed)
 	}); err != nil {
 		return program{}, err
