@@ -3,6 +3,9 @@ package commands
 import (
 	"context"
 	"time"
+	// The learner's browser names its zone (Europe/Moscow); a bare image has no
+	// zone files to look that name up in.
+	_ "time/tzdata"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
@@ -190,4 +193,56 @@ func (h LessonHandler) Stats(ctx context.Context, lessons []db.LearningPathLesso
 	}
 
 	return out, nil
+}
+
+// Totals is the time a learner has studied in lessons today, this week (from
+// Monday) and this month. A day is the learner's own, so it needs their zone.
+type Totals struct {
+	Today time.Duration
+	Week  time.Duration
+	Month time.Duration
+}
+
+// LocationOf is the zone a browser reported, UTC when it is empty or unknown:
+// a wrong zone only moves the midnight, it must not fail the request.
+func LocationOf(name string) *time.Location {
+	if name == "" || len(name) > 64 {
+		return time.UTC
+	}
+
+	loc, err := time.LoadLocation(name)
+	if err != nil {
+		return time.UTC
+	}
+
+	return loc
+}
+
+// Totals adds up the learner's lesson time. A lesson counts for the day, week
+// and month its start falls in, and for the time spent at the desk, not for the
+// pauses.
+func (h LessonHandler) Totals(ctx context.Context, userID uuid.UUID, loc *time.Location) (Totals, error) {
+	now := h.clock.Now()
+	local := now.In(loc)
+	day := time.Date(local.Year(), local.Month(), local.Day(), 0, 0, 0, 0, loc)
+	sinceMonday := (int(local.Weekday()) + 6) % 7
+	week := day.AddDate(0, 0, -sinceMonday)
+	month := time.Date(local.Year(), local.Month(), 1, 0, 0, 0, 0, loc)
+
+	row, err := h.q.SumLearningLessonSeconds(ctx, db.SumLearningLessonSecondsParams{
+		UserID:     ids.ToPg(userID),
+		Now:        db.Time(now),
+		DayStart:   db.Time(day),
+		WeekStart:  db.Time(week),
+		MonthStart: db.Time(month),
+	})
+	if err != nil {
+		return Totals{}, err
+	}
+
+	return Totals{
+		Today: time.Duration(row.Today) * time.Second,
+		Week:  time.Duration(row.Week) * time.Second,
+		Month: time.Duration(row.Month) * time.Second,
+	}, nil
 }

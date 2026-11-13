@@ -1602,6 +1602,60 @@ func (q *Queries) StartLearningPathTopic(ctx context.Context, arg StartLearningP
 	return result.RowsAffected(), nil
 }
 
+const sumLearningLessonSeconds = `-- name: SumLearningLessonSeconds :one
+WITH l AS (
+    SELECT started_at, paused_at, paused_seconds,
+           COALESCE(finished_at, LEAST($4::timestamptz, ends_at)) AS stopped_at
+    FROM learning_path_lessons
+    WHERE user_id = $5
+      AND started_at >= LEAST($2::timestamptz, $3::timestamptz)
+), t AS (
+    SELECT started_at,
+           GREATEST(0, EXTRACT(EPOCH FROM (stopped_at - started_at))
+               - paused_seconds
+               - CASE WHEN paused_at IS NULL THEN 0
+                      ELSE GREATEST(0, EXTRACT(EPOCH FROM (stopped_at - paused_at))) END) AS seconds
+    FROM l
+)
+SELECT
+    COALESCE(SUM(seconds) FILTER (WHERE started_at >= $1::timestamptz), 0)::bigint AS today,
+    COALESCE(SUM(seconds) FILTER (WHERE started_at >= $2::timestamptz), 0)::bigint AS week,
+    COALESCE(SUM(seconds) FILTER (WHERE started_at >= $3::timestamptz), 0)::bigint AS month
+FROM t
+`
+
+type SumLearningLessonSecondsParams struct {
+	DayStart   pgtype.Timestamptz
+	WeekStart  pgtype.Timestamptz
+	MonthStart pgtype.Timestamptz
+	Now        pgtype.Timestamptz
+	UserID     pgtype.UUID
+}
+
+type SumLearningLessonSecondsRow struct {
+	Today int64
+	Week  int64
+	Month int64
+}
+
+// Time studied in lessons, in three windows that end now. A lesson counts for
+// the window its start falls in; what counts is the time at the desk: from the
+// start to the finish (or to now, or to its end if that came first), less the
+// pauses, an open one included. Windows are nested, so the oldest start bounds
+// the scan.
+func (q *Queries) SumLearningLessonSeconds(ctx context.Context, arg SumLearningLessonSecondsParams) (SumLearningLessonSecondsRow, error) {
+	row := q.db.QueryRow(ctx, sumLearningLessonSeconds,
+		arg.DayStart,
+		arg.WeekStart,
+		arg.MonthStart,
+		arg.Now,
+		arg.UserID,
+	)
+	var i SumLearningLessonSecondsRow
+	err := row.Scan(&i.Today, &i.Week, &i.Month)
+	return i, err
+}
+
 const updateLearningPathTopicStatus = `-- name: UpdateLearningPathTopicStatus :execrows
 UPDATE learning_path_topics SET status = $3, completed_at = $4 WHERE id = $1 AND path_id = $2
 `

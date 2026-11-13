@@ -38,6 +38,7 @@ func (c *Controller) Routes(protected *echo.Group) {
 	protected.POST("/learning/path/lessons", c.startLesson)
 	protected.GET("/learning/path/lessons", c.listLessons)
 	protected.GET("/learning/path/lessons/active", c.activeLesson)
+	protected.GET("/learning/path/lessons/totals", c.lessonTotals)
 	protected.POST("/learning/path/lessons/:id/pause", c.pauseLesson)
 	protected.POST("/learning/path/lessons/:id/resume", c.resumeLesson)
 	protected.POST("/learning/path/lessons/:id/finish", c.finishLesson)

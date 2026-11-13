@@ -223,6 +223,14 @@ export const pathLessonSchema = z.object({
 })
 export type PathLesson = z.infer<typeof pathLessonSchema>
 
+/** The time studied in lessons, in seconds: today, this week (from Monday), this month. */
+export const lessonTotalsSchema = z.object({
+  today: z.number(),
+  week: z.number(),
+  month: z.number(),
+})
+export type LessonTotals = z.infer<typeof lessonTotalsSchema>
+
 /** The survey answered before the program is built; every part is optional. */
 export interface Preferences {
   interests?: string

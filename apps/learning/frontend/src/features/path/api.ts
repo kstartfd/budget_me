@@ -3,6 +3,7 @@ import {
   pathAttemptSchema,
   pathJobSchema,
   pathExerciseSchema,
+  lessonTotalsSchema,
   pathLessonSchema,
   pathRuleRefSchema,
   pathRuleSchema,
@@ -17,6 +18,7 @@ import {
   type PathAttempt,
   type PathJob,
   type PathExercise,
+  type LessonTotals,
   type PathLesson,
   type PathRule,
   type PathRuleRef,
@@ -245,6 +247,17 @@ export const fetchActiveLesson = (): Promise<PathLesson | null> =>
 /** The learner's latest lessons, newest first. */
 export const fetchLessons = (): Promise<PathLesson[]> =>
   request("/path/lessons", "GET", (d) => pathLessonSchema.array().parse(d))
+
+/** The time studied in lessons; the day and the week are the learner's own, so the zone goes with it. */
+export const fetchLessonTotals = (): Promise<LessonTotals> => {
+  const zone = Intl.DateTimeFormat().resolvedOptions().timeZone
+
+  return request(
+    `/path/lessons/totals?tz=${encodeURIComponent(zone)}`,
+    "GET",
+    (d) => lessonTotalsSchema.parse(d),
+  )
+}
 
 export const changeLesson = (
   id: string,

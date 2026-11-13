@@ -156,6 +156,12 @@ type Querier interface {
 	SetLearningTeacherExplain(ctx context.Context, arg SetLearningTeacherExplainParams) (LearningTeacher, error)
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
 	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)
+	// Time studied in lessons, in three windows that end now. A lesson counts for
+	// the window its start falls in; what counts is the time at the desk: from the
+	// start to the finish (or to now, or to its end if that came first), less the
+	// pauses, an open one included. Windows are nested, so the oldest start bounds
+	// the scan.
+	SumLearningLessonSeconds(ctx context.Context, arg SumLearningLessonSecondsParams) (SumLearningLessonSecondsRow, error)
 	// Opening the page of a rule lifts the expiry that leaving it set.
 	TouchLearningRulePractice(ctx context.Context, arg TouchLearningRulePracticeParams) (LearningRulePractice, error)
 	UnlockLearningChat(ctx context.Context, id pgtype.UUID) error

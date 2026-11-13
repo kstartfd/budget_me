@@ -581,7 +581,17 @@
       "finished": "Урок завершён",
       "result": "Занимались {minutes} мин, ответов — {attempts}, верных — {correct}. Результат сохранён.",
       "history": "Проведено уроков: {count}",
-      "historyRow": "{minutes} мин · {correct}/{attempts}"
+      "historyRow": "{minutes} мин · {correct}/{attempts}",
+      "totalsTitle": "Время на уроках",
+      "totals": {
+        "today": "Сегодня",
+        "week": "Неделя",
+        "month": "Месяц"
+      },
+      "minutesShort": "{minutes} мин",
+      "hoursShort": "{hours} ч",
+      "hoursMinutesShort": "{hours} ч {minutes} мин",
+      "restToday": "Сегодня на уроках: {time}"
     },
     "chat": {
       "open": "Чат по теме",

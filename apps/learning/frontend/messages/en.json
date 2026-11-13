@@ -581,7 +581,17 @@
       "finished": "Lesson finished",
       "result": "Studied {minutes} min, answers: {attempts}, correct: {correct}. The result is saved.",
       "history": "Lessons held: {count}",
-      "historyRow": "{minutes} min · {correct}/{attempts}"
+      "historyRow": "{minutes} min · {correct}/{attempts}",
+      "totalsTitle": "Time in lessons",
+      "totals": {
+        "today": "Today",
+        "week": "This week",
+        "month": "This month"
+      },
+      "minutesShort": "{minutes} min",
+      "hoursShort": "{hours} h",
+      "hoursMinutesShort": "{hours} h {minutes} min",
+      "restToday": "Today in lessons: {time}"
     },
     "chat": {
       "open": "Topic chat",

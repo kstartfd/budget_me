@@ -11,8 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { useLesson } from "../hooks"
-import type { PathLesson } from "../schemas"
+import { useLesson, useLessonTotals } from "../hooks"
+import type { LessonTotals, PathLesson } from "../schemas"
 
 /** Height of the running bar: the open topic's row sticks right under it. */
 export const lessonBarHeight = 52
@@ -36,6 +36,51 @@ function studiedSeconds(lesson: PathLesson, now: number) {
 }
 
 const minutes = (seconds: number) => Math.max(1, Math.round(seconds / 60))
+
+/** A time studied: a short one reads as minutes, a long one as hours and minutes. */
+function useSpent() {
+  const t = useTranslations("path.lesson")
+
+  return (seconds: number) => {
+    const total = Math.round(seconds / 60)
+    if (total < 60) return t("minutesShort", { minutes: total })
+
+    const hours = Math.floor(total / 60)
+    const rest = total % 60
+
+    return rest === 0
+      ? t("hoursShort", { hours })
+      : t("hoursMinutesShort", { hours, minutes: rest })
+  }
+}
+
+/**
+ * The time the learner has studied in lessons: today, this week and this
+ * month. It sits in the card they start a lesson from, so it is the first thing
+ * they see about their studying before they begin the next sitting.
+ */
+function Totals({ totals }: { totals: LessonTotals | undefined }) {
+  const t = useTranslations("path.lesson")
+  const spent = useSpent()
+
+  return (
+    <dl
+      aria-label={t("totalsTitle")}
+      className="bg-muted divide-border grid grid-cols-3 divide-x overflow-hidden rounded-lg"
+    >
+      {(["today", "week", "month"] as const).map((period) => (
+        <div key={period} className="min-w-0 px-3 py-2.5">
+          <dt className="text-muted-foreground truncate text-[11px] font-semibold tracking-wider uppercase">
+            {t(`totals.${period}`)}
+          </dt>
+          <dd className="mt-0.5 truncate text-[15px] font-semibold tabular-nums">
+            {totals ? spent(totals[period]) : "–"}
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )
+}
 
 /** Counts down to a moment on the server's clock; the lesson never waits. */
 function useRemaining(endsAt: string | undefined) {
@@ -83,6 +128,8 @@ export function LessonBar() {
   const t = useTranslations("path.lesson")
   const format = useFormatter()
   const { lesson, history, start, change } = useLesson()
+  const totals = useLessonTotals()
+  const spent = useSpent()
   const { now, left } = useRemaining(lesson?.endsAt)
   // How the last lesson the learner closed themselves went, shown until the next.
   const [last, setLast] = useState<PathLesson | null>(null)
@@ -156,6 +203,11 @@ export function LessonBar() {
             })}
           </p>
         )}
+        {totals.data && (
+          <p className="text-[13px] font-medium">
+            {t("restToday", { time: spent(totals.data.today) })}
+          </p>
+        )}
         <Button size="lg" onClick={closeRest} className="text-[13px]">
           {t("restOk")}
         </Button>
@@ -185,6 +237,7 @@ export function LessonBar() {
             {t("idleHint")}
           </p>
         </div>
+        {!totals.isError && <Totals totals={totals.data} />}
         {start.isError && (
           <p role="alert" className="text-destructive text-sm">
             {start.error.message}

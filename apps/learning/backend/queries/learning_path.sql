@@ -219,6 +219,32 @@ UPDATE learning_path_lessons SET
 WHERE id = $1 AND user_id = $2 AND status = 'active' AND paused_at IS NOT NULL
 RETURNING *;
 
+-- Time studied in lessons, in three windows that end now. A lesson counts for
+-- the window its start falls in; what counts is the time at the desk: from the
+-- start to the finish (or to now, or to its end if that came first), less the
+-- pauses, an open one included. Windows are nested, so the oldest start bounds
+-- the scan.
+-- name: SumLearningLessonSeconds :one
+WITH l AS (
+    SELECT started_at, paused_at, paused_seconds,
+           COALESCE(finished_at, LEAST(sqlc.arg(now)::timestamptz, ends_at)) AS stopped_at
+    FROM learning_path_lessons
+    WHERE user_id = sqlc.arg(user_id)
+      AND started_at >= LEAST(sqlc.arg(week_start)::timestamptz, sqlc.arg(month_start)::timestamptz)
+), t AS (
+    SELECT started_at,
+           GREATEST(0, EXTRACT(EPOCH FROM (stopped_at - started_at))
+               - paused_seconds
+               - CASE WHEN paused_at IS NULL THEN 0
+                      ELSE GREATEST(0, EXTRACT(EPOCH FROM (stopped_at - paused_at))) END) AS seconds
+    FROM l
+)
+SELECT
+    COALESCE(SUM(seconds) FILTER (WHERE started_at >= sqlc.arg(day_start)::timestamptz), 0)::bigint AS today,
+    COALESCE(SUM(seconds) FILTER (WHERE started_at >= sqlc.arg(week_start)::timestamptz), 0)::bigint AS week,
+    COALESCE(SUM(seconds) FILTER (WHERE started_at >= sqlc.arg(month_start)::timestamptz), 0)::bigint AS month
+FROM t;
+
 -- name: ListLearningPathLessonStats :many
 SELECT lesson_id::uuid AS lesson_id,
     count(*)::integer AS attempts,

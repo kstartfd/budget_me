@@ -206,6 +206,8 @@ export function useLesson() {
 
   const settle = (lesson: PathLesson) => {
     client.setQueryData(activeKey, lesson.status === "active" ? lesson : null)
+    // What a lesson adds to the day's time is known to the server alone.
+    void client.invalidateQueries({ queryKey: lessonTotalsKey(user?.id) })
 
     return client.invalidateQueries({ queryKey: listKey })
   }
@@ -222,6 +224,20 @@ export function useLesson() {
   })
 
   return { lesson: active.data ?? null, history, start, change }
+}
+
+const lessonTotalsKey = (userId: string | undefined) =>
+  ["path", "lessons", "totals", userId] as const
+
+/** The time the learner has studied in lessons: today, this week, this month. */
+export function useLessonTotals() {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: lessonTotalsKey(user?.id),
+    queryFn: api.fetchLessonTotals,
+    enabled: !!user,
+  })
 }
 
 export function practiceKey(userId: string | undefined, ruleId: string) {

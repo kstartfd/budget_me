@@ -852,6 +852,19 @@ func (c *Controller) listLessons(ctx echo.Context) error {
 	return httpx.OK(ctx, out)
 }
 
+// lessonTotals is the time the learner has studied in lessons today, this week
+// and this month. The day is theirs, so the browser names its zone in ?tz=.
+func (c *Controller) lessonTotals(ctx echo.Context) error {
+	totals, err := c.lessons.Totals(ctx.Request().Context(), userOf(ctx), commands.LocationOf(ctx.QueryParam("tz")))
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, lessonTotalsDTO(totals))
+}
+
 // activeLesson is the running lesson of the learner, or null.
 func (c *Controller) activeLesson(ctx echo.Context) error {
 	lesson, err := c.lessons.Active(ctx.Request().Context(), userOf(ctx))

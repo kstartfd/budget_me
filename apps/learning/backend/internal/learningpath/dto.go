@@ -470,6 +470,18 @@ type lessonResponse struct {
 	Correct       int        `json:"correct"`
 }
 
+// lessonTotalsResponse is the time studied in lessons, in seconds: today, this
+// week (from Monday) and this month, in the learner's own zone.
+type lessonTotalsResponse struct {
+	Today int64 `json:"today"`
+	Week  int64 `json:"week"`
+	Month int64 `json:"month"`
+}
+
+func lessonTotalsDTO(t commands.Totals) lessonTotalsResponse {
+	return lessonTotalsResponse{Today: int64(t.Today.Seconds()), Week: int64(t.Week.Seconds()), Month: int64(t.Month.Seconds())}
+}
+
 func lessonDTO(l db.LearningPathLesson, s commands.Stats) lessonResponse {
 	out := lessonResponse{
 		ID:            ids.FromPg(l.ID).String(),
