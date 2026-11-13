@@ -42,6 +42,12 @@ type Querier interface {
 	DeleteLearningTeacher(ctx context.Context, arg DeleteLearningTeacherParams) (int64, error)
 	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
 	DeleteOldLearningChatUsage(ctx context.Context, day pgtype.Date) error
+	// The exercise sets of a language's running program that the learner has not
+	// answered a single exercise of, in topics not completed. Their instructions
+	// are written in the explanation language; when that is switched they are
+	// written again, in the new one, as the topics are opened. A set with an answer
+	// in it stays, so what was done is never lost.
+	DeleteUntouchedLearningPathExercises(ctx context.Context, arg DeleteUntouchedLearningPathExercisesParams) error
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)

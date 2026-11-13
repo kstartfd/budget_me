@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl"
 import { IconCheck, IconChevronRight, IconX } from "@tabler/icons-react"
 import { cn } from "@/lib/utils"
 import { exampleLineClass, withExamples } from "@/components/example"
+import { seeAlsoAnchor } from "../return-point"
 import type { PathRule } from "../schemas"
 
 /** The path of a rule's own page, in the rule book of the teacher of a language. */
@@ -134,6 +135,7 @@ export function RuleCard({
   language,
   withTitle = false,
   className,
+  onLeave,
 }: {
   rule: PathRule
   /** The language of the teacher whose book this is: the rules it refers to are of the same book. */
@@ -141,6 +143,8 @@ export function RuleCard({
   /** The page of a rule has its own title above; inside a topic it is shown here. */
   withTitle?: boolean
   className?: string
+  /** Called with the rule whose link is pressed, so a screen can mark where it was left. */
+  onLeave?: (ruleId: string) => void
 }) {
   const t = useTranslations("path")
 
@@ -231,6 +235,8 @@ export function RuleCard({
               <li key={other.id}>
                 <Link
                   href={rulePath(other.id, language)}
+                  data-return-anchor={seeAlsoAnchor(other.id)}
+                  onClick={() => onLeave?.(other.id)}
                   className="border-border hover:bg-muted/50 flex items-center gap-2 rounded-md border px-3 py-2 text-[13px] transition-colors"
                 >
                   <span className="bg-secondary rounded-full px-2 py-0.5 text-[11px] font-semibold">

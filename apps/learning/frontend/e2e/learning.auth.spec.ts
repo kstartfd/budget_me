@@ -317,7 +317,6 @@ test("AI agent settings follow the provider and talk to the API", async ({
     provider: string
     model: string
     level: string
-    teacher: boolean
     apiKey?: string
   }
   let saved: (Body & { keyHint: string }) | null = null
@@ -334,7 +333,6 @@ test("AI agent settings follow the provider and talk to the API", async ({
         provider: body.provider,
         model: body.model,
         level: body.level,
-        teacher: body.teacher,
         keyHint: body.apiKey?.slice(-4) ?? saved!.keyHint,
       }
 
@@ -392,7 +390,6 @@ test("AI agent settings follow the provider and talk to the API", async ({
       provider: "anthropic",
       model: "claude-opus-5-5",
       level: "max",
-      teacher: false,
       apiKey: "sk-ant-api03-SECRETSECRETWXYZ",
     },
   ])
@@ -402,21 +399,19 @@ test("AI agent settings follow the provider and talk to the API", async ({
   await expect(agent("Max")).toHaveAttribute("aria-pressed", "true")
   await expect(page.getByText("••••WXYZ")).toBeVisible()
 
-  const teacher = page.getByRole("checkbox", { name: "Be a teacher" })
-  await expect(teacher).not.toBeChecked()
+  // Practice is the teacher's own screen: there is no switch for it here.
+  await expect(page.getByRole("checkbox", { name: "Be a teacher" })).toHaveCount(0)
   await agent("High").click()
-  await teacher.check()
   await save.click()
   await expect(page.getByRole("button", { name: "Saved" })).toBeDisabled()
   expect(sent[1]).toEqual({
     provider: "anthropic",
     model: "claude-opus-5-5",
     level: "high",
-    teacher: true,
   })
 
   await page.reload()
-  await expect(teacher).toBeChecked()
+  await expect(agent("High")).toHaveAttribute("aria-pressed", "true")
 
   await provider(/DeepSeek/).click()
   await expect(page.getByLabel("API key")).toBeVisible()

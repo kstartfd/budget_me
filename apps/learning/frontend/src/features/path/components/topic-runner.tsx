@@ -20,6 +20,7 @@ import { useLearning } from "@/features/learning/hooks"
 import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useLesson, useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { topicSetComing, writerHasHeadStart } from "../progress"
+import { rememberReturnPoint, seeAlsoAnchor } from "../return-point"
 import { PlayButton } from "./play-button"
 import { withExamples } from "@/components/example"
 import { englishClass, Mixed, Prose, RuleCard } from "./rule-card"
@@ -134,7 +135,18 @@ export function TopicRunner({ topicId }: { topicId: string }) {
             </p>
           </div>
           <div className="border-border rounded-lg border p-4">
-            <RuleCard rule={detail.data.rule} language={path.language} />
+            <RuleCard
+              rule={detail.data.rule}
+              language={path.language}
+              onLeave={(ruleId) =>
+                rememberReturnPoint({
+                  language: path.language,
+                  translationLanguage: path.translationLanguage,
+                  topicId,
+                  anchor: seeAlsoAnchor(ruleId),
+                })
+              }
+            />
           </div>
         </div>
       ) : (
@@ -303,6 +315,9 @@ function ExerciseCard({
   const [saved, setSaved] = useState(false)
   const [revealed, setRevealed] = useState(false)
   const [value, setValue] = useState("")
+  // The option picked in a choice or listening exercise, not yet checked: it is
+  // sent with the button, as in the placement test, so a stray tap is no answer.
+  const [picked, setPicked] = useState<string | null>(null)
   const [last, setLast] = useState<PathAttempt | null>(null)
   const result = last ?? latestAttempt
   // A phrase to say is heard by the browser; where it cannot, or the
@@ -336,7 +351,12 @@ function ExerciseCard({
     if (!answer.trim()) return
     attempt.mutate(
       { exerciseId: exercise.id, answer },
-      { onSuccess: (result) => setLast(result) },
+      {
+        onSuccess: (result) => {
+          setLast(result)
+          setPicked(null)
+        },
+      },
     )
   }
 
@@ -406,20 +426,26 @@ function ExerciseCard({
             )}
           >
           {exercise.options.map((option) => {
-            const picked = result?.answer === option
-            const right = picked && result.correct
-            const wrong = picked && !result.correct
+            // A new pick is not the checked answer yet: it shows as chosen, and
+            // the verdict of the one before it is put aside.
+            const choosing = picked !== null
+            const checked = !choosing && result?.answer === option
+            const selected = picked === option
+            const right = checked && result.correct
+            const wrong = checked && !result.correct
             const reveal =
-              failed && !!exercise.answer && option === exercise.answer
+              !choosing && failed && !!exercise.answer && option === exercise.answer
 
             return (
               <button
                 key={option}
                 type="button"
-                onClick={() => submit(option)}
+                onClick={() => setPicked(option)}
+                aria-pressed={selected}
                 disabled={attempt.isPending}
                 className={cn(
                   "border-input bg-background hover:bg-muted/50 flex min-h-10 w-full cursor-pointer items-center gap-3 rounded-md border px-3.5 py-2 text-left text-sm transition-colors disabled:cursor-not-allowed",
+                  selected && "border-foreground bg-muted font-semibold",
                   right && "border-success bg-success/10 text-success font-semibold",
                   wrong &&
                     "border-destructive bg-destructive/10 text-destructive font-semibold",
@@ -429,6 +455,7 @@ function ExerciseCard({
                 <span
                   className={cn(
                     "border-input size-4 shrink-0 rounded-full border",
+                    selected && "border-foreground bg-foreground",
                     right && "border-success bg-success",
                     wrong && "border-destructive bg-destructive",
                     reveal && "border-success",
@@ -443,6 +470,16 @@ function ExerciseCard({
             )
           })}
           </div>
+          <Button
+            type="button"
+            // Outlined and dull while nothing is picked; it fills in when there is.
+            variant={picked !== null ? "default" : "outline"}
+            disabled={attempt.isPending || picked === null}
+            onClick={() => picked !== null && submit(picked)}
+            className="h-10 w-full px-5 text-sm sm:w-auto"
+          >
+            {t(attempt.isPending ? "checking" : "check")}
+          </Button>
         </div>
       ) : voice ? (
         <div className="space-y-2.5">

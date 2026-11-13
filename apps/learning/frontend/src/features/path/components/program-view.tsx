@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useTranslations } from "next-intl"
 import { IconChevronRight, IconChevronUp } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
@@ -9,6 +9,14 @@ import { cn } from "@/lib/utils"
 import Link from "next/link"
 import { useLesson, useRules } from "../hooks"
 import { exercisesPreparing } from "../progress"
+import {
+  flashAttribute,
+  flashMs,
+  forgetReturnPoint,
+  peekReturnPoint,
+  rememberReturnPoint,
+  rulesButtonAnchor,
+} from "../return-point"
 import type { Path } from "../schemas"
 import { LessonBar, lessonBarHeight } from "./lesson-bar"
 import { Mixed, rulesPath } from "./rule-card"
@@ -49,8 +57,63 @@ export function ProgramView({
   starting: boolean
 }) {
   const t = useTranslations("path")
-  const [openTopic, setOpenTopic] = useState<string | null>(null)
+  // Coming back from the rule book: the topic that was open opens again and the
+  // link that was pressed is scrolled to and framed. The program is only drawn
+  // once it is loaded, in the browser, so the way back can be read right here.
+  const [left] = useState(() => {
+    const point = peekReturnPoint()
+
+    return point &&
+      point.language === path.language &&
+      point.translationLanguage === path.translationLanguage
+      ? point
+      : null
+  })
+  const [openTopic, setOpenTopic] = useState<string | null>(
+    left?.topicId && path.topics.some((topic) => topic.id === left.topicId)
+      ? left.topicId
+      : null,
+  )
+  const [returnTo, setReturnTo] = useState<string | null>(left?.anchor ?? null)
   const [confirmReset, setConfirmReset] = useState(false)
+  useEffect(() => {
+    if (left) forgetReturnPoint()
+  }, [left])
+  useEffect(() => {
+    if (!returnTo) return
+
+    // The topic's rule arrives with its own request, so the link is waited for.
+    let frame: number | undefined
+    let unframe: number | undefined
+    const giveUpAt = Date.now() + 6000
+    const find = () => {
+      const target = document.querySelector<HTMLElement>(
+        `[data-return-anchor="${returnTo}"]`,
+      )
+      if (!target) {
+        if (Date.now() < giveUpAt) frame = window.setTimeout(find, 120)
+        else setReturnTo(null)
+
+        return
+      }
+
+      target.scrollIntoView({ block: "center" })
+      target.setAttribute(flashAttribute, "")
+      unframe = window.setTimeout(() => {
+        target.removeAttribute(flashAttribute)
+        setReturnTo(null)
+      }, flashMs)
+    }
+    find()
+
+    return () => {
+      window.clearTimeout(frame)
+      window.clearTimeout(unframe)
+      document
+        .querySelectorAll(`[${flashAttribute}]`)
+        .forEach((element) => element.removeAttribute(flashAttribute))
+    }
+  }, [returnTo])
   const done = path.topics.filter((topic) => topic.status === "completed").length
   // The rule book is there for a teacher whose language it covers; for any other
   // the request is refused and the button stays out.
@@ -100,7 +163,20 @@ export function ProgramView({
           </Button>
           {rules.isSuccess && rules.data.length > 0 && (
             <Button asChild variant="outline" size="lg" className="px-4 text-[13px]">
-              <Link href={rulesPath(path.language)}>{t("rulesOpen")}</Link>
+              <Link
+                href={rulesPath(path.language)}
+                data-return-anchor={rulesButtonAnchor}
+                onClick={() =>
+                  rememberReturnPoint({
+                    language: path.language,
+                    translationLanguage: path.translationLanguage,
+                    topicId: openTopic,
+                    anchor: rulesButtonAnchor,
+                  })
+                }
+              >
+                {t("rulesOpen")}
+              </Link>
             </Button>
           )}
           {confirmReset ? (

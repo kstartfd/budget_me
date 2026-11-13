@@ -311,3 +311,61 @@ func TestExercisesAndMistakesAreExplainedInTheLanguageTheTeacherIsSetTo(t *testi
 		t.Errorf("the mistake was not to be explained in English:\n%s", review)
 	}
 }
+
+// TestSwitchingDropsOnlyTheExerciseSetsNobodyStarted: the instructions of an
+// exercise are written in the explanation language, so a set the learner has
+// not touched is written again in the new one when its topic is opened. A set
+// with an answer in it, and a completed topic's, stay as they were.
+func TestSwitchingDropsOnlyTheExerciseSetsNobodyStarted(t *testing.T) {
+	e := setup(t)
+	chooseAgent(t, e)
+	e.provider.setDefault(programReply)
+
+	id := teacherID(t, e)
+	topics := analyze(t, e, climb(t, e, "A1"))["topics"].([]any)
+	untouched := topics[0].(map[string]any)["id"].(string)
+	answered := topics[1].(map[string]any)["id"].(string)
+	completed := topics[2].(map[string]any)["id"].(string)
+
+	e.provider.enqueue(exercisesReply)
+	generateExercises(t, e, untouched)
+
+	e.provider.enqueue(exercisesReply)
+	set := generateExercises(t, e, answered)
+	attempt(t, e, set[0].(map[string]any)["id"].(string), "goes", true, "")
+
+	e.provider.enqueue(exercisesReply)
+	generateExercises(t, e, completed)
+
+	if code, body := request(t, e.e, "POST", "/api/v1/learning/path/topics/"+completed+"/complete", e.session, nil); code != http.StatusOK {
+		t.Fatalf("complete: %d %v", code, body)
+	}
+
+	count := func(topicID string) int { return len(topicDetail(t, e, topicID)["exercises"].([]any)) }
+
+	// Switching to what the teacher already does is no switch.
+	explainIn(t, e, id, false)
+
+	if count(untouched) != 3 {
+		t.Fatal("a switch to the same language dropped a set")
+	}
+
+	explainIn(t, e, id, true)
+
+	if n := count(untouched); n != 0 {
+		t.Fatalf("the untouched set, written in the old language, stayed: %d exercises", n)
+	}
+
+	if count(answered) != 3 || count(completed) != 3 {
+		t.Fatal("a set with an answer in it, or a completed topic's, was dropped")
+	}
+
+	// Opened again, the topic is written in the new language.
+	e.provider.enqueue(exercisesReply)
+	generateExercises(t, e, untouched)
+
+	asked := e.provider.requests()
+	if writer := unescaped(asked[len(asked)-1]); !strings.Contains(writer, `"explanationLanguage":"English"`) {
+		t.Errorf("the set was not written in English:\n%s", writer)
+	}
+}

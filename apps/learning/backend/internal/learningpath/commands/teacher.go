@@ -76,7 +76,9 @@ func explanationOf(ctx context.Context, q *db.Queries, userID pgtype.UUID, langu
 
 // SetExplain switches a teacher between explaining in the learner's own
 // language and in the learned one. It changes what is written from now on and
-// which rules are shown; what was written before stays as it is.
+// which rules are shown. What was written before stays as it is, except what
+// the learner has not started: the exercise sets nobody answered are dropped
+// and written again, in the new language, when their topics are opened.
 func (h TeacherHandler) SetExplain(ctx context.Context, userID, teacherID uuid.UUID, inTarget bool) (db.LearningTeacher, error) {
 	before, err := h.q.GetLearningTeacher(ctx, db.GetLearningTeacherParams{ID: ids.ToPg(teacherID), UserID: ids.ToPg(userID)})
 	if db.IsNotFound(err) {
@@ -99,6 +101,10 @@ func (h TeacherHandler) SetExplain(ctx context.Context, userID, teacherID uuid.U
 	// A practice sitting on a rule is written in the old language: it is a
 	// sitting, not a record, so it goes rather than stay half in each.
 	if err := h.q.DeleteLearningRulePracticeOfLanguage(ctx, db.DeleteLearningRulePracticeOfLanguageParams{UserID: teacher.UserID, Language: teacher.Language}); err != nil {
+		return db.LearningTeacher{}, err
+	}
+
+	if err := h.q.DeleteUntouchedLearningPathExercises(ctx, db.DeleteUntouchedLearningPathExercisesParams{UserID: teacher.UserID, Language: teacher.Language}); err != nil {
 		return db.LearningTeacher{}, err
 	}
 

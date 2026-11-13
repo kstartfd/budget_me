@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ApiError } from "../api"
 import { useRule, useRules } from "../hooks"
+import { rulesButtonAnchor, useReturnPoint } from "../return-point"
 import { ExplainSwitch } from "./explain-switch"
 import { RuleCard, rulePath, rulesPath } from "./rule-card"
 import { RulePractice } from "./rule-practice"
@@ -37,6 +38,8 @@ export function RulesIndex({ language }: { language?: string }) {
   const t = useTranslations("path")
   const rules = useRules(language)
   const [query, setQuery] = useState("")
+  // The spot of the teacher's screen the learner came from, if they came from it.
+  const from = useReturnPoint()
 
   if (rules.isError)
     return (
@@ -61,9 +64,9 @@ export function RulesIndex({ language }: { language?: string }) {
     <div className={wrap}>
       <header className="space-y-1">
         <Button asChild variant="ghost" size="sm" className="-ml-2 h-auto px-2 py-1 text-xs">
-          <Link href="/learning/path">
+          <Link href={from?.href ?? "/learning/path"}>
             <IconChevronLeft size={14} />
-            {t("backToTeachers")}
+            {t(from ? "rulesBackToProgram" : "backToTeachers")}
           </Link>
         </Button>
         <h1 className="text-[22px] font-semibold tracking-[-0.01em] lg:text-2xl">
@@ -128,13 +131,16 @@ export function RulesIndex({ language }: { language?: string }) {
 export function RulePage({ id, language }: { id: string; language?: string }) {
   const t = useTranslations("path")
   const rule = useRule(id, language)
+  // A rule opened straight from a topic goes back to that topic, not to the book.
+  const from = useReturnPoint()
+  const fromTopic = !!from && from.anchor !== rulesButtonAnchor
 
   return (
     <div className={wrap}>
       <Button asChild variant="ghost" size="sm" className="-ml-2 h-auto px-2 py-1 text-xs">
-        <Link href={rulesPath(language)}>
+        <Link href={fromTopic ? from.href : rulesPath(language)}>
           <IconChevronLeft size={14} />
-          {t("rulesBack")}
+          {t(fromTopic ? "rulesBackToTopic" : "rulesBack")}
         </Link>
       </Button>
 

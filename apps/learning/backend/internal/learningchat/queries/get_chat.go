@@ -32,9 +32,9 @@ type Chat struct {
 	// provider chat is not built for. The conversation already held stays
 	// readable either way.
 	Available bool
-	// Teacher is the user's choice to have the agent teach the language rather
-	// than just answer; it only matters while the chat is available. The free
-	// chat of a topic is always the teacher.
+	// Teacher is whether the agent teaches the language rather than just
+	// answers; it only matters while the chat is available. The free chat of a
+	// topic is always the teacher, a chat about one saved entry never is.
 	Teacher  bool
 	Messages []db.LearningChatMessage
 	// Budget is what the chat may still spend; nil while it is not available.
@@ -111,7 +111,7 @@ func (h ChatHandler) state(ctx context.Context, userID uuid.UUID, chat db.Learni
 
 	if err == nil {
 		profile, out.Available = llm.ChatProfileOf(llm.Provider(settings.Provider))
-		out.Teacher = out.Available && (teaches || settings.Teacher)
+		out.Teacher = out.Available && teaches
 	}
 
 	if out.Available {

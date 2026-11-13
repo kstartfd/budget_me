@@ -289,65 +289,30 @@ func TestChatStreamsStoresAndKeepsThePromptPrefixStable(t *testing.T) {
 	}
 }
 
-func TestChatTeacherSwitchChangesOnlyWhatTheAgentIsTold(t *testing.T) {
+func TestAChatAboutAnEntryIsAlwaysThePlainTutor(t *testing.T) {
 	env := setupChat(t)
 	env.useDeepSeek(t)
 
-	teacher := func(on bool) {
-		t.Helper()
+	// An old client may still send the switch that was removed; it changes nothing.
+	req := choice("deepseek", "deepseek-v4-pro", "high", "")
+	req["teacher"] = true
 
-		req := choice("deepseek", "deepseek-v4-pro", "high", "")
-		req["teacher"] = on
-
-		if code, body := request(t, env.e, "PUT", settingsPath, env.session, req, ""); code != 200 {
-			t.Fatalf("settings: %d %v", code, body)
-		}
+	if code, body := request(t, env.e, "PUT", settingsPath, env.session, req, ""); code != 200 {
+		t.Fatalf("settings: %d %v", code, body)
 	}
 
-	flag := func() bool {
-		t.Helper()
-
-		code, body := request(t, env.e, "GET", env.path(), env.session, nil, "")
-		if code != 200 {
-			t.Fatalf("get chat: %d %v", code, body)
-		}
-
-		return data(t, body)["teacher"].(bool)
-	}
-
-	system := func(turn int) string { return messagesOf(env.provider.turns[turn])[0]["content"].(string) }
-
-	if flag() {
-		t.Fatal("the chat starts as a plain one")
-	}
-
-	if code, _ := env.ask(t, "what does it mean?"); code != http.StatusOK {
-		t.Fatalf("plain question: %d", code)
-	}
-
-	teacher(true)
-
-	if !flag() {
-		t.Fatal("the chat does not report the teacher")
+	code, body := request(t, env.e, "GET", env.path(), env.session, nil, "")
+	if code != 200 || data(t, body)["teacher"].(bool) {
+		t.Fatalf("a chat about an entry reports the teacher: %d %v", code, body)
 	}
 
 	if code, _ := env.ask(t, "I has a break a leg today"); code != http.StatusOK {
-		t.Fatalf("question to the teacher: %d", code)
+		t.Fatalf("question: %d", code)
 	}
 
-	if plain, taught := system(0), system(1); strings.Contains(plain, "native speaker") || !strings.Contains(taught, "native speaker") || !strings.Contains(taught, "Talk in English") {
-		t.Fatalf("the switch did not reach the prompt:\n%s\n---\n%s", plain, taught)
-	}
-
-	// What was said in the plain mode stays in the history.
-	if _, messages := env.history(t); len(messages) != 4 {
-		t.Fatalf("history: %v", messages)
-	}
-
-	teacher(false)
-
-	if code, _ := env.ask(t, "thanks"); code != http.StatusOK || strings.Contains(system(2), "native speaker") {
-		t.Fatalf("switched off again: %d\n%s", code, system(2))
+	system := messagesOf(env.provider.turns[0])[0]["content"].(string)
+	if strings.Contains(system, "native speaker") || !strings.Contains(system, "patient tutor") {
+		t.Fatalf("the chat about an entry must only answer:\n%s", system)
 	}
 }
 

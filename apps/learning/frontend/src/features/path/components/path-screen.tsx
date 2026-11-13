@@ -1,11 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { usePathname } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { IconCheck, IconChevronLeft } from "@tabler/icons-react"
 import { usePath, useTeachers } from "../hooks"
+import { useReturnPoint } from "../return-point"
 import { ExplainSwitch } from "./explain-switch"
 import { pickableLevels } from "./level-scale"
 import { ProgramView } from "./program-view"
@@ -45,15 +47,25 @@ export function PathScreen({
 }
 
 function Teachers({ onTestChange }: { onTestChange?: (testActive: boolean) => void }) {
-  const [selected, setSelected] = useState<TeacherPair | null>(null)
+  // undefined: nothing was picked here yet, so a teacher whose rule book the
+  // learner came back from is the one shown; null: the list was chosen.
+  const [picked, setPicked] = useState<TeacherPair | null | undefined>(undefined)
+  const pathname = usePathname()
+  const left = useReturnPoint()
+  const selected =
+    picked !== undefined
+      ? picked
+      : left && left.href.split("?")[0] === pathname
+        ? { language: left.language, translationLanguage: left.translationLanguage }
+        : null
 
-  if (!selected) return <TeachersList onOpen={setSelected} />
+  if (!selected) return <TeachersList onOpen={setPicked} />
 
   return (
     <Program
       language={selected.language}
       nativeLanguage={selected.translationLanguage}
-      onBack={() => setSelected(null)}
+      onBack={() => setPicked(null)}
       onTestChange={onTestChange}
     />
   )

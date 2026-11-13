@@ -13,7 +13,6 @@ import {
   StatusPill,
 } from "@/components/section"
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -96,7 +95,6 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
       provider: initialProvider.id,
       model: initialModel.id,
       level: initialLevel,
-      teacher: saved?.teacher ?? false,
       apiKey: "",
     },
   })
@@ -104,7 +102,6 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
   const providerId = useWatch({ control, name: "provider" })
   const modelId = useWatch({ control, name: "model" })
   const level = useWatch({ control, name: "level" })
-  const teacher = useWatch({ control, name: "teacher" })
 
   const provider = findProvider(providerId) ?? providers[0]
   const model = findModel(provider.id, modelId) ?? provider.models[0]
@@ -140,7 +137,6 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
         provider: values.provider,
         model: values.model,
         level: values.level,
-        teacher: values.teacher,
         apiKey: values.apiKey || undefined,
       },
       {
@@ -248,25 +244,6 @@ function AiForm({ saved }: { saved: AiSettings | null }) {
             {t(`errors.${errors.level.message}`)}
           </p>
         )}
-      </Block>
-
-      <Block label={t("teacher")}>
-        <div className="flex items-start gap-3">
-          <Checkbox
-            id="ai-teacher"
-            checked={teacher}
-            onCheckedChange={(checked) =>
-              setValue("teacher", checked === true, { shouldDirty: true })
-            }
-            className="mt-px rounded-full"
-          />
-          <div className="min-w-0">
-            <Label htmlFor="ai-teacher" className="text-sm font-semibold">
-              {t("teacherLabel")}
-            </Label>
-            <p className={cn(sectionHint, "mt-2")}>{t("teacherHint")}</p>
-          </div>
-        </div>
       </Block>
 
       <Block label={t("apiKey")}>

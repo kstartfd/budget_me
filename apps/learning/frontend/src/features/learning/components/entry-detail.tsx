@@ -3,7 +3,13 @@
 import { useState } from "react"
 import { useTranslations } from "next-intl"
 import Link from "next/link"
-import { IconPencil, IconSettings, IconSparkles, IconTrash } from "@tabler/icons-react"
+import {
+  IconMessageCircle,
+  IconPencil,
+  IconSettings,
+  IconSparkles,
+  IconTrash,
+} from "@tabler/icons-react"
 import { BottomBar } from "@/components/bottom-bar"
 import { InlineMarkdown } from "@/components/inline-markdown"
 import { Button } from "@/components/ui/button"
@@ -192,6 +198,19 @@ export function EntryDetail({
           </div>
         )}
       <EntryChat entryId={entry.id} page={page} />
+      {ai.data && (
+        // Practice is the teacher's: this chat only explains the card.
+        <Link
+          href={`/learning/chat?${new URLSearchParams({
+            topic: entry.topicId,
+            question: t("practiceQuestion", { text: entry.text }),
+          })}`}
+          className="text-primary flex items-center gap-2 text-sm font-medium"
+        >
+          <IconMessageCircle size={17} aria-hidden="true" />
+          {t("practiceWithTeacher")}
+        </Link>
+      )}
       {!page && (
         <div className="border-border border-t pt-3.5">
           {confirm ? (

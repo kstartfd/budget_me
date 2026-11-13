@@ -230,6 +230,34 @@ func (q *Queries) DeleteLearningTeacher(ctx context.Context, arg DeleteLearningT
 	return result.RowsAffected(), nil
 }
 
+const deleteUntouchedLearningPathExercises = `-- name: DeleteUntouchedLearningPathExercises :exec
+DELETE FROM learning_path_exercises e
+USING learning_path_topics t, learning_paths p
+WHERE e.topic_id = t.id AND t.path_id = p.id
+  AND p.user_id = $1 AND p.language = $2 AND p.status = 'active'
+  AND t.status <> 'completed'
+  AND NOT EXISTS (
+      SELECT 1 FROM learning_path_attempts a
+      JOIN learning_path_exercises x ON x.id = a.exercise_id
+      WHERE x.topic_id = t.id
+  )
+`
+
+type DeleteUntouchedLearningPathExercisesParams struct {
+	UserID   pgtype.UUID
+	Language string
+}
+
+// The exercise sets of a language's running program that the learner has not
+// answered a single exercise of, in topics not completed. Their instructions
+// are written in the explanation language; when that is switched they are
+// written again, in the new one, as the topics are opened. A set with an answer
+// in it stays, so what was done is never lost.
+func (q *Queries) DeleteUntouchedLearningPathExercises(ctx context.Context, arg DeleteUntouchedLearningPathExercisesParams) error {
+	_, err := q.db.Exec(ctx, deleteUntouchedLearningPathExercises, arg.UserID, arg.Language)
+	return err
+}
+
 const finishLearningPathJob = `-- name: FinishLearningPathJob :exec
 UPDATE learning_path_jobs SET status = $2, path_id = $3, error = $4, updated_at = $5 WHERE id = $1
 `

@@ -83,7 +83,9 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 		_ = json.Unmarshal(topic.Vocabulary, &words)
 	}
 
-	system, prompt := exercisesPrompt(learned, explain, path.Level, topic.Skill, topic.Title, topic.Goal, topic.Theory, words, len(attempts), correct)
+	native := learningcommands.LanguageName(path.TranslationLanguage)
+
+	system, prompt := exercisesPrompt(learned, explain, native, path.Level, topic.Skill, topic.Title, topic.Goal, topic.Theory, words, len(attempts), correct)
 
 	var set exerciseSet
 	if err := h.agent.completeJSON(ctx, cmd.UserID, llm.PurposeExercises, system, prompt, &set, func() error {

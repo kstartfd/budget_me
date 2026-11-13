@@ -202,8 +202,9 @@ func (h SendHandler) ensureChat(ctx context.Context, t target, now time.Time) (d
 }
 
 // system is what the model is told before the conversation. The free chat is
-// always the teacher; a chat about an entry follows the learner's setting.
-func (t target) system(summary string, teacher bool) string {
+// always the teacher; a chat about an entry only answers about that entry (the
+// learner practises it with the teacher in the free chat).
+func (t target) system(summary string) string {
 	if t.example != nil {
 		return exampleSystem(*t.example, summary)
 	}
@@ -216,7 +217,7 @@ func (t target) system(summary string, teacher bool) string {
 		return freeSystem(t.topic, summary)
 	}
 
-	return chatSystem(t.topic, *t.entry, summary, teacher)
+	return chatSystem(t.topic, *t.entry, summary)
 }
 
 // Handle answers one question of a chat. Nothing is stored unless
@@ -286,7 +287,7 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		Provider: llm.Provider(agent.settings.Provider),
 		Model:    agent.settings.Model,
 		Key:      agent.key,
-		System:   subject.system(chat.Summary, agent.settings.Teacher),
+		System:   subject.system(chat.Summary),
 		Messages: history(stored, question),
 		UserID:   cmd.UserID,
 		Purpose:  llm.PurposeChat,

@@ -139,6 +139,23 @@ VALUES ($1, $2, $3);
 -- name: DeleteLearningPathExercises :exec
 DELETE FROM learning_path_exercises WHERE topic_id = $1;
 
+-- name: DeleteUntouchedLearningPathExercises :exec
+-- The exercise sets of a language's running program that the learner has not
+-- answered a single exercise of, in topics not completed. Their instructions
+-- are written in the explanation language; when that is switched they are
+-- written again, in the new one, as the topics are opened. A set with an answer
+-- in it stays, so what was done is never lost.
+DELETE FROM learning_path_exercises e
+USING learning_path_topics t, learning_paths p
+WHERE e.topic_id = t.id AND t.path_id = p.id
+  AND p.user_id = $1 AND p.language = $2 AND p.status = 'active'
+  AND t.status <> 'completed'
+  AND NOT EXISTS (
+      SELECT 1 FROM learning_path_attempts a
+      JOIN learning_path_exercises x ON x.id = a.exercise_id
+      WHERE x.topic_id = t.id
+  );
+
 -- name: GetLearningPathExercise :one
 SELECT e.* FROM learning_path_exercises e
 JOIN learning_path_topics t ON t.id = e.topic_id

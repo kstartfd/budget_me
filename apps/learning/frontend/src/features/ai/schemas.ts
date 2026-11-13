@@ -7,7 +7,6 @@ export const aiSettingsSchema = z.object({
   provider: z.enum(providerIds),
   model: z.string(),
   level: z.string(),
-  teacher: z.boolean(),
   keyHint: z.string().nullable(),
 })
 export type AiSettings = z.infer<typeof aiSettingsSchema>
@@ -18,8 +17,7 @@ export const aiSettingsInputSchema = z
     provider: z.enum(providerIds),
     model: z.string().min(1),
     level: z.string().min(1),
-    teacher: z.boolean(),
-    apiKey: z.string().trim().max(500).optional(),
+      apiKey: z.string().trim().max(500).optional(),
   })
   .refine((input) => isValidChoice(input.provider, input.model, input.level))
 export type AiSettingsInput = z.infer<typeof aiSettingsInputSchema>
@@ -40,8 +38,7 @@ export function makeAiFormSchema({
       provider: z.enum(providerIds),
       model: z.string(),
       level: z.string(),
-      teacher: z.boolean(),
-      apiKey: z.string().trim().max(500, "keyLong"),
+          apiKey: z.string().trim().max(500, "keyLong"),
     })
     .superRefine((values, ctx) => {
       if (!isValidChoice(values.provider, values.model, values.level)) {

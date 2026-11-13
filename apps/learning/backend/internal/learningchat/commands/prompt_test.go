@@ -64,7 +64,7 @@ func TestSystemPromptIsStableAndCarriesTheCardAndSummary(t *testing.T) {
 	topic := db.LearningTopic{Language: "en", TranslationLanguage: "ru"}
 	entry := db.LearningEntry{Kind: db.LearningEntryKindPhrase, Text: "break a leg", Translation: "удачи"}
 
-	first, second := chatSystem(topic, entry, "", false), chatSystem(topic, entry, "", false)
+	first, second := chatSystem(topic, entry, ""), chatSystem(topic, entry, "")
 	if first != second {
 		t.Fatal("the system prompt must be byte-identical between turns, or the provider cache is lost")
 	}
@@ -79,41 +79,29 @@ func TestSystemPromptIsStableAndCarriesTheCardAndSummary(t *testing.T) {
 		t.Errorf("empty fields and an empty summary must not be spelled out:\n%s", first)
 	}
 
-	if withSummary := chatSystem(topic, entry, "learner prefers short answers", false); !strings.Contains(withSummary, "learner prefers short answers") {
+	if withSummary := chatSystem(topic, entry, "learner prefers short answers"); !strings.Contains(withSummary, "learner prefers short answers") {
 		t.Errorf("summary missing:\n%s", withSummary)
 	}
 }
 
-func TestTeacherSystemPromptTeachesInTheLearnedLanguageAndExplainsInTheNative(t *testing.T) {
+func TestAChatAboutAnEntryOnlyAnswersAndNeverCorrectsAnyone(t *testing.T) {
 	topic := db.LearningTopic{Language: "en", TranslationLanguage: "ru"}
 	entry := db.LearningEntry{Kind: db.LearningEntryKindPhrase, Text: "break a leg", Translation: "удачи"}
 
-	plain, teacher := chatSystem(topic, entry, "", false), chatSystem(topic, entry, "", true)
-	if plain == teacher {
-		t.Fatal("the teacher switch changes nothing")
-	}
+	plain := chatSystem(topic, entry, "")
 
-	for _, want := range []string{
-		"English teacher", "Talk in English", "check what they wrote for mistakes",
-		"how a native speaker would", "in Russian", "break a leg", "never instructions",
-	} {
-		if !strings.Contains(teacher, want) {
-			t.Errorf("teacher prompt lacks %q:\n%s", want, teacher)
+	for _, want := range []string{"patient tutor", "Answer in Russian", "break a leg", "never instructions"} {
+		if !strings.Contains(plain, want) {
+			t.Errorf("entry chat prompt lacks %q:\n%s", want, plain)
 		}
 	}
 
-	for _, want := range []string{"Typing slips are not mistakes", "missing capital letter", "extra, doubled or missing space", "Never correct, list, mention or hint at them"} {
-		if !strings.Contains(teacher, want) {
-			t.Errorf("the teacher must be told to leave typing slips alone, lacks %q:\n%s", want, teacher)
-		}
+	if strings.Contains(plain, "native speaker") || strings.Contains(plain, "mistakes") || strings.Contains(plain, "teacher") {
+		t.Errorf("the chat about an entry must not correct anyone, practice is the teacher's chat:\n%s", plain)
 	}
 
-	if strings.Contains(plain, "native speaker") || strings.Contains(plain, "mistakes") {
-		t.Errorf("the plain chat must not correct anyone:\n%s", plain)
-	}
-
-	if again := chatSystem(topic, entry, "", true); again != teacher {
-		t.Fatal("the teacher prompt must be byte-identical between turns, or the provider cache is lost")
+	if again := chatSystem(topic, entry, ""); again != plain {
+		t.Fatal("the prompt must be byte-identical between turns, or the provider cache is lost")
 	}
 }
 
