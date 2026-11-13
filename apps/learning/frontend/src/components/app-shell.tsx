@@ -22,9 +22,9 @@ import { AuthGate, AuthProvider, useAuth } from "@/features/auth"
 import { cn } from "@/lib/utils"
 
 const nav = [
-  { href: "/learning", label: "topics", icon: IconStack2 },
   { href: "/learning/path", label: "pathTab", icon: IconChalkboardTeacher },
   { href: "/learning/chat", label: "chatTab", icon: IconMessageDots },
+  { href: "/learning", label: "topics", icon: IconStack2 },
   { href: "/learning/settings", label: "settings", icon: IconSettings },
 ] as const
 
@@ -32,7 +32,9 @@ const nav = [
 function isActive(href: string, pathname: string) {
   if (href !== "/learning") return pathname.startsWith(href)
 
-  return !nav.slice(1).some((item) => pathname.startsWith(item.href))
+  return !nav.some(
+    (item) => item.href !== "/learning" && pathname.startsWith(item.href),
+  )
 }
 
 function initials(name: string) {
