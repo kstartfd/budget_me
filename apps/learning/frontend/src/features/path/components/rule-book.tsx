@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
 import { ApiError } from "../api"
 import { useRule, useRules } from "../hooks"
+import { ExplainSwitch } from "./explain-switch"
 import { RuleCard, rulePath, rulesPath } from "./rule-card"
 import { RulePractice } from "./rule-practice"
 
@@ -72,6 +73,8 @@ export function RulesIndex({ language }: { language?: string }) {
           {t("rulesSubtitle")}
         </p>
       </header>
+
+      <ExplainSwitch language={language} />
 
       <Input
         value={query}

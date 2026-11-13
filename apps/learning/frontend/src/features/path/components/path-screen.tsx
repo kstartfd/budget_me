@@ -5,7 +5,8 @@ import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { IconCheck, IconChevronLeft } from "@tabler/icons-react"
-import { usePath } from "../hooks"
+import { usePath, useTeachers } from "../hooks"
+import { ExplainSwitch } from "./explain-switch"
 import { pickableLevels } from "./level-scale"
 import { ProgramView } from "./program-view"
 import { StartError } from "./start-error"
@@ -77,6 +78,11 @@ function Program({
   // The test on screen is a level picked from the reached ones, not a taken test.
   const [chosen, setChosen] = useState(false)
   const path = usePath(language, nativeLanguage)
+  const { teachers } = useTeachers()
+  // What the teacher explains in now, which is not always the learner's own language.
+  const explainLanguage =
+    teachers.data?.find((teacher) => teacher.language === language)?.explainLanguage ??
+    nativeLanguage
   const languageNames = new Intl.DisplayNames([locale], { type: "language" })
   const languageName = languageNames.of(language) ?? language
   const active = path.active.data
@@ -128,10 +134,12 @@ function Program({
             {t("teacherTitle", { language: languageName })}
           </h1>
           <p className="text-muted-foreground text-xs leading-relaxed lg:text-sm">
-            {t("explainedIn", { language: languageNames.of(nativeLanguage) ?? nativeLanguage })}
+            {t("explainedIn", { language: languageNames.of(explainLanguage) ?? explainLanguage })}
           </p>
         </header>
       )}
+
+      {!embedded && <ExplainSwitch language={language} />}
 
       {path.active.isPending ? (
         <div className="space-y-3">

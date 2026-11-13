@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
 	"golang.org/x/text/language"
 
 	"learning_app/backend/internal/apperr"
@@ -47,6 +48,61 @@ func (h TeacherHandler) Create(ctx context.Context, cmd CreateTeacher) (db.Learn
 		TranslationLanguage: cmd.TranslationLanguage,
 		CreatedAt:           db.Time(h.clock.Now()),
 	})
+}
+
+// ExplainLanguage is the language a teacher's words are written in: the rules,
+// the program, the exercises and the explanation of a mistake. It is the
+// learner's own language unless they asked for the learned one.
+func ExplainLanguage(t db.LearningTeacher) string {
+	if t.ExplainInTarget {
+		return t.Language
+	}
+
+	return t.TranslationLanguage
+}
+
+// explanationOf is the language the teacher of a language explains in, for the
+// jobs that only know a program or a test. A learner whose teacher is gone (its
+// program is in the history) is explained to in the pair the program was made
+// with.
+func explanationOf(ctx context.Context, q *db.Queries, userID pgtype.UUID, language, translation string) string {
+	teacher, err := q.GetLearningTeacherByLanguage(ctx, db.GetLearningTeacherByLanguageParams{UserID: userID, Language: language})
+	if err != nil {
+		return translation
+	}
+
+	return ExplainLanguage(teacher)
+}
+
+// SetExplain switches a teacher between explaining in the learner's own
+// language and in the learned one. It changes what is written from now on and
+// which rules are shown; what was written before stays as it is.
+func (h TeacherHandler) SetExplain(ctx context.Context, userID, teacherID uuid.UUID, inTarget bool) (db.LearningTeacher, error) {
+	before, err := h.q.GetLearningTeacher(ctx, db.GetLearningTeacherParams{ID: ids.ToPg(teacherID), UserID: ids.ToPg(userID)})
+	if db.IsNotFound(err) {
+		return db.LearningTeacher{}, apperr.NewNotFound("teacher not found")
+	}
+
+	if err != nil {
+		return db.LearningTeacher{}, err
+	}
+
+	if before.ExplainInTarget == inTarget {
+		return before, nil
+	}
+
+	teacher, err := h.q.SetLearningTeacherExplain(ctx, db.SetLearningTeacherExplainParams{ID: before.ID, UserID: before.UserID, ExplainInTarget: inTarget})
+	if err != nil {
+		return db.LearningTeacher{}, err
+	}
+
+	// A practice sitting on a rule is written in the old language: it is a
+	// sitting, not a record, so it goes rather than stay half in each.
+	if err := h.q.DeleteLearningRulePracticeOfLanguage(ctx, db.DeleteLearningRulePracticeOfLanguageParams{UserID: teacher.UserID, Language: teacher.Language}); err != nil {
+		return db.LearningTeacher{}, err
+	}
+
+	return teacher, nil
 }
 
 // Delete removes a teacher from the learner's list. Its running program is not

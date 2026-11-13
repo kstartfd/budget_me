@@ -1,0 +1,182 @@
+[
+  {
+    "id": "a1-to-be",
+    "skill": "grammar",
+    "unit": "Sentence basics",
+    "title": "The verb to be: am, is, are",
+    "goal": "Say who you are, where you are from and how old you are, and ask other people the same questions.",
+    "theory": "We use to be in almost every sentence about who or what someone is: I am, you are, he/she/it is, we/you/they are. In speech we make it short: I'm, you're, she's, they're. For a negative, add not: I am not, he isn't, they aren't. In a question, the verb comes first: Are you ready? Is she at home? Examples: I'm from Spain. She is a doctor. We aren't at work. Where are you from?",
+    "tags": ["to be", "am is are", "linking verb", "short forms"]
+  },
+  {
+    "id": "a1-articles",
+    "skill": "grammar",
+    "unit": "Sentence basics",
+    "title": "Articles: a, an, the",
+    "goal": "Choose the right article before a noun: one of many things, or one particular thing.",
+    "theory": "We use a/an when the thing is one of many, or when we mention it for the first time: a book, an apple (we use an before a vowel sound). We use the when it is clear which thing we mean: Open the door. I have a dog. The dog is big. We use no article with plural nouns in a general sense and with uncountable nouns: I like cats. I drink water. We also use no article in fixed phrases: go to school, at home.",
+    "tags": ["articles", "a an the", "zero article"]
+  },
+  {
+    "id": "a1-plurals",
+    "skill": "grammar",
+    "unit": "Sentence basics",
+    "title": "Plural nouns",
+    "goal": "Make the plural of regular nouns and of the most common irregular ones.",
+    "theory": "Usually we add -s: book - books. After s, x, ch and sh we add -es: box - boxes, watch - watches. If a word ends in a consonant + y, the y becomes -ies: city - cities, but day - days. Some plurals are irregular and you must learn them: man - men, woman - women, child - children, person - people, foot - feet. The words sheep and fish do not change.",
+    "tags": ["plural", "irregular nouns", "-s -es -ies"]
+  },
+  {
+    "id": "a1-demonstratives-possessives",
+    "skill": "grammar",
+    "unit": "Sentence basics",
+    "title": "This / that / these / those and my, your, his",
+    "goal": "Point to things and say whose they are.",
+    "theory": "We use this and these for things that are near, and that and those for things that are far: This is my bag. Those are his shoes. To say whose something is, we use possessive words: my, your, his, her, its, our, their. They come before the noun: my car, her name. To show that a noun owns something, add 's: Tom's phone, my sister's room.",
+    "tags": ["this that", "these those", "possessive adjectives", "'s"]
+  },
+  {
+    "id": "a1-present-simple",
+    "skill": "grammar",
+    "unit": "Present tenses",
+    "title": "Present Simple: statements",
+    "goal": "Talk about habits, your daily routine and things that are always true.",
+    "theory": "We use the Present Simple for things that happen regularly or always: I work, they live, we study. With he, she and it, we add -s to the verb: he works, she lives. After s, x, ch, sh and o we add -es: she watches, he goes. After a consonant + y, the y becomes -ies: he studies. Common time words: always, usually, often, sometimes, never, every day. Examples: I get up at 7. My brother plays football on Sundays.",
+    "tags": ["present simple", "-s ending", "he she it", "adverbs of frequency"]
+  },
+  {
+    "id": "a1-present-simple-questions",
+    "skill": "grammar",
+    "unit": "Present tenses",
+    "title": "Present Simple: negatives and questions",
+    "goal": "Ask questions and say no about everyday actions.",
+    "theory": "For negatives and questions we need the helping verb do (does with he/she/it). Negative: I do not (don't) like tea. She does not (doesn't) work here. Question: Do you speak English? Does he live in London? After does, the main verb has no -s: Does she work? (not works). Short answers: Yes, I do. No, she doesn't. Questions with a question word: Where do you live? What does he do?",
+    "tags": ["do does", "negative", "questions", "present simple"]
+  },
+  {
+    "id": "a1-there-is",
+    "skill": "grammar",
+    "unit": "Describing places",
+    "title": "There is / there are",
+    "goal": "Describe a room, a town or a place: say what there is in it.",
+    "theory": "We use there is (there's) to say that something exists, for one thing: There is a bed in the room. We use there are for more than one: There are two windows. Negative: There isn't a sofa. There aren't any chairs. Question: Is there a bank near here? Are there any shops? We use some in positive sentences with plural nouns and any in negatives: There are some apples. There aren't any eggs.",
+    "tags": ["there is", "there are", "some any", "describing a room"]
+  },
+  {
+    "id": "a1-can",
+    "skill": "grammar",
+    "unit": "Modal verbs",
+    "title": "Can and can't: ability and permission",
+    "goal": "Say what you can do and what you are able to do, and ask for something politely.",
+    "theory": "We use can for ability or possibility: I can swim. She can speak French. The negative is can't (cannot): He can't drive. After can, the verb has no to and no -s: He can swim (not cans, not to swim). Question: Can you help me? Can I open the window? Answers: Yes, I can. No, I can't. A polite request: Can you repeat that, please?",
+    "tags": ["can", "can't", "modal verbs", "ability", "requests"]
+  },
+  {
+    "id": "a1-have-got",
+    "skill": "grammar",
+    "unit": "Sentence basics",
+    "title": "Have got / has got: what you have",
+    "goal": "Say what you have, and describe your family and how people look.",
+    "theory": "We use have got to talk about what someone has and to describe people: I have got a car. She has got blue eyes. Short form: I've got, she's got. Negative: I haven't got a brother. He hasn't got a car. Question: Have you got a pen? Has she got a sister? With he, she and it, we use has. You can also say just have/has (without got), but have got is more common in British English.",
+    "tags": ["have got", "has got", "possession", "family"]
+  },
+  {
+    "id": "a1-prepositions",
+    "skill": "grammar",
+    "unit": "Describing places",
+    "title": "Prepositions in, on, at",
+    "goal": "Say where things are and when things happen.",
+    "theory": "For place: in means inside (in the box, in London), on means on a surface (on the table), at means at a point (at the door, at school). For time: at is for exact times (at 5 o'clock), on is for days and dates (on Monday, on 5 May), in is for months, years and parts of the day (in July, in 2020, in the morning). Exceptions: at night, at the weekend. Other prepositions of place: next to, under, behind, between.",
+    "tags": ["prepositions", "in on at", "place", "time"]
+  },
+  {
+    "id": "a1-vocab-people",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Family and people",
+    "goal": "Name the people in a family and say who is who.",
+    "theory": "Words for family and people are needed in your very first conversations. Learn them together with an example: This is my mother. He is my brother. Notice that parents means a mother and father together, and relatives means all the people in your family. The word friend is spelled with ie. When you meet someone, you can say: Nice to meet you.",
+    "tags": ["family", "people"]
+  },
+  {
+    "id": "a1-vocab-food",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Food and drink",
+    "goal": "Order food, say what you like and read a simple menu.",
+    "theory": "Words about food are useful in shops and cafes. Useful phrases: I'd like a coffee, please. Can I have the menu? I like pizza. I don't like fish. The words water, milk, bread and rice are uncountable, so we do not use a before them: some bread, a glass of water, a piece of bread.",
+    "tags": ["food", "cafe", "shop"]
+  },
+  {
+    "id": "a1-vocab-daily",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Daily routine and time",
+    "goal": "Talk about your day and tell the time.",
+    "theory": "We describe a daily routine with verbs in the Present Simple: get up, have breakfast, go to work, come home, go to bed. We tell the time like this: It's seven o'clock (7:00), half past seven (7:30), quarter to eight (7:45). Days of the week start with a capital letter: Monday, Tuesday. Use the preposition on before a day and at before a time.",
+    "tags": ["daily routine", "time", "days of the week"]
+  },
+  {
+    "id": "a1-reading-notices",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading short notices and menus",
+    "goal": "Understand a simple notice, timetable or menu and find what you need: the time, the price, the place.",
+    "theory": "In a short text, first look for the key words: numbers (time, price), names of places and days of the week. You do not need to understand every word: look for the answer to the question when, where or how much. Common words in notices: open, closed, free, sale, exit.",
+    "tags": ["reading", "notices", "menu"]
+  },
+  {
+    "id": "a1-writing-intro",
+    "skill": "writing",
+    "unit": "Reading and writing",
+    "title": "Writing about yourself: a short introduction",
+    "goal": "Write five or six simple sentences about yourself: your name, age, country, job and hobbies.",
+    "theory": "A short text about yourself follows a plan: your name, your age, where you are from, what you do and what you like. Start every sentence with a capital letter and end it with a full stop. Here is a model: Hello! My name is Anna. I am 25 years old. I am from Spain. I work in a shop. I like music and swimming. Use to be, have got, the Present Simple and like + a noun.",
+    "tags": ["writing", "about me", "introduction"]
+  },
+  {
+    "id": "a1-listening-numbers",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to numbers, time and prices",
+    "goal": "Understand numbers, times and prices when you hear them in a shop or at a station.",
+    "theory": "It is easy to mix up numbers when you listen: thirteen and thirty, fifteen and fifty. In numbers from 13 to 19 the stress is at the end (thirTEEN), and in the tens it is at the start (THIRty). Listen and write down the digits, not the words. Time: It's half past three means 3:30, quarter to six means 5:45. Price: It's five pounds fifty means 5.50. Listen to each phrase several times and compare it with what you wrote.",
+    "tags": ["listening", "numbers", "time", "prices"]
+  },
+  {
+    "id": "a1-listening-dialogues",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to short dialogues",
+    "goal": "Understand a simple dialogue in a shop, a cafe or on the street: who is speaking, where they are and what they need.",
+    "theory": "In a short dialogue, first find out who is speaking and where: in a shop, in a cafe or on the street. Do not try to catch every word. Listen for the question and the answer. Listen twice: the first time for the general idea, the second time for details (price, time, place). Polite words (please, thank you, excuse me) show you the tone of the conversation.",
+    "tags": ["listening", "dialogues", "shop", "cafe"]
+  },
+  {
+    "id": "a1-speaking-greetings",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: greetings and meeting people",
+    "goal": "Say hello, introduce yourself and ask a couple of questions about the other person.",
+    "theory": "Meeting someone is made of short phrases: Hello, my name is Anna. Nice to meet you. Where are you from? Say whole phrases out loud, not single words. Watch the stress: in Nice to meet you, the main words are nice and meet. Listen to a phrase, repeat it and compare it with your own speech. It is better to speak simply and without long pauses than to spend a long time building a difficult sentence.",
+    "tags": ["speaking", "meeting people", "greetings"]
+  },
+  {
+    "id": "a1-speaking-cafe",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: ordering in a cafe and a shop",
+    "goal": "Order food politely, ask the price and pay.",
+    "theory": "A polite request in English is I'd like ..., please or Can I have ...? The sentence I want ... sounds too strong. End your request with please and say thank you at the end. To pay: How much is it? The bill, please. Say each phrase out loud several times until it comes naturally.",
+    "tags": ["speaking", "cafe", "shop", "politeness"]
+  },
+  {
+    "id": "a1-reading-signs",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading signs, notices and timetables",
+    "goal": "Understand signs, warning notices and a transport timetable.",
+    "theory": "Signs and notices are short and often repeat, so look for the words you know. In a timetable, first find the right direction, then the time. Common words: platform, entrance, push and pull (for doors), departures and arrivals. If you are not sure, look at the picture next to the text.",
+    "tags": ["reading", "signs", "timetable"]
+  }
+]

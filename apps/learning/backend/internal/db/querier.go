@@ -35,6 +35,9 @@ type Querier interface {
 	// Closed programs of one language, with everything under them (topics, exercises,
 	// attempts, lessons, topic chats, final tests: all go with the program).
 	DeleteLearningPathHistory(ctx context.Context, arg DeleteLearningPathHistoryParams) (int64, error)
+	// A sitting is written in the language its teacher explained in. When the
+	// learner switches that, what they were shown goes, with the chats about it.
+	DeleteLearningRulePracticeOfLanguage(ctx context.Context, arg DeleteLearningRulePracticeOfLanguageParams) error
 	DeleteLearningTeacher(ctx context.Context, arg DeleteLearningTeacherParams) (int64, error)
 	DeleteLearningTopic(ctx context.Context, arg DeleteLearningTopicParams) (int64, error)
 	DeleteOldLearningChatUsage(ctx context.Context, day pgtype.Date) error
@@ -143,6 +146,7 @@ type Querier interface {
 	SaveLearningRulePracticeExamples(ctx context.Context, arg SaveLearningRulePracticeExamplesParams) (LearningRulePractice, error)
 	SaveLearningRulePracticeExercises(ctx context.Context, arg SaveLearningRulePracticeExercisesParams) (LearningRulePractice, error)
 	SetLearningPathJobRunning(ctx context.Context, arg SetLearningPathJobRunningParams) error
+	SetLearningTeacherExplain(ctx context.Context, arg SetLearningTeacherExplainParams) (LearningTeacher, error)
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
 	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)
 	// Opening the page of a rule lifts the expiry that leaving it set.

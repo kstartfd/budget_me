@@ -573,7 +573,7 @@ func (q *Queries) GetLearningPathTopic(ctx context.Context, arg GetLearningPathT
 }
 
 const getLearningTeacher = `-- name: GetLearningTeacher :one
-SELECT id, user_id, language, translation_language, created_at FROM learning_teachers WHERE id = $1 AND user_id = $2
+SELECT id, user_id, language, translation_language, created_at, explain_in_target FROM learning_teachers WHERE id = $1 AND user_id = $2
 `
 
 type GetLearningTeacherParams struct {
@@ -590,12 +590,13 @@ func (q *Queries) GetLearningTeacher(ctx context.Context, arg GetLearningTeacher
 		&i.Language,
 		&i.TranslationLanguage,
 		&i.CreatedAt,
+		&i.ExplainInTarget,
 	)
 	return i, err
 }
 
 const getLearningTeacherByLanguage = `-- name: GetLearningTeacherByLanguage :one
-SELECT id, user_id, language, translation_language, created_at FROM learning_teachers WHERE user_id = $1 AND language = $2
+SELECT id, user_id, language, translation_language, created_at, explain_in_target FROM learning_teachers WHERE user_id = $1 AND language = $2
 `
 
 type GetLearningTeacherByLanguageParams struct {
@@ -612,6 +613,7 @@ func (q *Queries) GetLearningTeacherByLanguage(ctx context.Context, arg GetLearn
 		&i.Language,
 		&i.TranslationLanguage,
 		&i.CreatedAt,
+		&i.ExplainInTarget,
 	)
 	return i, err
 }
@@ -710,8 +712,8 @@ func (q *Queries) InsertLearningPath(ctx context.Context, arg InsertLearningPath
 }
 
 const insertLearningPathAttempt = `-- name: InsertLearningPathAttempt :one
-INSERT INTO learning_path_attempts (id, exercise_id, user_id, answer, correct, feedback, lesson_id, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id, exercise_id, user_id, answer, correct, feedback, created_at, lesson_id
+INSERT INTO learning_path_attempts (id, exercise_id, user_id, answer, correct, mistakes, feedback, lesson_id, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id, exercise_id, user_id, answer, correct, feedback, created_at, lesson_id, mistakes
 `
 
 type InsertLearningPathAttemptParams struct {
@@ -720,6 +722,7 @@ type InsertLearningPathAttemptParams struct {
 	UserID     pgtype.UUID
 	Answer     string
 	Correct    bool
+	Mistakes   int32
 	Feedback   string
 	LessonID   pgtype.UUID
 	CreatedAt  pgtype.Timestamptz
@@ -732,6 +735,7 @@ func (q *Queries) InsertLearningPathAttempt(ctx context.Context, arg InsertLearn
 		arg.UserID,
 		arg.Answer,
 		arg.Correct,
+		arg.Mistakes,
 		arg.Feedback,
 		arg.LessonID,
 		arg.CreatedAt,
@@ -746,6 +750,7 @@ func (q *Queries) InsertLearningPathAttempt(ctx context.Context, arg InsertLearn
 		&i.Feedback,
 		&i.CreatedAt,
 		&i.LessonID,
+		&i.Mistakes,
 	)
 	return i, err
 }
@@ -1043,7 +1048,7 @@ const insertLearningTeacher = `-- name: InsertLearningTeacher :one
 INSERT INTO learning_teachers (id, user_id, language, translation_language, created_at)
 VALUES ($1, $2, $3, $4, $5)
 ON CONFLICT (user_id, language) DO UPDATE SET language = learning_teachers.language
-RETURNING id, user_id, language, translation_language, created_at
+RETURNING id, user_id, language, translation_language, created_at, explain_in_target
 `
 
 type InsertLearningTeacherParams struct {
@@ -1069,6 +1074,7 @@ func (q *Queries) InsertLearningTeacher(ctx context.Context, arg InsertLearningT
 		&i.Language,
 		&i.TranslationLanguage,
 		&i.CreatedAt,
+		&i.ExplainInTarget,
 	)
 	return i, err
 }
@@ -1111,7 +1117,7 @@ func (q *Queries) ListActiveLearningPaths(ctx context.Context, userID pgtype.UUI
 }
 
 const listLearningPathAttemptsByTopic = `-- name: ListLearningPathAttemptsByTopic :many
-SELECT a.id, a.exercise_id, a.user_id, a.answer, a.correct, a.feedback, a.created_at, a.lesson_id FROM learning_path_attempts a
+SELECT a.id, a.exercise_id, a.user_id, a.answer, a.correct, a.feedback, a.created_at, a.lesson_id, a.mistakes FROM learning_path_attempts a
 JOIN learning_path_exercises e ON e.id = a.exercise_id
 WHERE e.topic_id = $1 AND a.user_id = $2
 ORDER BY a.created_at, a.id
@@ -1140,6 +1146,7 @@ func (q *Queries) ListLearningPathAttemptsByTopic(ctx context.Context, arg ListL
 			&i.Feedback,
 			&i.CreatedAt,
 			&i.LessonID,
+			&i.Mistakes,
 		); err != nil {
 			return nil, err
 		}
@@ -1408,7 +1415,7 @@ func (q *Queries) ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID
 }
 
 const listLearningTeachers = `-- name: ListLearningTeachers :many
-SELECT id, user_id, language, translation_language, created_at FROM learning_teachers WHERE user_id = $1 ORDER BY created_at, id
+SELECT id, user_id, language, translation_language, created_at, explain_in_target FROM learning_teachers WHERE user_id = $1 ORDER BY created_at, id
 `
 
 func (q *Queries) ListLearningTeachers(ctx context.Context, userID pgtype.UUID) ([]LearningTeacher, error) {
@@ -1426,6 +1433,7 @@ func (q *Queries) ListLearningTeachers(ctx context.Context, userID pgtype.UUID) 
 			&i.Language,
 			&i.TranslationLanguage,
 			&i.CreatedAt,
+			&i.ExplainInTarget,
 		); err != nil {
 			return nil, err
 		}
@@ -1522,6 +1530,30 @@ type SetLearningPathJobRunningParams struct {
 func (q *Queries) SetLearningPathJobRunning(ctx context.Context, arg SetLearningPathJobRunningParams) error {
 	_, err := q.db.Exec(ctx, setLearningPathJobRunning, arg.ID, arg.UpdatedAt)
 	return err
+}
+
+const setLearningTeacherExplain = `-- name: SetLearningTeacherExplain :one
+UPDATE learning_teachers SET explain_in_target = $3 WHERE id = $1 AND user_id = $2 RETURNING id, user_id, language, translation_language, created_at, explain_in_target
+`
+
+type SetLearningTeacherExplainParams struct {
+	ID              pgtype.UUID
+	UserID          pgtype.UUID
+	ExplainInTarget bool
+}
+
+func (q *Queries) SetLearningTeacherExplain(ctx context.Context, arg SetLearningTeacherExplainParams) (LearningTeacher, error) {
+	row := q.db.QueryRow(ctx, setLearningTeacherExplain, arg.ID, arg.UserID, arg.ExplainInTarget)
+	var i LearningTeacher
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.Language,
+		&i.TranslationLanguage,
+		&i.CreatedAt,
+		&i.ExplainInTarget,
+	)
+	return i, err
 }
 
 const startLearningPathTopic = `-- name: StartLearningPathTopic :execrows

@@ -42,3 +42,8 @@ SELECT * FROM learning_rule_practice WHERE user_id = $1 AND rule_id = $2;
 
 -- name: GetLearningRulePracticeByID :one
 SELECT * FROM learning_rule_practice WHERE id = $1 AND user_id = $2;
+
+-- name: DeleteLearningRulePracticeOfLanguage :exec
+-- A sitting is written in the language its teacher explained in. When the
+-- learner switches that, what they were shown goes, with the chats about it.
+DELETE FROM learning_rule_practice WHERE user_id = $1 AND language = $2;

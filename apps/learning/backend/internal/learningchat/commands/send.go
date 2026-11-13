@@ -138,6 +138,9 @@ type target struct {
 type lessonSubject struct {
 	topic db.LearningPathTopic
 	path  db.LearningPath
+	// explain is the language the learner's teacher explains in: their own, or
+	// the one they learn.
+	explain string
 }
 
 // find resolves whose chat this is before anything else is looked at: whose
@@ -206,7 +209,7 @@ func (t target) system(summary string, teacher bool) string {
 	}
 
 	if t.lesson != nil {
-		return lessonSystem(t.lesson.path, t.lesson.topic, summary)
+		return lessonSystem(t.lesson.path, t.lesson.topic, t.lesson.explain, summary)
 	}
 
 	if t.entry == nil {
@@ -496,7 +499,13 @@ func (h SendHandler) lessonSubject(ctx context.Context, userID, topicID uuid.UUI
 		return nil, err
 	}
 
-	return &lessonSubject{topic: topic, path: path}, nil
+	explain := path.TranslationLanguage
+
+	if teacher, err := h.q.GetLearningTeacherByLanguage(ctx, db.GetLearningTeacherByLanguageParams{UserID: ids.ToPg(userID), Language: path.Language}); err == nil && teacher.ExplainInTarget {
+		explain = teacher.Language
+	}
+
+	return &lessonSubject{topic: topic, path: path, explain: explain}, nil
 }
 
 // ClearLesson forgets the whole conversation of a program topic.

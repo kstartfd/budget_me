@@ -1,0 +1,200 @@
+[
+  {
+    "id": "b2-present-perfect-continuous",
+    "skill": "grammar",
+    "unit": "Perfect tenses",
+    "title": "Present Perfect Continuous",
+    "goal": "Talk about long actions that are still going on, or that have just stopped.",
+    "theory": "The Present Perfect Continuous is made like this: have/has been + -ing. It stresses duration or the process: I have been working here for five years. She has been crying - her eyes are red (a process that left a trace). Compare: I have read the book (the result: the book is finished) and I have been reading the book (the process: we do not know if it is finished). With state verbs (know, like, be) we use the Present Perfect instead.",
+    "tags": ["present perfect continuous", "have been doing", "duration", "for since"]
+  },
+  {
+    "id": "b2-past-perfect",
+    "skill": "grammar",
+    "unit": "Perfect tenses",
+    "title": "Past Perfect: what happened before the past",
+    "goal": "Tell about events that happened before other events in the past.",
+    "theory": "The Past Perfect (had + V3) shows an action that happened before another past action: When I arrived, the film had already started. She told me she had lost her bag. It is often used with after, before, by the time, already and just. If the order of events is clear from words like after and before, you can use the Past Simple instead. The Past Perfect Continuous (had been doing) stresses how long something went on before a moment in the past.",
+    "tags": ["past perfect", "had done", "order of events", "by the time"]
+  },
+  {
+    "id": "b2-future-perfect-continuous",
+    "skill": "grammar",
+    "unit": "The future",
+    "title": "Future Continuous and Future Perfect",
+    "goal": "Talk about actions that will be in progress, or will be finished, by a certain moment in the future.",
+    "theory": "The Future Continuous (will be + -ing) is an action that will be in progress at a certain moment: This time tomorrow I will be flying to Rome. The Future Perfect (will have + V3) is an action that will be finished by a certain moment: By next June I will have finished my degree. The Future Perfect Continuous (will have been + -ing) stresses duration up to a moment: By May we will have been living here for ten years. Time words: by, by the time, in two years.",
+    "tags": ["future continuous", "future perfect", "will be doing", "will have done"]
+  },
+  {
+    "id": "b2-third-conditional",
+    "skill": "grammar",
+    "unit": "Conditionals",
+    "title": "Third and mixed conditionals",
+    "goal": "Talk about the past that did not happen and what would have followed.",
+    "theory": "The third conditional describes an impossible past: If I had studied harder, I would have passed the exam (but I did not study and I did not pass). The if-part uses the Past Perfect and the main part uses would have + V3. A mixed conditional joins a past condition with a present result: If I had taken that job, I would be rich now. Or a present condition with a past result: If she weren't so shy, she would have spoken. Instead of would you can use could or might.",
+    "tags": ["third conditional", "mixed conditionals", "would have done", "if I had"]
+  },
+  {
+    "id": "b2-wish",
+    "skill": "grammar",
+    "unit": "Conditionals",
+    "title": "Wish and if only: regret and wanting change",
+    "goal": "Express regret about the present and the past, and a wish for things to be different.",
+    "theory": "Wish + the Past Simple expresses regret about the present: I wish I had more time (but I have no time). Wish + the Past Perfect is about the past: I wish I had gone to the party. Wish + would shows annoyance with someone else's behaviour: I wish you would stop shouting. If only is stronger and more emotional: If only I knew the answer! With to be we use were: I wish I were taller. After wish, do not use will or would for yourself: say I wish I could, not I wish I would.",
+    "tags": ["wish", "if only", "regret", "wish I had"]
+  },
+  {
+    "id": "b2-passive-advanced",
+    "skill": "grammar",
+    "unit": "The passive",
+    "title": "The passive in all tenses and impersonal structures",
+    "goal": "Use the passive in different tenses and in impersonal sentences.",
+    "theory": "The passive can be made in all tenses by changing the form of to be: is being built (Present Continuous), has been built (Present Perfect), will be built (future), had been built (Past Perfect). With modal verbs: The report must be finished today. Impersonal structures: It is said that he is rich or He is said to be rich. The causative: I had my car repaired (someone repaired my car; I did not do it myself).",
+    "tags": ["passive", "has been done", "it is said", "causative", "have something done"]
+  },
+  {
+    "id": "b2-reported-advanced",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Reported speech: questions, requests and reporting verbs",
+    "goal": "Report questions, requests and orders, and choose the exact verb.",
+    "theory": "Yes/no questions are reported with if/whether: She asked if I was ready. Requests and orders are reported with to + the infinitive: He told me to wait. She asked him not to smoke. Instead of say and tell, choose an exact reporting verb: suggest, admit, deny, promise, warn, refuse, offer. They need different structures: He admitted taking the money. She promised to call. They suggested going to the cinema.",
+    "tags": ["reported speech", "reporting verbs", "suggest admit deny", "reported questions"]
+  },
+  {
+    "id": "b2-relative-advanced",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Non-defining relative clauses and participle clauses",
+    "goal": "Add extra information and make clauses shorter.",
+    "theory": "A non-defining relative clause gives extra information and is set off by commas: My brother, who lives in Berlin, is a teacher. You cannot use that here, and you cannot leave out the pronoun. Which can refer to a whole sentence: He passed the exam, which surprised everyone. Participle clauses make clauses shorter: The man standing at the door is my uncle (who is standing). The book written by Orwell is famous (that was written).",
+    "tags": ["non-defining relative clauses", "which", "participle clauses", "-ing -ed clauses"]
+  },
+  {
+    "id": "b2-modals-past",
+    "skill": "grammar",
+    "unit": "Modal verbs",
+    "title": "Modal verbs in the past: should have, could have",
+    "goal": "Talk about regret, missed chances and guesses about the past.",
+    "theory": "Should have + V3 means it was right to do it, but you did not: You should have called me. Shouldn't have means it was wrong to do it: I shouldn't have said that. Could have means it was possible, but it did not happen: We could have won. Might have means perhaps it happened: She might have forgotten. Must have means it almost certainly happened: He must have missed the bus. Can't have means it could not have happened: They can't have left already.",
+    "tags": ["should have", "could have", "must have", "modals past", "missed chances"]
+  },
+  {
+    "id": "b2-gerund-infinitive-meaning",
+    "skill": "grammar",
+    "unit": "Verb forms",
+    "title": "Gerund and infinitive: a change in meaning",
+    "goal": "Tell apart the verbs whose meaning changes with the form that follows them.",
+    "theory": "Some verbs change their meaning. Stop doing means to end an activity: He stopped smoking. Stop to do means to stop in order to do something: He stopped to smoke. Remember doing means to have a memory of doing it: I remember locking the door. Remember to do means not to forget to do it: Remember to lock the door. Try doing means to test something: Try restarting it. Try to do means to make an effort: I tried to open the window. Forget, regret and go on work in the same way.",
+    "tags": ["gerund", "infinitive", "stop doing", "remember to do", "try doing"]
+  },
+  {
+    "id": "b2-phrasal-verbs",
+    "skill": "grammar",
+    "unit": "Words and phrases",
+    "title": "Phrasal verbs",
+    "goal": "Understand and use the most common phrasal verbs and put the object in the right place.",
+    "theory": "A phrasal verb is a verb + a particle (up, out, off, on, in), and its meaning is often not the sum of the parts: give up (stop trying), look after (take care of), run out of (have no more). Some are separable: put on the jacket / put the jacket on / put it on (a pronoun goes only in the middle). Some are inseparable: look after the children / look after them. Many have more than one meaning: take off can mean to remove clothes or to leave the ground.",
+    "tags": ["phrasal verbs", "give up", "look after", "put on", "separable"]
+  },
+  {
+    "id": "b2-discourse",
+    "skill": "grammar",
+    "unit": "Words and phrases",
+    "title": "Linking words: moreover, nevertheless, whereas",
+    "goal": "Build a clear argument and express contrast and result.",
+    "theory": "Contrast: whereas and while (on the other hand), nevertheless and nonetheless (in spite of that), on the contrary (the opposite is true). Adding: moreover, furthermore, besides (also). Result: therefore, consequently, as a result (so). Concession: even though, despite the fact that. These words are used more in writing and formal speech. Example: The plan was risky. Nevertheless, they went ahead.",
+    "tags": ["discourse markers", "nevertheless", "moreover", "whereas", "therefore"]
+  },
+  {
+    "id": "b2-vocab-media",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Media, news and society",
+    "goal": "Discuss the news, the influence of the media and topics in society.",
+    "theory": "Words about the media are built on fixed phrases: break the news (be the first to tell it), go viral (spread quickly online), fake news, reliable source, media coverage. Know the difference between a headline (the title of a news story) and a title (the name of a book or film). Verbs: report on, comment on, spread information, raise awareness.",
+    "tags": ["media", "news", "society"]
+  },
+  {
+    "id": "b2-vocab-abstract",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Abstract ideas and collocations",
+    "goal": "Talk about ideas, causes and effects using fixed word partnerships.",
+    "theory": "At B2 it is important to know which words go together: make a decision, take responsibility, meet a deadline, raise a question, reach a conclusion, face a challenge. You cannot swap the verb for a similar one: do a decision is wrong. Learn words in pairs: heavy rain (not strong rain), strong coffee (not heavy coffee).",
+    "tags": ["collocations", "abstract vocabulary", "make do take"]
+  },
+  {
+    "id": "b2-vocab-feelings",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Emotions and character",
+    "goal": "Describe feelings and character exactly, not just with good and bad.",
+    "theory": "Use exact words instead of general ones: furious instead of angry, delighted instead of happy, exhausted instead of tired. Adjectives with -ed describe the person (I am bored), and adjectives with -ing describe what causes the feeling (The film is boring). For character: reliable, stubborn, generous, ambitious, easy-going. Fixed phrases: be fond of, be keen on, be fed up with.",
+    "tags": ["emotions", "character", "adjectives -ed -ing"]
+  },
+  {
+    "id": "b2-reading-argument",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading texts that argue a case",
+    "goal": "Understand the author's position, the arguments and the hidden judgements in a difficult text.",
+    "theory": "In an argument text, find the thesis (the author's position), the arguments and counterarguments, and then the conclusion. Watch the linking words that change the direction of the thought: however, nevertheless, on the other hand. Tell apart what the author states, what they quote and what they only allow as possible (may, might, it is possible that). For difficult words, use the context and word formation: unhappy, careless, misunderstanding.",
+    "tags": ["reading", "argument", "author's position"]
+  },
+  {
+    "id": "b2-writing-formal",
+    "skill": "writing",
+    "unit": "Reading and writing",
+    "title": "Writing formal letters and essays",
+    "goal": "Write a formal letter and a well-organised essay with arguments.",
+    "theory": "A formal letter begins with Dear Sir/Madam or Dear Mr Smith and ends with Yours faithfully (if you do not know the name) or Yours sincerely (if you do). Do not use short forms (write I am, not I'm) or informal words. An essay has an introduction with the main point, two or three paragraphs with arguments and examples, and a conclusion. Linking words: Firstly, Moreover, However, In conclusion. Avoid repeating yourself: use synonyms and more complex structures.",
+    "tags": ["writing", "formal letter", "essay", "structure"]
+  },
+  {
+    "id": "b2-listening-lectures",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to lectures and presentations",
+    "goal": "Understand the structure of a lecture and pick out the thesis and the main arguments.",
+    "theory": "A lecture has a structure: an introduction, the main points and a conclusion. Listen for marker words: firstly, moreover, in conclusion. Make short notes with key words, not whole sentences. Find the thesis and the arguments; you can skip the examples. If you lose the thread, wait for the marker words: they bring you back to the structure.",
+    "tags": ["listening", "lectures", "presentations", "notes"]
+  },
+  {
+    "id": "b2-listening-fast-speech",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to fast and informal speech",
+    "goal": "Understand natural, relaxed speech in which words run together and are shortened.",
+    "theory": "In natural speech words run together: want to becomes wanna, going to becomes gonna, did you becomes didja. Weak sounds disappear. Practise listening to whole phrases, not single words, and guess from the context. Do not write these forms in formal writing or formal speech, but you need to recognise them confidently when you hear them.",
+    "tags": ["listening", "informal speech", "contractions"]
+  },
+  {
+    "id": "b2-speaking-discussion",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: discussion and argument",
+    "goal": "Take part in a discussion: state your position, give a reason, concede a point and sum up.",
+    "theory": "In a discussion, first state your position, then give an argument and an example, then sum up. To concede a point: admittedly, granted. To show doubt: I'm not convinced that ... Linking phrases make your speech persuasive and give you time to think. Rehearse out loud: an argument should take about 30 seconds.",
+    "tags": ["speaking", "discussion", "arguments"]
+  },
+  {
+    "id": "b2-speaking-interview",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: interviews and presentations",
+    "goal": "Talk with confidence about your experience, achievements and plans in an interview or a presentation.",
+    "theory": "In an interview, answer in this order: the situation, what you did, the result. Talk about achievements in the Past Simple and about plans in the future. Sound confident: I managed to ..., I was responsible for ... Avoid filler words and long pauses; a short linking phrase is better. Say your answer out loud several times.",
+    "tags": ["speaking", "interview", "presentation"]
+  },
+  {
+    "id": "b2-reading-reports",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading reports, statistics and surveys",
+    "goal": "Understand the aim, the data and the conclusion of a report, and tell facts from the author's interpretation.",
+    "theory": "In a report, find the aim, the method, the data and the conclusion. Pay attention to words about numbers: increase, decline, remain stable, a majority of. Tell apart a description of the data from the author's interpretation: the words suggests, indicates and appears to usually introduce an interpretation. Note the key figures and compare them with the conclusion.",
+    "tags": ["reading", "reports", "statistics"]
+  }
+]

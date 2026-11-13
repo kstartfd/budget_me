@@ -572,17 +572,20 @@ function ExerciseCard({
               result.correct ? "text-success" : "text-destructive",
             )}
           >
-            {result.correct ? t("correct") : t("wrong")}
+            {result.correct
+              ? t("correct")
+              : result.mistakes > 0
+                ? t("mistakesFound", { count: result.mistakes })
+                : t("wrong")}
           </p>
           <p className="text-foreground text-[13px] leading-relaxed">
-            {t("myAnswer")}: {result.answer}.
-            {!result.correct && result.feedback && (
-              <>
-                {" "}
-                <QuotedEmphasis text={result.feedback} />
-              </>
-            )}
+            {t("myAnswer")}: {result.answer}
           </p>
+          {!result.correct && result.feedback && (
+            <p className="text-foreground text-[13px] leading-relaxed whitespace-pre-line">
+              <QuotedEmphasis text={result.feedback} />
+            </p>
+          )}
           <div className="flex flex-wrap gap-2">
             {!result.correct && (
               <Button

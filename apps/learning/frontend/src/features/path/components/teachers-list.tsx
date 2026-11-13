@@ -91,7 +91,7 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
                       </p>
                       <p className="text-muted-foreground truncate text-xs">
                         {t("explainedIn", {
-                          language: names.of(teacher.translationLanguage) ?? teacher.translationLanguage,
+                          language: names.of(teacher.explainLanguage) ?? teacher.explainLanguage,
                         })}
                       </p>
                     </div>

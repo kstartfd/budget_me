@@ -15,6 +15,10 @@ export const pathTeacherSchema = z.object({
   id: z.string(),
   language: z.string(),
   translationLanguage: z.string(),
+  /** The learner chose to be explained to in the language they learn. */
+  explainInTarget: z.boolean(),
+  /** The language everything is explained in: their own, or the learned one. */
+  explainLanguage: z.string(),
   createdAt: z.string(),
   path: z
     .object({
@@ -73,6 +77,7 @@ export const pathSchema = z.object({
   id: z.string(),
   language: z.string(),
   translationLanguage: z.string(),
+  explainLanguage: z.string(),
   level: z.string(),
   summary: z.string(),
   status: z.enum(["active", "finished", "abandoned"]),
@@ -120,6 +125,8 @@ export const pathAttemptSchema = z.object({
   exerciseId: z.string(),
   answer: z.string(),
   correct: z.boolean(),
+  /** What a native speaker would find wrong in a text of the learner's own; 0 for any other answer. */
+  mistakes: z.number().default(0),
   feedback: z.string(),
   createdAt: z.string(),
 })

@@ -217,3 +217,102 @@ func TestMatchGivesAgentWrittenTopicsTheirRule(t *testing.T) {
 		t.Error("French has no rule book")
 	}
 }
+
+// TestTheEnglishLibraryMirrorsTheRussianOne: a learner who asks for explanations
+// in English gets the same topics and the same rules, only written in English.
+// Everything the program and the rule book key on (ids, levels, skills, the
+// order of the examples they translate by, the references between rules) must
+// be identical, or a program built in one language would not open in the other.
+func TestTheEnglishLibraryMirrorsTheRussianOne(t *testing.T) {
+	if !curriculum.Has("en", "en") {
+		t.Fatal("the English library explained in English is gone")
+	}
+
+	cyrillic := func(s string) bool {
+		return strings.ContainsAny(strings.ToLower(s), "абвгдеёжзийклмнопрстуфхцчшщъыьэюя")
+	}
+
+	ru := curriculum.UpTo("en", "ru", placement.C2)
+	en := curriculum.UpTo("en", "en", placement.C2)
+
+	if len(ru) != len(en) {
+		t.Fatalf("%d topics in Russian, %d in English", len(ru), len(en))
+	}
+
+	for i, r := range ru {
+		e := en[i]
+
+		if e.ID != r.ID || e.Level != r.Level || e.Skill != r.Skill {
+			t.Fatalf("topic %d: %s/%s/%s in English, %s/%s/%s in Russian", i, e.ID, e.Level, e.Skill, r.ID, r.Level, r.Skill)
+		}
+
+		for field, value := range map[string]string{"title": e.Title, "goal": e.Goal, "unit": e.Unit, "theory": e.Theory} {
+			if strings.TrimSpace(value) == "" || cyrillic(value) {
+				t.Errorf("%s: the English %s is empty or not English: %q", e.ID, field, value)
+			}
+		}
+
+		if n := utf8.RuneCountInString(e.Theory); n < 150 || n > 1200 {
+			t.Errorf("%s: the English rule is %d characters, want 150 to 1200", e.ID, n)
+		}
+
+		if n := utf8.RuneCountInString(e.Title); n > 120 {
+			t.Errorf("%s: the English title is %d characters, a program topic allows 120", e.ID, n)
+		}
+
+		if n := utf8.RuneCountInString(e.Goal); n > 400 {
+			t.Errorf("%s: the English goal is %d characters, a program topic allows 400", e.ID, n)
+		}
+
+		if len(e.Tags) == 0 {
+			t.Errorf("%s: no English tags, so the planner cannot match mistakes to it", e.ID)
+		}
+
+		// Key words stay translated for the learner's own language, in the Russian book.
+		if len(e.Vocabulary) != 0 {
+			t.Errorf("%s: the English library carries no words of its own", e.ID)
+		}
+
+		if (r.Extra == nil) != (e.Extra == nil) {
+			t.Fatalf("%s: a rule in one language only", e.ID)
+		}
+
+		if r.Extra == nil {
+			continue
+		}
+
+		if len(e.Extra.Forms) != len(r.Extra.Forms) || len(e.Extra.Examples) != len(r.Extra.Examples) || len(e.Extra.Mistakes) != len(r.Extra.Mistakes) {
+			t.Errorf("%s: the rule is built differently: %d/%d/%d forms, examples, mistakes in English, %d/%d/%d in Russian",
+				e.ID, len(e.Extra.Forms), len(e.Extra.Examples), len(e.Extra.Mistakes), len(r.Extra.Forms), len(r.Extra.Examples), len(r.Extra.Mistakes))
+
+			continue
+		}
+
+		if strings.Join(e.Extra.Related, ",") != strings.Join(r.Extra.Related, ",") {
+			t.Errorf("%s: it refers to %v in English and %v in Russian", e.ID, e.Extra.Related, r.Extra.Related)
+		}
+
+		for _, f := range e.Extra.Forms {
+			if cyrillic(f) {
+				t.Errorf("%s: a form is not in English: %q", e.ID, f)
+			}
+		}
+
+		for _, ex := range e.Extra.Examples {
+			if strings.TrimSpace(ex.Text) == "" || cyrillic(ex.Text) {
+				t.Errorf("%s: an example sentence is empty or not English: %q", e.ID, ex.Text)
+			}
+
+			// The translation comes from the Russian book, by position.
+			if ex.Translation != "" {
+				t.Errorf("%s: the English book leaves the translating to the Russian one: %+v", e.ID, ex)
+			}
+		}
+
+		for _, m := range e.Extra.Mistakes {
+			if m.Wrong == "" || m.Right == "" || m.Wrong == m.Right || cyrillic(m.Note) {
+				t.Errorf("%s: a mistake must differ from its correction and be explained in English: %+v", e.ID, m)
+			}
+		}
+	}
+}

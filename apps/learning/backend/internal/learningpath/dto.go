@@ -95,11 +95,15 @@ type jobResponse struct {
 // teacherResponse is a language the learner studies, with a line about its
 // running program.
 type teacherResponse struct {
-	ID                  string               `json:"id"`
-	Language            string               `json:"language"`
-	TranslationLanguage string               `json:"translationLanguage"`
-	CreatedAt           time.Time            `json:"createdAt"`
-	Path                *teacherPathResponse `json:"path"`
+	ID                  string `json:"id"`
+	Language            string `json:"language"`
+	TranslationLanguage string `json:"translationLanguage"`
+	// ExplainInTarget is the learner's choice to be explained to in the learned
+	// language; ExplainLanguage is the language that gives, either way.
+	ExplainInTarget bool                 `json:"explainInTarget"`
+	ExplainLanguage string               `json:"explainLanguage"`
+	CreatedAt       time.Time            `json:"createdAt"`
+	Path            *teacherPathResponse `json:"path"`
 }
 
 type teacherPathResponse struct {
@@ -114,6 +118,8 @@ func teacherDTO(v queries.TeacherView) teacherResponse {
 		ID:                  ids.FromPg(v.Teacher.ID).String(),
 		Language:            v.Teacher.Language,
 		TranslationLanguage: v.Teacher.TranslationLanguage,
+		ExplainInTarget:     v.Teacher.ExplainInTarget,
+		ExplainLanguage:     commands.ExplainLanguage(v.Teacher),
 		CreatedAt:           v.Teacher.CreatedAt.Time,
 	}
 
@@ -154,7 +160,30 @@ type wordResponse struct {
 	Translation string `json:"translation"`
 }
 
-func topicDTO(t db.LearningPathTopic) topicResponse {
+// localizedTopic puts a program topic that came from the library into the
+// language the teacher explains in now. A program keeps the text it was built
+// with, so one built before the learner switched (or built in the other
+// language) would otherwise stay in it; the library has the same topic in both.
+// The reason the planner added to the goal is not kept: it was written in the
+// old language. explain is empty where there is no teacher to follow.
+func localizedTopic(t db.LearningPathTopic, language, explain string) db.LearningPathTopic {
+	if explain == "" || t.SourceID == "" {
+		return t
+	}
+
+	lib, ok := curriculum.Find(language, explain, t.SourceID)
+	if !ok || lib.Title == t.Title {
+		return t
+	}
+
+	t.Title, t.Unit, t.Goal, t.Theory = lib.Title, lib.Unit, lib.Goal, lib.Theory
+
+	return t
+}
+
+func topicDTO(t db.LearningPathTopic, language, explain string) topicResponse {
+	t = localizedTopic(t, language, explain)
+
 	out := topicResponse{
 		ID:       ids.FromPg(t.ID).String(),
 		Position: int(t.Position),
@@ -179,10 +208,10 @@ func topicDTO(t db.LearningPathTopic) topicResponse {
 	return out
 }
 
-func topicsDTO(list []db.LearningPathTopic, counts map[uuid.UUID]queries.ExerciseCount) []topicResponse {
+func topicsDTO(list []db.LearningPathTopic, counts map[uuid.UUID]queries.ExerciseCount, language, explain string) []topicResponse {
 	out := make([]topicResponse, len(list))
 	for i, t := range list {
-		out[i] = topicDTO(t)
+		out[i] = topicDTO(t, language, explain)
 
 		count := counts[ids.FromPg(t.ID)]
 		out[i].Exercises = &exerciseCountResponse{Total: count.Total, Done: count.Done}
@@ -193,29 +222,39 @@ func topicsDTO(list []db.LearningPathTopic, counts map[uuid.UUID]queries.Exercis
 
 // pathResponse is a program with its steps.
 type pathResponse struct {
-	ID                  string          `json:"id"`
-	Language            string          `json:"language"`
-	TranslationLanguage string          `json:"translationLanguage"`
-	Level               string          `json:"level"`
-	Summary             string          `json:"summary"`
-	Status              string          `json:"status"`
-	Source              string          `json:"source"`
-	Preferences         map[string]any  `json:"preferences"`
-	Topics              []topicResponse `json:"topics"`
-	CreatedAt           time.Time       `json:"createdAt"`
-	ArchivedAt          *time.Time      `json:"archivedAt"`
+	ID                  string `json:"id"`
+	Language            string `json:"language"`
+	TranslationLanguage string `json:"translationLanguage"`
+	// ExplainLanguage is what the program's teacher explains in now.
+	ExplainLanguage string          `json:"explainLanguage"`
+	Level           string          `json:"level"`
+	Summary         string          `json:"summary"`
+	Status          string          `json:"status"`
+	Source          string          `json:"source"`
+	Preferences     map[string]any  `json:"preferences"`
+	Topics          []topicResponse `json:"topics"`
+	CreatedAt       time.Time       `json:"createdAt"`
+	ArchivedAt      *time.Time      `json:"archivedAt"`
 }
 
-func pathDTO(p queries.PathWithTopics) pathResponse {
+// pathDTO renders a program. explain is the language its teacher explains in
+// now, empty for a program with no teacher (one in the history).
+func pathDTO(p queries.PathWithTopics, explain string) pathResponse {
+	shown := explain
+	if shown == "" {
+		shown = p.Path.TranslationLanguage
+	}
+
 	out := pathResponse{
 		ID:                  ids.FromPg(p.Path.ID).String(),
 		Language:            p.Path.Language,
 		TranslationLanguage: p.Path.TranslationLanguage,
+		ExplainLanguage:     shown,
 		Level:               p.Path.Level,
 		Summary:             p.Path.Summary,
 		Status:              string(p.Path.Status),
 		Source:              p.Path.Source,
-		Topics:              topicsDTO(p.Topics, p.Exercises),
+		Topics:              topicsDTO(p.Topics, p.Exercises, p.Path.Language, explain),
 		CreatedAt:           p.Path.CreatedAt.Time,
 		Preferences:         map[string]any{},
 	}
@@ -273,12 +312,15 @@ func exercisesDTO(list []db.LearningPathExercise) []exerciseResponse {
 
 // attemptResponse is a stored attempt.
 type attemptResponse struct {
-	ID         string    `json:"id"`
-	ExerciseID string    `json:"exerciseId"`
-	Answer     string    `json:"answer"`
-	Correct    bool      `json:"correct"`
-	Feedback   string    `json:"feedback"`
-	CreatedAt  time.Time `json:"createdAt"`
+	ID         string `json:"id"`
+	ExerciseID string `json:"exerciseId"`
+	Answer     string `json:"answer"`
+	Correct    bool   `json:"correct"`
+	// Mistakes is what a native speaker would find wrong in a text the learner
+	// wrote on their own; 0 for every other kind of answer.
+	Mistakes  int       `json:"mistakes"`
+	Feedback  string    `json:"feedback"`
+	CreatedAt time.Time `json:"createdAt"`
 }
 
 func attemptDTO(a db.LearningPathAttempt) attemptResponse {
@@ -287,6 +329,7 @@ func attemptDTO(a db.LearningPathAttempt) attemptResponse {
 		ExerciseID: ids.FromPg(a.ExerciseID).String(),
 		Answer:     a.Answer,
 		Correct:    a.Correct,
+		Mistakes:   int(a.Mistakes),
 		Feedback:   a.Feedback,
 		CreatedAt:  a.CreatedAt.Time,
 	}
@@ -340,7 +383,7 @@ func ruleRefOf(t curriculum.Topic) ruleRef {
 
 // ruleDTO renders a topic of the rule book; its references are looked up in the
 // same book, and one that does not lead to a rule is left out.
-func ruleDTO(t curriculum.Topic, language, native string) ruleResponse {
+func ruleDTO(t curriculum.Topic, language, native, explain string) ruleResponse {
 	out := ruleResponse{
 		ID: t.ID, Level: t.Level, Title: t.Title, Unit: t.Unit, Goal: t.Goal, Theory: t.Theory,
 		Forms: []string{}, Examples: []exampleResponse{}, Mistakes: []mistakeResponse{}, Related: []ruleRef{},
@@ -352,8 +395,24 @@ func ruleDTO(t curriculum.Topic, language, native string) ruleResponse {
 
 	out.Forms = append(out.Forms, t.Extra.Forms...)
 
-	for _, e := range t.Extra.Examples {
-		out.Examples = append(out.Examples, exampleResponse{Text: e.Text, Translation: e.Translation})
+	// A rule explained in the learned language still gives the sentences their
+	// translation into the learner's own, from the rule book they would read
+	// otherwise. The two books keep their examples in the same order.
+	var own []curriculum.Example
+
+	if explain != native {
+		if book, ok := curriculum.Find(language, native, t.ID); ok && book.Extra != nil && len(book.Extra.Examples) == len(t.Extra.Examples) {
+			own = book.Extra.Examples
+		}
+	}
+
+	for i, e := range t.Extra.Examples {
+		translation := e.Translation
+		if translation == "" && own != nil {
+			translation = own[i].Translation
+		}
+
+		out.Examples = append(out.Examples, exampleResponse{Text: e.Text, Translation: translation})
 	}
 
 	for _, m := range t.Extra.Mistakes {
@@ -361,7 +420,7 @@ func ruleDTO(t curriculum.Topic, language, native string) ruleResponse {
 	}
 
 	for _, id := range t.Extra.Related {
-		if other, ok := curriculum.Find(language, native, id); ok && other.Extra != nil {
+		if other, ok := curriculum.Find(language, explain, id); ok && other.Extra != nil {
 			out.Related = append(out.Related, ruleRefOf(other))
 		}
 	}
@@ -380,10 +439,10 @@ type topicDetailResponse struct {
 	Rule *ruleResponse `json:"rule"`
 }
 
-func topicDetailDTO(d queries.TopicDetail, rule *ruleResponse) topicDetailResponse {
+func topicDetailDTO(d queries.TopicDetail, rule *ruleResponse, explain string) topicDetailResponse {
 	return topicDetailResponse{
-		Path:      pathDTO(queries.PathWithTopics{Path: d.Path}),
-		Topic:     topicDTO(d.Topic),
+		Path:      pathDTO(queries.PathWithTopics{Path: d.Path}, explain),
+		Topic:     topicDTO(d.Topic, d.Path.Language, explain),
 		Exercises: exercisesDTO(d.Exercises),
 		Attempts:  attemptsDTO(d.Attempts),
 		Rule:      rule,

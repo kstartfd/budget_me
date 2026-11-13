@@ -31,13 +31,17 @@ const (
 
 // RuleSubject is the rule of the rule book a sitting is about, with the
 // languages it is explained in. The controller fills it from the library, so
-// no one gets a rule they have no teacher for.
+// no one gets a rule they have no teacher for. Explanation is the language the
+// teacher explains in (the learner's own, or the learned one) and is what the
+// sitting keeps; NativeName is the learner's own language, which the example
+// sentences are translated into either way.
 type RuleSubject struct {
 	ID              string
 	Language        string
-	Translation     string
+	Explanation     string
 	LanguageName    string
-	TranslationName string
+	ExplanationName string
+	NativeName      string
 	Level           string
 	Title           string
 	Theory          string
@@ -154,7 +158,7 @@ func (h PracticeHandler) ensure(ctx context.Context, q *db.Queries, userID uuid.
 		UserID:              ids.ToPg(userID),
 		RuleID:              rule.ID,
 		Language:            rule.Language,
-		TranslationLanguage: rule.Translation,
+		TranslationLanguage: rule.Explanation,
 		Level:               rule.Level,
 		Title:               rule.Title,
 		Theory:              rule.Theory,

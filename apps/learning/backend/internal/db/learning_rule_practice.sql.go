@@ -26,6 +26,22 @@ func (q *Queries) DeleteExpiredLearningRulePractice(ctx context.Context, arg Del
 	return err
 }
 
+const deleteLearningRulePracticeOfLanguage = `-- name: DeleteLearningRulePracticeOfLanguage :exec
+DELETE FROM learning_rule_practice WHERE user_id = $1 AND language = $2
+`
+
+type DeleteLearningRulePracticeOfLanguageParams struct {
+	UserID   pgtype.UUID
+	Language string
+}
+
+// A sitting is written in the language its teacher explained in. When the
+// learner switches that, what they were shown goes, with the chats about it.
+func (q *Queries) DeleteLearningRulePracticeOfLanguage(ctx context.Context, arg DeleteLearningRulePracticeOfLanguageParams) error {
+	_, err := q.db.Exec(ctx, deleteLearningRulePracticeOfLanguage, arg.UserID, arg.Language)
+	return err
+}
+
 const ensureLearningRulePractice = `-- name: EnsureLearningRulePractice :one
 INSERT INTO learning_rule_practice (id, user_id, rule_id, language, translation_language, level, title, theory, created_at, updated_at, expires_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $9, $10)

@@ -75,20 +75,23 @@ type checkResponse struct {
 
 // ruleSubject is the rule of the URL, as far as the learner's teacher covers it.
 func (c *Controller) ruleSubject(ctx echo.Context) (commands.RuleSubject, error) {
-	language, native, err := c.ruleBook(ctx, ctx.Param("id"))
+	teacher, err := c.ruleBook(ctx, ctx.Param("id"))
 	if err != nil {
 		return commands.RuleSubject{}, err
 	}
 
-	rule, ok := curriculum.Find(language, native, ctx.Param("id"))
+	language, explain := teacher.Language, commands.ExplainLanguage(teacher)
+
+	rule, ok := curriculum.Find(language, explain, ctx.Param("id"))
 	if !ok || rule.Extra == nil {
 		return commands.RuleSubject{}, apperr.NewNotFound("rule not found")
 	}
 
 	return commands.RuleSubject{
-		ID: rule.ID, Language: language, Translation: native,
-		LanguageName: learningcommands.LanguageName(language), TranslationName: learningcommands.LanguageName(native),
-		Level: rule.Level, Title: rule.Title, Theory: rule.Theory, Forms: rule.Extra.Forms,
+		ID: rule.ID, Language: language, Explanation: explain,
+		LanguageName: learningcommands.LanguageName(language), ExplanationName: learningcommands.LanguageName(explain),
+		NativeName: learningcommands.LanguageName(teacher.TranslationLanguage),
+		Level:      rule.Level, Title: rule.Title, Theory: rule.Theory, Forms: rule.Extra.Forms,
 	}, nil
 }
 

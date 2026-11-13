@@ -1,0 +1,1317 @@
+{
+  "a1-to-be": {
+    "forms": [
+      "I am / you are / he, she, it is / we, you, they are",
+      "Negative: I am not, he is not (isn't), they are not (aren't)",
+      "Question: Am I ...? Are you ...? Is she ...?"
+    ],
+    "examples": [
+      {
+        "text": "I am a student."
+      },
+      {
+        "text": "She is from Spain."
+      },
+      {
+        "text": "Are they at home?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "She are my friend.",
+        "right": "She is my friend.",
+        "note": "With she, he and it we use is."
+      }
+    ],
+    "related": [
+      "a1-have-got",
+      "a1-there-is",
+      "a1-present-simple"
+    ]
+  },
+  "a1-articles": {
+    "forms": [
+      "a + a consonant sound: a book",
+      "an + a vowel sound: an apple, an hour",
+      "the - a particular thing, or one already mentioned"
+    ],
+    "examples": [
+      {
+        "text": "I have a dog. The dog is big."
+      },
+      {
+        "text": "She is an engineer."
+      },
+      {
+        "text": "I like music."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I am student.",
+        "right": "I am a student.",
+        "note": "A job in the singular needs an article."
+      }
+    ],
+    "related": [
+      "a1-plurals",
+      "a1-demonstratives-possessives"
+    ]
+  },
+  "a1-plurals": {
+    "forms": [
+      "Usually -s: book - books",
+      "After s, x, ch, sh: -es: box - boxes",
+      "Consonant + y becomes -ies: city - cities",
+      "Irregular: man - men, child - children, person - people"
+    ],
+    "examples": [
+      {
+        "text": "two cars"
+      },
+      {
+        "text": "three children"
+      },
+      {
+        "text": "There are many cities here."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "two childs",
+        "right": "two children",
+        "note": "The plural of child is irregular."
+      }
+    ],
+    "related": [
+      "a1-articles",
+      "a2-quantifiers"
+    ]
+  },
+  "a1-demonstratives-possessives": {
+    "forms": [
+      "this / these - near; that / those - far",
+      "my, your, his, her, its, our, their + noun",
+      "'s shows who owns something: Tom's bag"
+    ],
+    "examples": [
+      {
+        "text": "This is my bag."
+      },
+      {
+        "text": "Those are his shoes."
+      },
+      {
+        "text": "It's my sister's room."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "This are my books.",
+        "right": "These are my books.",
+        "note": "For the plural we need these."
+      }
+    ],
+    "related": [
+      "a1-to-be",
+      "a1-have-got"
+    ]
+  },
+  "a1-present-simple": {
+    "forms": [
+      "I / you / we / they + verb: I work",
+      "he / she / it + verb-s: she works",
+      "Time words: always, usually, often, sometimes, never, every day"
+    ],
+    "examples": [
+      {
+        "text": "I get up at seven."
+      },
+      {
+        "text": "My brother plays football."
+      },
+      {
+        "text": "She never drinks coffee."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He work here.",
+        "right": "He works here.",
+        "note": "With he, she and it, the Present Simple takes -s."
+      }
+    ],
+    "related": [
+      "a1-present-simple-questions",
+      "a2-present-simple-vs-continuous"
+    ]
+  },
+  "a1-present-simple-questions": {
+    "forms": [
+      "Negative: do not (don't) / does not (doesn't) + verb",
+      "Question: Do you ...? Does he ...?",
+      "After does, the verb has no -s"
+    ],
+    "examples": [
+      {
+        "text": "I don't like tea."
+      },
+      {
+        "text": "Does she work here?"
+      },
+      {
+        "text": "Where do you live?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Does he works here?",
+        "right": "Does he work here?",
+        "note": "After does, the verb has no -s."
+      }
+    ],
+    "related": [
+      "a1-present-simple",
+      "a2-past-simple-questions"
+    ]
+  },
+  "a1-there-is": {
+    "forms": [
+      "There is + singular: There is a bed",
+      "There are + plural: There are two windows",
+      "Negative: isn't / aren't (any)",
+      "Question: Is there ...? Are there any ...?"
+    ],
+    "examples": [
+      {
+        "text": "There is a bank near here."
+      },
+      {
+        "text": "There aren't any eggs."
+      },
+      {
+        "text": "Is there a park in your town?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "There is two chairs.",
+        "right": "There are two chairs.",
+        "note": "For the plural we need there are."
+      }
+    ],
+    "related": [
+      "a1-prepositions",
+      "a2-quantifiers"
+    ]
+  },
+  "a1-can": {
+    "forms": [
+      "can + verb without to: I can swim",
+      "Negative: can't (cannot)",
+      "Question: Can you help me?"
+    ],
+    "examples": [
+      {
+        "text": "She can speak French."
+      },
+      {
+        "text": "I can't drive."
+      },
+      {
+        "text": "Can I open the window?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He can to swim.",
+        "right": "He can swim.",
+        "note": "We do not use to after can."
+      }
+    ],
+    "related": [
+      "a2-have-to-should",
+      "a1-to-be"
+    ]
+  },
+  "a1-have-got": {
+    "forms": [
+      "I / you / we / they have got; he / she / it has got",
+      "Negative: haven't / hasn't got",
+      "Question: Have you got ...? Has she got ...?"
+    ],
+    "examples": [
+      {
+        "text": "I've got a brother."
+      },
+      {
+        "text": "She hasn't got a car."
+      },
+      {
+        "text": "Have you got a pen?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "She have got blue eyes.",
+        "right": "She has got blue eyes.",
+        "note": "With she, he and it we need has."
+      }
+    ],
+    "related": [
+      "a1-to-be",
+      "a1-there-is"
+    ]
+  },
+  "a1-prepositions": {
+    "forms": [
+      "Place: in (inside), on (on a surface), at (at a point)",
+      "Time: at 5 o'clock, on Monday, in July",
+      "More: next to, under, behind, between"
+    ],
+    "examples": [
+      {
+        "text": "The keys are on the table."
+      },
+      {
+        "text": "I'm at school."
+      },
+      {
+        "text": "We meet on Friday."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I work in Monday.",
+        "right": "I work on Monday.",
+        "note": "With days of the week we use on."
+      }
+    ],
+    "related": [
+      "a1-there-is",
+      "a2-adverbs"
+    ]
+  },
+  "a2-past-simple-regular": {
+    "forms": [
+      "V + -ed: worked, played",
+      "Verbs ending in -e add -d: live - lived",
+      "Consonant + y becomes -ied: study - studied",
+      "Doubling: stop - stopped"
+    ],
+    "examples": [
+      {
+        "text": "I worked late yesterday."
+      },
+      {
+        "text": "She studied French at school."
+      },
+      {
+        "text": "We stopped at a cafe."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "She studyed French.",
+        "right": "She studied French.",
+        "note": "A consonant + y becomes -ied."
+      }
+    ],
+    "related": [
+      "a2-past-simple-irregular",
+      "a2-past-simple-questions"
+    ]
+  },
+  "a2-past-simple-irregular": {
+    "forms": [
+      "go - went, see - saw, have - had, make - made, take - took",
+      "to be: I / he / she / it was; you / we / they were",
+      "Negative and question: did + base form"
+    ],
+    "examples": [
+      {
+        "text": "We went to the sea."
+      },
+      {
+        "text": "She was tired."
+      },
+      {
+        "text": "They bought a new car."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I goed there.",
+        "right": "I went there.",
+        "note": "Go is an irregular verb, and its past form is went."
+      }
+    ],
+    "related": [
+      "a2-past-simple-regular",
+      "a2-past-simple-questions"
+    ]
+  },
+  "a2-past-simple-questions": {
+    "forms": [
+      "Negative: did not (didn't) + verb",
+      "Question: Did you ...? What did she ...?",
+      "After did, the verb is in the base form"
+    ],
+    "examples": [
+      {
+        "text": "I didn't see him."
+      },
+      {
+        "text": "Did you call her?"
+      },
+      {
+        "text": "Where did they go?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Did you saw it?",
+        "right": "Did you see it?",
+        "note": "After did, the verb is in the base form."
+      }
+    ],
+    "related": [
+      "a2-past-simple-irregular",
+      "a1-present-simple-questions"
+    ]
+  },
+  "a2-present-continuous": {
+    "forms": [
+      "am / is / are + verb-ing: I am working",
+      "Negative: am not / isn't / aren't + -ing",
+      "Question: Are you listening?"
+    ],
+    "examples": [
+      {
+        "text": "It is raining now."
+      },
+      {
+        "text": "I'm staying with a friend this week."
+      },
+      {
+        "text": "What are you doing?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I am knowing him.",
+        "right": "I know him.",
+        "note": "State verbs (know, like, want) are usually not used in the Continuous."
+      }
+    ],
+    "related": [
+      "a2-present-simple-vs-continuous",
+      "a2-going-to"
+    ]
+  },
+  "a2-present-simple-vs-continuous": {
+    "forms": [
+      "Present Simple: habits, timetables, permanent facts",
+      "Present Continuous: now or temporary",
+      "Clues: always, every day / now, at the moment, today"
+    ],
+    "examples": [
+      {
+        "text": "I drink tea every morning."
+      },
+      {
+        "text": "I'm drinking tea now."
+      },
+      {
+        "text": "She works in a bank, but today she's working at home."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Look! It rains.",
+        "right": "Look! It is raining.",
+        "note": "An action at the moment of speaking needs the Present Continuous."
+      }
+    ],
+    "related": [
+      "a1-present-simple",
+      "a2-present-continuous"
+    ]
+  },
+  "a2-going-to": {
+    "forms": [
+      "am / is / are + going to + verb",
+      "Negative: I'm not going to ...",
+      "Question: Are you going to ...?"
+    ],
+    "examples": [
+      {
+        "text": "I'm going to visit my aunt on Sunday."
+      },
+      {
+        "text": "Look at the clouds! It's going to rain."
+      },
+      {
+        "text": "Are you going to study tonight?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I going to buy a car.",
+        "right": "I'm going to buy a car.",
+        "note": "You need the verb to be: am, is or are."
+      }
+    ],
+    "related": [
+      "a2-will",
+      "a2-present-continuous"
+    ]
+  },
+  "a2-will": {
+    "forms": [
+      "will + verb: I will call you",
+      "Negative: won't (will not)",
+      "Question: Will you help me?"
+    ],
+    "examples": [
+      {
+        "text": "I'll have the soup."
+      },
+      {
+        "text": "I promise I won't be late."
+      },
+      {
+        "text": "It will be hot tomorrow."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I will to go.",
+        "right": "I will go.",
+        "note": "We do not use to after will."
+      }
+    ],
+    "related": [
+      "a2-going-to",
+      "b1-first-conditional"
+    ]
+  },
+  "a2-comparatives": {
+    "forms": [
+      "Short adjectives: -er / the -est: tall - taller - the tallest",
+      "Long adjectives: more / the most: more interesting",
+      "Irregular: good - better - best; bad - worse - worst",
+      "as ... as - equal"
+    ],
+    "examples": [
+      {
+        "text": "My bag is cheaper than yours."
+      },
+      {
+        "text": "This is the most expensive hotel."
+      },
+      {
+        "text": "He is as tall as me."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "This bag is more cheap.",
+        "right": "This bag is cheaper.",
+        "note": "Short adjectives take -er, not more."
+      }
+    ],
+    "related": [
+      "a2-adverbs",
+      "a1-to-be"
+    ]
+  },
+  "a2-quantifiers": {
+    "forms": [
+      "Countable: many, a few, some, any",
+      "Uncountable: much, a little, some, any",
+      "a lot of - for both",
+      "some - in positive sentences; any - in questions and negatives"
+    ],
+    "examples": [
+      {
+        "text": "How much water do you drink?"
+      },
+      {
+        "text": "There are a few apples."
+      },
+      {
+        "text": "I don't have any money."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "How many money?",
+        "right": "How much money?",
+        "note": "Money is uncountable, so we use much."
+      }
+    ],
+    "related": [
+      "a1-plurals",
+      "a1-there-is"
+    ]
+  },
+  "a2-have-to-should": {
+    "forms": [
+      "have to / must - it is necessary",
+      "don't have to - it is not necessary; mustn't - it is forbidden",
+      "should + verb - advice"
+    ],
+    "examples": [
+      {
+        "text": "I have to get up early."
+      },
+      {
+        "text": "You mustn't park here."
+      },
+      {
+        "text": "You should see a doctor."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "You mustn't come if you don't want to.",
+        "right": "You don't have to come if you don't want to.",
+        "note": "Mustn't means it is forbidden; when it is not necessary, say don't have to."
+      }
+    ],
+    "related": [
+      "a1-can",
+      "b1-modals-deduction"
+    ]
+  },
+  "a2-adverbs": {
+    "forms": [
+      "Manner: adjective + -ly: slow - slowly",
+      "Irregular: good - well, fast - fast, hard - hard",
+      "Frequency: before the verb, after to be: She always walks. He is never late."
+    ],
+    "examples": [
+      {
+        "text": "He drives carefully."
+      },
+      {
+        "text": "She speaks English well."
+      },
+      {
+        "text": "I usually get up at seven."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He speaks English good.",
+        "right": "He speaks English well.",
+        "note": "A verb needs the adverb well, not the adjective good."
+      }
+    ],
+    "related": [
+      "a1-present-simple",
+      "a2-comparatives"
+    ]
+  },
+  "b1-present-perfect": {
+    "forms": [
+      "have / has + V3: I have seen",
+      "Negative: haven't / hasn't + V3",
+      "Question: Have you ever ...?",
+      "for + a period, since + a starting point"
+    ],
+    "examples": [
+      {
+        "text": "I have lived here for ten years."
+      },
+      {
+        "text": "She has never been to Italy."
+      },
+      {
+        "text": "Have you finished yet?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I have seen him yesterday.",
+        "right": "I saw him yesterday.",
+        "note": "With yesterday we need the Past Simple."
+      }
+    ],
+    "related": [
+      "b1-present-perfect-vs-past",
+      "b2-present-perfect-continuous"
+    ]
+  },
+  "b1-present-perfect-vs-past": {
+    "forms": [
+      "Past Simple: the time is named, the action is finished",
+      "Present Perfect: the result or the experience matters, the time is not named",
+      "Only the Past Simple: yesterday, last week, ago, in 2019"
+    ],
+    "examples": [
+      {
+        "text": "I lost my keys. (I don't have them now.)"
+      },
+      {
+        "text": "I lost my keys yesterday."
+      },
+      {
+        "text": "Have you ever eaten sushi?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "When have you bought it?",
+        "right": "When did you buy it?",
+        "note": "A question about when something happened is in the Past Simple."
+      }
+    ],
+    "related": [
+      "b1-present-perfect",
+      "a2-past-simple-regular"
+    ]
+  },
+  "b1-past-continuous": {
+    "forms": [
+      "was / were + verb-ing",
+      "Background: Past Continuous; event: Past Simple",
+      "while - a long action; when - a short one"
+    ],
+    "examples": [
+      {
+        "text": "I was cooking at seven."
+      },
+      {
+        "text": "I was walking home when it started to rain."
+      },
+      {
+        "text": "While she was reading, he was cooking."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I was walk home.",
+        "right": "I was walking home.",
+        "note": "After was and were we need the -ing form."
+      }
+    ],
+    "related": [
+      "a2-past-simple-regular",
+      "b2-past-perfect"
+    ]
+  },
+  "b1-first-conditional": {
+    "forms": [
+      "If + Present Simple, will + verb",
+      "Not possible: If you will come",
+      "unless = if not"
+    ],
+    "examples": [
+      {
+        "text": "If it rains, we will stay at home."
+      },
+      {
+        "text": "I'll call you if I have time."
+      },
+      {
+        "text": "Unless you hurry, you'll be late."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "If it will rain, we stay at home.",
+        "right": "If it rains, we will stay at home.",
+        "note": "After if we use the Present Simple, not will."
+      }
+    ],
+    "related": [
+      "b1-second-conditional",
+      "a2-will"
+    ]
+  },
+  "b1-second-conditional": {
+    "forms": [
+      "If + Past Simple, would + verb",
+      "If I were you ... - advice",
+      "could or might instead of would"
+    ],
+    "examples": [
+      {
+        "text": "If I had more money, I would travel."
+      },
+      {
+        "text": "If I were you, I would apply."
+      },
+      {
+        "text": "What would you do if you won the lottery?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "If I would have money, I would buy it.",
+        "right": "If I had money, I would buy it.",
+        "note": "The if-part uses the Past Simple, without would."
+      }
+    ],
+    "related": [
+      "b1-first-conditional",
+      "b2-third-conditional"
+    ]
+  },
+  "b1-passive": {
+    "forms": [
+      "to be + V3: is cleaned, was cleaned",
+      "by + the doer (if it is important)",
+      "Question: Was it made in China?"
+    ],
+    "examples": [
+      {
+        "text": "English is spoken all over the world."
+      },
+      {
+        "text": "My bike was stolen."
+      },
+      {
+        "text": "The book was written by Orwell."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "The room cleaned every day.",
+        "right": "The room is cleaned every day.",
+        "note": "The passive always needs the verb to be."
+      }
+    ],
+    "related": [
+      "b2-passive-advanced",
+      "a2-past-simple-irregular"
+    ]
+  },
+  "b1-used-to": {
+    "forms": [
+      "used to + verb - a past habit",
+      "Negative and question: did + use to",
+      "would - only for repeated actions"
+    ],
+    "examples": [
+      {
+        "text": "I used to play the piano."
+      },
+      {
+        "text": "Did you use to smoke?"
+      },
+      {
+        "text": "She used to be shy."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I didn't used to like it.",
+        "right": "I didn't use to like it.",
+        "note": "After did the form is use, without -d."
+      }
+    ],
+    "related": [
+      "a2-past-simple-regular",
+      "b1-past-continuous"
+    ]
+  },
+  "b1-relative-clauses": {
+    "forms": [
+      "who - people, which - things, that - both",
+      "whose - belonging, where - place",
+      "You cannot leave out the subject, but you can leave out the object"
+    ],
+    "examples": [
+      {
+        "text": "The man who lives next door is a doctor."
+      },
+      {
+        "text": "The book (that) I bought is great."
+      },
+      {
+        "text": "This is the town where I was born."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "The man which lives next door is a doctor.",
+        "right": "The man who lives next door is a doctor.",
+        "note": "For people we say who."
+      }
+    ],
+    "related": [
+      "b2-relative-advanced",
+      "b1-linking-words"
+    ]
+  },
+  "b1-reported-speech": {
+    "forms": [
+      "The tense moves back: is becomes was, will becomes would",
+      "Words change: today becomes that day, tomorrow becomes the next day",
+      "Questions keep statement word order: He asked where I lived"
+    ],
+    "examples": [
+      {
+        "text": "She said (that) she was tired."
+      },
+      {
+        "text": "He asked if I was ready."
+      },
+      {
+        "text": "They said they would call."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He asked where did I live.",
+        "right": "He asked where I lived.",
+        "note": "A reported question has the word order of a statement."
+      }
+    ],
+    "related": [
+      "b2-reported-advanced",
+      "b1-passive"
+    ]
+  },
+  "b1-modals-deduction": {
+    "forms": [
+      "must be - almost certain",
+      "might / may / could be - possible",
+      "can't be - impossible",
+      "Past: must have + V3"
+    ],
+    "examples": [
+      {
+        "text": "She must be at work."
+      },
+      {
+        "text": "He might be sleeping."
+      },
+      {
+        "text": "That can't be true."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He must to be tired.",
+        "right": "He must be tired.",
+        "note": "We do not use to after must."
+      }
+    ],
+    "related": [
+      "b2-modals-past",
+      "a2-have-to-should"
+    ]
+  },
+  "b1-gerund-infinitive": {
+    "forms": [
+      "Gerund: enjoy, finish, mind, avoid + -ing",
+      "Infinitive: want, decide, hope, plan + to",
+      "After a preposition, always the gerund"
+    ],
+    "examples": [
+      {
+        "text": "I enjoy reading."
+      },
+      {
+        "text": "He decided to leave."
+      },
+      {
+        "text": "She is interested in learning Italian."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I enjoy to swim.",
+        "right": "I enjoy swimming.",
+        "note": "After enjoy we need the gerund."
+      }
+    ],
+    "related": [
+      "b2-gerund-infinitive-meaning",
+      "a1-can"
+    ]
+  },
+  "b1-linking-words": {
+    "forms": [
+      "because - reason, so - result",
+      "but, although, however - contrast",
+      "despite + a noun or a gerund"
+    ],
+    "examples": [
+      {
+        "text": "I was tired, so I went to bed."
+      },
+      {
+        "text": "Although it was cold, we went out."
+      },
+      {
+        "text": "It was cold. However, we went out."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Despite it was cold, we went out.",
+        "right": "Despite the cold, we went out.",
+        "note": "After despite comes a noun, not a full clause."
+      }
+    ],
+    "related": [
+      "b2-discourse",
+      "b1-relative-clauses"
+    ]
+  },
+  "b2-present-perfect-continuous": {
+    "forms": [
+      "have / has been + -ing",
+      "Stresses the process and how long it lasts",
+      "Result: Present Perfect; process: Continuous"
+    ],
+    "examples": [
+      {
+        "text": "I have been working here for five years."
+      },
+      {
+        "text": "She has been crying - her eyes are red."
+      },
+      {
+        "text": "How long have you been waiting?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I have been knowing him for years.",
+        "right": "I have known him for years.",
+        "note": "With state verbs we use the Present Perfect."
+      }
+    ],
+    "related": [
+      "b1-present-perfect",
+      "b2-past-perfect"
+    ]
+  },
+  "b2-past-perfect": {
+    "forms": [
+      "had + V3",
+      "An action that happened before another action in the past",
+      "Time words: after, before, by the time, already, just"
+    ],
+    "examples": [
+      {
+        "text": "When I arrived, the film had already started."
+      },
+      {
+        "text": "She told me she had lost her bag."
+      },
+      {
+        "text": "By the time we got there, they had left."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "When I arrived, the film already started.",
+        "right": "When I arrived, the film had already started.",
+        "note": "The earlier action is in the Past Perfect."
+      }
+    ],
+    "related": [
+      "b1-present-perfect-vs-past",
+      "b2-third-conditional"
+    ]
+  },
+  "b2-future-perfect-continuous": {
+    "forms": [
+      "will be + -ing - in progress at a moment in the future",
+      "will have + V3 - finished by a moment",
+      "will have been + -ing - how long, up to a moment"
+    ],
+    "examples": [
+      {
+        "text": "This time tomorrow I will be flying to Rome."
+      },
+      {
+        "text": "By June I will have finished my degree."
+      },
+      {
+        "text": "By May we will have been living here for ten years."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "By June I will finish my degree.",
+        "right": "By June I will have finished my degree.",
+        "note": "\"Finished by a certain moment\" needs the Future Perfect."
+      }
+    ],
+    "related": [
+      "a2-will",
+      "b2-past-perfect"
+    ]
+  },
+  "b2-third-conditional": {
+    "forms": [
+      "If + Past Perfect, would have + V3",
+      "Mixed: If + Past Perfect, would + verb (result now)",
+      "could have, might have instead of would have"
+    ],
+    "examples": [
+      {
+        "text": "If I had studied, I would have passed."
+      },
+      {
+        "text": "If I had taken that job, I would be rich now."
+      },
+      {
+        "text": "She wouldn't have missed the bus if she had left earlier."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "If I would have known, I would have come.",
+        "right": "If I had known, I would have come.",
+        "note": "We do not use would in the if-part."
+      }
+    ],
+    "related": [
+      "b1-second-conditional",
+      "b2-wish"
+    ]
+  },
+  "b2-wish": {
+    "forms": [
+      "wish + Past Simple - about the present",
+      "wish + Past Perfect - about the past",
+      "wish + would - annoyance at someone's behaviour"
+    ],
+    "examples": [
+      {
+        "text": "I wish I had more time."
+      },
+      {
+        "text": "I wish I had gone to the party."
+      },
+      {
+        "text": "I wish you would stop shouting."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I wish I will be there.",
+        "right": "I wish I could be there.",
+        "note": "We do not use a future tense after wish."
+      }
+    ],
+    "related": [
+      "b2-third-conditional",
+      "b1-second-conditional"
+    ]
+  },
+  "b2-passive-advanced": {
+    "forms": [
+      "In all tenses: is being built, has been built, will be built",
+      "With modal verbs: must be finished",
+      "Impersonal: It is said that ... / He is said to be ...",
+      "have something done"
+    ],
+    "examples": [
+      {
+        "text": "The bridge is being repaired."
+      },
+      {
+        "text": "He is said to be rich."
+      },
+      {
+        "text": "I had my car repaired."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "The report must finished today.",
+        "right": "The report must be finished today.",
+        "note": "After a modal verb we need be + V3."
+      }
+    ],
+    "related": [
+      "b1-passive",
+      "b2-reported-advanced"
+    ]
+  },
+  "b2-reported-advanced": {
+    "forms": [
+      "Yes/no question: asked if / whether",
+      "Request and order: told / asked + to",
+      "Reporting verbs: suggest, admit, deny, promise, warn, refuse"
+    ],
+    "examples": [
+      {
+        "text": "She asked if I was ready."
+      },
+      {
+        "text": "He admitted taking the money."
+      },
+      {
+        "text": "They suggested going to the cinema."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He suggested me to go.",
+        "right": "He suggested going.",
+        "note": "After suggest we use the gerund."
+      }
+    ],
+    "related": [
+      "b1-reported-speech",
+      "b1-gerund-infinitive"
+    ]
+  },
+  "b2-relative-advanced": {
+    "forms": [
+      "Non-defining: between commas, no that",
+      "which - refers to the whole sentence",
+      "Participle clauses: The man standing there ... (who is standing)"
+    ],
+    "examples": [
+      {
+        "text": "My brother, who lives in Berlin, is a teacher."
+      },
+      {
+        "text": "He passed the exam, which surprised everyone."
+      },
+      {
+        "text": "The book written by Orwell is famous."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "My brother, that lives in Berlin, is a teacher.",
+        "right": "My brother, who lives in Berlin, is a teacher.",
+        "note": "We do not use that in non-defining clauses."
+      }
+    ],
+    "related": [
+      "b1-relative-clauses",
+      "b2-discourse"
+    ]
+  },
+  "b2-modals-past": {
+    "forms": [
+      "should have + V3 - it was the right thing to do",
+      "could have + V3 - it was possible",
+      "must have + V3 - almost certainly",
+      "can't have + V3 - it was impossible"
+    ],
+    "examples": [
+      {
+        "text": "You should have called me."
+      },
+      {
+        "text": "We could have won."
+      },
+      {
+        "text": "He must have missed the bus."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "You should called me.",
+        "right": "You should have called me.",
+        "note": "After should we need have + V3."
+      }
+    ],
+    "related": [
+      "b1-modals-deduction",
+      "b2-wish"
+    ]
+  },
+  "b2-gerund-infinitive-meaning": {
+    "forms": [
+      "stop doing - end it; stop to do - stop in order to",
+      "remember doing - a memory; remember to do - do not forget",
+      "try doing - test it; try to do - make an effort"
+    ],
+    "examples": [
+      {
+        "text": "He stopped smoking."
+      },
+      {
+        "text": "I remember locking the door."
+      },
+      {
+        "text": "Remember to lock the door."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "I forgot locking the door.",
+        "right": "I forgot to lock the door.",
+        "note": "To say you did not do something, use forget + to + infinitive."
+      }
+    ],
+    "related": [
+      "b1-gerund-infinitive",
+      "b2-reported-advanced"
+    ]
+  },
+  "b2-phrasal-verbs": {
+    "forms": [
+      "verb + particle: give up, look after",
+      "Separable: put on the jacket / put it on",
+      "Inseparable: look after them"
+    ],
+    "examples": [
+      {
+        "text": "I gave up smoking."
+      },
+      {
+        "text": "She looks after her grandmother."
+      },
+      {
+        "text": "Put it on!"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Put on it.",
+        "right": "Put it on.",
+        "note": "A pronoun goes between the verb and the particle."
+      }
+    ],
+    "related": [
+      "b2-discourse",
+      "b1-gerund-infinitive"
+    ]
+  },
+  "b2-discourse": {
+    "forms": [
+      "Contrast: whereas, nevertheless, on the contrary",
+      "Adding: moreover, furthermore, besides",
+      "Result: therefore, consequently, as a result"
+    ],
+    "examples": [
+      {
+        "text": "The plan was risky. Nevertheless, they went ahead."
+      },
+      {
+        "text": "Moreover, the price is low."
+      },
+      {
+        "text": "He was ill; therefore, he stayed home."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Nevertheless of the rain, we went out.",
+        "right": "Despite the rain, we went out.",
+        "note": "Nevertheless is an adverb, not a preposition."
+      }
+    ],
+    "related": [
+      "b1-linking-words",
+      "b2-relative-advanced"
+    ]
+  }
+}

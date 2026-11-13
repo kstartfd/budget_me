@@ -153,3 +153,27 @@ func TestFreeSystemPromptIsTheTeacherForTheTopicAndStaysStable(t *testing.T) {
 		t.Errorf("summary missing:\n%s", withSummary)
 	}
 }
+
+// TestALessonChatExplainsInTheLanguageTheTeacherIsSetTo: the chat of a program
+// topic talks in the learner's own language by default, and, when the teacher
+// explains in the learned one, in short plain English and nothing else.
+func TestALessonChatExplainsInTheLanguageTheTeacherIsSetTo(t *testing.T) {
+	path := db.LearningPath{Language: "en", TranslationLanguage: "ru", Level: "B1"}
+	topic := db.LearningPathTopic{Title: "Past Perfect", Goal: "Tell what happened first."}
+
+	own := lessonSystem(path, topic, "ru", "")
+	if !strings.Contains(own, "own language is Russian") || strings.Contains(own, "asked to be taught only in") {
+		t.Fatalf("by default the chat is in the learner's own language:\n%s", own)
+	}
+
+	learned := lessonSystem(path, topic, "en", "")
+	for _, want := range []string{"asked to be taught only in English", "short, plain sentences", "stay in English even when they write in another language"} {
+		if !strings.Contains(learned, want) {
+			t.Errorf("the chat was not told %q:\n%s", want, learned)
+		}
+	}
+
+	if learned != lessonSystem(path, topic, "en", "") {
+		t.Fatal("the system prompt must be byte-identical between turns, or the provider cache is lost")
+	}
+}

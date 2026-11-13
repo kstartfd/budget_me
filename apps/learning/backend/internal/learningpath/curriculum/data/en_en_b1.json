@@ -1,0 +1,200 @@
+[
+  {
+    "id": "b1-present-perfect",
+    "skill": "grammar",
+    "unit": "Perfect tenses",
+    "title": "Present Perfect: experience and result",
+    "goal": "Talk about experience, recent events and things that continue up to now.",
+    "theory": "The Present Perfect is made with have/has + the past participle (V3): I have seen, she has finished. It links the past with the present: experience (I have been to Italy), a recent result (I have lost my keys), an action that is still going on (I have lived here for ten years). Time words: ever, never, already, yet, just, for, since. For shows a period (for two years), since shows a starting point (since 2020). You cannot use it with a finished time such as yesterday or in 2019.",
+    "tags": ["present perfect", "have has", "for since", "ever never", "just already yet"]
+  },
+  {
+    "id": "b1-present-perfect-vs-past",
+    "skill": "grammar",
+    "unit": "Perfect tenses",
+    "title": "Present Perfect or Past Simple",
+    "goal": "Choose the right tense when you tell about the past.",
+    "theory": "Use the Past Simple when the time of the action is named or clear from the context and it is finished: I saw this film last year. Use the Present Perfect when the result or the experience matters and the time is not named: I have seen this film (and I can tell you about it). With yesterday, last week, ago and in 2020, use only the Past Simple. With just, already, yet, ever, never, for and since, we usually use the Present Perfect. A question about when something happened uses the Past Simple: When did you buy it?",
+    "tags": ["present perfect", "past simple", "comparing tenses", "yesterday ago"]
+  },
+  {
+    "id": "b1-past-continuous",
+    "skill": "grammar",
+    "unit": "The past",
+    "title": "Past Continuous and Past Simple in a story",
+    "goal": "Tell stories: what was happening and what happened at that moment.",
+    "theory": "The Past Continuous (was/were + -ing) describes an action that was in progress at a moment in the past: I was cooking at 7. It sets the background, and the Past Simple gives the events on that background: I was walking home when it started to rain. For two actions at the same time: While she was reading, he was cooking. About when and while: while goes with a long action, and when more often goes with a short one.",
+    "tags": ["past continuous", "was were -ing", "when while", "story"]
+  },
+  {
+    "id": "b1-first-conditional",
+    "skill": "grammar",
+    "unit": "Conditionals",
+    "title": "First conditional",
+    "goal": "Talk about real conditions and their results in the future.",
+    "theory": "The first conditional describes a real condition and its possible result: If it rains, we will stay at home. The if-part uses the Present Simple, and the main part uses will + a verb. Never put will after if: If you will come is wrong. You can change the order of the parts: We will stay at home if it rains (you need a comma only after the if-part). Instead of will you can use can, may or might: If you study, you can pass the exam. Unless means if not.",
+    "tags": ["first conditional", "if", "will", "unless", "real condition"]
+  },
+  {
+    "id": "b1-second-conditional",
+    "skill": "grammar",
+    "unit": "Conditionals",
+    "title": "Second conditional",
+    "goal": "Talk about unreal or unlikely situations and give advice.",
+    "theory": "The second conditional describes an unreal or unlikely situation in the present or future: If I had a lot of money, I would travel the world. The if-part uses the Past Simple, and the main part uses would + a verb. With to be, we more often use were for all persons: If I were you, I would apply. This phrase is also the standard way to give advice. You can replace would with could or might.",
+    "tags": ["second conditional", "would", "if I were", "unreal condition"]
+  },
+  {
+    "id": "b1-passive",
+    "skill": "grammar",
+    "unit": "The passive",
+    "title": "The passive: Present and Past Simple",
+    "goal": "Talk about an action when the result matters more than the person who did it.",
+    "theory": "The passive is made with to be + V3: The room is cleaned every day (present), The room was cleaned yesterday (past). We add the doer with by only when it is important: The book was written by Orwell. We use the passive when the doer is unknown or not important: My bike was stolen. English is spoken all over the world. Question: Where was it made? Was the letter sent?",
+    "tags": ["passive", "was made", "by"]
+  },
+  {
+    "id": "b1-used-to",
+    "skill": "grammar",
+    "unit": "The past",
+    "title": "Used to and would: past habits",
+    "goal": "Tell how things used to be different.",
+    "theory": "Used to + a verb describes a habit or a state in the past that is no longer true: I used to play the piano. She used to live in Paris. The negative and the question use did: I didn't use to like coffee. Did you use to smoke? For repeated actions you can also say would: When I was a child, we would visit my grandma every summer. You cannot use would for states: I used to be shy (not I would be shy).",
+    "tags": ["used to", "would", "past habits"]
+  },
+  {
+    "id": "b1-relative-clauses",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Relative clauses: who, which, that",
+    "goal": "Say exactly who or what you mean and join sentences together.",
+    "theory": "Relative pronouns add information to a noun. Who is for people: The man who lives next door is a doctor. Which is for things: The book which I bought is great. That can be used for people and things in defining clauses: The film that we saw was long. Where is for places and whose shows who something belongs to. If the pronoun is not the subject of the clause, you can leave it out: The film (that) we saw.",
+    "tags": ["relative clauses", "who which that", "whose", "where"]
+  },
+  {
+    "id": "b1-reported-speech",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Reported speech: telling what was said",
+    "goal": "Report what other people said and asked.",
+    "theory": "In reported speech the tense usually moves back: Present Simple becomes Past Simple, Present Continuous becomes Past Continuous, Present Perfect becomes Past Perfect, will becomes would, can becomes could. Pronouns and time words change too: I becomes he/she, today becomes that day, tomorrow becomes the next day. Example: She said, \"I am tired\" becomes She said (that) she was tired. In reported questions the word order is that of a statement: He asked where I lived (not where did I live).",
+    "tags": ["reported speech", "said told asked", "backshift"]
+  },
+  {
+    "id": "b1-modals-deduction",
+    "skill": "grammar",
+    "unit": "Modal verbs",
+    "title": "Must, might, can't: making guesses",
+    "goal": "Draw conclusions and make guesses about the present.",
+    "theory": "For a strong conclusion we use must (I am almost sure): She must be at work - her car is outside. For something possible we use might, may or could: He might be sleeping. When we are sure something is not true, we use can't: That can't be true. For the past, the form changes: must have been, might have gone, can't have done. Do not mix up must for a conclusion (it is very likely) and must for duty (you have to).",
+    "tags": ["modals of deduction", "must be", "might", "can't be", "guesses"]
+  },
+  {
+    "id": "b1-gerund-infinitive",
+    "skill": "grammar",
+    "unit": "Verb forms",
+    "title": "Gerund and infinitive after verbs",
+    "goal": "Choose the right verb form after enjoy, want, decide and other verbs.",
+    "theory": "After some verbs you need the gerund (-ing): enjoy, finish, mind, avoid, keep, suggest: I enjoy reading. She avoided answering. After other verbs you need the infinitive with to: want, decide, hope, plan, learn, promise: He decided to leave. Some verbs take both forms (like, love, start): I like to swim / I like swimming. After a preposition we always use the gerund: interested in learning.",
+    "tags": ["gerund", "infinitive", "enjoy doing", "want to do", "-ing or to"]
+  },
+  {
+    "id": "b1-linking-words",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Linking words: although, however, because, so",
+    "goal": "Connect your ideas and make your speaking and writing flow.",
+    "theory": "A reason is introduced by because and a result by so: I was tired, so I went to bed. For contrast we use but, although/though, and however (at the start of a sentence, followed by a comma): Although it was cold, we went out. It was cold. However, we went out. After although comes a full clause, but after despite/in spite of comes a noun or a gerund: despite the rain. To add an idea: also, in addition, moreover.",
+    "tags": ["linking words", "although however", "because so", "despite"]
+  },
+  {
+    "id": "b1-vocab-work",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Work and careers",
+    "goal": "Talk about your job and discuss looking for work.",
+    "theory": "Words about work often form fixed phrases: apply for a job, have an interview, earn money, get a promotion. Know the difference: job is a particular piece of work, work is labour in general, and career is the path of your working life. Prepositions: work for a company, work on a project, be good at something. A salary is paid monthly or yearly, while a wage is paid by the hour.",
+    "tags": ["work", "career", "interview"]
+  },
+  {
+    "id": "b1-vocab-environment",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "The environment and the weather",
+    "goal": "Discuss nature, the weather and environmental problems.",
+    "theory": "The topic of nature uses many fixed phrases: protect the environment, global warming, natural resources, reduce waste, recycle plastic. For the weather: it's freezing (very cold), pouring (raining hard), humid (the air is wet), forecast (what the weather will be). The word weather is uncountable: The weather is nice (not weathers).",
+    "tags": ["environment", "weather", "nature"]
+  },
+  {
+    "id": "b1-vocab-technology",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Technology and the internet",
+    "goal": "Talk about gadgets, apps and the internet.",
+    "theory": "Many technology words have small differences in meaning: download (get a file from the internet), upload (send a file to the internet), log in / log out (enter or leave your account), update (get the newest version), password (your secret word). Common phrases: My phone is out of battery. The signal is weak. I'm online. Prepositions: be on social media, search for information, connect to Wi-Fi.",
+    "tags": ["technology", "internet", "gadgets"]
+  },
+  {
+    "id": "b1-reading-articles",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading articles and reviews",
+    "goal": "Understand the main idea of an article or a review and find the details you need.",
+    "theory": "In an article, first find the main idea: it is usually in the title and in the first paragraph. Then notice which arguments and examples the author gives. Pay attention to words of opinion: in my opinion, I think, according to. Know the difference between a fact and an opinion: Paris is the capital of France (a fact), Paris is the most beautiful city (an opinion).",
+    "tags": ["reading", "articles", "opinion", "arguments"]
+  },
+  {
+    "id": "b1-writing-email",
+    "skill": "writing",
+    "unit": "Reading and writing",
+    "title": "Writing letters and giving an opinion",
+    "goal": "Write an informal letter and a short text that gives your opinion.",
+    "theory": "An informal letter has a greeting (Dear Tom), an opening line (How are you?), a main part in paragraphs and a closing (Write soon, Best wishes). To give an opinion, use I think/I believe/In my opinion, then give the reason with because and an example with for example. A mini-essay has a main point, two reasons and a conclusion. Take care with paragraphs and linking words: firstly, in addition, in conclusion.",
+    "tags": ["writing", "email", "opinion", "essay", "structure"]
+  },
+  {
+    "id": "b1-listening-podcasts",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to podcasts and interviews",
+    "goal": "Understand the main idea of a podcast or an interview and note the main arguments.",
+    "theory": "In an interview or a podcast, first listen for the topic and the question, then for the answer and the examples. Notice signal words: however, for example, the main reason. It does not matter if you miss a word: the meaning stands on the key words. After listening, say the main idea in one sentence.",
+    "tags": ["listening", "podcasts", "interviews"]
+  },
+  {
+    "id": "b1-listening-news",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to news and instructions",
+    "goal": "Understand a news item or step-by-step instructions by ear and pick out the main points.",
+    "theory": "In the news, the main event comes first, then the details: who, what, where, when. In instructions, listen for the order of actions: first, next, make sure, don't forget. Remember numbers, names and the order. If you miss a detail, keep listening: the next sentence often explains it.",
+    "tags": ["listening", "news", "instructions"]
+  },
+  {
+    "id": "b1-speaking-opinion",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: giving an opinion and discussing",
+    "goal": "Give an opinion with a reason, agree, or politely disagree.",
+    "theory": "It is better to give an opinion together with a reason: I think ... because ... To agree, use I agree or that's true. To disagree, say I see your point, but ... This is more polite than a simple no. To explain more clearly: What I mean is ... Speak out loud, but do not learn words by heart: a connected idea matters more than perfect grammar.",
+    "tags": ["speaking", "opinion", "discussion"]
+  },
+  {
+    "id": "b1-speaking-story",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: telling a story and your impressions",
+    "goal": "Tell a story from your life clearly, with a beginning, events and an ending.",
+    "theory": "A story has a beginning (When I was ...), events (Suddenly ... Then ...) and an ending (In the end ...). Use the Past Simple for events and the Past Continuous for the background. Add feelings: I was so surprised. Practise telling the same story out loud, adding a new detail each time.",
+    "tags": ["speaking", "story", "past simple", "past continuous"]
+  },
+  {
+    "id": "b1-reading-stories",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading short stories",
+    "goal": "Understand the plot of a story, its characters and the reasons for events, and retell the main points.",
+    "theory": "In a story, find the characters, the place and the main event. Watch the tenses: the Past Simple gives the events, the Past Continuous the background, and the Past Perfect what happened earlier. Notice words about feelings and reasons (because, so, that's why). After reading, try to retell the plot in three sentences.",
+    "tags": ["reading", "story", "plot"]
+  }
+]

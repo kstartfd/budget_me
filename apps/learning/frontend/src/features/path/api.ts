@@ -155,6 +155,15 @@ export const createTeacher = (
     { language, translationLanguage },
   )
 
+/** Switches a teacher between explaining in the learner's own language and the learned one. */
+export const updateTeacher = (
+  id: string,
+  explainInTarget: boolean,
+): Promise<PathTeacher> =>
+  request(`/path/teachers/${id}`, "PATCH", (d) => pathTeacherSchema.parse(d), {
+    explainInTarget,
+  })
+
 /** The voice of a word, a sentence to listen to or a phrase to repeat. */
 export async function fetchPathAudio(path: string): Promise<Blob> {
   const token = readToken()

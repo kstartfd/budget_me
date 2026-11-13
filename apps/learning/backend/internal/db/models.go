@@ -756,6 +756,7 @@ type LearningPathAttempt struct {
 	Feedback   string
 	CreatedAt  pgtype.Timestamptz
 	LessonID   pgtype.UUID
+	Mistakes   int32
 }
 
 type LearningPathExercise struct {
@@ -881,6 +882,7 @@ type LearningTeacher struct {
 	Language            string
 	TranslationLanguage string
 	CreatedAt           pgtype.Timestamptz
+	ExplainInTarget     bool
 }
 
 type LearningToken struct {

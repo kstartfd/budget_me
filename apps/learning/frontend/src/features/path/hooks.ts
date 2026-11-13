@@ -87,7 +87,7 @@ export function useRule(id: string, language?: string) {
   })
 }
 
-/** The learner's teachers, and adding one. */
+/** The learner's teachers, and adding, changing and removing one. */
 export function useTeachers() {
   const { user } = useAuth()
   const client = useQueryClient()
@@ -109,7 +109,15 @@ export function useTeachers() {
     onSuccess: () => client.invalidateQueries({ queryKey: ["path", user?.id] }),
   })
 
-  return { teachers, create, remove }
+  // The language of explanations changes the rule book, the program's texts and
+  // the sittings on rules, so everything the path tab has read is read again.
+  const update = useMutation({
+    mutationFn: (input: { id: string; explainInTarget: boolean }) =>
+      api.updateTeacher(input.id, input.explainInTarget),
+    onSuccess: () => client.invalidateQueries({ queryKey: ["path", user?.id] }),
+  })
+
+  return { teachers, create, remove, update }
 }
 
 export function usePathTest(id: string | null) {

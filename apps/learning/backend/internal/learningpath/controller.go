@@ -335,7 +335,7 @@ func (c *Controller) jobDTO(ctx echo.Context, job db.LearningPathJob) jobRespons
 
 	if job.Status == db.LearningPathJobStatusDone && job.PathID.Valid {
 		if found, err := c.read.PathByID(ctx.Request().Context(), userOf(ctx), ids.FromPg(job.PathID)); err == nil {
-			dto := pathDTO(found)
+			dto := pathDTO(found, c.explainOf(ctx, found.Path.Language))
 			out.Path = &dto
 		}
 	}
@@ -380,6 +380,31 @@ func (c *Controller) createTeacher(ctx echo.Context) error {
 	return httpx.Created(ctx, teacherDTO(queries.TeacherView{Teacher: teacher}))
 }
 
+type teacherSettingsRequest struct {
+	ExplainInTarget bool `json:"explainInTarget"`
+}
+
+// updateTeacher changes how a teacher explains: in the learner's own language
+// or in the one they learn.
+func (c *Controller) updateTeacher(ctx echo.Context) error {
+	id, err := idParam(ctx, "teacher")
+	if err != nil {
+		return err
+	}
+
+	var req teacherSettingsRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	teacher, err := c.teachers.SetExplain(ctx.Request().Context(), userOf(ctx), id, req.ExplainInTarget)
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, teacherDTO(queries.TeacherView{Teacher: teacher}))
+}
+
 // deleteTeacher removes a teacher from the list; its program goes to the history.
 func (c *Controller) deleteTeacher(ctx echo.Context) error {
 	id, err := idParam(ctx, "teacher")
@@ -407,7 +432,7 @@ func (c *Controller) current(ctx echo.Context) error {
 
 	ctx.Response().Header().Set("Cache-Control", "no-store")
 
-	return httpx.OK(ctx, pathDTO(found))
+	return httpx.OK(ctx, pathDTO(found, c.explainOf(ctx, language)))
 }
 
 func (c *Controller) history(ctx echo.Context) error {
@@ -418,7 +443,7 @@ func (c *Controller) history(ctx echo.Context) error {
 
 	out := make([]pathResponse, len(found))
 	for i, p := range found {
-		out[i] = pathDTO(p)
+		out[i] = pathDTO(p, "")
 	}
 
 	ctx.Response().Header().Set("Cache-Control", "no-store")
@@ -466,11 +491,19 @@ func (c *Controller) topic(ctx echo.Context) error {
 	// The rule is shown only to someone who has that teacher now: a program kept
 	// in the history of a teacher they deleted does not hand it out.
 	var rule *ruleResponse
-	if c.hasRuleBook(ctx, detail.Path.Language) {
-		rule = ruleOf(detail)
+
+	teacher, hasTeacher := c.teacherOf(ctx, detail.Path.Language)
+	explain := detail.Path.TranslationLanguage
+
+	if hasTeacher {
+		explain = commands.ExplainLanguage(teacher)
+
+		if len(curriculum.Rules(teacher.Language, explain)) > 0 {
+			rule = ruleOf(detail, teacher.TranslationLanguage, explain)
+		}
 	}
 
-	return httpx.OK(ctx, topicDetailDTO(detail, rule))
+	return httpx.OK(ctx, topicDetailDTO(detail, rule, explain))
 }
 
 // hasRuleBook tells whether the learner has a teacher of this language whose
@@ -482,7 +515,7 @@ func (c *Controller) hasRuleBook(ctx echo.Context, language string) bool {
 	}
 
 	for _, t := range teachers {
-		if t.Teacher.Language == language && len(curriculum.Rules(t.Teacher.Language, t.Teacher.TranslationLanguage)) > 0 {
+		if t.Teacher.Language == language && len(curriculum.Rules(t.Teacher.Language, commands.ExplainLanguage(t.Teacher))) > 0 {
 			return true
 		}
 	}
@@ -494,9 +527,9 @@ func (c *Controller) hasRuleBook(ctx echo.Context, language string) bool {
 // topic an agent wrote on its own, the one its title names. It is only given
 // for a pair that has a rule book, and a program is only ever of such a pair
 // when its teacher is, so no one gets a rule they have no teacher for.
-func ruleOf(d queries.TopicDetail) *ruleResponse {
-	language, native := d.Path.Language, d.Path.TranslationLanguage
-	if !curriculum.Has(language, native) {
+func ruleOf(d queries.TopicDetail, native, explain string) *ruleResponse {
+	language := d.Path.Language
+	if !curriculum.Has(language, explain) {
 		return nil
 	}
 
@@ -506,19 +539,19 @@ func ruleOf(d queries.TopicDetail) *ruleResponse {
 	)
 
 	if d.Topic.SourceID != "" {
-		found, ok = curriculum.Find(language, native, d.Topic.SourceID)
+		found, ok = curriculum.Find(language, explain, d.Topic.SourceID)
 	}
 
 	if !ok || found.Extra == nil {
 		reach := min(placement.Index(placement.Level(d.Path.Level))+1, len(placement.Levels)-1)
-		found, ok = curriculum.Match(language, native, d.Topic.Title, placement.Levels[max(reach, 0)])
+		found, ok = curriculum.Match(language, explain, d.Topic.Title, placement.Levels[max(reach, 0)])
 	}
 
 	if !ok || found.Extra == nil {
 		return nil
 	}
 
-	rule := ruleDTO(found, language, native)
+	rule := ruleDTO(found, language, native, explain)
 
 	return &rule
 }
@@ -534,54 +567,81 @@ func ruleOf(d queries.TopicDetail) *ruleResponse {
 // the practice calls on a rule's page rely on. A rule that no book has still
 // answers from the first book there is, so the caller finds it missing (404)
 // instead of the book being closed (403).
-func (c *Controller) ruleBook(ctx echo.Context, ruleID string) (string, string, error) {
+func (c *Controller) ruleBook(ctx echo.Context, ruleID string) (db.LearningTeacher, error) {
 	teachers, err := c.read.Teachers(ctx.Request().Context(), userOf(ctx))
 	if err != nil {
-		return "", "", err
+		return db.LearningTeacher{}, err
 	}
 
 	want := ctx.QueryParam("language")
 
-	var firstLanguage, firstNative string
+	var first *db.LearningTeacher
 
 	for _, t := range teachers {
-		language, native := t.Teacher.Language, t.Teacher.TranslationLanguage
-		if want != "" && language != want {
+		teacher := t.Teacher
+		if want != "" && teacher.Language != want {
 			continue
 		}
 
-		if len(curriculum.Rules(language, native)) == 0 {
+		explain := commands.ExplainLanguage(teacher)
+		if len(curriculum.Rules(teacher.Language, explain)) == 0 {
 			continue
 		}
 
 		if ruleID == "" {
-			return language, native, nil
+			return teacher, nil
 		}
 
-		if rule, ok := curriculum.Find(language, native, ruleID); ok && rule.Extra != nil {
-			return language, native, nil
+		if rule, ok := curriculum.Find(teacher.Language, explain, ruleID); ok && rule.Extra != nil {
+			return teacher, nil
 		}
 
-		if firstLanguage == "" {
-			firstLanguage, firstNative = language, native
+		if first == nil {
+			first = &teacher
 		}
 	}
 
-	if firstLanguage != "" {
-		return firstLanguage, firstNative, nil
+	if first != nil {
+		return *first, nil
 	}
 
-	return "", "", apperr.NewForbidden("the rule book is for a teacher whose language it covers")
+	return db.LearningTeacher{}, apperr.NewForbidden("the rule book is for a teacher whose language it covers")
+}
+
+// explainOf is the language the learner's teacher of a language explains in, or
+// empty where they have no such teacher now.
+func (c *Controller) explainOf(ctx echo.Context, language string) string {
+	if teacher, ok := c.teacherOf(ctx, language); ok {
+		return commands.ExplainLanguage(teacher)
+	}
+
+	return ""
+}
+
+// teacherOf is the learner's teacher of a language, if they have one now.
+func (c *Controller) teacherOf(ctx echo.Context, language string) (db.LearningTeacher, bool) {
+	teachers, err := c.read.Teachers(ctx.Request().Context(), userOf(ctx))
+	if err != nil {
+		return db.LearningTeacher{}, false
+	}
+
+	for _, t := range teachers {
+		if t.Teacher.Language == language {
+			return t.Teacher, true
+		}
+	}
+
+	return db.LearningTeacher{}, false
 }
 
 // listRules lists the rules of the learner's rule book, by level.
 func (c *Controller) listRules(ctx echo.Context) error {
-	language, native, err := c.ruleBook(ctx, "")
+	teacher, err := c.ruleBook(ctx, "")
 	if err != nil {
 		return err
 	}
 
-	rules := curriculum.Rules(language, native)
+	rules := curriculum.Rules(teacher.Language, commands.ExplainLanguage(teacher))
 	out := make([]ruleRef, len(rules))
 
 	for i, r := range rules {
@@ -593,19 +653,23 @@ func (c *Controller) listRules(ctx echo.Context) error {
 
 // getRule reads one rule, with the rules it refers to.
 func (c *Controller) getRule(ctx echo.Context) error {
-	language, native, err := c.ruleBook(ctx, ctx.Param("id"))
+	teacher, err := c.ruleBook(ctx, ctx.Param("id"))
 	if err != nil {
 		return err
 	}
 
-	rule, ok := curriculum.Find(language, native, ctx.Param("id"))
+	explain := commands.ExplainLanguage(teacher)
+
+	rule, ok := curriculum.Find(teacher.Language, explain, ctx.Param("id"))
 	if !ok || rule.Extra == nil {
 		return apperr.NewNotFound("rule not found")
 	}
 
-	ctx.Response().Header().Set("Cache-Control", "private, max-age=3600")
+	// The rule depends on the teacher's setting, which the learner changes: the
+	// browser may not keep an hour-old copy of the other language.
+	ctx.Response().Header().Set("Cache-Control", "private, no-cache")
 
-	return httpx.OK(ctx, ruleDTO(rule, language, native))
+	return httpx.OK(ctx, ruleDTO(rule, teacher.Language, teacher.TranslationLanguage, explain))
 }
 
 // generate writes (or hands back) the exercise set of a topic.
@@ -645,7 +709,12 @@ func (c *Controller) completeTopic(ctx echo.Context) error {
 		return err
 	}
 
-	return httpx.OK(ctx, topicDTO(topic))
+	path, err := c.read.PathByID(ctx.Request().Context(), userOf(ctx), ids.FromPg(topic.PathID))
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, topicDTO(topic, path.Path.Language, c.explainOf(ctx, path.Path.Language)))
 }
 
 // attempt checks one answer; the explanation of a mistake comes from the

@@ -12,6 +12,7 @@ import (
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
 	learningcommands "learning_app/backend/internal/learning/commands"
+	"learning_app/backend/internal/learningpath/curriculum"
 	"learning_app/backend/internal/learningpath/placement"
 )
 
@@ -96,8 +97,11 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 
 	prefs := cmd.Preferences.Clean()
 
+	// The program is written in the language the learner's teacher explains in:
+	// their own, or the one they learn.
+	explainCode := explanationOf(ctx, h.q, test.UserID, test.Language, test.TranslationLanguage)
 	learned := learningcommands.LanguageName(test.Language)
-	native := learningcommands.LanguageName(test.TranslationLanguage)
+	explain := learningcommands.LanguageName(explainCode)
 
 	reached := placement.Level(test.LevelReached)
 
@@ -105,13 +109,21 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 
 	// A pair with a library is planned from it, so the rules and words a
 	// learner reads were written by people; otherwise the agent writes it all.
-	if library := libraryFor(test.Language, test.TranslationLanguage, reached); len(library) > 0 {
-		plan, err = h.planFromLibrary(ctx, cmd.UserID, learned, native, reached, asked, correct, wrong, prefs, library)
+	if library := libraryFor(test.Language, explainCode, reached); len(library) > 0 {
+		// Key words stay translated into the learner's own language whatever
+		// the explanations are written in.
+		vocabulary := func(id string) []curriculum.Word {
+			own, _ := curriculum.Find(test.Language, test.TranslationLanguage, id)
+
+			return own.Vocabulary
+		}
+
+		plan, err = h.planFromLibrary(ctx, cmd.UserID, learned, explain, reached, asked, correct, wrong, prefs, library, vocabulary)
 		if err != nil {
 			return db.LearningPath{}, nil, err
 		}
 	} else {
-		system, prompt := analyzePrompt(learned, native, reached, asked, correct, wrong, prefs)
+		system, prompt := analyzePrompt(learned, explain, reached, asked, correct, wrong, prefs)
 
 		if err := h.agent.completeJSON(ctx, cmd.UserID, system, prompt, &plan, func() error {
 			return validateProgram(&plan)

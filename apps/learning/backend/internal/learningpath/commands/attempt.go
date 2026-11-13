@@ -83,7 +83,7 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 		}
 	}
 
-	correct, feedback, err := h.review(ctx, cmd.UserID, path, exercise, options, answer)
+	verdict, err := h.review(ctx, cmd.UserID, path, exercise, options, answer)
 	if err != nil {
 		return AttemptResult{}, err
 	}
@@ -93,8 +93,9 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 		ExerciseID: exercise.ID,
 		UserID:     ids.ToPg(cmd.UserID),
 		Answer:     answer,
-		Correct:    correct,
-		Feedback:   feedback,
+		Correct:    verdict.Correct,
+		Mistakes:   int32(verdict.Mistakes),
+		Feedback:   verdict.Feedback,
 		LessonID:   h.lessonOf(ctx, cmd.UserID),
 		CreatedAt:  db.Time(h.clock.Now()),
 	})
@@ -109,7 +110,7 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 		}
 	}
 
-	if correct {
+	if verdict.Correct {
 		if _, err := h.q.CompleteLearningPathTopicIfExercisesPassed(ctx, db.CompleteLearningPathTopicIfExercisesPassedParams{
 			ID:          topic.ID,
 			UserID:      ids.ToPg(cmd.UserID),
@@ -119,18 +120,19 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 		}
 	}
 
-	return AttemptResult{Attempt: attempt, Feedback: feedback}, nil
+	return AttemptResult{Attempt: attempt, Feedback: verdict.Feedback}, nil
 }
 
 // review grades the answer and, when it is wrong or the answer was free,
-// asks the agent for the explanation.
-func (h AttemptHandler) review(ctx context.Context, userID uuid.UUID, path db.LearningPath, exercise db.LearningPathExercise, options []string, answer string) (bool, string, error) {
+// asks the agent for the explanation. A text the learner wrote on their own
+// comes back with the number of mistakes a native speaker would find in it.
+func (h AttemptHandler) review(ctx context.Context, userID uuid.UUID, path db.LearningPath, exercise db.LearningPathExercise, options []string, answer string) (review, error) {
 	key := placement.Question{Answer: exercise.Answer}
 
 	// A phrase said aloud was already heard by the browser: it is compared
 	// with the phrase right here, no agent needed.
 	if exercise.Kind == db.LearningPathExerciseKindSpeak {
-		return placement.Similarity(answer, exercise.Answer) >= speakMatch, "", nil
+		return review{Correct: placement.Similarity(answer, exercise.Answer) >= speakMatch}, nil
 	}
 
 	// Choice, fill and listen have one right answer; only the explanation ever
@@ -138,46 +140,36 @@ func (h AttemptHandler) review(ctx context.Context, userID uuid.UUID, path db.Le
 	// by the agent.
 	if exercise.Kind != db.LearningPathExerciseKindTranslate && exercise.Kind != db.LearningPathExerciseKindWrite {
 		if placement.Grade(key, answer) {
-			return true, "", nil
+			return review{Correct: true}, nil
 		}
 
-		feedback, err := h.explain(ctx, userID, path, exercise, options, answer)
+		verdict, err := h.ask(ctx, userID, path, exercise, options, answer)
 
-		return false, feedback, err
+		// The learner is told it is wrong either way, so the explanation is all
+		// the call is for; the agent's own correct flag is ignored.
+		return review{Feedback: verdict.Feedback}, err
 	}
 
-	var verdict review
-
-	learned := learningcommands.LanguageName(path.Language)
-	native := learningcommands.LanguageName(path.TranslationLanguage)
-	system, prompt := reviewPrompt(learned, native, string(exercise.Kind), exercise.Text, exercise.Prompt, exercise.Answer, answer, options)
-
-	if err := h.gated(ctx, userID, func(callCtx context.Context) error {
-		return h.agent.completeJSON(callCtx, userID, system, prompt, &verdict, func() error { return nil })
-	}); err != nil {
-		return false, "", err
-	}
-
-	return verdict.Correct, verdict.Feedback, nil
+	return h.ask(ctx, userID, path, exercise, options, answer)
 }
 
-// explain has the agent word the mistake in the learner's own language. The
-// learner is told it is wrong either way, so the explanation is all the call
-// is for; the agent's own correct flag is ignored.
-func (h AttemptHandler) explain(ctx context.Context, userID uuid.UUID, path db.LearningPath, exercise db.LearningPathExercise, options []string, answer string) (string, error) {
+// ask has the learner's agent judge and explain one answer, in the language the
+// learner's teacher explains in.
+func (h AttemptHandler) ask(ctx context.Context, userID uuid.UUID, path db.LearningPath, exercise db.LearningPathExercise, options []string, answer string) (review, error) {
 	var verdict review
 
+	kind := string(exercise.Kind)
 	learned := learningcommands.LanguageName(path.Language)
-	native := learningcommands.LanguageName(path.TranslationLanguage)
-	system, prompt := reviewPrompt(learned, native, string(exercise.Kind), exercise.Text, exercise.Prompt, exercise.Answer, answer, options)
+	explain := learningcommands.LanguageName(explanationOf(ctx, h.q, path.UserID, path.Language, path.TranslationLanguage))
+	system, prompt := reviewPrompt(learned, explain, path.Level, kind, exercise.Text, exercise.Prompt, exercise.Answer, answer, options)
 
 	if err := h.gated(ctx, userID, func(callCtx context.Context) error {
-		return h.agent.completeJSON(callCtx, userID, system, prompt, &verdict, func() error { return nil })
+		return h.agent.completeJSON(callCtx, userID, system, prompt, &verdict, func() error { return verdict.settle(kind) })
 	}); err != nil {
-		return "", err
+		return review{}, err
 	}
 
-	return verdict.Feedback, nil
+	return verdict, nil
 }
 
 // gated paces the calls that spend the learner's key; objective grading runs

@@ -152,8 +152,8 @@ WHERE e.id = $1 AND p.user_id = $2
   );
 
 -- name: InsertLearningPathAttempt :one
-INSERT INTO learning_path_attempts (id, exercise_id, user_id, answer, correct, feedback, lesson_id, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING *;
+INSERT INTO learning_path_attempts (id, exercise_id, user_id, answer, correct, mistakes, feedback, lesson_id, created_at)
+VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING *;
 
 -- name: ListLearningPathAttemptsByTopic :many
 SELECT a.* FROM learning_path_attempts a
@@ -224,6 +224,9 @@ RETURNING *;
 
 -- name: GetLearningTeacher :one
 SELECT * FROM learning_teachers WHERE id = $1 AND user_id = $2;
+
+-- name: SetLearningTeacherExplain :one
+UPDATE learning_teachers SET explain_in_target = $3 WHERE id = $1 AND user_id = $2 RETURNING *;
 
 -- name: DeleteLearningTeacher :execrows
 DELETE FROM learning_teachers WHERE id = $1 AND user_id = $2;
