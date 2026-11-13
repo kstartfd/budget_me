@@ -24,7 +24,7 @@ import {
 import { Labelled, MessageBody } from "./message-body";
 
 const selectClass =
-  "border-input bg-background h-9 w-full rounded-md border px-2 text-sm";
+  "border-input bg-background w-full rounded-md border p-2 text-[12.5px]";
 
 const sample = [
   "Rule: use Present Simple for habits.",
@@ -117,11 +117,11 @@ export function TriggersSection() {
     <section className="flex flex-col gap-3">
       <SectionKicker>{t("title")}</SectionKicker>
 
-      <div className={cn(sectionCard, "space-y-4 p-4")}>
-        <p className="text-sm leading-[1.45]">{t("hint")}</p>
+      <div className={cn(sectionCard, "flex flex-col gap-3.5 p-4")}>
+        <p className="text-[13.5px] leading-normal">{t("hint")}</p>
 
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[34rem] border-separate border-spacing-y-1.5 text-sm">
+          <table className="w-full min-w-[34rem] border-separate border-spacing-y-1.5 text-[12.5px]">
             <thead>
               <tr className="text-muted-foreground text-left text-xs font-semibold">
                 <th className="px-1 font-semibold">{t("word")}</th>
@@ -134,7 +134,7 @@ export function TriggersSection() {
             <tbody>
               {settings.triggers.map((x) => (
                 <tr key={x.id} className="align-middle">
-                  <td className="px-1 font-semibold break-words">{x.word}</td>
+                  <td className="px-1 text-[12.5px] font-semibold break-words">{x.word}</td>
                   <td className="px-1">
                     <StyleSelect
                       value={x.style}
@@ -190,7 +190,7 @@ export function TriggersSection() {
             maxLength={40}
             placeholder={t("placeholder")}
             aria-label={t("placeholder")}
-            className="min-w-32 flex-1"
+            className="h-auto min-w-32 flex-1 rounded-md p-[9px] text-xs md:text-xs"
             onChange={(e) => setWord(e.target.value)}
           />
           <div className="w-36">
@@ -199,8 +199,12 @@ export function TriggersSection() {
           <div className="w-36">
             <ColorSelect value={color} onChange={setColor} />
           </div>
-          <Button type="submit" disabled={normalizeWord(word) === ""}>
-            <IconPlus size={16} />
+          <Button
+            type="submit"
+            disabled={normalizeWord(word) === ""}
+            className="h-auto rounded-md px-3.5 py-[9px] text-[12.5px] font-medium"
+          >
+            <IconPlus size={14} />
             {t("add")}
           </Button>
         </form>
@@ -224,7 +228,7 @@ export function TriggersSection() {
           />
         </label>
 
-        <div className="bg-muted border-border/60 rounded-2xl border px-4 py-3 text-[15px] leading-relaxed">
+        <div className="bg-muted border-border/60 rounded-[14px] border p-4 text-[15px] leading-relaxed">
           <MessageBody text={sample} />
         </div>
 
@@ -238,6 +242,7 @@ export function TriggersSection() {
           variant="outline"
           disabled={reset.isPending}
           onClick={() => reset.mutate()}
+          className="h-auto self-start rounded-md px-[11px] py-2 text-xs font-medium"
         >
           {t("reset")}
         </Button>

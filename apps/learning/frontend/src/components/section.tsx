@@ -14,7 +14,7 @@ export function SectionKicker({
   return (
     <span
       className={cn(
-        "text-muted-foreground font-mono text-[11px] font-medium tracking-[0.08em] uppercase",
+        "text-muted-foreground font-mono text-[10.5px] font-medium tracking-[0.1em] uppercase",
         className,
       )}
       {...props}
@@ -22,14 +22,13 @@ export function SectionKicker({
   )
 }
 
-export const sectionCard =
-  "bg-card border-border rounded-[14px] border shadow-[0_1px_0_var(--border)]"
+export const sectionCard = "bg-card border-border rounded-[12px] border"
 
 export const sectionHint = "text-muted-foreground text-xs leading-[1.35]"
 
 export function StatusPill({ children }: { children: React.ReactNode }) {
   return (
-    <span className="flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--success-wash)] px-3 py-[5px] text-xs font-medium text-[color:var(--success)]">
+    <span className="flex shrink-0 items-center gap-1 rounded-full bg-[color:var(--success-wash)] px-[11px] py-[5px] text-[11.5px] font-medium text-[color:var(--success)]">
       <IconCheck size={12} aria-hidden="true" />
       {children}
     </span>

@@ -92,7 +92,7 @@ function IdentityRow({
   return (
     <div className="p-[14px]">
       <div className="flex items-center gap-3">
-        <span className="bg-muted text-foreground/75 flex size-[38px] shrink-0 items-center justify-center rounded-[10px]">
+        <span className="bg-muted text-foreground/75 flex size-[38px] shrink-0 items-center justify-center rounded-[9px]">
           {icon}
         </span>
         <div className="min-w-0 flex-1">

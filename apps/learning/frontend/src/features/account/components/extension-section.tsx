@@ -22,7 +22,7 @@ export function ExtensionSection() {
           "hover:border-primary/30 flex items-center gap-3.5 p-4 transition-colors",
         )}
       >
-        <span className="bg-muted text-foreground/75 flex size-[38px] shrink-0 items-center justify-center rounded-[10px]">
+        <span className="bg-muted text-foreground/75 flex size-[38px] shrink-0 items-center justify-center rounded-[9px]">
           <IconKey size={18} />
         </span>
         <span className="min-w-0 flex-1 text-sm leading-snug font-semibold break-words">

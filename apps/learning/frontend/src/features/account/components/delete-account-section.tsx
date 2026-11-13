@@ -39,7 +39,7 @@ export function DeleteAccountSection() {
     <section className="flex flex-col gap-3">
       <SectionKicker>{t("dangerKicker")}</SectionKicker>
 
-      <div className="bg-card rounded-[14px] border border-[color:var(--destructive)]/30 p-[14px] shadow-[0_1px_0_var(--border)]">
+      <div className="bg-card rounded-[12px] border border-[color:var(--destructive)]/30 p-[14px]">
         {deleteAt ? (
           <>
             <div className="text-destructive text-[14px] font-semibold">
@@ -101,7 +101,7 @@ export function DeleteAccountSection() {
             <button
               type="button"
               onClick={() => setConfirming(true)}
-              className="text-destructive shrink-0 rounded-xl border border-[color:var(--destructive)]/40 px-3.5 py-2 text-[12.5px] font-semibold"
+              className="text-destructive shrink-0 rounded-full border border-[color:var(--destructive)]/40 px-4 py-2 text-[12.5px] font-medium"
             >
               {t("deleteAction")}
             </button>
