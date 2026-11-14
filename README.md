@@ -1,6 +1,6 @@
 # Budget Me workspace
 
-One GitLab repository with two separate Telegram Mini Apps.
+One GitHub repository with two separate Telegram Mini Apps.
 
 | Application | Source | Runtime |
 | --- | --- | --- |
@@ -12,9 +12,9 @@ Both apps share one account (Telegram / email login, profile, deletion):
 
 Shared deployment configuration lives in `infra/`. Both apps run on one VPS
 behind one Caddy and one Postgres (separate databases), each deployed
-**blue-green** by GitLab CI: every `main` pipeline builds both apps. Learning
-deploys by itself once its tests and builds are green and something of it changed;
-`deploy:budget` and both `rollback:*` are manual buttons (see
+**blue-green** by GitHub Actions: every push to `main` tests and builds the apps that changed and
+deploys them once the tests and builds are green; rollback is the manual
+**Rollback** workflow (see
 `infra/budget/CI_CD.md`).
 
 ## Local work

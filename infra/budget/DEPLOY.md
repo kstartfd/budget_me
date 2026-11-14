@@ -1,8 +1,8 @@
 # budget_me — production deploy runbook (manual fallback)
 
 > **The primary deploy path is CI/CD — see [`CI_CD.md`](CI_CD.md).** `git push`
-> to `main` builds the images in GitLab, pushes them to the registry, and the
-> manual **deploy:budget** / **deploy:learning** buttons roll the app out on the VPS. This runbook is
+> to `main` builds the images in GitHub Actions, pushes them to GHCR, and the
+> deploy workflow rolls the app out on the VPS. This runbook is
 > the hand-driven fallback (bring the stack up yourself from a checkout). Either
 > way the images are **pulled from the registry** — nothing is built on the VPS.
 >
@@ -49,11 +49,11 @@ git clone <repo-url> budget_me && cd budget_me
 
 ## 3. Log the server into the registry
 
-Images are private. Log in once with a `read_registry` **deploy token** (create
-it in GitLab: Settings → Repository → Deploy tokens — see [`CI_CD.md` §1b](CI_CD.md)):
+Images are private. Log in once with a **personal access token** with the
+`read:packages` scope (see [`CI_CD.md` §1b](CI_CD.md)):
 
 ```bash
-docker login registry.gitlab.com -u <deploy-token-user> -p <deploy-token-secret>
+docker login ghcr.io -u <github-user> -p <read-packages-token>
 ```
 
 ## 4. Create the production .env
@@ -72,7 +72,7 @@ nano infra/budget/compose/.env
 
 Set `DOMAIN`, `POSTGRES_PASSWORD`, `ACCOUNT_POSTGRES_PASSWORD`, `AUTH_SECRET`, `TELEGRAM_BOT_TOKEN` (may stay
 empty for the first bring-up), and the image tags **`BACKEND_IMAGE` /
-`FRONTEND_IMAGE`** — pin a real `:<sha>` from a green pipeline (or `:latest`).
+`FRONTEND_IMAGE`** — pin a real `:<sha>` from a green run (or `:latest`).
 **Never commit this file** — the repo `.gitignore` already ignores every `.env`.
 
 ## 5. Pull and start
@@ -142,7 +142,7 @@ deploy, see [`infra/budget/cron/install-backup-cron.sh`](cron/install-backup-cro
 the deploy also takes a local dump right before running migrations.
 
 The dump carries transaction history and password hashes, so it is encrypted
-**before** it leaves the box. The passphrase lives in the GitLab CI variables and
+**before** it leaves the box. The passphrase lives in the GitHub Actions secrets and
 in your password manager — deliberately NOT on the server, or a stolen box would
 hand over the data and the key to read it together.
 
@@ -155,7 +155,7 @@ hand over the data and the key to read it together.
 
 Two places they can live, and the deploy handles both:
 
-1. **GitLab CI/CD → Variables** (`BACKUP_PASSPHRASE` masked + protected). The
+1. **GitHub → Settings → Secrets and variables → Actions** (`BACKUP_PASSPHRASE`). The
    passphrase then never touches the server, so a stolen box cannot hand over the
    dumps and the key to read them in one go.
 2. **`~/budget_me/.env.local` on the server** (chmod 600, never in git). The
@@ -165,8 +165,8 @@ Two places they can live, and the deploy handles both:
    box already owns the live database — the encryption still protects the copies
    sitting in Telegram. This is what budget_me actually runs on.
 
-CI wins whenever it has a value, so moving a secret from the box into GitLab
-later is just setting it there.
+CI wins whenever it has a value, so moving a secret from the box into GitHub
+secrets later is just setting it there.
 
 With the value in neither place the nightly job fails loudly into
 `~/budget_me/backup.log` (and, once a chat id exists, announces the failure in
@@ -234,8 +234,8 @@ an external check is not optional:
 3. Alert contact → Telegram → point it at the same chat
 
 `/healthz` answers `503` when the DB is unreachable, so this catches "the process
-is up but the app is dead", not just a down box. (Not done as a GitLab schedule
-on purpose: a 15-minute cron is ~2 900 pipelines a month and would eat the free
+is up but the app is dead", not just a down box. (Not done as a scheduled workflow
+on purpose: a 15-minute cron is ~2 900 runs a month and would eat the free
 CI minutes; UptimeRobot exists for exactly this.)
 
 ### The alert chat

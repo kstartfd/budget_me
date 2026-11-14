@@ -10,9 +10,9 @@ Learning runs on the same VPS as budget, at `learning.<domain>`
   `PUBLIC` loses `CONNECT` on both databases, so neither app reaches the other's).
 - Blue-green like budget: `learning-backend-blue/green`,
   `learning-frontend-blue/green`, routed by `infra/edge/learning.active.caddy`.
-- CI: `deploy:learning` runs by itself on `main` once learning's tests and builds
-  are green and something of it changed (otherwise it is a manual button);
-  `rollback:learning` is a manual button on every `main` pipeline. They need the `LEARNING_*` variables or `~/budget_me/.env.learning.local`
+- CI: the deploy of learning runs by itself on `main` once its tests and builds
+  are green and something of it changed; rollback is the manual **Rollback**
+  workflow. They need the `LEARNING_*` secrets or `~/budget_me/.env.learning.local`
   on the box (infra/budget/CI_CD.md §1d). A deploy with a required value missing
   stops before touching anything live.
 - Logins live in the shared account database (`account_app`, see

@@ -8,7 +8,7 @@
 #
 # So: ~/budget_me/.env.local (chmod 600, never in git, never touched by the
 # deploy) fills in the keys CI left empty. CI still WINS when it has a value, so
-# moving a secret into GitLab later is just setting it there — nothing to undo
+# moving a secret into GitHub secrets later is just setting it there — nothing to undo
 # here.
 #
 #   ./scripts/merge-env.sh .env.new .env.local

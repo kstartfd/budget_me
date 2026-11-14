@@ -169,7 +169,7 @@ learning.migrate:
 	$(COMPOSE_LEARNING) --profile tools run --rm migrate
 
 # ── production stack (manual fallback; CI/CD is primary — see infra/budget/CI_CD.md) ──
-# Requires a `docker login registry.gitlab.com` first and BACKEND_IMAGE /
+# Requires a `docker login ghcr.io` first and BACKEND_IMAGE /
 # FRONTEND_IMAGE set in infra/budget/compose/.env — images come from the registry.
 prod.pull:
 	$(COMPOSE_PROD) pull

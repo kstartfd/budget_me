@@ -9,7 +9,7 @@
 #
 # It is encrypted BEFORE it leaves: the dump carries transaction history and
 # password hashes, and Telegram is not a safe place for either in the clear.
-# Symmetric gpg with BACKUP_PASSPHRASE — the passphrase lives in the GitLab CI
+# Symmetric gpg with BACKUP_PASSPHRASE — the passphrase lives in the GitHub Actions
 # variables and in the owner's password manager, NOT on this box, or a stolen
 # box would hand over both the data and the key to read it.
 #

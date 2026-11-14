@@ -10,7 +10,7 @@ name: budget_me
 # database `learning_app` in this Postgres, joined over this project's default
 # network `budget_me_default`.
 #
-# Images are NOT built here — they are pulled from the GitLab Container
+# Images are NOT built here — they are pulled from the GitHub Container
 # Registry (BLUE_* / GREEN_* / BACKEND_IMAGE / FRONTEND_IMAGE come from the
 # .env). CI builds and pushes them; the VPS (1 GB RAM) never builds.
 # See infra/budget/CI_CD.md for the pipeline and infra/budget/DEPLOY.md for the manual path.

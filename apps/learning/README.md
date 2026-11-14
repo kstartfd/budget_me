@@ -20,7 +20,7 @@ be `https://<learning-domain>` after the VPS move.
 
 ## Production
 
-GitLab CI tests, builds and deploys Learning to the shared VPS
+GitHub Actions tests, builds and deploys Learning to the shared VPS
 (`https://learning.budgetme.xyz`) when `apps/learning/` or `infra/learning/`
 changes. How it is wired — Compose project, edge Caddy, secrets on the box,
 backups, rebuilding — is in [`infra/learning/README.md`](../../infra/learning/README.md).

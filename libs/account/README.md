@@ -66,4 +66,4 @@ ACCOUNT_DATABASE_URL=postgres://…/account   # this module; its TestMain migrat
 DATABASE_URL=postgres://…/app               # an app's own, after `go run ./cmd/migrate up`
 ```
 
-CI starts both (`.db-services` in `.gitlab-ci.yml`). Regenerate sqlc with `make sqlc`.
+CI starts both (the test jobs in `.github/workflows/ci.yml`). Regenerate sqlc with `make sqlc`.

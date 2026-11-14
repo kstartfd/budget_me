@@ -1,35 +1,33 @@
-# budget_me — CI/CD (GitLab → VPS)
+# budget_me — CI/CD (GitHub Actions → VPS)
 
 This is the **primary** deploy path. A push to `main` tests and builds the Docker
-images of **both** apps on the GitLab runner and pushes them to the GitLab
-Container Registry. **deploy:learning runs by itself** after its tests and builds
-are green whenever something of learning changed (`apps/learning`, `libs/account`,
-`infra/learning`, `infra/edge`, `.gitlab-ci.yml`); on any other `main` pipeline it
-stays a manual button. **deploy:budget**, **rollback:budget** and
-**rollback:learning** are manual buttons on every `main` pipeline. The deploy jobs
-SSH into the VPS and roll the release out **blue-green** (see §6); a failed deploy
-puts traffic and schema back by itself and reds the pipeline. Learning lives on the same VPS at
-`learning.<domain>` with its own colours, database and releases log. The VPS never builds
-images. The pipeline is defined in [`.gitlab-ci.yml`](../../.gitlab-ci.yml); the
-manual fallback lives in [`DEPLOY.md`](DEPLOY.md).
+images of the apps that changed on GitHub Actions and pushes them to the GitHub
+Container Registry (GHCR). The deploy then SSHes into the VPS and rolls the
+release out **blue-green** (see §6); a failed deploy puts traffic and schema back
+by itself and reds the run. Rollback of either app is the manual **Rollback**
+workflow (§5). Learning lives on the same VPS at `learning.<domain>` with its own
+colours, database and releases log. The VPS never builds images. The workflows
+are in [`.github/workflows/`](../../.github/workflows/) (`ci.yml` tests and builds,
+`deploy.yml` is the reusable deploy, `rollback.yml` the rollback); the manual
+fallback lives in [`DEPLOY.md`](DEPLOY.md).
 
 ```
-push main ─▶ test + build (budget AND learning)   (Docker-in-Docker on the runner)
+push main ─▶ test + build (only what changed)     (GitHub-hosted runner)
                   │
-                  └─▶ push to registry.gitlab.com/kstartfd/budget_me
+                  └─▶ push to ghcr.io/kstartfd/budget_me
                                     │
                                     ▼
-                  deploy:budget (manual button) / deploy:learning (automatic when learning changed)
+                  deploy (budget and/or learning, one lock for the whole server)
                     ssh deploy@45.133.19.54
                     render ~/budget_me/.env[.learning]  ·  docker login
                     bluegreen.sh <app> deploy:
                       backup → migrate up → start idle colour
                       → health → caddy reload → watch → release log
-                  rollback:budget / rollback:learning  (manual buttons)
+                  Rollback workflow  (Actions → Rollback → Run workflow)
 ```
 
-- Project: `gitlab.com/kstartfd/budget_me`
-- Registry: `registry.gitlab.com/kstartfd/budget_me`
+- Repository: `github.com/kstartfd/budget_me`
+- Registry: `ghcr.io/kstartfd/budget_me`
   (`…/backend:<sha>`, `…/frontend:<sha>`, plus a moving `:latest`; learning's are
   `…/learning-backend:<sha>` and `…/learning-frontend:<sha>`)
 - Server: `deploy@45.133.19.54` (Ubuntu 26.04, Docker + Compose v2, 4 GB RAM /
@@ -38,20 +36,18 @@ push main ─▶ test + build (budget AND learning)   (Docker-in-Docker on the r
 
 ---
 
-## 1. One-time GitLab setup
+## 1. One-time GitHub setup
 
-### 1a. Enable the Container Registry
-Settings → General → Visibility, project features, permissions → make sure
-**Container Registry** is **On**. (The build jobs push here; without it they 403.)
+### 1a. Packages
+The build jobs push to GHCR with the workflow's own `GITHUB_TOKEN`
+(`permissions: packages: write` in `ci.yml`); nothing to enable. Packages are
+created private on the first push.
 
-### 1b. Create a Deploy Token for the server to pull images
-Settings → Repository → **Deploy tokens** → *Add token*:
-- Name: `vps-pull` (anything)
-- Scopes: **`read_registry`** only
-- Create, then copy the generated **username** and **token** — shown once.
-
-These become the CI variables `DEPLOY_TOKEN_USER` / `DEPLOY_TOKEN_PASSWORD`; the
-deploy job runs `docker login registry.gitlab.com` with them on the server.
+### 1b. A token for the server to pull images
+GitHub → Settings → Developer settings → **Personal access tokens** → generate a
+token with the single scope **`read:packages`**. Its owner and value become the
+secrets `GHCR_PULL_USER` / `GHCR_PULL_TOKEN`; the deploy job runs
+`docker login ghcr.io` with them on the server.
 
 ### 1c. Create the SSH deploy key pair (on your machine)
 ```bash
@@ -59,7 +55,7 @@ ssh-keygen -t ed25519 -C budget_me-deploy -f ~/.ssh/budget_me_deploy -N ''
 ```
 - **Public** key `~/.ssh/budget_me_deploy.pub` → append to the server's
   `~deploy/.ssh/authorized_keys` (see §2).
-- **Private** key `~/.ssh/budget_me_deploy` → the `SSH_PRIVATE_KEY` CI variable.
+- **Private** key `~/.ssh/budget_me_deploy` → the `SSH_PRIVATE_KEY` secret.
 
 Get the server host keys for `SSH_KNOWN_HOSTS`:
 ```bash
@@ -67,27 +63,28 @@ ssh-keyscan 45.133.19.54
 ```
 Copy the whole output (all lines).
 
-### 1d. Add the CI/CD variables
-Settings → CI/CD → **Variables**. For each: set **Protected** (only protected
-refs — `main`/tags — run these jobs) and **Masked** where marked. `SSH_PRIVATE_KEY`
-is a multi-line key, so it **cannot be masked** — set its **Type = File** instead.
+### 1d. Add the secrets
+Settings → Secrets and variables → **Actions**. The full list, per app, is in the
+header of [`deploy.yml`](../../.github/workflows/deploy.yml). The deploy jobs run
+in the GitHub **environments** `production` (budget) and `learning`, so the
+secrets can live there instead of at repository level.
 
-| Variable                | Value                                          | Type     | Protected | Masked |
-|-------------------------|------------------------------------------------|----------|-----------|--------|
-| `SSH_PRIVATE_KEY`       | contents of `~/.ssh/budget_me_deploy`          | **File** | yes       | —      |
-| `SSH_HOST`              | `45.133.19.54`                                 | Variable | yes       | no     |
-| `SSH_KNOWN_HOSTS`       | output of `ssh-keyscan 45.133.19.54`           | Variable | yes       | no     |
-| `DEPLOY_TOKEN_USER`     | deploy-token username (from §1b)               | Variable | yes       | no     |
-| `DEPLOY_TOKEN_PASSWORD` | deploy-token secret (from §1b)                 | Variable | yes       | **yes**|
-| `DOMAIN`                | `budgetme.xyz`                                 | Variable | yes       | no     |
-| `POSTGRES_PASSWORD`     | `openssl rand -hex 24`                         | Variable | yes       | **yes**|
-| `AUTH_SECRET`           | `openssl rand -hex 32`                          | Variable | yes       | **yes**|
-| `TELEGRAM_BOT_TOKEN`    | @BotFather token (may start empty)             | Variable | yes       | **yes**|
-| `ACCOUNT_POSTGRES_PASSWORD` | `openssl rand -hex 24` (role `account_app`, shared by both apps) | Variable | yes | **yes**|
-| `LEARNING_DOMAIN`       | optional — defaults to `learning.budgetme.xyz` | Variable | yes       | no     |
-| `LEARNING_POSTGRES_PASSWORD` | `openssl rand -hex 24` (role `learning_app`) | Variable | yes  | **yes**|
-| `LEARNING_AUTH_SECRET`  | `openssl rand -hex 32`                          | Variable | yes       | **yes**|
-| `LEARNING_TELEGRAM_BOT_TOKEN` | token of the learning bot                | Variable | yes       | **yes**|
+| Secret                  | Value                                          |
+|-------------------------|------------------------------------------------|
+| `SSH_PRIVATE_KEY`       | contents of `~/.ssh/budget_me_deploy`          |
+| `SSH_HOST`              | `45.133.19.54`                                 |
+| `SSH_KNOWN_HOSTS`       | output of `ssh-keyscan 45.133.19.54`           |
+| `GHCR_PULL_USER`        | GitHub user that owns the token from §1b       |
+| `GHCR_PULL_TOKEN`       | the `read:packages` token from §1b             |
+| `DOMAIN`                | `budgetme.xyz`                                 |
+| `POSTGRES_PASSWORD`     | `openssl rand -hex 24`                         |
+| `AUTH_SECRET`           | `openssl rand -hex 32`                         |
+| `TELEGRAM_BOT_TOKEN`    | @BotFather token (may start empty)             |
+| `ACCOUNT_POSTGRES_PASSWORD` | `openssl rand -hex 24` (role `account_app`, shared by both apps) |
+| `LEARNING_DOMAIN`       | optional — defaults to `learning.budgetme.xyz` |
+| `LEARNING_POSTGRES_PASSWORD` | `openssl rand -hex 24` (role `learning_app`) |
+| `LEARNING_AUTH_SECRET`  | `openssl rand -hex 32`                          |
+| `LEARNING_TELEGRAM_BOT_TOKEN` | token of the learning bot                |
 
 `ACCOUNT_POSTGRES_PASSWORD` is the one value both apps share: the password of the
 `account_app` role that owns the shared account database
@@ -95,19 +92,18 @@ is a multi-line key, so it **cannot be masked** — set its **Type = File** inst
 env files; if you keep it in the `.local` files instead it must be the **same**
 value in both, because each deploy re-applies it to the role.
 
-Learning has no switch to turn on: its buttons are always there, and each deploy
-refuses to start (before touching anything live) if a required value is empty —
-budget: `DOMAIN`, `POSTGRES_PASSWORD`, `ACCOUNT_POSTGRES_PASSWORD`, `AUTH_SECRET`;
-learning: the same plus `TELEGRAM_BOT_TOKEN`. Each app's secrets may instead
-live on the server — `~/budget_me/.env.local` (budget) and
+Each deploy refuses to start (before touching anything live) if a required value
+is empty — budget: `DOMAIN`, `POSTGRES_PASSWORD`, `ACCOUNT_POSTGRES_PASSWORD`,
+`AUTH_SECRET`; learning: the same plus `TELEGRAM_BOT_TOKEN`. Each app's secrets
+may instead live on the server — `~/budget_me/.env.local` (budget) and
 `~/budget_me/.env.learning.local` (learning), `KEY=value` lines, `chmod 600`:
 CI wins when it has a value, the file fills whatever CI left empty
-(`scripts/merge-env.sh`). The `LEARNING_*` CI variables map onto learning's
+(`scripts/merge-env.sh`). The `LEARNING_*` secrets map onto learning's
 `DOMAIN`, `POSTGRES_PASSWORD`, `AUTH_SECRET`, `TELEGRAM_BOT_TOKEN`; the same names
 in the `.local` file are plain, without the prefix.
 
-`CI_REGISTRY`, `CI_REGISTRY_USER`, `CI_REGISTRY_PASSWORD`, `CI_REGISTRY_IMAGE`,
-`CI_COMMIT_SHORT_SHA` are provided by GitLab automatically — do not add them.
+`GITHUB_TOKEN`, `GITHUB_SHA` and `GITHUB_REPOSITORY` are provided by GitHub
+automatically — do not add them.
 
 > Keep secrets shell-safe (hex / alphanumeric). The deploy job injects them into
 > a heredoc and an `ssh` command; a literal `"`, `$`, backtick or `'` could break
@@ -119,7 +115,7 @@ in the `.local` file are plain, without the prefix.
 
 Nothing to build and no repo to clone — the deploy job ships the compose file,
 Caddyfile and a rendered `.env`. The provider hands you a root-only box, so the
-bootstrap creates the `deploy` user the pipeline logs in as:
+bootstrap creates the `deploy` user the workflow logs in as:
 
 ```bash
 # Docker CE from Docker's apt repo (suite `resolute`), pinned to the versions
@@ -134,10 +130,10 @@ usermod -aG docker deploy
 
 # authorize the CI deploy key (contents of ~/.ssh/budget_me_deploy.pub)
 install -d -m 700 -o deploy -g deploy /home/deploy/.ssh
-echo 'ssh-ed25519 AAAA…  gitlab-ci' > /home/deploy/.ssh/authorized_keys
+echo 'ssh-ed25519 AAAA…  github-actions' > /home/deploy/.ssh/authorized_keys
 chmod 600 /home/deploy/.ssh/authorized_keys && chown -R deploy:deploy /home/deploy/.ssh
 
-# directories the pipeline writes into (compose + infra/edge/Caddyfile + scripts)
+# directories the workflow writes into (compose + infra/edge/Caddyfile + scripts)
 sudo -u deploy mkdir -p /home/deploy/budget_me/infra/edge /home/deploy/budget_me/scripts
 
 # firewall — only SSH + HTTP/HTTPS (Postgres is never published)
@@ -161,8 +157,8 @@ no `www` record needed.
    ```bash
    git push origin fresh-budget_me:main
    ```
-2. Watch the pipeline (CI/CD → Pipelines). `build:backend` + `build:frontend`
-   build and push `:<sha>` and `:latest`; **deploy** then runs automatically.
+2. Watch the run (Actions → CI). The build jobs push `:<sha>` and `:latest` to
+   GHCR; **deploy** then runs automatically.
 3. The deploy job renders `~/budget_me/.env`, `docker login`s, then runs
    `scripts/bluegreen.sh budget deploy` (§6): migrate, idle colour, health gate,
    Caddy switch, automatic switch-back on failure.
@@ -178,7 +174,7 @@ compose file's own directory, so the layout on the server is:
 ~/budget_me/
 ├── prod.yml                     # scp of infra/budget/compose/prod.yml (host stack + budget colours)
 ├── learning.yml                 # scp of infra/learning/compose/prod.yml (learning colours)
-├── .env / .env.learning         # rendered from CI variables + blue-green state, chmod 600
+├── .env / .env.learning         # rendered from CI secrets + blue-green state, chmod 600
 ├── releases-budget.log          # one line per successful deploy — what rollbacks read
 ├── releases-learning.log
 ├── scripts/bluegreen.sh         # deploy / rollback / status
@@ -201,29 +197,27 @@ The 6 shared presets are seeded by migration `0004_seed_categories.sql`
 ### Register the Telegram Mini App
 In @BotFather (`/newapp` or Bot Settings → Mini App) set the Web App URL to
 `https://budgetme.xyz`. Put the bot token into the `TELEGRAM_BOT_TOKEN` CI
-variable and re-run deploy so the backend picks it up.
+secret and re-run deploy so the backend picks it up.
 
 ---
 
 ## 4. Updating (every later release)
 
 ```
-push main → test + build:* (both apps) go green → press deploy:budget and/or deploy:learning
+push main → tests + builds of what changed go green → deploy runs by itself
 ```
 
-Both buttons exist on every `main` pipeline and ship exactly the commit that
-pipeline built, so deploying one app never drags the other along. Pressing a
-button of an older pipeline deploys that older commit. See §6 for what the deploy
-does on the box.
+A push to `main` deploys exactly the commit it built, and only the app(s) whose
+sources changed (the shared account module and the workflows count for both), so
+deploying one app never drags the other along. Deploys of both apps share one
+lock and queue on the VPS. See §6 for what the deploy does on the box.
 
 ## 5. Rollback
 
-One manual button per app on every `main` pipeline (CI/CD → Pipelines → the
-pipeline → stage *rollback*): `rollback:budget` and `rollback:learning`. A plain
-press goes **one** step back; to go further open the job and run it with the
-variable `ROLLBACK_STEPS` (Run job → Variables):
+Actions → **Rollback** → *Run workflow*: pick the app (`budget` or `learning`) and
+how many deploys to go back (`steps`):
 
-| `ROLLBACK_STEPS` | Goes to | How |
+| `steps` | Goes to | How |
 | --- | --- | --- |
 | `1` (default) | the previous successful deploy | usually still running in the idle colour → health + Caddy switch, seconds, no pull |
 | `2` | two successful deploys back | idle colour redeployed from the registry → health → switch |
@@ -232,8 +226,8 @@ Steps count successful deploys back from the last one (`releases-<app>.log`);
 rollbacks never write that log, so running `2` twice changes nothing the
 second time. After the switch the schema is migrated **down** to the version the
 target release was deployed with, by the newer image (only it has the Down SQL),
-after a local backup. To keep the schema and the data written since, run the job
-with the variable `ROLLBACK_KEEP_SCHEMA=1` (Run job → Variables).
+after a local backup. To keep the schema and the data written since, tick
+`keep_schema`.
 
 On the box: `./scripts/bluegreen.sh budget rollback 2`, `… status`.
 
@@ -267,8 +261,8 @@ On the box: `./scripts/bluegreen.sh budget rollback 2`, `… status`.
 6. append the release to `releases-<app>.log`.
 
 A failure in 2–5 puts traffic back on the old colour and runs
-`migrate down-to <previous version>`, and the pipeline goes red. The old colour
-stays up after a good deploy: it is the instant `rollback:<app>:1`.
+`migrate down-to <previous version>`, and the run goes red. The old colour
+stays up after a good deploy: it is the instant the `steps=1` rollback.
 
 The first blue-green deploy of budget migrates the old in-place stack: traffic
 stays on the old `backend`/`frontend` services until blue is healthy, Caddy is
