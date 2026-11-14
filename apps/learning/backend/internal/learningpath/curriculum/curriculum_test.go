@@ -357,3 +357,109 @@ func TestExamplesInTheTheoryAreMarkedInPairs(t *testing.T) {
 		}
 	}
 }
+
+// TestTheSpanishLibraryIsWellFormed: Spanish for Russian speakers has the same
+// shape as the English library: four levels, every grammar topic a complete
+// rule, the examples of the theory marked in pairs and only in Spanish.
+func TestTheSpanishLibraryIsWellFormed(t *testing.T) {
+	if !curriculum.Has("es", "ru") || !curriculum.Has("es-MX", "ru-RU") {
+		t.Fatal("the Spanish library for Russian speakers is missing")
+	}
+
+	if top, ok := curriculum.MaxLevel("es", "ru"); !ok || top != placement.B2 {
+		t.Fatalf("the library must reach B2, got %q", top)
+	}
+
+	have := map[string]bool{}
+	for _, r := range curriculum.Rules("es", "ru") {
+		have[r.ID] = true
+	}
+
+	if len(have) < 45 {
+		t.Errorf("only %d Spanish rules", len(have))
+	}
+
+	seen := map[string]bool{}
+	grammar := map[string]int{}
+
+	for _, topic := range curriculum.UpTo("es", "ru", placement.C2) {
+		if seen[topic.ID] {
+			t.Fatalf("duplicate id %q", topic.ID)
+		}
+
+		seen[topic.ID] = true
+
+		if want := strings.ToLower(topic.Level) + "-"; !strings.HasPrefix(topic.ID, want) {
+			t.Errorf("%s: the id must start with %q", topic.ID, want)
+		}
+
+		if !curriculum.Skills[topic.Skill] {
+			t.Errorf("%s: unknown skill %q", topic.ID, topic.Skill)
+		}
+
+		if n := utf8.RuneCountInString(topic.Theory); n < 150 || n > 1200 {
+			t.Errorf("%s: the rule is %d characters, want 150 to 1200", topic.ID, n)
+		}
+
+		if strings.Count(topic.Theory, "`")%2 != 0 {
+			t.Errorf("%s: a backtick without its pair", topic.ID)
+		}
+
+		parts := strings.Split(topic.Theory, "`")
+		for i := 1; i < len(parts); i += 2 {
+			if strings.ContainsAny(parts[i], "абвгдежзийклмнопрстуфхцчшщъыьэюяАБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ") {
+				t.Errorf("%s: an example is not Spanish: %q", topic.ID, parts[i])
+			}
+		}
+
+		if len(topic.Tags) == 0 || strings.TrimSpace(topic.Title) == "" || strings.TrimSpace(topic.Goal) == "" {
+			t.Errorf("%s: no title, goal or tags", topic.ID)
+		}
+
+		if (topic.Skill == "vocabulary" || topic.Skill == "reading" || topic.Skill == "listening" || topic.Skill == "speaking") && len(topic.Vocabulary) < 6 {
+			t.Errorf("%s: %s topics need at least 6 words", topic.ID, topic.Skill)
+		}
+
+		if topic.Skill == "grammar" {
+			grammar[topic.Level]++
+
+			if !have[topic.ID] {
+				t.Errorf("%s is grammar but is not in the rule book", topic.ID)
+			}
+
+			e := topic.Extra
+			if e == nil || len(e.Forms) < 2 || len(e.Examples) < 3 || len(e.Mistakes) < 1 || len(e.Related) < 2 {
+				t.Errorf("%s: an incomplete rule", topic.ID)
+
+				continue
+			}
+
+			for _, m := range e.Mistakes {
+				if m.Wrong == m.Right {
+					t.Errorf("%s: a mistake equal to its correction: %q", topic.ID, m.Wrong)
+				}
+			}
+
+			for _, id := range e.Related {
+				if id == topic.ID || !have[id] {
+					t.Errorf("%s refers to %q, which is not another rule", topic.ID, id)
+				}
+			}
+		}
+	}
+
+	for _, level := range []string{"A1", "A2", "B1", "B2"} {
+		if grammar[level] < 8 {
+			t.Errorf("%s has %d grammar topics, want at least 8", level, grammar[level])
+		}
+	}
+}
+
+// TestSpanishKeepsItsAccents: an accent is a letter, so a rule that tells apart
+// esta and está, o and ó must keep the accent in its examples.
+func TestSpanishKeepsItsAccents(t *testing.T) {
+	topic, ok := curriculum.Find("es", "ru", "a1-estar")
+	if !ok || !strings.Contains(topic.Theory, "`está`") {
+		t.Errorf("the rule of estar lost its accents: %q", topic.Theory)
+	}
+}

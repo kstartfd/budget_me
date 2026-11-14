@@ -1,0 +1,571 @@
+[
+  {
+    "id": "a2-adjetivos",
+    "skill": "grammar",
+    "unit": "Имя и описание",
+    "title": "Прилагательные: согласование и национальность",
+    "goal": "Согласовать прилагательное с существительным и назвать национальность.",
+    "theory": "Прилагательное согласуется с существительным по роду и числу и обычно стоит после него: `un coche pequeño`, `una casa pequeña`, `unos coches pequeños`. Прилагательные на `-e` и на согласную не меняются по роду: `un chico inteligente`, `una chica inteligente`. Национальности на согласную в женском роде получают `-a`: `español → española`, `alemán → alemana`. Перед мужским существительным в единственном числе `bueno` и `malo` сокращаются: `un buen amigo`, `un mal día`.",
+    "tags": [
+      "прилагательные",
+      "согласование",
+      "национальность",
+      "adjetivos"
+    ]
+  },
+  {
+    "id": "a2-comparativos",
+    "skill": "grammar",
+    "unit": "Имя и описание",
+    "title": "Сравнение и превосходная степень",
+    "goal": "Сравнить два предмета и выбрать лучший из многих.",
+    "theory": "Для сравнения употребляют `más… que`, `menos… que`, `tan… como`: `Madrid es más grande que Valencia.` `Ana es tan alta como Luis.` С существительными: `tanto/a/os/as… como`: `Tengo tantos libros como tú.` Особые формы: `bueno → mejor`, `malo → peor`, `grande → mayor` (старше), `pequeño → menor` (младше). Превосходная степень: артикль + `más/menos`: `la más alta`, `el menos caro`; после неё `de`: `la más alta de la clase.`",
+    "tags": [
+      "сравнение",
+      "más que",
+      "mejor peor",
+      "превосходная степень"
+    ]
+  },
+  {
+    "id": "a2-indefinidos",
+    "skill": "grammar",
+    "unit": "Имя и описание",
+    "title": "Неопределённые слова: algo, nada, mucho, poco",
+    "goal": "Сказать «кто-то», «ничего», «много», «мало» и правильно построить отрицание.",
+    "theory": "`Alguien` — кто-то, `nadie` — никто, `algo` — что-то, `nada` — ничего: `¿Hay alguien en casa? — No, no hay nadie.` Если слово отрицания стоит после глагола, перед ним нужно `no`: `No veo a nadie.` Количество: `mucho`, `poco`, `bastante`, `demasiado` согласуются с существительным: `mucha gente`, `pocos amigos`. Без существительного эти слова неизменны: `Trabajo mucho.` `Alguno` и `ninguno` согласуются, а перед мужским существительным сокращаются: `algún día`, `ningún problema`.",
+    "tags": [
+      "неопределённые",
+      "algo nada",
+      "alguien nadie",
+      "mucho poco",
+      "indefinidos"
+    ]
+  },
+  {
+    "id": "a2-pronombres-complemento",
+    "skill": "grammar",
+    "unit": "Местоимения",
+    "title": "Местоимения-дополнения: lo, la, le",
+    "goal": "Заменить прямое и косвенное дополнение местоимением.",
+    "theory": "Прямое дополнение (кого, что) заменяют формами `me`, `te`, `lo/la`, `nos`, `os`, `los/las`: `Veo a Ana → La veo.` `Compro el libro → Lo compro.` Косвенное дополнение (кому) — `me`, `te`, `le`, `nos`, `os`, `les`: `Doy el libro a Ana → Le doy el libro.` Местоимение стоит перед спрягаемым глаголом: `Lo tengo.` `No lo tengo.` С инфинитивом и герундием оно может присоединяться к концу: `Quiero verla.`",
+    "tags": [
+      "местоимения",
+      "lo la los las",
+      "le les",
+      "pronombres"
+    ]
+  },
+  {
+    "id": "a2-reflexivos",
+    "skill": "grammar",
+    "unit": "Местоимения",
+    "title": "Возвратные глаголы: me levanto, se llama",
+    "goal": "Спрягать возвратные глаголы и сказать о распорядке дня.",
+    "theory": "Возвратные глаголы действуют на самого говорящего и спрягаются с местоимением: `me`, `te`, `se`, `nos`, `os`, `se`. `Levantarse`: `me levanto`, `te levantas`, `se levanta`, `nos levantamos`, `os levantáis`, `se levantan`. Местоимение стоит перед глаголом: `Me ducho por la mañana.` Сравните: `Lavo el coche` (я мою машину) и `Me lavo` (я моюсь). Многие глаголы меняют смысл: `ir` и `irse`, `dormir` и `dormirse`. С инфинитивом местоимение сливается: `Voy a ducharme.`",
+    "tags": [
+      "возвратные глаголы",
+      "me levanto",
+      "reflexivos",
+      "распорядок дня"
+    ]
+  },
+  {
+    "id": "a2-ser-vs-estar",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Ser и estar: чем отличаются",
+    "goal": "Выбрать между ser и estar в типичных ситуациях.",
+    "theory": "`Ser` — сущность, `estar` — состояние и место. `Ser` называет качества, профессию, происхождение, время: `Ana es simpática.` `Soy de Madrid.` `Son las tres.` `Estar` называет место и временное состояние: `Ana está cansada.` `Estamos en Madrid.` Одно и то же прилагательное меняет смысл: `Es aburrido` — он скучный человек, `Está aburrido` — ему сейчас скучно; `Es listo` — умный, `Está listo` — готов. Для события `ser`: `La fiesta es en mi casa.`",
+    "tags": [
+      "ser estar",
+      "контраст",
+      "es está"
+    ]
+  },
+  {
+    "id": "a2-futuro-ir-a",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Ближайшее будущее: voy a + инфинитив",
+    "goal": "Рассказать о планах и намерениях с помощью ir a.",
+    "theory": "Чтобы сказать о планах, используют `ir a` + инфинитив: `Voy a estudiar español.` `Vamos a salir.` Спрягается только `ir`: `voy a`, `vas a`, `va a`, `vamos a`, `vais a`, `van a`. Время можно указать словами: `mañana`, `esta noche`, `el sábado`, `la semana que viene`. Для ближайшего будущего можно использовать и настоящее время: `Mañana voy al médico.` Для вопроса: `¿Qué vas a hacer?`",
+    "tags": [
+      "ir a",
+      "будущее",
+      "планы",
+      "voy a"
+    ]
+  },
+  {
+    "id": "a2-presente-estar-gerundio",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Estar + герундий: что я делаю сейчас",
+    "goal": "Сказать, что происходит именно сейчас, и отличить это от привычного действия.",
+    "theory": "Действие, которое происходит в момент речи, выражают конструкцией `estar` + герундий: `Estoy estudiando.` `Están comiendo.` Герундий образуют так: `-ar → -ando`, `-er/-ir → -iendo`: `hablar → hablando`, `comer → comiendo`, `vivir → viviendo`. Особые формы: `leer → leyendo`, `dormir → durmiendo`, `pedir → pidiendo`. Простое настоящее говорит о привычке: `Estudio por las tardes.` Сравните: `Hago deporte` (обычно) и `Estoy haciendo deporte` (сейчас).",
+    "tags": [
+      "estar + gerundio",
+      "герундий",
+      "сейчас",
+      "estoy haciendo"
+    ]
+  },
+  {
+    "id": "a2-preterito-indefinido",
+    "skill": "grammar",
+    "unit": "Прошедшее время",
+    "title": "Pretérito indefinido: что произошло",
+    "goal": "Рассказать о законченном событии в прошлом.",
+    "theory": "`Pretérito indefinido` описывает законченное действие в прошлом: `Ayer trabajé mucho.` Окончания `-ar`: `-é, -aste, -ó, -amos, -asteis, -aron`; `-er/-ir`: `-í, -iste, -ió, -imos, -isteis, -ieron`: `hablé`, `comí`, `viví`. Частые неправильные формы: `ser/ir`: `fui, fuiste, fue, fuimos, fuisteis, fueron`; `hacer`: `hice`, `hizo`; `tener`: `tuve`; `estar`: `estuve`. Маркеры: `ayer`, `anoche`, `el año pasado`, `hace dos días`.",
+    "tags": [
+      "pretérito indefinido",
+      "прошедшее",
+      "ayer",
+      "fui hice"
+    ]
+  },
+  {
+    "id": "a2-preterito-perfecto",
+    "skill": "grammar",
+    "unit": "Прошедшее время",
+    "title": "Pretérito perfecto: я уже сделал",
+    "goal": "Сказать о событии, связанном с настоящим, и о жизненном опыте.",
+    "theory": "Это сложное время: `haber` + причастие. `He`, `has`, `ha`, `hemos`, `habéis`, `han` + `-ado` (`-ar`) или `-ido` (`-er/-ir`): `he trabajado`, `has comido`. Неправильные причастия: `hecho`, `dicho`, `visto`, `escrito`, `puesto`, `vuelto`, `abierto`. Употребляют, когда период ещё не закончился: `hoy`, `esta semana`, `este año`, и для опыта: `¿Has estado en España?` Маркеры: `ya`, `todavía no`, `alguna vez`, `nunca`. Между `haber` и причастием ничего не ставят: `No he comido`.",
+    "tags": [
+      "pretérito perfecto",
+      "he hecho",
+      "опыт",
+      "причастие"
+    ]
+  },
+  {
+    "id": "a2-preterito-imperfecto",
+    "skill": "grammar",
+    "unit": "Прошедшее время",
+    "title": "Pretérito imperfecto: как было раньше",
+    "goal": "Описывать привычки и обстановку в прошлом.",
+    "theory": "`Pretérito imperfecto` рассказывает, как было раньше, и описывает обстановку. Окончания `-ar`: `-aba, -abas, -aba, -ábamos, -abais, -aban`; `-er/-ir`: `-ía, -ías, -ía, -íamos, -íais, -ían`: `trabajaba`, `comía`, `vivía`. Только три неправильных глагола: `ser` (`era`), `ir` (`iba`), `ver` (`veía`). Маркеры привычки: `siempre`, `a menudo`, `todos los días`, `cuando era niño`: `Cuando era niña, vivía en un pueblo.`",
+    "tags": [
+      "pretérito imperfecto",
+      "привычка в прошлом",
+      "era iba veía"
+    ]
+  },
+  {
+    "id": "a2-imperativo",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Повелительное наклонение",
+    "goal": "Дать совет, попросить и запретить с помощью imperativo.",
+    "theory": "В утвердительной форме для `tú` берут форму третьего лица единственного числа: `habla`, `come`, `escribe`. Для `usted`: `hable`, `coma`, `escriba`. Отрицательная форма для `tú` строится от subjuntivo: `no hables`, `no comas`. Неправильные формы для `tú`: `di`, `haz`, `ve`, `pon`, `sal`, `sé`, `ten`, `ven`. Возвратные глаголы присоединяют местоимение к концу: `lávate`, а в отрицании оно стоит перед глаголом: `no te laves`.",
+    "tags": [
+      "imperativo",
+      "повелительное наклонение",
+      "ven haz di",
+      "приказ"
+    ]
+  },
+  {
+    "id": "a2-preposiciones",
+    "skill": "grammar",
+    "unit": "Предлоги",
+    "title": "Предлоги места и времени: a, en, de, desde",
+    "goal": "Выбрать предлог для направления, места и времени.",
+    "theory": "`A` показывает направление и время: `Voy a Madrid.` `Llego a las cinco.` `En` — место и средство передвижения: `Vivo en Madrid.` `Voy en autobús.` `De` — происхождение, принадлежность, материал: `Soy de Rusia.` `El libro de Ana.` Для периодов: `desde` (с какого момента) и `hasta` (до какого): `Trabajo desde las nueve hasta las cinco.` `Por la mañana` — утром. Места: `encima de`, `debajo de`, `al lado de`, `delante de`, `detrás de`, `dentro de`.",
+    "tags": [
+      "предлоги",
+      "a en de",
+      "desde hasta",
+      "preposiciones"
+    ]
+  },
+  {
+    "id": "a2-vocab-ciudad",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Город и транспорт",
+    "goal": "Спросить дорогу и назвать место в городе и вид транспорта.",
+    "theory": "Слова о городе нужны, чтобы спросить дорогу: `¿Dónde está el banco?` Ответ: `Todo recto`, `a la derecha`, `a la izquierda`. Транспорт: `el autobús`, `el metro`, `el tren`, `el taxi`. С транспортом предлог `en`: `Voy en metro`, но `a pie`. Места: `la plaza`, `el banco`, `la farmacia`, `la estación`.",
+    "vocabulary": [
+      {
+        "word": "la plaza",
+        "translation": "площадь"
+      },
+      {
+        "word": "la farmacia",
+        "translation": "аптека"
+      },
+      {
+        "word": "la estación",
+        "translation": "вокзал"
+      },
+      {
+        "word": "a la derecha",
+        "translation": "направо"
+      },
+      {
+        "word": "a la izquierda",
+        "translation": "налево"
+      },
+      {
+        "word": "todo recto",
+        "translation": "прямо"
+      },
+      {
+        "word": "el metro",
+        "translation": "метро"
+      },
+      {
+        "word": "a pie",
+        "translation": "пешком"
+      }
+    ],
+    "tags": [
+      "город",
+      "транспорт",
+      "направление"
+    ]
+  },
+  {
+    "id": "a2-vocab-casa",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Дом и повседневные вещи",
+    "goal": "Описать свою квартиру и назвать предметы в доме.",
+    "theory": "Описывая жильё, называйте комнаты и мебель: `la cocina`, `el salón`, `el dormitorio`, `el baño`. Для расположения: `En mi dormitorio hay una cama y un armario.` Не путайте `casa` (дом) и `piso` (квартира в Испании). Частые слова: `la mesa`, `la silla`, `el sofá`, `la ventana`.",
+    "vocabulary": [
+      {
+        "word": "la cocina",
+        "translation": "кухня"
+      },
+      {
+        "word": "el salón",
+        "translation": "гостиная"
+      },
+      {
+        "word": "el dormitorio",
+        "translation": "спальня"
+      },
+      {
+        "word": "el baño",
+        "translation": "ванная"
+      },
+      {
+        "word": "el piso",
+        "translation": "квартира"
+      },
+      {
+        "word": "la cama",
+        "translation": "кровать"
+      },
+      {
+        "word": "el armario",
+        "translation": "шкаф"
+      },
+      {
+        "word": "la ventana",
+        "translation": "окно"
+      }
+    ],
+    "tags": [
+      "дом",
+      "мебель",
+      "жильё"
+    ]
+  },
+  {
+    "id": "a2-vocab-trabajo",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Работа и учёба",
+    "goal": "Рассказать, где вы работаете или учитесь и что делаете.",
+    "theory": "Для разговора о работе нужны названия профессий и мест. Профессии часто имеют женскую форму: `el camarero / la camarera`, `el médico / la médica`. Спросить: `¿A qué te dedicas?` Ответить: `Soy ingeniero.` `Trabajo en una oficina.` `Estudio en la universidad.`",
+    "vocabulary": [
+      {
+        "word": "el trabajo",
+        "translation": "работа"
+      },
+      {
+        "word": "la oficina",
+        "translation": "офис"
+      },
+      {
+        "word": "el jefe / la jefa",
+        "translation": "начальник"
+      },
+      {
+        "word": "el compañero",
+        "translation": "коллега"
+      },
+      {
+        "word": "el médico",
+        "translation": "врач"
+      },
+      {
+        "word": "el camarero",
+        "translation": "официант"
+      },
+      {
+        "word": "la universidad",
+        "translation": "университет"
+      },
+      {
+        "word": "el horario",
+        "translation": "график"
+      }
+    ],
+    "tags": [
+      "работа",
+      "профессии",
+      "учёба"
+    ]
+  },
+  {
+    "id": "a2-reading-correo",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем сообщения и короткие письма",
+    "goal": "Понять короткое письмо или сообщение и найти в нём главное: кто, что, когда.",
+    "theory": "В неформальных письмах приветствие: `Hola, Ana:`; прощание: `Un abrazo`, `Besos`, `Hasta pronto`. В официальных: `Estimado señor:`, `Atentamente`. В тексте ищите, кто пишет, о чём просит, на какой день. Глаголы приглашения и просьбы: `¿Puedes…?`, `¿Quieres venir…?`, `Te escribo para…`.",
+    "vocabulary": [
+      {
+        "word": "Estimado señor",
+        "translation": "Уважаемый господин"
+      },
+      {
+        "word": "Te escribo para…",
+        "translation": "Пишу тебе, чтобы…"
+      },
+      {
+        "word": "Un abrazo",
+        "translation": "Обнимаю"
+      },
+      {
+        "word": "Hasta pronto",
+        "translation": "До скорого"
+      },
+      {
+        "word": "adjunto",
+        "translation": "во вложении"
+      },
+      {
+        "word": "quedar",
+        "translation": "договориться о встрече"
+      }
+    ],
+    "tags": [
+      "чтение",
+      "письма",
+      "сообщения"
+    ]
+  },
+  {
+    "id": "a2-reading-noticias",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем короткие новости и афиши",
+    "goal": "Понять заголовок и основную мысль короткой заметки или афиши.",
+    "theory": "В заметках важны заголовок и первое предложение. Найдите, кто, что, где и когда. Часть слов вы поймёте по контексту. На афишах ищите дату и место: `el 12 de mayo, a las 20:00, en el Teatro Real`. Полезные слова: `entradas` (билеты), `concierto`, `exposición`, `estreno` (премьера).",
+    "vocabulary": [
+      {
+        "word": "las entradas",
+        "translation": "билеты"
+      },
+      {
+        "word": "el concierto",
+        "translation": "концерт"
+      },
+      {
+        "word": "la exposición",
+        "translation": "выставка"
+      },
+      {
+        "word": "el estreno",
+        "translation": "премьера"
+      },
+      {
+        "word": "el titular",
+        "translation": "заголовок"
+      },
+      {
+        "word": "la fecha",
+        "translation": "дата"
+      }
+    ],
+    "tags": [
+      "чтение",
+      "новости",
+      "афиша"
+    ]
+  },
+  {
+    "id": "a2-writing-mensaje",
+    "skill": "writing",
+    "unit": "Чтение и письмо",
+    "title": "Пишем сообщение и приглашение",
+    "goal": "Написать короткое сообщение другу: пригласить, договориться о месте и времени.",
+    "theory": "Приглашение состоит из приветствия, вопроса и деталей. Образец: `Hola, Pablo: ¿Quieres venir al cine el sábado? La película empieza a las 8. Quedamos en la plaza a las 7. Un abrazo.` Используйте `¿Quieres…?`, `Podemos…`, `Quedamos…`. Не забывайте про `¿` и `¡` в начале вопроса и восклицания.",
+    "tags": [
+      "письмо",
+      "приглашение",
+      "сообщение"
+    ]
+  },
+  {
+    "id": "a2-listening-anuncios",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем объявления на вокзале",
+    "goal": "Понять в объявлении номер платформы, время и направление.",
+    "theory": "В объявлениях ловите числа и места: `El tren con destino a Sevilla sale a las 18:15 de la vía 3.` Вместо чисел слушайте ключевые слова: `sale`, `llega`, `vía`, `retraso`. Не пытайтесь понять всё. Запишите время, номер и город, потом проверьте себя.",
+    "vocabulary": [
+      {
+        "word": "la vía",
+        "translation": "путь"
+      },
+      {
+        "word": "sale",
+        "translation": "отправляется"
+      },
+      {
+        "word": "llega",
+        "translation": "прибывает"
+      },
+      {
+        "word": "el retraso",
+        "translation": "задержка"
+      },
+      {
+        "word": "el destino",
+        "translation": "пункт назначения"
+      },
+      {
+        "word": "el andén",
+        "translation": "платформа"
+      }
+    ],
+    "tags": [
+      "аудирование",
+      "объявления",
+      "вокзал"
+    ]
+  },
+  {
+    "id": "a2-listening-conversacion",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем разговор о планах",
+    "goal": "Понять, о каких планах говорят двое и когда они встретятся.",
+    "theory": "Разговор о планах строится на вопросах и ответах: `¿Qué vas a hacer?`, `Voy a…`, `¿Quedamos?`. Слушайте время (`mañana`, `el sábado`), место и согласие или отказ. В живой речи слова часто сокращаются: `pa` вместо `para`, `¿qué tal?` вместо `¿cómo estás?`. Прослушайте дважды.",
+    "vocabulary": [
+      {
+        "word": "¿Qué vas a hacer?",
+        "translation": "Что ты будешь делать?"
+      },
+      {
+        "word": "¿Quedamos?",
+        "translation": "Договоримся?"
+      },
+      {
+        "word": "Vale",
+        "translation": "Хорошо"
+      },
+      {
+        "word": "Me parece bien",
+        "translation": "Мне подходит"
+      },
+      {
+        "word": "No puedo",
+        "translation": "Не могу"
+      },
+      {
+        "word": "¿A qué hora?",
+        "translation": "Во сколько?"
+      }
+    ],
+    "tags": [
+      "аудирование",
+      "планы",
+      "разговор"
+    ]
+  },
+  {
+    "id": "a2-speaking-direcciones",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: как пройти",
+    "goal": "Спросить дорогу и объяснить, как пройти.",
+    "theory": "Чтобы спросить дорогу, начните вежливо: `Perdone, ¿dónde está la farmacia?` Объясняя, говорите короткими фразами: `Siga todo recto.` `Gire a la derecha.` `Está al lado del banco.` Повторите ключевые слова, чтобы проверить, что поняли: `¿Todo recto y a la izquierda?`",
+    "vocabulary": [
+      {
+        "word": "Perdone, ¿dónde está…?",
+        "translation": "Простите, где находится…?"
+      },
+      {
+        "word": "Siga todo recto",
+        "translation": "Идите прямо"
+      },
+      {
+        "word": "Gire a la derecha",
+        "translation": "Поверните направо"
+      },
+      {
+        "word": "Está al lado de…",
+        "translation": "Это рядом с…"
+      },
+      {
+        "word": "Está lejos / cerca",
+        "translation": "Это далеко / близко"
+      },
+      {
+        "word": "Gracias, muy amable",
+        "translation": "Спасибо, вы очень любезны"
+      }
+    ],
+    "tags": [
+      "говорение",
+      "направления",
+      "дорога"
+    ]
+  },
+  {
+    "id": "a2-speaking-planes",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: планы на выходные",
+    "goal": "Рассказать о планах и предложить встретиться.",
+    "theory": "О планах говорят конструкцией `voy a` + инфинитив: `Este fin de semana voy a visitar a mis padres.` Для предложения: `¿Quieres venir?` `Podemos ir al cine.` Согласие: `Vale`, `Me parece bien`. Отказ вежливый: `Lo siento, no puedo.` Говорите вслух целыми фразами.",
+    "vocabulary": [
+      {
+        "word": "Voy a visitar a…",
+        "translation": "Я навещу…"
+      },
+      {
+        "word": "¿Quieres venir?",
+        "translation": "Хочешь пойти?"
+      },
+      {
+        "word": "Podemos ir al cine",
+        "translation": "Мы можем сходить в кино"
+      },
+      {
+        "word": "Me parece bien",
+        "translation": "Мне подходит"
+      },
+      {
+        "word": "Lo siento, no puedo",
+        "translation": "Простите, не могу"
+      },
+      {
+        "word": "¿Y tú?",
+        "translation": "А ты?"
+      }
+    ],
+    "tags": [
+      "говорение",
+      "планы",
+      "выходные"
+    ]
+  }
+]

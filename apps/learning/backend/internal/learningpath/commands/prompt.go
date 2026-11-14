@@ -6,6 +6,7 @@ import (
 	"strings"
 	"unicode/utf8"
 
+	"learning_app/backend/internal/learningpath/curriculum"
 	"learning_app/backend/internal/learningpath/placement"
 )
 
@@ -64,10 +65,15 @@ const exercisesSystem = "You write practice exercises for one topic of a languag
 	"You receive the learned language, the explanation language, the learner's CEFR level, and the topic: its skill, title and goal, and often its rule (theory) and key words. You may also receive the learner's results on previous exercises for this topic. Use those results to reinforce weak areas and tune the difficulty, while keeping the set appropriate for the stated CEFR level. Write a set of exercises that practice exactly that topic.\n\n" +
 	"Reply with one JSON object and nothing else: no markdown, no code fence. Its exact shape:\n" +
 	`{"exercises": [{"kind": string, "text": string, "prompt": string, "options": [string], "answer": string, "rule": string}]}` + "\n" +
-	"kind is one of choice (pick one of four options), fill (write the missing word or phrase into the gap marked with ...), translate (translate the given sentence into the learned language), write (write one to three sentences of their own on the task in prompt), listen (the learner hears the sentence in text read aloud and answers the question in prompt by picking one of four options), speak (the learner says the phrase in answer aloud).\n" +
+	"kind is one of choice (pick one of four options), fill (write the missing word or phrase into the gap marked with ...), translate (translate the given sentence into the learned language), write (write one to three sentences of their own on the task in prompt), listen (the learner hears the sentence in text read aloud and answers the question in prompt by picking one of four options), speak (the learner says the phrase in answer aloud), order (the learner puts the words of a sentence in the right order), cloze (a longer text with several gaps to fill), read (a text with questions to answer).\n" +
+	"order: options are the words of one sentence of the learned language in a scrambled order, every option exactly one word (punctuation stays attached to its word, the first word keeps its capital), three to twelve words; answer is the sentence in the right order; when another natural order is also right, add it after the first, separated by \" | \". text may carry the sentence's translation into nativeLanguage as a clue, or be empty. The scrambled words must never already stand in the right order.\n" +
+	"cloze: text is a connected passage of the learned language (four to eight sentences) with three to eight gaps marked [1], [2], [3] in order; answer lists what goes into each gap in the same order, separated by \" | \" (variants of one gap that are both right are separated by \"/\"); options is empty; every gap tests the rule of the topic, never a word picked by taste, and the passage reads as a story or a letter, not a list of unrelated sentences.\n" +
+	"read: text is a passage of the learned language (three to six sentences) and options are two to five questions about it, written in the learned language; a question is either an ordinary one answered in a word or a short phrase, or a sentence that ends in \"...\" and is finished by the learner; answer lists a model answer for each question in order, separated by \" | \" (variants by \"/\"). Every answer is found in the passage or follows from it.\n" +
+	"Include one order, one cloze and one read exercise in a set of grammar, reading or writing topics, and an order exercise in the other topics where a sentence fits.\n" +
+	"Base the exercises on the topic, never on your own invention. When the topic carries \"modelSentences\", \"forms\" and \"typicalMistakes\", they are the material: build the sentences of the exercises from the model sentences (reuse them or change one word or person) so the learner meets the rule as it is taught; turn each typical mistake into an exercise whose answer is its correction; and take the forms as the only forms that count as right. Never state a form of the rule that is not in the theory or the forms.\n" +
 	"Use the kinds that suit the topic: a grammar topic is mostly choice, fill and translate with one write; a vocabulary topic mixes choice, listen and speak; a listening topic is mostly listen with some choice; a speaking topic is mostly speak with some choice; a reading topic asks choice questions about the passage and ends with one write; a writing topic is mostly write with some fill. Use each kind at most three times in a set.\n" +
 	"When the topic carries its rule, every exercise must practise exactly that rule and agree with it, never contradict it or test a different rule; use the topic's key words where they fit. For a reading topic every exercise carries a short passage in text (two to four sentences, in the learned language) and asks about its content.\n" +
-	"text carries a short reading passage only when the exercise needs one, otherwise it is empty. A choice or listen exercise always has exactly four options with the answer among them; fill, translate, write and speak have no options. A listen exercise puts the sentence to be heard in text and asks about what was heard in prompt, never repeating that sentence in prompt or in the options. A speak exercise puts the phrase to say in answer, a short task instruction in prompt, and leaves text empty. The answer of a write exercise is one model answer among many possible ones.\n" +
+	"text carries a short reading passage only when the exercise needs one, otherwise it is empty. A choice or listen exercise always has exactly four options with the answer among them; fill, translate, write, speak and cloze have no options; order and read carry theirs as described above. A listen exercise puts the sentence to be heard in text and asks about what was heard in prompt, never repeating that sentence in prompt or in the options. A speak exercise puts the phrase to say in answer, a short task instruction in prompt, and leaves text empty. The answer of a write exercise is one model answer among many possible ones.\n" +
 	"Languages. The learner chose which language the teacher explains in (explanationLanguage), so honour it in every instruction. The prompt of every exercise opens with a short task instruction in explanationLanguage and never in the other language, for example \"Choose the right option\" or \"Put the verb in the right form\" or \"Translate into English\", worded in explanationLanguage; for a choice, fill or translate exercise a colon and the sentence, question or gap to work on follow it. " +
 	"The sentence with a gap, a reading passage, the sentence to be heard, the phrase to say aloud and the options are in the learned language. The sentence to translate is in the learner's own language (nativeLanguage) and the answer of a translate exercise is its correct translation into the learned language. " +
 	"The exception is the listen exercise: its question in prompt and all four of its options are in listenLanguage, given in the data, in plain words that suit the level, and the answer is one of those options. " +
@@ -86,6 +92,7 @@ const reviewSystem = "You check a learner's answer to one language exercise.\n\n
 	"mistakes is that count: one for each separate problem, 0 when the text is fine. correct is true only when mistakes is 0 and the text does what the task asks, at the learner's level. " +
 	"When the text is correct, feedback is empty: the answer is simply accepted. Otherwise feedback explains every mistake in the explanation language, one short paragraph for each: quote the learner's wording in backticks, give the version a native speaker would say in backticks, and say in one sentence why. " +
 	"If the text has no mistakes but does not do what the task asks, mistakes is 0, correct is false and feedback says what is missing.\n\n" +
+	"A read exercise is a text with questions: options are the questions, and the right answers are the model answers separated by \" | \", in question order; the learner's answer holds their replies in the same order, separated by \" | \". Judge each reply by its meaning, not its wording: a reply that says the same as the model answer, or that is right according to the text, is right; spelling slips that do not change the meaning do not count. mistakes is the number of replies that are wrong; correct is true only when it is 0. feedback is empty when everything is right; otherwise, for each wrong reply, say in the explanation language what the text says and give the right reply in backticks, one short paragraph each.\n\n" +
 	"For every other kind of exercise mistakes is 0. correct is your judgement of the learner's answer. When the exercise's right answer is given, the learner is right only when their answer means the same; small spelling slips that do not change the meaning still count as correct. When nothing is given (a free translation), use your own judgement of what a learner at this level was asked for. " +
 	"feedback is empty when the answer is right and needed nothing. Otherwise, in the explanation language, explain in two or three sentences what was wrong and how to get it right; quote the correct version in the learned language, in backticks.\n" +
 	explanationNote
@@ -120,7 +127,7 @@ func analyzePrompt(learned, explain string, reached placement.Level, asked, corr
 }
 
 // exercisesPrompt packs the topic into one JSON user prompt.
-func exercisesPrompt(learned, explain, native string, level, skill, title, goal, theory string, words []programWord, answered, correct int) (string, string) {
+func exercisesPrompt(learned, explain, native string, level, skill, title, goal, theory string, words []programWord, answered, correct int, rule *curriculum.Extra) (string, string) {
 	topic := map[string]any{"skill": skill, "title": title, "goal": goal}
 	if theory != "" {
 		topic["theory"] = theory
@@ -128,6 +135,21 @@ func exercisesPrompt(learned, explain, native string, level, skill, title, goal,
 
 	if len(words) > 0 {
 		topic["keyWords"] = words
+	}
+
+	// What the library knows about the rule is what the exercises are made of.
+	if rule != nil {
+		if len(rule.Forms) > 0 {
+			topic["forms"] = rule.Forms
+		}
+
+		if len(rule.Examples) > 0 {
+			topic["modelSentences"] = rule.Examples
+		}
+
+		if len(rule.Mistakes) > 0 {
+			topic["typicalMistakes"] = rule.Mistakes
+		}
 	}
 
 	data := map[string]any{
@@ -240,7 +262,7 @@ const maxMistakes = 20
 func (r *review) settle(kind string) error {
 	r.Feedback = clip(strings.TrimSpace(r.Feedback), maxFeedbackRunes)
 
-	if kind != "write" {
+	if kind != "write" && kind != "read" {
 		r.Mistakes = 0
 
 		return nil
@@ -407,6 +429,18 @@ func validExercise(e exercise) error {
 
 		if e.Kind == "speak" && (strings.TrimSpace(e.Text) != "" || utf8.RuneCountInString(e.Answer) > maxSpeakRunes) {
 			return fmt.Errorf("speak keeps its phrase in answer (up to %d characters) and leaves text empty", maxSpeakRunes)
+		}
+	case "order":
+		if err := validOrder(e); err != nil {
+			return err
+		}
+	case "cloze":
+		if err := validCloze(e); err != nil {
+			return err
+		}
+	case "read":
+		if err := validRead(e); err != nil {
+			return err
 		}
 	default:
 		return fmt.Errorf("unknown kind %q", e.Kind)

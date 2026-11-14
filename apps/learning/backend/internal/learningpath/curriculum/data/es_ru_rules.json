@@ -1,0 +1,1940 @@
+{
+  "a1-genero": {
+    "forms": [
+      "-o → el (мужской): el libro, el niño",
+      "-a → la (женский): la mesa, la niña",
+      "-ción, -sión, -dad, -tad → la: la canción, la ciudad",
+      "Исключения: el día, el mapa, el problema, la mano"
+    ],
+    "examples": [
+      {
+        "text": "El padre trabaja en un banco.",
+        "translation": "Отец работает в банке."
+      },
+      {
+        "text": "La profesora es muy simpática.",
+        "translation": "Преподавательница очень приятная."
+      },
+      {
+        "text": "La ciudad tiene un mapa nuevo.",
+        "translation": "У города есть новая карта."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "la problema",
+        "right": "el problema",
+        "note": "Problema оканчивается на -a, но это мужской род."
+      },
+      {
+        "wrong": "el mano",
+        "right": "la mano",
+        "note": "Mano оканчивается на -o, но это женский род."
+      }
+    ],
+    "related": [
+      "a1-plural",
+      "a1-articulo-determinado"
+    ]
+  },
+  "a1-plural": {
+    "forms": [
+      "Гласная + s: libro → libros, casa → casas",
+      "Согласная + es: ciudad → ciudades, profesor → profesores",
+      "z → ces: lápiz → lápices",
+      "Артикль: el → los, la → las, un → unos, una → unas"
+    ],
+    "examples": [
+      {
+        "text": "Los libros están en la mesa.",
+        "translation": "Книги лежат на столе."
+      },
+      {
+        "text": "Las ciudades son grandes.",
+        "translation": "Города большие."
+      },
+      {
+        "text": "Tengo dos lápices rojos.",
+        "translation": "У меня два красных карандаша."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "los lápizes",
+        "right": "los lápices",
+        "note": "Перед -es буква z меняется на c."
+      },
+      {
+        "wrong": "las canciónes",
+        "right": "las canciones",
+        "note": "Во множественном числе знак ударения у canción пропадает."
+      }
+    ],
+    "related": [
+      "a1-genero",
+      "a1-articulo-indeterminado"
+    ]
+  },
+  "a1-articulo-indeterminado": {
+    "forms": [
+      "Мужской род: un libro, unos libros",
+      "Женский род: una casa, unas casas",
+      "Профессия без артикля: Soy médico.",
+      "Профессия с прилагательным: Es un médico excelente."
+    ],
+    "examples": [
+      {
+        "text": "Tengo un hermano y una hermana.",
+        "translation": "У меня есть брат и сестра."
+      },
+      {
+        "text": "Mi padre es médico.",
+        "translation": "Мой отец врач."
+      },
+      {
+        "text": "Busco unos zapatos negros.",
+        "translation": "Я ищу чёрные туфли."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mi padre es un médico.",
+        "right": "Mi padre es médico.",
+        "note": "Профессия без прилагательного называется без артикля."
+      },
+      {
+        "wrong": "Tengo una coche.",
+        "right": "Tengo un coche.",
+        "note": "Coche мужского рода, значит un."
+      }
+    ],
+    "related": [
+      "a1-articulo-determinado",
+      "a1-genero"
+    ]
+  },
+  "a1-articulo-determinado": {
+    "forms": [
+      "Формы: el, la, los, las",
+      "a + el = al; de + el = del",
+      "Дни: el lunes, los sábados",
+      "Время: Es la una. Son las tres."
+    ],
+    "examples": [
+      {
+        "text": "El café está caliente.",
+        "translation": "Кофе горячий."
+      },
+      {
+        "text": "Voy al mercado con la abuela.",
+        "translation": "Я иду на рынок с бабушкой."
+      },
+      {
+        "text": "Es la una y media.",
+        "translation": "Половина второго."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy a el cine.",
+        "right": "Voy al cine.",
+        "note": "A + el всегда сливается в al."
+      },
+      {
+        "wrong": "Trabajo lunes.",
+        "right": "Trabajo el lunes.",
+        "note": "Для дня недели нужен артикль el."
+      }
+    ],
+    "related": [
+      "a1-articulo-indeterminado",
+      "a1-demostrativos"
+    ]
+  },
+  "a1-demostrativos": {
+    "forms": [
+      "Здесь: este, esta, estos, estas",
+      "Недалеко: ese, esa, esos, esas",
+      "Далеко: aquel, aquella, aquellos, aquellas",
+      "Без существительного: esto, eso, aquello"
+    ],
+    "examples": [
+      {
+        "text": "Esta casa es muy grande.",
+        "translation": "Этот дом очень большой."
+      },
+      {
+        "text": "Ese chico es mi primo.",
+        "translation": "Тот парень — мой двоюродный брат."
+      },
+      {
+        "text": "Aquellas montañas son muy altas.",
+        "translation": "Те горы очень высокие."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Este casa es bonita.",
+        "right": "Esta casa es bonita.",
+        "note": "Casa женского рода, значит esta."
+      },
+      {
+        "wrong": "Estos mesa está limpia.",
+        "right": "Esta mesa está limpia.",
+        "note": "Mesa в единственном числе, значит esta."
+      }
+    ],
+    "related": [
+      "a1-genero",
+      "a1-posesivos"
+    ]
+  },
+  "a1-posesivos": {
+    "forms": [
+      "mi, tu, su + ед. ч.: mi casa",
+      "mis, tus, sus + мн. ч.: mis casas",
+      "nuestro/a/os/as, vuestro/a/os/as",
+      "su = его, её, ваш, их"
+    ],
+    "examples": [
+      {
+        "text": "Mi madre se llama Ana.",
+        "translation": "Мою маму зовут Ана."
+      },
+      {
+        "text": "Nuestros padres viven en Madrid.",
+        "translation": "Наши родители живут в Мадриде."
+      },
+      {
+        "text": "¿Dónde está tu casa?",
+        "translation": "Где твой дом?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mis casa es grande.",
+        "right": "Mi casa es grande.",
+        "note": "Casa в единственном числе, значит mi."
+      },
+      {
+        "wrong": "La mi madre es profesora.",
+        "right": "Mi madre es profesora.",
+        "note": "Артикль перед mi не нужен."
+      }
+    ],
+    "related": [
+      "a1-demostrativos",
+      "a1-ser"
+    ]
+  },
+  "a1-ser": {
+    "forms": [
+      "soy, eres, es, somos, sois, son",
+      "Кто и какой: Es alto. Soy médico.",
+      "Откуда: Soy de Rusia.",
+      "Время: Son las tres."
+    ],
+    "examples": [
+      {
+        "text": "Soy de Rusia, pero vivo en Madrid.",
+        "translation": "Я из России, но живу в Мадриде."
+      },
+      {
+        "text": "Ellos son estudiantes.",
+        "translation": "Они студенты."
+      },
+      {
+        "text": "¿De dónde eres?",
+        "translation": "Откуда ты?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy ruso.",
+        "right": "Soy ruso.",
+        "note": "Национальность называют глаголом ser."
+      },
+      {
+        "wrong": "Soy de veinte años.",
+        "right": "Tengo veinte años.",
+        "note": "Возраст выражают глаголом tener."
+      }
+    ],
+    "related": [
+      "a1-estar",
+      "a1-tener-hay"
+    ]
+  },
+  "a1-estar": {
+    "forms": [
+      "estoy, estás, está, estamos, estáis, están",
+      "Место: Está en casa.",
+      "Состояние: Estoy cansado, Estamos contentos.",
+      "Вопрос: ¿Cómo está usted?"
+    ],
+    "examples": [
+      {
+        "text": "Madrid está en España.",
+        "translation": "Мадрид находится в Испании."
+      },
+      {
+        "text": "Hoy estoy muy cansada.",
+        "translation": "Сегодня я очень устала."
+      },
+      {
+        "text": "¿Dónde están mis llaves?",
+        "translation": "Где мои ключи?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Madrid es en España.",
+        "right": "Madrid está en España.",
+        "note": "Местоположение выражают глаголом estar."
+      },
+      {
+        "wrong": "Estoy en casa cansado y contenta.",
+        "right": "Estoy en casa, cansada y contenta.",
+        "note": "Прилагательные согласуются с подлежащим по роду."
+      }
+    ],
+    "related": [
+      "a1-ser",
+      "a1-tener-hay"
+    ]
+  },
+  "a1-tener-hay": {
+    "forms": [
+      "tengo, tienes, tiene, tenemos, tenéis, tienen",
+      "Возраст: Tengo 20 años.",
+      "Состояние: tengo hambre, frío, sueño",
+      "hay + новое: Hay un museo. Известное: El museo está allí."
+    ],
+    "examples": [
+      {
+        "text": "Tengo dos hermanas.",
+        "translation": "У меня две сестры."
+      },
+      {
+        "text": "Mi hijo tiene cinco años.",
+        "translation": "Моему сыну пять лет."
+      },
+      {
+        "text": "En la ciudad hay un museo muy bonito.",
+        "translation": "В городе есть очень красивый музей."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Soy veinte años.",
+        "right": "Tengo veinte años.",
+        "note": "Возраст выражается глаголом tener."
+      },
+      {
+        "wrong": "Hay el libro en la mesa.",
+        "right": "El libro está en la mesa.",
+        "note": "Известный предмет ставят с estar, а не с hay."
+      }
+    ],
+    "related": [
+      "a1-estar",
+      "a1-articulo-indeterminado"
+    ]
+  },
+  "a1-presente-regular": {
+    "forms": [
+      "-ar: hablo, hablas, habla, hablamos, habláis, hablan",
+      "-er: como, comes, come, comemos, coméis, comen",
+      "-ir: vivo, vives, vive, vivimos, vivís, viven",
+      "Отрицание: No trabajo hoy."
+    ],
+    "examples": [
+      {
+        "text": "Trabajo en una escuela.",
+        "translation": "Я работаю в школе."
+      },
+      {
+        "text": "Comemos a las dos.",
+        "translation": "Мы обедаем в два."
+      },
+      {
+        "text": "¿Vives en Madrid?",
+        "translation": "Ты живёшь в Мадриде?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Ella hablan español.",
+        "right": "Ella habla español.",
+        "note": "С ella нужна форма третьего лица единственного числа."
+      },
+      {
+        "wrong": "Yo no trabajo no hoy.",
+        "right": "Yo no trabajo hoy.",
+        "note": "Достаточно одного no перед глаголом."
+      }
+    ],
+    "related": [
+      "a1-presente-irregular",
+      "a1-ser"
+    ]
+  },
+  "a1-presente-irregular": {
+    "forms": [
+      "e → ie: querer → quiero; o → ue: poder → puedo",
+      "e → i: pedir → pido",
+      "yo-go: hago, salgo, tengo, digo; conozco",
+      "ir: voy, vas, va, vamos, vais, van"
+    ],
+    "examples": [
+      {
+        "text": "Quiero un café, por favor.",
+        "translation": "Я хочу кофе, пожалуйста."
+      },
+      {
+        "text": "¿Puedes ayudarme?",
+        "translation": "Ты можешь мне помочь?"
+      },
+      {
+        "text": "Voy a la universidad en autobús.",
+        "translation": "Я езжу в университет на автобусе."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo quero agua.",
+        "right": "Yo quiero agua.",
+        "note": "Гласная e в корне переходит в ie."
+      },
+      {
+        "wrong": "Nosotros puedemos.",
+        "right": "Nosotros podemos.",
+        "note": "В форме nosotros корень не меняется."
+      }
+    ],
+    "related": [
+      "a1-presente-regular",
+      "a1-gustar"
+    ]
+  },
+  "a1-gustar": {
+    "forms": [
+      "me / te / le / nos / os / les + gusta (ед. ч. и инфинитив)",
+      "me / te / le / nos / os / les + gustan (мн. ч.)",
+      "A mí me gusta… / A ti te gusta…",
+      "Согласие: A mí también / A mí tampoco"
+    ],
+    "examples": [
+      {
+        "text": "Me gusta el café con leche.",
+        "translation": "Я люблю кофе с молоком."
+      },
+      {
+        "text": "Nos gustan los libros de historia.",
+        "translation": "Нам нравятся книги по истории."
+      },
+      {
+        "text": "¿Te gusta bailar?",
+        "translation": "Тебе нравится танцевать?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo gusto el café.",
+        "right": "Me gusta el café.",
+        "note": "Нравится предмет, поэтому перед глаголом me, te, le."
+      },
+      {
+        "wrong": "Me gusta las manzanas.",
+        "right": "Me gustan las manzanas.",
+        "note": "Глагол согласуется с тем, что нравится: manzanas во множественном числе."
+      }
+    ],
+    "related": [
+      "a1-presente-regular",
+      "a1-interrogativos"
+    ]
+  },
+  "a1-interrogativos": {
+    "forms": [
+      "¿Qué? ¿Quién? ¿Dónde? ¿Cuándo? ¿Cómo?",
+      "¿Cuánto/a/os/as? согласуется с существительным",
+      "¿Por qué…? — Porque…",
+      "Знаки ¿ ? и ударение в вопросительных словах"
+    ],
+    "examples": [
+      {
+        "text": "¿Dónde vives?",
+        "translation": "Где ты живёшь?"
+      },
+      {
+        "text": "¿Cuántos años tienes?",
+        "translation": "Сколько тебе лет?"
+      },
+      {
+        "text": "¿Por qué estudias español?",
+        "translation": "Почему ты учишь испанский?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Como te llamas?",
+        "right": "¿Cómo te llamas?",
+        "note": "В вопросе пишут ¿ и cómo с ударным знаком."
+      },
+      {
+        "wrong": "¿Por que llegas tarde?",
+        "right": "¿Por qué llegas tarde?",
+        "note": "В вопросе пишут por qué раздельно и с ударным знаком."
+      }
+    ],
+    "related": [
+      "a1-ser",
+      "a1-tener-hay"
+    ]
+  },
+  "a2-adjetivos": {
+    "forms": [
+      "-o → -a, -os, -as: pequeño, pequeña, pequeños",
+      "-e / согласная: inteligente, joven, fácil",
+      "-or, -ón, -án, национальности: español → española",
+      "bueno → buen, malo → mal (перед сущ. м. р. ед. ч.)"
+    ],
+    "examples": [
+      {
+        "text": "Tengo una amiga chilena muy simpática.",
+        "translation": "У меня есть очень приятная подруга из Чили."
+      },
+      {
+        "text": "Es un buen profesor.",
+        "translation": "Он хороший учитель."
+      },
+      {
+        "text": "Mis vecinos son españoles.",
+        "translation": "Мои соседи — испанцы."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "una casa grande y bonito",
+        "right": "una casa grande y bonita",
+        "note": "Прилагательное согласуется с существительным по роду."
+      },
+      {
+        "wrong": "un bueno amigo",
+        "right": "un buen amigo",
+        "note": "Перед существительным мужского рода bueno сокращается до buen."
+      }
+    ],
+    "related": [
+      "a2-comparativos",
+      "a2-ser-vs-estar"
+    ]
+  },
+  "a2-comparativos": {
+    "forms": [
+      "más / menos + прил. + que",
+      "tan + прил. + como; tanto/a/os/as + сущ. + como",
+      "mejor, peor, mayor, menor",
+      "el / la / los / las + más / menos + прил. + de"
+    ],
+    "examples": [
+      {
+        "text": "Mi hermano es más alto que yo.",
+        "translation": "Мой брат выше меня."
+      },
+      {
+        "text": "Esta casa es tan cara como aquella.",
+        "translation": "Этот дом такой же дорогой, как тот."
+      },
+      {
+        "text": "Es la ciudad más bonita del país.",
+        "translation": "Это самый красивый город страны."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "más grande de Valencia",
+        "right": "más grande que Valencia",
+        "note": "Во втором члене сравнения нужно que, а не de."
+      },
+      {
+        "wrong": "más bueno",
+        "right": "mejor",
+        "note": "У bueno особая форма сравнительной степени — mejor."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-indefinidos"
+    ]
+  },
+  "a2-indefinidos": {
+    "forms": [
+      "alguien / nadie; algo / nada",
+      "No + глагол + nada / nadie / nunca",
+      "mucho/a/os/as, poco/a/os/as, bastante, demasiado",
+      "algún, ningún перед сущ. м. р. ед. ч."
+    ],
+    "examples": [
+      {
+        "text": "No hay nadie en la oficina.",
+        "translation": "В офисе никого нет."
+      },
+      {
+        "text": "Tengo muchos amigos, pero poco tiempo libre.",
+        "translation": "У меня много друзей, но мало свободного времени."
+      },
+      {
+        "text": "¿Quieres algo de beber?",
+        "translation": "Хочешь что-нибудь выпить?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No veo nadie.",
+        "right": "No veo a nadie.",
+        "note": "Прямое дополнение-человек вводят предлогом a."
+      },
+      {
+        "wrong": "Tengo mucho amigas.",
+        "right": "Tengo muchas amigas.",
+        "note": "Mucho согласуется с существительным по роду и числу."
+      }
+    ],
+    "related": [
+      "a2-comparativos",
+      "a2-adjetivos"
+    ]
+  },
+  "a2-pronombres-complemento": {
+    "forms": [
+      "Прямое: me, te, lo/la, nos, os, los/las",
+      "Косвенное: me, te, le, nos, os, les",
+      "Перед глаголом: Lo veo. No lo veo.",
+      "С инфинитивом: Quiero verlo. / Lo quiero ver."
+    ],
+    "examples": [
+      {
+        "text": "¿El libro? Lo tengo yo.",
+        "translation": "Книга? Она у меня."
+      },
+      {
+        "text": "Le escribo una carta a mi madre.",
+        "translation": "Я пишу письмо маме."
+      },
+      {
+        "text": "Te quiero mucho.",
+        "translation": "Я тебя очень люблю."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Veo la.",
+        "right": "La veo.",
+        "note": "Местоимение ставят перед спрягаемым глаголом."
+      },
+      {
+        "wrong": "Les doy un libro a Ana.",
+        "right": "Le doy un libro a Ana.",
+        "note": "Одному человеку — le, нескольким — les."
+      }
+    ],
+    "related": [
+      "a2-reflexivos",
+      "a2-imperativo"
+    ]
+  },
+  "a2-reflexivos": {
+    "forms": [
+      "me, te, se, nos, os, se + глагол",
+      "levantarse, ducharse, acostarse, llamarse",
+      "С инфинитивом: Voy a ducharme. / Me voy a duchar.",
+      "Контраст: lavar (что-то) и lavarse (себя)"
+    ],
+    "examples": [
+      {
+        "text": "Me levanto a las siete.",
+        "translation": "Я встаю в семь."
+      },
+      {
+        "text": "Mi hermana se llama Laura.",
+        "translation": "Мою сестру зовут Лаура."
+      },
+      {
+        "text": "Lavo el coche y luego me ducho.",
+        "translation": "Я мою машину, а потом принимаю душ."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo levanto a las siete.",
+        "right": "Yo me levanto a las siete.",
+        "note": "Вставать — возвратный глагол, нужно me."
+      },
+      {
+        "wrong": "Se llamo Ana.",
+        "right": "Me llamo Ana.",
+        "note": "Местоимение должно совпадать с подлежащим: yo → me."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "a2-ser-vs-estar": {
+    "forms": [
+      "ser: кто, какой, откуда, время, материал",
+      "estar: где, как себя чувствует, результат",
+      "Меняется смысл: ser aburrido / estar aburrido",
+      "Событие: ser en + место"
+    ],
+    "examples": [
+      {
+        "text": "María es muy simpática, pero hoy está triste.",
+        "translation": "Мария очень приятная, но сегодня она грустная."
+      },
+      {
+        "text": "La reunión es en la sala 3.",
+        "translation": "Встреча проходит в зале 3."
+      },
+      {
+        "text": "La sopa está fría.",
+        "translation": "Суп холодный."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Soy en casa.",
+        "right": "Estoy en casa.",
+        "note": "Местоположение выражается через estar."
+      },
+      {
+        "wrong": "Estoy médico.",
+        "right": "Soy médico.",
+        "note": "Профессия называется глаголом ser."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "a2-futuro-ir-a": {
+    "forms": [
+      "voy, vas, va, vamos, vais, van + a + инфинитив",
+      "Указатели: mañana, esta noche, el sábado",
+      "Вопрос: ¿Qué vas a hacer?",
+      "Настоящее время для будущего: Mañana voy al médico."
+    ],
+    "examples": [
+      {
+        "text": "Voy a estudiar español este año.",
+        "translation": "Я буду учить испанский в этом году."
+      },
+      {
+        "text": "Mañana vamos a visitar a mis abuelos.",
+        "translation": "Завтра мы навестим моих бабушку и дедушку."
+      },
+      {
+        "text": "¿Qué vas a hacer el sábado?",
+        "translation": "Что ты будешь делать в субботу?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy estudiar.",
+        "right": "Voy a estudiar.",
+        "note": "Между ir и инфинитивом нужен предлог a."
+      },
+      {
+        "wrong": "Va a come.",
+        "right": "Va a comer.",
+        "note": "После ir a глагол стоит в инфинитиве."
+      }
+    ],
+    "related": [
+      "a2-presente-estar-gerundio",
+      "a2-preterito-indefinido"
+    ]
+  },
+  "a2-presente-estar-gerundio": {
+    "forms": [
+      "estoy, estás, está, estamos, estáis, están + герундий",
+      "-ar → -ando; -er/-ir → -iendo",
+      "leyendo, durmiendo, pidiendo",
+      "Привычка: Trabajo aquí. Сейчас: Estoy trabajando."
+    ],
+    "examples": [
+      {
+        "text": "Estoy viendo las noticias.",
+        "translation": "Я смотрю новости."
+      },
+      {
+        "text": "Los niños están durmiendo.",
+        "translation": "Дети спят."
+      },
+      {
+        "text": "Hoy estoy trabajando en casa.",
+        "translation": "Сегодня я работаю дома."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy trabajo.",
+        "right": "Estoy trabajando.",
+        "note": "После estar нужен герундий, а не личная форма."
+      },
+      {
+        "wrong": "Estamos leendo.",
+        "right": "Estamos leyendo.",
+        "note": "У leer герундий leyendo."
+      }
+    ],
+    "related": [
+      "a2-futuro-ir-a",
+      "a2-ser-vs-estar"
+    ]
+  },
+  "a2-preterito-indefinido": {
+    "forms": [
+      "-ar: -é, -aste, -ó, -amos, -asteis, -aron",
+      "-er/-ir: -í, -iste, -ió, -imos, -isteis, -ieron",
+      "ser/ir: fui, fuiste, fue…; hacer: hice, hizo",
+      "Маркеры: ayer, anoche, el año pasado, hace + время"
+    ],
+    "examples": [
+      {
+        "text": "Ayer trabajé hasta las ocho.",
+        "translation": "Вчера я работал до восьми."
+      },
+      {
+        "text": "El año pasado fuimos a México.",
+        "translation": "В прошлом году мы ездили в Мексику."
+      },
+      {
+        "text": "¿Qué hiciste el sábado?",
+        "translation": "Что ты делал в субботу?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo comió pizza.",
+        "right": "Yo comí pizza.",
+        "note": "Для yo в -er/-ir окончание -í."
+      },
+      {
+        "wrong": "Ayer hací la cena.",
+        "right": "Ayer hice la cena.",
+        "note": "У hacer особая форма hice."
+      }
+    ],
+    "related": [
+      "a2-preterito-perfecto",
+      "a2-preterito-imperfecto"
+    ]
+  },
+  "a2-preterito-perfecto": {
+    "forms": [
+      "he, has, ha, hemos, habéis, han + -ado / -ido",
+      "Неправильные: hecho, dicho, visto, escrito, puesto, vuelto",
+      "Маркеры: hoy, esta semana, ya, todavía no, alguna vez",
+      "Отрицание: No he terminado."
+    ],
+    "examples": [
+      {
+        "text": "Hoy he trabajado mucho.",
+        "translation": "Сегодня я много работал."
+      },
+      {
+        "text": "¿Has estado alguna vez en España?",
+        "translation": "Ты когда-нибудь бывал в Испании?"
+      },
+      {
+        "text": "Todavía no he comido.",
+        "translation": "Я ещё не обедал."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He hacido la tarea.",
+        "right": "He hecho la tarea.",
+        "note": "У hacer причастие hecho."
+      },
+      {
+        "wrong": "Ayer he trabajado.",
+        "right": "Ayer trabajé.",
+        "note": "С ayer, где время закончено, употребляют indefinido."
+      }
+    ],
+    "related": [
+      "a2-preterito-indefinido",
+      "a2-preterito-imperfecto"
+    ]
+  },
+  "a2-preterito-imperfecto": {
+    "forms": [
+      "-ar: -aba, -abas, -aba, -ábamos, -abais, -aban",
+      "-er/-ir: -ía, -ías, -ía, -íamos, -íais, -ían",
+      "Неправильные: ser → era, ir → iba, ver → veía",
+      "Маркеры: siempre, todos los días, cuando era niño"
+    ],
+    "examples": [
+      {
+        "text": "Cuando era niño, vivía en un pueblo.",
+        "translation": "Когда я был ребёнком, я жил в деревне."
+      },
+      {
+        "text": "Todos los domingos comíamos en casa de mi abuela.",
+        "translation": "По воскресеньям мы обедали у моей бабушки."
+      },
+      {
+        "text": "Iba al colegio en bicicleta.",
+        "translation": "Я ездил в школу на велосипеде."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo eraba alto.",
+        "right": "Yo era alto.",
+        "note": "Глагол ser имеет особую форму era."
+      },
+      {
+        "wrong": "Cuando era niña, jugué en la calle todos los días.",
+        "right": "Cuando era niña, jugaba en la calle todos los días.",
+        "note": "Привычное действие в прошлом выражают imperfecto."
+      }
+    ],
+    "related": [
+      "a2-preterito-indefinido",
+      "a2-preterito-perfecto"
+    ]
+  },
+  "a2-imperativo": {
+    "forms": [
+      "tú: habla, come, escribe",
+      "usted: hable, coma, escriba",
+      "Неправильные: di, haz, ve, pon, sal, sé, ten, ven",
+      "Запрет: no hables, no comas"
+    ],
+    "examples": [
+      {
+        "text": "Abre la ventana, por favor.",
+        "translation": "Открой окно, пожалуйста."
+      },
+      {
+        "text": "No fumes aquí.",
+        "translation": "Не кури здесь."
+      },
+      {
+        "text": "Ven a mi casa mañana.",
+        "translation": "Приходи ко мне завтра."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No habla tan rápido.",
+        "right": "No hables tan rápido.",
+        "note": "В запрете для tú нужна форма на -es."
+      },
+      {
+        "wrong": "Hace la tarea.",
+        "right": "Haz la tarea.",
+        "note": "У hacer в императиве для tú форма haz."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "a2-reflexivos"
+    ]
+  },
+  "a2-preposiciones": {
+    "forms": [
+      "a: направление, время; en: место, транспорт",
+      "de: откуда, чей; desde / hasta",
+      "por la mañana / tarde / noche",
+      "encima de, debajo de, al lado de, delante de"
+    ],
+    "examples": [
+      {
+        "text": "Voy a Barcelona en tren.",
+        "translation": "Я еду в Барселону на поезде."
+      },
+      {
+        "text": "El libro está encima de la mesa.",
+        "translation": "Книга лежит на столе."
+      },
+      {
+        "text": "Trabajo desde las nueve hasta las cinco.",
+        "translation": "Я работаю с девяти до пяти."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy en Madrid.",
+        "right": "Voy a Madrid.",
+        "note": "Направление выражают предлогом a."
+      },
+      {
+        "wrong": "Vivo a Madrid.",
+        "right": "Vivo en Madrid.",
+        "note": "Место жительства — предлог en."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-futuro-ir-a"
+    ]
+  },
+  "b1-indefinido-vs-imperfecto": {
+    "forms": [
+      "Imperfecto: фон, привычка, возраст, погода",
+      "Indefinido: законченное событие, последовательность",
+      "estaba + герундий + cuando + indefinido",
+      "Смысл меняется: conocí / conocía, supe / sabía"
+    ],
+    "examples": [
+      {
+        "text": "Llovía y hacía frío cuando salí de casa.",
+        "translation": "Шёл дождь и было холодно, когда я вышел из дома."
+      },
+      {
+        "text": "Estaba leyendo cuando sonó el teléfono.",
+        "translation": "Я читал, когда зазвонил телефон."
+      },
+      {
+        "text": "Cuando era niña, un día me perdí en el bosque.",
+        "translation": "Когда я была ребёнком, однажды я заблудилась в лесу."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegué, todos cenaron.",
+        "right": "Cuando llegué, todos cenaban.",
+        "note": "Одновременное с событием действие в процессе выражают imperfecto."
+      },
+      {
+        "wrong": "Estuve cenando cuando llamaste.",
+        "right": "Estaba cenando cuando llamaste.",
+        "note": "Фоновое действие, которое прервали, выражают imperfecto."
+      }
+    ],
+    "related": [
+      "b1-pluscuamperfecto",
+      "b1-futuro-simple"
+    ]
+  },
+  "b1-pluscuamperfecto": {
+    "forms": [
+      "había, habías, había, habíamos, habíais, habían + причастие",
+      "ya, todavía no, nunca + pluscuamperfecto",
+      "Порядок: pluscuamperfecto = раньше, indefinido = позже",
+      "Неправильные причастия: hecho, dicho, visto, escrito"
+    ],
+    "examples": [
+      {
+        "text": "Cuando llegué, ya se había ido.",
+        "translation": "Когда я пришёл, он уже ушёл."
+      },
+      {
+        "text": "Nunca había visto el mar.",
+        "translation": "Я никогда раньше не видел море."
+      },
+      {
+        "text": "Me dijo que había terminado el trabajo.",
+        "translation": "Он сказал мне, что закончил работу."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegué, ya se fue.",
+        "right": "Cuando llegué, ya se había ido.",
+        "note": "Действие раньше другого в прошлом выражают pluscuamperfecto."
+      },
+      {
+        "wrong": "Nunca he visto el mar hasta ayer.",
+        "right": "Nunca había visto el mar hasta ayer.",
+        "note": "Опыт до момента в прошлом выражают pluscuamperfecto, а не perfecto."
+      }
+    ],
+    "related": [
+      "b1-indefinido-vs-imperfecto",
+      "b2-estilo-indirecto"
+    ]
+  },
+  "b1-futuro-simple": {
+    "forms": [
+      "Инфинитив + é, ás, á, emos, éis, án",
+      "Особый корень: tendr-, har-, podr-, saldr-, dir-, vendr-",
+      "Предположение: Estará en casa. = Наверное, он дома",
+      "Обещание, прогноз: Te llamaré. Mañana lloverá."
+    ],
+    "examples": [
+      {
+        "text": "El año que viene viajaré a Italia.",
+        "translation": "В следующем году я поеду в Италию."
+      },
+      {
+        "text": "Estará en casa, porque su luz está encendida.",
+        "translation": "Наверное, он дома, потому что у него горит свет."
+      },
+      {
+        "text": "¿Cuándo vendrás a verme?",
+        "translation": "Когда ты приедешь ко мне?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo tenderé tiempo.",
+        "right": "Yo tendré tiempo.",
+        "note": "У tener особый корень tendr-."
+      },
+      {
+        "wrong": "Mañana yo salirá.",
+        "right": "Mañana saldré.",
+        "note": "У salir особый корень saldr-."
+      }
+    ],
+    "related": [
+      "b1-condicional",
+      "b1-indefinido-vs-imperfecto"
+    ]
+  },
+  "b1-condicional": {
+    "forms": [
+      "Инфинитив + ía, ías, ía, íamos, íais, ían",
+      "Особые корни: tendr-, har-, podr-, saldr-, dir-",
+      "Вежливость: ¿Podría…? Me gustaría…",
+      "Совет: Deberías…; в пересказе: Dijo que vendría"
+    ],
+    "examples": [
+      {
+        "text": "¿Podría abrir la ventana, por favor?",
+        "translation": "Не могли бы вы открыть окно?"
+      },
+      {
+        "text": "Deberías descansar un poco.",
+        "translation": "Тебе стоило бы немного отдохнуть."
+      },
+      {
+        "text": "Me gustaría vivir cerca del mar.",
+        "translation": "Я бы хотел жить у моря."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo podería ir.",
+        "right": "Yo podría ir.",
+        "note": "У poder корень podr-, а не poder-."
+      },
+      {
+        "wrong": "Dijo que vendrá.",
+        "right": "Dijo que vendría.",
+        "note": "В косвенной речи после прошедшего времени будущее заменяется condicional."
+      }
+    ],
+    "related": [
+      "b1-futuro-simple",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-pronombres-combinados": {
+    "forms": [
+      "Косвенное + прямое: me lo, te la, nos los",
+      "le/les + lo/la → se lo / se la",
+      "С инфинитивом: dárselo; с императивом: dámelo",
+      "Не меняйте порядок: me lo, а не lo me"
+    ],
+    "examples": [
+      {
+        "text": "Mi madre me lo ha regalado.",
+        "translation": "Мне это подарила мама."
+      },
+      {
+        "text": "¿El libro? Se lo di ayer a Pablo.",
+        "translation": "Книга? Я отдал её вчера Пабло."
+      },
+      {
+        "text": "Voy a enviártelo mañana.",
+        "translation": "Я отправлю тебе это завтра."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Le lo doy.",
+        "right": "Se lo doy.",
+        "note": "Le перед lo заменяется на se."
+      },
+      {
+        "wrong": "Lo me dijo.",
+        "right": "Me lo dijo.",
+        "note": "Косвенное дополнение стоит перед прямым."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "b1-imperativo-pronombres"
+    ]
+  },
+  "b1-imperativo-pronombres": {
+    "forms": [
+      "usted/ustedes: hable(n), coma(n), escriba(n)",
+      "vosotros: hablad; запрет: no habléis",
+      "Утверждение: cómpralo, dímelo, siéntese",
+      "Запрет: no lo compres, no me lo digas"
+    ],
+    "examples": [
+      {
+        "text": "Siéntese, por favor.",
+        "translation": "Садитесь, пожалуйста."
+      },
+      {
+        "text": "Dímelo ahora.",
+        "translation": "Скажи мне это сейчас."
+      },
+      {
+        "text": "No me lo digas.",
+        "translation": "Не говори мне этого."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No lo compra.",
+        "right": "No lo compres.",
+        "note": "В запрете для tú нужна форма на -es."
+      },
+      {
+        "wrong": "Compralo.",
+        "right": "Cómpralo.",
+        "note": "Нужен ударный знак, чтобы сохранить ударение."
+      }
+    ],
+    "related": [
+      "a2-imperativo",
+      "b1-pronombres-combinados"
+    ]
+  },
+  "b1-subjuntivo-presente": {
+    "forms": [
+      "-ar: -e, -es, -e, -emos, -éis, -en",
+      "-er/-ir: -a, -as, -a, -amos, -áis, -an",
+      "Особые: sea, vaya, esté, sepa, haya",
+      "Желание, просьба, эмоция + que + subjuntivo"
+    ],
+    "examples": [
+      {
+        "text": "Quiero que vengas a mi fiesta.",
+        "translation": "Я хочу, чтобы ты пришёл на мою вечеринку."
+      },
+      {
+        "text": "Me alegro de que estés aquí.",
+        "translation": "Я рад, что ты здесь."
+      },
+      {
+        "text": "Te pido que hables más despacio.",
+        "translation": "Прошу тебя говорить помедленнее."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quiero que vienes.",
+        "right": "Quiero que vengas.",
+        "note": "После quiero que нужен subjuntivo."
+      },
+      {
+        "wrong": "Quiero que yo vaya.",
+        "right": "Quiero ir.",
+        "note": "Если подлежащее одно и то же, используют инфинитив."
+      }
+    ],
+    "related": [
+      "b1-condicional",
+      "b1-subjuntivo-sentimientos"
+    ]
+  },
+  "b1-subjuntivo-sentimientos": {
+    "forms": [
+      "Желание: quiero / espero / prefiero que + subj.",
+      "Вероятность: quizás / tal vez + subj.",
+      "Оценка: es importante / es una pena / me gusta que + subj.",
+      "Без смены подлежащего — инфинитив"
+    ],
+    "examples": [
+      {
+        "text": "Espero que no llueva mañana.",
+        "translation": "Надеюсь, завтра не будет дождя."
+      },
+      {
+        "text": "Quizás vaya al cine esta noche.",
+        "translation": "Может быть, я схожу сегодня в кино."
+      },
+      {
+        "text": "Es importante que duermas bien.",
+        "translation": "Важно, чтобы ты хорошо спал."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quizás voy.",
+        "right": "Quizás vaya.",
+        "note": "Quizás для сомнения требует subjuntivo."
+      },
+      {
+        "wrong": "Me gusta que vienes.",
+        "right": "Me gusta que vengas.",
+        "note": "После me gusta que нужен subjuntivo."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-presente",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  },
+  "b1-relativos": {
+    "forms": [
+      "que: El libro que leo",
+      "предлог + el / la / los / las + que: la casa en la que vivo",
+      "quien (о людях), donde (место), cuyo (чей)",
+      "Неопределённое: Busco algo que sea barato."
+    ],
+    "examples": [
+      {
+        "text": "El libro que estoy leyendo es muy bueno.",
+        "translation": "Книга, которую я читаю, очень хорошая."
+      },
+      {
+        "text": "La casa en la que vivo es pequeña.",
+        "translation": "Дом, в котором я живу, маленький."
+      },
+      {
+        "text": "Busco un piso que tenga balcón.",
+        "translation": "Я ищу квартиру с балконом."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "El chico que hablo es mi amigo.",
+        "right": "El chico con el que hablo es mi amigo.",
+        "note": "После предлога перед que нужен артикль."
+      },
+      {
+        "wrong": "Busco una casa que tiene jardín.",
+        "right": "Busco una casa que tenga jardín.",
+        "note": "Если искомое неизвестно, нужен subjuntivo."
+      }
+    ],
+    "related": [
+      "b1-conectores",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-perifrasis": {
+    "forms": [
+      "Обязанность: tener que, hay que, deber + инфинитив",
+      "Привычка: soler + инфинитив",
+      "Начало и конец: empezar a, acabar de, dejar de",
+      "Продолжение и повтор: seguir + герундий, volver a + инфинитив"
+    ],
+    "examples": [
+      {
+        "text": "Tengo que terminar el informe hoy.",
+        "translation": "Мне нужно закончить отчёт сегодня."
+      },
+      {
+        "text": "Acabo de llegar a casa.",
+        "translation": "Я только что пришёл домой."
+      },
+      {
+        "text": "Sigo viviendo en el mismo barrio.",
+        "translation": "Я по-прежнему живу в том же районе."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Tengo estudiar.",
+        "right": "Tengo que estudiar.",
+        "note": "В tener que нужно que."
+      },
+      {
+        "wrong": "Suelo comiendo en casa.",
+        "right": "Suelo comer en casa.",
+        "note": "После soler идёт инфинитив."
+      }
+    ],
+    "related": [
+      "b1-gerundio-participio",
+      "a2-futuro-ir-a"
+    ]
+  },
+  "b1-gerundio-participio": {
+    "forms": [
+      "Герундий: образ действия — leyendo, cantando",
+      "После предлога — инфинитив: antes de salir",
+      "Причастие с haber не меняется: he comido",
+      "Причастие-прилагательное согласуется: puertas cerradas"
+    ],
+    "examples": [
+      {
+        "text": "Aprendo español escuchando música.",
+        "translation": "Я учу испанский, слушая музыку."
+      },
+      {
+        "text": "La tienda está cerrada los domingos.",
+        "translation": "По воскресеньям магазин закрыт."
+      },
+      {
+        "text": "Antes de salir, cierra la ventana.",
+        "translation": "Перед выходом закрой окно."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Antes de saliendo.",
+        "right": "Antes de salir.",
+        "note": "После предлога нужен инфинитив."
+      },
+      {
+        "wrong": "Las puertas están cerrado.",
+        "right": "Las puertas están cerradas.",
+        "note": "Причастие-прилагательное согласуется с существительным."
+      }
+    ],
+    "related": [
+      "b1-perifrasis",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "b1-conectores": {
+    "forms": [
+      "Причина: porque, como, puesto que",
+      "Цель: para + инф. / para que + subjuntivo",
+      "Время: cuando, antes de que + subjuntivo",
+      "Следствие: por eso, así que"
+    ],
+    "examples": [
+      {
+        "text": "Como llueve, me quedo en casa.",
+        "translation": "Так как идёт дождь, я остаюсь дома."
+      },
+      {
+        "text": "Te llamo para que sepas dónde estoy.",
+        "translation": "Я звоню тебе, чтобы ты знал, где я."
+      },
+      {
+        "text": "Cuando llegues, llámame.",
+        "translation": "Когда приедешь, позвони мне."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estudio para que apruebo.",
+        "right": "Estudio para aprobar.",
+        "note": "Если подлежащее одно и то же, нужен инфинитив."
+      },
+      {
+        "wrong": "Cuando llegas mañana, llámame.",
+        "right": "Cuando llegues mañana, llámame.",
+        "note": "После cuando о будущем нужен subjuntivo."
+      }
+    ],
+    "related": [
+      "b1-relativos",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-adverbios": {
+    "forms": [
+      "Женская форма + -mente: rápida → rápidamente",
+      "Время: ya, todavía, aún; частота: siempre, a veces, nunca",
+      "muy + прил. / нареч.; глагол + mucho",
+      "mucho + mejor / peor / más / menos"
+    ],
+    "examples": [
+      {
+        "text": "Habla muy bien español.",
+        "translation": "Он очень хорошо говорит по-испански."
+      },
+      {
+        "text": "Siempre llega tarde, pero hoy llegó rápidamente.",
+        "translation": "Он всегда опаздывает, но сегодня пришёл быстро."
+      },
+      {
+        "text": "Todavía no he terminado.",
+        "translation": "Я ещё не закончил."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Hablo muy.",
+        "right": "Hablo mucho.",
+        "note": "После глагола нужно mucho, а не muy."
+      },
+      {
+        "wrong": "Es mucho bueno.",
+        "right": "Es muy bueno.",
+        "note": "Перед прилагательным нужно muy."
+      }
+    ],
+    "related": [
+      "b1-perifrasis",
+      "b1-conectores"
+    ]
+  },
+  "b2-subjuntivo-imperfecto": {
+    "forms": [
+      "Основа: ellos indefinido − ron + ra, ras, ra, ramos, rais, ran",
+      "Вариант на -se: trabajase, comiese",
+      "Прошедшее: Quería que vinieras. Нереальное: Si tuviera…",
+      "Вежливость: Quisiera… ¿Pudiera ayudarme?"
+    ],
+    "examples": [
+      {
+        "text": "Quería que me ayudaras con la tarea.",
+        "translation": "Я хотел, чтобы ты помог мне с заданием."
+      },
+      {
+        "text": "Si tuviera más tiempo, viajaría más.",
+        "translation": "Если бы у меня было больше времени, я бы больше путешествовал."
+      },
+      {
+        "text": "Quisiera reservar una mesa para dos.",
+        "translation": "Я бы хотел заказать столик на двоих."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quería que vienes.",
+        "right": "Quería que vinieras.",
+        "note": "После прошедшего главного глагола нужен imperfecto de subjuntivo."
+      },
+      {
+        "wrong": "Si tendría tiempo, iría.",
+        "right": "Si tuviera tiempo, iría.",
+        "note": "После si в нереальном условии нужен imperfecto de subjuntivo, а не condicional."
+      }
+    ],
+    "related": [
+      "b2-condicionales-si",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b2-subjuntivo-perfecto": {
+    "forms": [
+      "haya, hayas, haya, hayamos, hayáis, hayan + причастие",
+      "Завершённое + эмоция / сомнение: Me alegro de que hayas venido",
+      "Cuando + perfecto de subjuntivo: Cuando hayas terminado…",
+      "Не путайте: vengas (будущее) и hayas venido (уже)"
+    ],
+    "examples": [
+      {
+        "text": "Espero que hayas llegado bien a casa.",
+        "translation": "Надеюсь, ты хорошо добрался до дома."
+      },
+      {
+        "text": "No creo que haya dicho eso.",
+        "translation": "Не думаю, что он это сказал."
+      },
+      {
+        "text": "Cuando hayas terminado, avísame.",
+        "translation": "Когда закончишь, сообщи мне."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Espero que has llegado bien.",
+        "right": "Espero que hayas llegado bien.",
+        "note": "После espero que нужен subjuntivo, а у завершённого действия — perfecto de subjuntivo."
+      },
+      {
+        "wrong": "No creo que ha venido.",
+        "right": "No creo que haya venido.",
+        "note": "После no creo que нужен subjuntivo."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-sentimientos",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  },
+  "b2-indicativo-vs-subjuntivo": {
+    "forms": [
+      "Уверенность: creo que, es verdad que, está claro que + indicativo",
+      "Сомнение, отрицание: no creo que, no es verdad que + subjuntivo",
+      "aunque + indicativo (факт) / subjuntivo (предположение)",
+      "Оценка: es normal / es lógico que + subjuntivo"
+    ],
+    "examples": [
+      {
+        "text": "Creo que Pedro viene mañana.",
+        "translation": "Думаю, Педро придёт завтра."
+      },
+      {
+        "text": "No creo que Pedro venga mañana.",
+        "translation": "Не думаю, что Педро придёт завтра."
+      },
+      {
+        "text": "Es verdad que hace mucho calor.",
+        "translation": "Правда, что очень жарко."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No creo que viene.",
+        "right": "No creo que venga.",
+        "note": "После no creo que нужен subjuntivo."
+      },
+      {
+        "wrong": "Está claro que venga.",
+        "right": "Está claro que viene.",
+        "note": "После está claro que нужен indicativo."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-sentimientos",
+      "b2-subjuntivo-perfecto"
+    ]
+  },
+  "b2-estilo-indirecto": {
+    "forms": [
+      "Настоящее вводящее: времена не меняются",
+      "Сдвиг: presente → imperfecto, futuro → condicional, perfecto → pluscuamperfecto",
+      "Просьба: Pidió que + imperfecto de subjuntivo",
+      "Вопрос: preguntó si / dónde / cuándo…"
+    ],
+    "examples": [
+      {
+        "text": "Dijo que vivía en Madrid.",
+        "translation": "Он сказал, что живёт в Мадриде."
+      },
+      {
+        "text": "Me preguntó si quería café.",
+        "translation": "Он спросил меня, хочу ли я кофе."
+      },
+      {
+        "text": "Me pidió que le ayudara.",
+        "translation": "Он попросил меня ему помочь."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Dijo que vendrá al día siguiente.",
+        "right": "Dijo que vendría al día siguiente.",
+        "note": "После прошедшего вводящего глагола futuro заменяется condicional."
+      },
+      {
+        "wrong": "Preguntó que si venía.",
+        "right": "Preguntó si venía.",
+        "note": "Вопрос вводят словом si без дополнительного que."
+      }
+    ],
+    "related": [
+      "b1-pluscuamperfecto",
+      "b2-subjuntivo-imperfecto"
+    ]
+  },
+  "b2-condicionales-si": {
+    "forms": [
+      "Реальное: si + presente → presente / futuro / imperativo",
+      "Нереальное: si + imperfecto de subjuntivo → condicional",
+      "Невозможное: si + hubiera + причастие → habría + причастие",
+      "Нельзя: si + futuro / condicional"
+    ],
+    "examples": [
+      {
+        "text": "Si llueve, nos quedamos en casa.",
+        "translation": "Если пойдёт дождь, мы останемся дома."
+      },
+      {
+        "text": "Si fuera rico, compraría una casa en la playa.",
+        "translation": "Если бы я был богат, я бы купил дом на пляже."
+      },
+      {
+        "text": "Si hubiera estudiado más, habría aprobado.",
+        "translation": "Если бы я больше учился, я бы сдал."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Si tendré tiempo, iré.",
+        "right": "Si tengo tiempo, iré.",
+        "note": "После si в условии не ставят futuro."
+      },
+      {
+        "wrong": "Si tendría dinero, viajaría.",
+        "right": "Si tuviera dinero, viajaría.",
+        "note": "После si в нереальном условии нужен imperfecto de subjuntivo."
+      }
+    ],
+    "related": [
+      "b2-subjuntivo-imperfecto",
+      "b2-tiempos-compuestos"
+    ]
+  },
+  "b2-tiempos-compuestos": {
+    "forms": [
+      "habré, habrás, habrá, habremos, habréis, habrán + причастие",
+      "habría, habrías, habría, habríamos, habríais, habrían + причастие",
+      "Предположение о прошлом: Habrá llegado",
+      "Невозможное: Si hubiera… habría…"
+    ],
+    "examples": [
+      {
+        "text": "Para el viernes habré terminado el informe.",
+        "translation": "К пятнице я закончу отчёт."
+      },
+      {
+        "text": "Habrá llegado ya a casa.",
+        "translation": "Наверное, он уже добрался домой."
+      },
+      {
+        "text": "Yo habría aceptado esa oferta.",
+        "translation": "Я бы принял это предложение."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mañana habré terminar.",
+        "right": "Mañana habré terminado.",
+        "note": "После habré нужно причастие."
+      },
+      {
+        "wrong": "Habría ido, pero estoy enfermo.",
+        "right": "Habría ido, pero estaba enfermo.",
+        "note": "Причина в прошлом выражается imperfecto."
+      }
+    ],
+    "related": [
+      "b2-condicionales-si",
+      "b1-pluscuamperfecto"
+    ]
+  },
+  "b2-concesivas-consecutivas": {
+    "forms": [
+      "aunque + indicativo (факт) / subjuntivo (предположение)",
+      "a pesar de que + индикатив; a pesar de + сущ. / инф.",
+      "así que, por eso, de modo que + indicativo",
+      "tan + прил. + que; tanto + сущ. + que"
+    ],
+    "examples": [
+      {
+        "text": "Aunque hace frío, salgo a correr.",
+        "translation": "Хотя холодно, я иду бегать."
+      },
+      {
+        "text": "Aunque llueva, iremos a la playa.",
+        "translation": "Даже если пойдёт дождь, мы поедем на пляж."
+      },
+      {
+        "text": "Estaba tan cansado que se durmió en el sofá.",
+        "translation": "Он так устал, что заснул на диване."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Aunque llueve mañana, voy.",
+        "right": "Aunque llueva mañana, voy.",
+        "note": "Предположение о будущем требует subjuntivo."
+      },
+      {
+        "wrong": "A pesar de que estar cansado.",
+        "right": "A pesar de estar cansado.",
+        "note": "С инфинитивом используется a pesar de без que."
+      }
+    ],
+    "related": [
+      "b2-temporales-subjuntivo",
+      "b1-conectores"
+    ]
+  },
+  "b2-temporales-subjuntivo": {
+    "forms": [
+      "Будущее: cuando, hasta que, en cuanto + subjuntivo",
+      "Привычное, прошлое: cuando + indicativo",
+      "antes de que, para que + subjuntivo всегда",
+      "Одно подлежащее: antes de / para + инфинитив"
+    ],
+    "examples": [
+      {
+        "text": "En cuanto termines, avísame.",
+        "translation": "Как только закончишь, сообщи мне."
+      },
+      {
+        "text": "Cuando llego a casa, me ducho.",
+        "translation": "Когда я прихожу домой, я принимаю душ."
+      },
+      {
+        "text": "Espera hasta que vuelva.",
+        "translation": "Подожди, пока я вернусь."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegas, llámame.",
+        "right": "Cuando llegues, llámame.",
+        "note": "Для будущего действия после cuando нужен subjuntivo."
+      },
+      {
+        "wrong": "Antes de que salgo, cierro.",
+        "right": "Antes de salir, cierro.",
+        "note": "Одно и то же подлежащее — инфинитив."
+      }
+    ],
+    "related": [
+      "b2-concesivas-consecutivas",
+      "b1-conectores"
+    ]
+  },
+  "b2-pasiva": {
+    "forms": [
+      "ser + причастие (согласуется): fue construida",
+      "Исполнитель: por + агент",
+      "se + глагол в 3-м лице: Se venden pisos.",
+      "estar + причастие = результат"
+    ],
+    "examples": [
+      {
+        "text": "El Quijote fue escrito por Cervantes.",
+        "translation": "«Дон Кихот» написан Сервантесом."
+      },
+      {
+        "text": "En esta tienda se venden libros usados.",
+        "translation": "В этом магазине продают подержанные книги."
+      },
+      {
+        "text": "La puerta está cerrada.",
+        "translation": "Дверь закрыта."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Se vende pisos.",
+        "right": "Se venden pisos.",
+        "note": "Глагол согласуется с предметом: pisos во множественном числе."
+      },
+      {
+        "wrong": "La casa fue construido.",
+        "right": "La casa fue construida.",
+        "note": "Причастие согласуется с подлежащим по роду."
+      }
+    ],
+    "related": [
+      "b2-se-impersonal",
+      "b1-gerundio-participio"
+    ]
+  },
+  "b2-se-impersonal": {
+    "forms": [
+      "se + 3-е лицо ед. ч.: Se trabaja mucho.",
+      "Предмет — se + согласование: Se venden pisos.",
+      "Человек в дополнении: Se busca a los culpables.",
+      "Другие способы: uno, la gente, ellos"
+    ],
+    "examples": [
+      {
+        "text": "En España se cena tarde.",
+        "translation": "В Испании ужинают поздно."
+      },
+      {
+        "text": "Aquí no se puede fumar.",
+        "translation": "Здесь нельзя курить."
+      },
+      {
+        "text": "Dicen que mañana va a llover.",
+        "translation": "Говорят, что завтра будет дождь."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Se trabajan mucho aquí.",
+        "right": "Se trabaja mucho aquí.",
+        "note": "Безличное se — глагол в единственном числе."
+      },
+      {
+        "wrong": "Se busca los culpables.",
+        "right": "Se busca a los culpables.",
+        "note": "Перед прямым дополнением-человеком нужен предлог a."
+      }
+    ],
+    "related": [
+      "b2-pasiva",
+      "b1-perifrasis"
+    ]
+  },
+  "b2-ser-estar-matices": {
+    "forms": [
+      "ser = свойство; estar = состояние, впечатление, результат",
+      "guapo, listo, aburrido, verde, bueno меняют смысл",
+      "Результат: está roto, está terminado",
+      "estar de + состояние: estar de vacaciones, de mal humor"
+    ],
+    "examples": [
+      {
+        "text": "Mi vecino es muy aburrido.",
+        "translation": "Мой сосед очень скучный человек."
+      },
+      {
+        "text": "Hoy estoy aburrido en el trabajo.",
+        "translation": "Сегодня мне скучно на работе."
+      },
+      {
+        "text": "Esta sopa está buenísima.",
+        "translation": "Этот суп очень вкусный."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy aburrido siempre.",
+        "right": "Soy aburrido siempre.",
+        "note": "Постоянное свойство характера — ser, а не estar."
+      },
+      {
+        "wrong": "La manzana es verde.",
+        "right": "La manzana está verde.",
+        "note": "Незрелая — estar verde, а не ser verde."
+      }
+    ],
+    "related": [
+      "a2-ser-vs-estar",
+      "b2-pasiva"
+    ]
+  },
+  "b2-lo-neutro": {
+    "forms": [
+      "lo + прилагательное: lo bueno, lo importante",
+      "lo que: То, что… Lo que dices",
+      "lo + прил. + que: lo difícil que es",
+      "lo de + сущ. / инф.: lo de ayer"
+    ],
+    "examples": [
+      {
+        "text": "Lo importante es no rendirse.",
+        "translation": "Главное — не сдаваться."
+      },
+      {
+        "text": "Lo que dices no tiene sentido.",
+        "translation": "То, что ты говоришь, не имеет смысла."
+      },
+      {
+        "text": "No te imaginas lo cansado que estoy.",
+        "translation": "Ты не представляешь, как я устал."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "El importante es descansar.",
+        "right": "Lo importante es descansar.",
+        "note": "Для обобщённого понятия нужен lo, а не el."
+      },
+      {
+        "wrong": "Lo que dices es lo mismos.",
+        "right": "Lo que dices es lo mismo.",
+        "note": "Lo не изменяется по числу."
+      }
+    ],
+    "related": [
+      "b1-relativos",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  }
+}

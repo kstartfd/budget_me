@@ -12,6 +12,7 @@ import (
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
+	"learning_app/backend/internal/learningpath/curriculum"
 	learningcommands "learning_app/backend/internal/learning/commands"
 	"learning_app/backend/internal/llm"
 )
@@ -76,7 +77,8 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 	}
 
 	learned := learningcommands.LanguageName(path.Language)
-	explain := learningcommands.LanguageName(explanationOf(ctx, h.q, path.UserID, path.Language, path.TranslationLanguage))
+	explainCode := explanationOf(ctx, h.q, path.UserID, path.Language, path.TranslationLanguage)
+	explain := learningcommands.LanguageName(explainCode)
 
 	var words []programWord
 	if len(topic.Vocabulary) > 0 {
@@ -85,7 +87,13 @@ func (h ExerciseHandler) Handle(ctx context.Context, cmd GenerateExercises) ([]d
 
 	native := learningcommands.LanguageName(path.TranslationLanguage)
 
-	system, prompt := exercisesPrompt(learned, explain, native, path.Level, topic.Skill, topic.Title, topic.Goal, topic.Theory, words, len(attempts), correct)
+	// The rule's library entry, when there is one, is the material of the set.
+	var rule *curriculum.Extra
+	if lib, ok := curriculum.Find(path.Language, explainCode, topic.SourceID); ok && lib.Extra != nil {
+		rule = lib.Extra
+	}
+
+	system, prompt := exercisesPrompt(learned, explain, native, path.Level, topic.Skill, topic.Title, topic.Goal, topic.Theory, words, len(attempts), correct, rule)
 
 	var set exerciseSet
 	if err := h.agent.completeJSON(ctx, cmd.UserID, llm.PurposeExercises, system, prompt, &set, func() error {

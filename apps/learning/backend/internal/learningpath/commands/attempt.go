@@ -136,10 +136,26 @@ func (h AttemptHandler) review(ctx context.Context, userID uuid.UUID, path db.Le
 		return review{Correct: placement.Similarity(answer, exercise.Answer) >= speakMatch}, nil
 	}
 
+	// Words put in order and the gaps of a text are checked against the key too.
+	if exercise.Kind == db.LearningPathExerciseKindOrder && gradeOrder(exercise.Answer, answer) {
+		return review{Correct: true}, nil
+	}
+
+	if exercise.Kind == db.LearningPathExerciseKindCloze {
+		wrong := gradeGaps(exercise.Answer, answer)
+		if wrong == 0 {
+			return review{Correct: true}, nil
+		}
+
+		verdict, err := h.ask(ctx, userID, path, exercise, options, answer)
+
+		return review{Feedback: verdict.Feedback, Mistakes: wrong}, err
+	}
+
 	// Choice, fill and listen have one right answer; only the explanation ever
 	// needs the agent. A translation and a text of the learner's own are judged
 	// by the agent.
-	if exercise.Kind != db.LearningPathExerciseKindTranslate && exercise.Kind != db.LearningPathExerciseKindWrite {
+	if exercise.Kind != db.LearningPathExerciseKindTranslate && exercise.Kind != db.LearningPathExerciseKindWrite && exercise.Kind != db.LearningPathExerciseKindRead {
 		if placement.Grade(key, answer) {
 			return review{Correct: true}, nil
 		}

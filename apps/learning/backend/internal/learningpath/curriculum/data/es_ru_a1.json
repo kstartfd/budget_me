@@ -1,0 +1,593 @@
+[
+  {
+    "id": "a1-genero",
+    "skill": "grammar",
+    "unit": "Имя и артикль",
+    "title": "Род существительных: el и la",
+    "goal": "Определить род большинства существительных и поставить к ним el или la.",
+    "theory": "В испанском у каждого существительного есть род. Чаще всего слова на `-o` мужского рода: `el libro`, `el niño`, а слова на `-a` женского: `la mesa`, `la niña`. У людей и профессий форма меняется: `el hijo / la hija`, `el profesor / la profesora`; слова на `-ista` и `-nte` одинаковы для обоих родов: `el turista / la turista`, `el estudiante / la estudiante`. Слова на `-ción`, `-sión`, `-dad`, `-tad` женского рода: `la canción`, `la ciudad`. Исключения запоминайте с артиклем: `el día`, `el mapa`, `la mano`.",
+    "tags": [
+      "род",
+      "el la",
+      "существительное",
+      "мужской и женский"
+    ]
+  },
+  {
+    "id": "a1-plural",
+    "skill": "grammar",
+    "unit": "Имя и артикль",
+    "title": "Множественное число существительных",
+    "goal": "Образовать множественное число и согласовать с ним артикль.",
+    "theory": "К слову, которое оканчивается на гласную, добавляют `-s`: `libro → libros`, `casa → casas`. После согласной добавляют `-es`: `ciudad → ciudades`, `profesor → profesores`. Конечная `z` меняется на `c`: `lápiz → lápices`. Слова на `-s`, где ударение не на последнем слоге, не меняются: `el lunes → los lunes`. Ударный знак может исчезать или появляться: `canción → canciones`, `joven → jóvenes`. Артикль тоже меняется: `el → los`, `la → las`.",
+    "tags": [
+      "множественное число",
+      "plural",
+      "окончания -s -es"
+    ]
+  },
+  {
+    "id": "a1-articulo-indeterminado",
+    "skill": "grammar",
+    "unit": "Имя и артикль",
+    "title": "Неопределённый артикль: un, una, unos, unas",
+    "goal": "Использовать un и una, когда предмет называют впервые, и опускать артикль там, где он не нужен.",
+    "theory": "Неопределённый артикль ставят, когда говорят о предмете впервые или о любом из многих: `Tengo un perro y una gata.` Формы: `un`, `una` в единственном числе и `unos`, `unas` во множественном (несколько, какие-то). Артикль не нужен перед профессией, национальностью и религией без прилагательного: `Soy profesora.` `Es ruso.` А с прилагательным он появляется: `Es un profesor muy bueno.` Без артикля обходятся и после `tener`, `buscar`, `necesitar` в общем смысле: `Busco trabajo.`",
+    "tags": [
+      "артикль",
+      "un una",
+      "неопределённый артикль",
+      "профессия"
+    ]
+  },
+  {
+    "id": "a1-articulo-determinado",
+    "skill": "grammar",
+    "unit": "Имя и артикль",
+    "title": "Определённый артикль: el, la, los, las",
+    "goal": "Поставить определённый артикль, когда речь идёт о известном предмете, времени или дне недели.",
+    "theory": "Определённый артикль ставят, когда собеседник знает, о каком предмете речь, или предмет один: `La casa de Ana es grande.` Формы: `el`, `la`, `los`, `las`. С предлогами `a` и `de` перед `el` получается слитная форма: `a + el = al`, `de + el = del`: `Voy al cine.` `Vengo del banco.` Артикль нужен для дней недели и времени: `el lunes`, `Son las tres.`, `A la una.` Артикль нужен и перед именем с титулом: `el señor Alonso`, `la calle Mayor`.",
+    "tags": [
+      "артикль",
+      "el la los las",
+      "al del",
+      "дни недели",
+      "время"
+    ]
+  },
+  {
+    "id": "a1-demostrativos",
+    "skill": "grammar",
+    "unit": "Имя и артикль",
+    "title": "Указательные: este, ese, aquel",
+    "goal": "Показать на предмет вблизи, поодаль и вдали и согласовать слово с родом и числом.",
+    "theory": "Три степени удалённости. Рядом с говорящим: `este`, `esta`, `estos`, `estas`: `Esta casa es mía.` Рядом с собеседником или недалеко: `ese`, `esa`, `esos`, `esas`. Далеко от обоих: `aquel`, `aquella`, `aquellos`, `aquellas`. Слово согласуется с существительным: `este libro`, `estas flores`. Без существительного используют `esto`, `eso`, `aquello`: `¿Qué es esto?` Ударный знак на `éste` теперь не ставят.",
+    "tags": [
+      "указательные",
+      "este ese aquel",
+      "demostrativos",
+      "esto eso"
+    ]
+  },
+  {
+    "id": "a1-posesivos",
+    "skill": "grammar",
+    "unit": "Имя и артикль",
+    "title": "Притяжательные: mi, tu, su",
+    "goal": "Сказать, чьё что-то, и согласовать слово с вещью, а не с владельцем.",
+    "theory": "Краткие формы стоят перед существительным: `mi`, `tu`, `su`, `nuestro`, `vuestro`, `su`. Они согласуются с вещью, а не с владельцем: `mi libro`, `mis libros`, `nuestra casa`, `nuestros amigos`. Формы `mi`, `tu`, `su` меняются только по числу, а `nuestro` и `vuestro` ещё и по роду. `Su` значит «его, её, ваш, их», поэтому иногда нужно уточнение: `la casa de él`. Артикль рядом с ними не ставят: `mi madre`, а не `la mi madre`.",
+    "tags": [
+      "притяжательные",
+      "mi tu su",
+      "posesivos",
+      "nuestro vuestro"
+    ]
+  },
+  {
+    "id": "a1-ser",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Глагол ser: кто и какой",
+    "goal": "Назвать себя, профессию, национальность и сказать, какой человек или предмет.",
+    "theory": "`Ser` значит «быть» и описывает постоянное: `soy`, `eres`, `es`, `somos`, `sois`, `son`. Он нужен, чтобы сказать, кто вы и какой: `Soy Anna.` `Es profesora.` `Somos rusos.` `El libro es interesante.` Им называют происхождение, материал, время и цену: `Soy de Rusia.` `Son las tres.` `Es de madera.` Местоимения yo, tú, él обычно опускают, потому что окончание уже показывает лицо: `Soy estudiante.`",
+    "tags": [
+      "ser",
+      "soy eres es",
+      "быть",
+      "национальность",
+      "профессия"
+    ]
+  },
+  {
+    "id": "a1-estar",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Глагол estar: где и как",
+    "goal": "Сказать, где находится человек или предмет и как он себя чувствует.",
+    "theory": "`Estar` тоже значит «быть», но нужен для места и состояния: `estoy`, `estás`, `está`, `estamos`, `estáis`, `están`. Место: `Madrid está en España.` `¿Dónde están las llaves?` Самочувствие и временное состояние: `Estoy cansado.` `La sopa está caliente.` Вопрос о делах: `¿Cómo estás?` Прилагательное после `estar` согласуется с подлежащим: `Ella está contenta.`",
+    "tags": [
+      "estar",
+      "estoy estás está",
+      "место",
+      "состояние"
+    ]
+  },
+  {
+    "id": "a1-tener-hay",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Tener и hay: у меня есть, есть где-то",
+    "goal": "Сказать, что у вас есть, и что где-то есть предмет.",
+    "theory": "`Tener` значит «иметь»: `tengo`, `tienes`, `tiene`, `tenemos`, `tenéis`, `tienen`. С ним говорят о возрасте: `Tengo veinte años.` и о состоянии: `tengo hambre`, `tengo frío`. Слово `hay` значит «есть, имеется» и не меняется: `Hay un banco cerca.` `Hay dos camas.` После `hay` ставят неопределённый артикль, число или `mucho`: `Hay un museo`, а не `Hay el museo`. Когда предмет известен, говорят `Está`: `El museo está allí.`",
+    "tags": [
+      "tener",
+      "hay",
+      "возраст",
+      "tengo",
+      "есть"
+    ]
+  },
+  {
+    "id": "a1-presente-regular",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Настоящее время: правильные глаголы",
+    "goal": "Спрягать глаголы на -ar, -er, -ir в настоящем времени.",
+    "theory": "Глаголы бывают трёх типов по окончанию: `-ar`, `-er`, `-ir`. Отбросьте окончание и добавьте нужное. `Hablar`: `hablo`, `hablas`, `habla`, `hablamos`, `habláis`, `hablan`. `Comer`: `como`, `comes`, `come`, `comemos`, `coméis`, `comen`. `Vivir`: `vivo`, `vives`, `vive`, `vivimos`, `vivís`, `viven`. Настоящим говорят о привычке и о том, что происходит сейчас: `Trabajo en un banco.` Местоимения обычно опускают: `Vivo en Madrid.` Отрицание: `no` перед глаголом.",
+    "tags": [
+      "настоящее время",
+      "presente",
+      "-ar -er -ir",
+      "спряжение"
+    ]
+  },
+  {
+    "id": "a1-presente-irregular",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Настоящее время: неправильные глаголы",
+    "goal": "Узнать самые частые неправильные глаголы и верно их спрягать.",
+    "theory": "У многих частых глаголов меняется корень, кроме форм `nosotros` и `vosotros`. `e → ie`: `quiero`, `quieres`, `quiere`, `queremos`, `queréis`, `quieren`. `o → ue`: `puedo`, `puedes`, `puede`, `podemos`, `podéis`, `pueden`. `e → i`: `pido`, `pides`, `pide`. Форма `yo` особая у `hacer` (`hago`), `salir` (`salgo`), `decir` (`digo`), `conocer` (`conozco`). Самый частый: `ir` — `voy`, `vas`, `va`, `vamos`, `vais`, `van`.",
+    "tags": [
+      "неправильные глаголы",
+      "e-ie o-ue",
+      "ir",
+      "hago salgo digo"
+    ]
+  },
+  {
+    "id": "a1-gustar",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Глагол gustar: мне нравится",
+    "goal": "Сказать, что вам нравится или не нравится, с правильным числом глагола.",
+    "theory": "`Gustar` строится наоборот: нравится не тому, кто говорит, а нравится ему предмет. Перед глаголом ставят `me`, `te`, `le`, `nos`, `os`, `les`. Глагол согласуется с предметом: `Me gusta el café.` `Me gustan los libros.` Перед инфинитивом всегда `gusta`: `Me gusta bailar.` Для усиления: `A mí me gusta`, `A ti te gusta`. Согласие: `A mí también`, `A mí tampoco`. По схеме `gustar` работают `encantar`, `interesar`, `doler`.",
+    "tags": [
+      "gustar",
+      "me gusta",
+      "нравится",
+      "encantar"
+    ]
+  },
+  {
+    "id": "a1-interrogativos",
+    "skill": "grammar",
+    "unit": "Вопросы",
+    "title": "Вопросительные слова: qué, dónde, cuándo",
+    "goal": "Задать простой вопрос о месте, времени, причине, количестве и человеке.",
+    "theory": "В письменной речи вопрос открывают знаком `¿` и закрывают `?`. Вопросительные слова пишут с ударным знаком: `qué`, `quién`, `dónde`, `cuándo`, `cómo`, `cuánto`, `por qué`. `Quién` и `cuánto` меняются по числу и роду: `¿Quiénes son?` `¿Cuántas personas hay?` Ответ с `porque` пишется слитно и без знака: `¿Por qué estudias? — Porque me gusta.` Подлежащее часто ставят после глагола: `¿Dónde vive tu hermana?`",
+    "tags": [
+      "вопросы",
+      "qué quién dónde",
+      "interrogativos",
+      "por qué porque"
+    ]
+  },
+  {
+    "id": "a1-vocab-familia",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Семья и люди",
+    "goal": "Назвать членов семьи и сказать, кто есть кто.",
+    "theory": "Слова о семье нужны в первых разговорах. Учите их с артиклем и в паре: `el padre / la madre`, `el hermano / la hermana`. Во множественном числе слово в мужском роде означает всю группу: `los padres` — родители, `los hermanos` — братья и сёстры. Для знакомства: `Esta es mi familia.` `Tengo dos hermanos.`",
+    "vocabulary": [
+      {
+        "word": "la madre",
+        "translation": "мама"
+      },
+      {
+        "word": "el padre",
+        "translation": "папа"
+      },
+      {
+        "word": "la hermana",
+        "translation": "сестра"
+      },
+      {
+        "word": "el hermano",
+        "translation": "брат"
+      },
+      {
+        "word": "los padres",
+        "translation": "родители"
+      },
+      {
+        "word": "el amigo / la amiga",
+        "translation": "друг, подруга"
+      },
+      {
+        "word": "el abuelo / la abuela",
+        "translation": "дедушка, бабушка"
+      },
+      {
+        "word": "el hijo / la hija",
+        "translation": "сын, дочь"
+      }
+    ],
+    "tags": [
+      "семья",
+      "люди",
+      "familia"
+    ]
+  },
+  {
+    "id": "a1-vocab-comida",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Еда и напитки",
+    "goal": "Назвать основные продукты и заказать еду.",
+    "theory": "Слова о еде нужны в кафе и магазине. Для заказа удобна форма `Quiero…` или `Quisiera…`: `Quiero un café con leche.` Большинство слов лучше учить с артиклем: `el pan`, `la leche`, `el agua` (женского рода, но с el). Не путайте `el desayuno` (завтрак), `la comida` (обед или еда) и `la cena` (ужин).",
+    "vocabulary": [
+      {
+        "word": "el pan",
+        "translation": "хлеб"
+      },
+      {
+        "word": "la leche",
+        "translation": "молоко"
+      },
+      {
+        "word": "el agua",
+        "translation": "вода"
+      },
+      {
+        "word": "el café",
+        "translation": "кофе"
+      },
+      {
+        "word": "la carne",
+        "translation": "мясо"
+      },
+      {
+        "word": "el pescado",
+        "translation": "рыба"
+      },
+      {
+        "word": "la fruta",
+        "translation": "фрукты"
+      },
+      {
+        "word": "el queso",
+        "translation": "сыр"
+      }
+    ],
+    "tags": [
+      "еда",
+      "напитки",
+      "кафе",
+      "comida"
+    ]
+  },
+  {
+    "id": "a1-vocab-numeros-dias",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Числа, дни недели и месяцы",
+    "goal": "Считать до ста и назвать день недели и месяц.",
+    "theory": "Числа от 0 до 15 нужно запомнить: `cero, uno, dos, tres… quince`. Дальше они строятся: `dieciséis`, `veinte`, `veintiuno`, `treinta y uno`, `cuarenta`, `cien`. Дни недели и месяцы пишут с маленькой буквы: `lunes`, `martes`, `enero`, `febrero`. С днём недели нужен артикль: `el lunes`. Дату называют так: `Es el seis de enero.`",
+    "vocabulary": [
+      {
+        "word": "uno, dos, tres",
+        "translation": "один, два, три"
+      },
+      {
+        "word": "veinte",
+        "translation": "двадцать"
+      },
+      {
+        "word": "treinta y uno",
+        "translation": "тридцать один"
+      },
+      {
+        "word": "cien",
+        "translation": "сто"
+      },
+      {
+        "word": "lunes",
+        "translation": "понедельник"
+      },
+      {
+        "word": "sábado",
+        "translation": "суббота"
+      },
+      {
+        "word": "enero",
+        "translation": "январь"
+      },
+      {
+        "word": "la semana",
+        "translation": "неделя"
+      }
+    ],
+    "tags": [
+      "числа",
+      "дни недели",
+      "месяцы",
+      "números"
+    ]
+  },
+  {
+    "id": "a1-reading-carteles",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем вывески и объявления",
+    "goal": "Понять короткую вывеску, объявление или расписание и найти нужное.",
+    "theory": "В коротких текстах ищите ключевые слова: числа (цена, время), названия мест, дни недели. Не нужно понимать каждое слово. Частые слова: `abierto` (открыто), `cerrado` (закрыто), `entrada` (вход), `salida` (выход), `se vende` (продаётся), `gratis` (бесплатно). Время работы читают так: `de lunes a viernes, de 9 a 14 h`.",
+    "vocabulary": [
+      {
+        "word": "abierto",
+        "translation": "открыто"
+      },
+      {
+        "word": "cerrado",
+        "translation": "закрыто"
+      },
+      {
+        "word": "la entrada",
+        "translation": "вход"
+      },
+      {
+        "word": "la salida",
+        "translation": "выход"
+      },
+      {
+        "word": "gratis",
+        "translation": "бесплатно"
+      },
+      {
+        "word": "se vende",
+        "translation": "продаётся"
+      },
+      {
+        "word": "el horario",
+        "translation": "расписание"
+      },
+      {
+        "word": "el precio",
+        "translation": "цена"
+      }
+    ],
+    "tags": [
+      "чтение",
+      "вывески",
+      "объявления"
+    ]
+  },
+  {
+    "id": "a1-reading-menu",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем меню и ценники",
+    "goal": "Разобраться в простом меню и выбрать блюдо.",
+    "theory": "В испанском меню блюда делят на группы: `entrantes` (закуски), `primer plato`, `segundo plato`, `postre` (десерт), `bebidas` (напитки). Цену пишут с запятой: `3,50 €`. Часто в «меню дня» (`menú del día`) входят первое, второе, десерт и напиток. Заказывают так: `De primero, sopa. De segundo, pollo.`",
+    "vocabulary": [
+      {
+        "word": "el menú del día",
+        "translation": "комплексный обед"
+      },
+      {
+        "word": "el primer plato",
+        "translation": "первое блюдо"
+      },
+      {
+        "word": "el segundo plato",
+        "translation": "второе блюдо"
+      },
+      {
+        "word": "el postre",
+        "translation": "десерт"
+      },
+      {
+        "word": "las bebidas",
+        "translation": "напитки"
+      },
+      {
+        "word": "la sopa",
+        "translation": "суп"
+      },
+      {
+        "word": "el pollo",
+        "translation": "курица"
+      },
+      {
+        "word": "la cuenta",
+        "translation": "счёт"
+      }
+    ],
+    "tags": [
+      "чтение",
+      "меню",
+      "цены"
+    ]
+  },
+  {
+    "id": "a1-writing-presentacion",
+    "skill": "writing",
+    "unit": "Чтение и письмо",
+    "title": "Пишем о себе",
+    "goal": "Написать 5–6 простых предложений о себе: имя, возраст, страна, работа, увлечения.",
+    "theory": "Рассказ о себе строится по плану: имя, возраст, откуда вы, чем занимаетесь, что любите. Каждое предложение начинайте с большой буквы и заканчивайте точкой. Образец: `Me llamo Anna.` `Tengo 25 años.` `Soy de Rusia.` `Trabajo en una tienda.` `Me gusta la música.` Используйте `ser`, `tener`, настоящее время и `me gusta`.",
+    "tags": [
+      "письмо",
+      "о себе",
+      "представление"
+    ]
+  },
+  {
+    "id": "a1-listening-numeros",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем числа, время и цены",
+    "goal": "Понимать на слух числа, время и цены в магазине и на вокзале.",
+    "theory": "Числа на слух легко перепутать: `quince` и `cincuenta`, `sesenta` и `setenta`. Слушайте и записывайте цифры, а не слова. Время: `Son las tres y media` — 3:30; `Son las seis menos cuarto` — без четверти шесть. Цена: `Son cinco euros con cincuenta` — 5,50 €. Прослушайте каждую фразу несколько раз и сравните с тем, что вы услышали.",
+    "vocabulary": [
+      {
+        "word": "quince y cincuenta",
+        "translation": "15 и 50"
+      },
+      {
+        "word": "sesenta y setenta",
+        "translation": "60 и 70"
+      },
+      {
+        "word": "las tres y media",
+        "translation": "половина четвёртого"
+      },
+      {
+        "word": "las seis menos cuarto",
+        "translation": "без четверти шесть"
+      },
+      {
+        "word": "cinco euros con cincuenta",
+        "translation": "пять евро пятьдесят"
+      },
+      {
+        "word": "veinticinco",
+        "translation": "двадцать пять"
+      }
+    ],
+    "tags": [
+      "аудирование",
+      "числа",
+      "время",
+      "цены"
+    ]
+  },
+  {
+    "id": "a1-listening-dialogos",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем короткие диалоги",
+    "goal": "Понять, кто говорит, где и о чём, в коротком бытовом диалоге.",
+    "theory": "Перед прослушиванием подумайте: где происходит разговор и о чём спрашивают. При слушании ловите вопросительные слова: `¿dónde?`, `¿cuándo?`, `¿cuánto?`. Фразы часто сливаются в речи: `¿Cómo te llamas?` звучит почти как одно слово. Слушайте диалог дважды: сначала общий смысл, потом детали (имя, число, место).",
+    "vocabulary": [
+      {
+        "word": "¿Cómo te llamas?",
+        "translation": "Как тебя зовут?"
+      },
+      {
+        "word": "¿De dónde eres?",
+        "translation": "Откуда ты?"
+      },
+      {
+        "word": "¿Cuánto cuesta?",
+        "translation": "Сколько стоит?"
+      },
+      {
+        "word": "Perdona, ¿dónde está…?",
+        "translation": "Простите, где находится…?"
+      },
+      {
+        "word": "Un momento, por favor",
+        "translation": "Минуточку, пожалуйста"
+      },
+      {
+        "word": "¿Puede repetir?",
+        "translation": "Можете повторить?"
+      }
+    ],
+    "tags": [
+      "аудирование",
+      "диалоги",
+      "понимание"
+    ]
+  },
+  {
+    "id": "a1-speaking-saludos",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: приветствие и знакомство",
+    "goal": "Поздороваться, представиться и задать пару вопросов о собеседнике.",
+    "theory": "Знакомство строится из коротких фраз: `Hola, me llamo Anna.` `Mucho gusto.` `¿De dónde eres?` Говорите вслух целыми фразами, а не отдельными словами. В `Mucho gusto` главное слово — `gusto`. Лучше сказать просто и без пауз, чем долго строить сложное предложение. С незнакомыми обращайтесь на `usted`: `¿Cómo está usted?`",
+    "vocabulary": [
+      {
+        "word": "Hola, me llamo Anna",
+        "translation": "Здравствуйте, меня зовут Анна"
+      },
+      {
+        "word": "Mucho gusto",
+        "translation": "Приятно познакомиться"
+      },
+      {
+        "word": "¿De dónde eres?",
+        "translation": "Откуда ты?"
+      },
+      {
+        "word": "Soy de Rusia",
+        "translation": "Я из России"
+      },
+      {
+        "word": "¿Cómo estás?",
+        "translation": "Как дела?"
+      },
+      {
+        "word": "Muy bien, gracias",
+        "translation": "Очень хорошо, спасибо"
+      }
+    ],
+    "tags": [
+      "говорение",
+      "знакомство",
+      "приветствие"
+    ]
+  },
+  {
+    "id": "a1-speaking-cafe",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: заказ в кафе",
+    "goal": "Заказать еду и напиток и попросить счёт.",
+    "theory": "В кафе используйте вежливые формы: `Quisiera un café, por favor.` `¿Me trae la cuenta?` Для выбора: `Para mí, una tortilla.` `¿Qué recomienda?` Отвечайте коротко: `Sí, por favor.` `No, gracias.` Скажите фразу вслух несколько раз целиком, чтобы она звучала плавно.",
+    "vocabulary": [
+      {
+        "word": "Quisiera un café, por favor",
+        "translation": "Я бы хотел кофе, пожалуйста"
+      },
+      {
+        "word": "Para mí, una tortilla",
+        "translation": "Мне, пожалуйста, тортилью"
+      },
+      {
+        "word": "¿Qué recomienda?",
+        "translation": "Что вы посоветуете?"
+      },
+      {
+        "word": "¿Me trae la cuenta?",
+        "translation": "Принесите счёт, пожалуйста"
+      },
+      {
+        "word": "Sí, por favor",
+        "translation": "Да, пожалуйста"
+      },
+      {
+        "word": "No, gracias",
+        "translation": "Нет, спасибо"
+      }
+    ],
+    "tags": [
+      "говорение",
+      "кафе",
+      "заказ"
+    ]
+  }
+]

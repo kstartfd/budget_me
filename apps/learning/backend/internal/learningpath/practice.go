@@ -92,6 +92,7 @@ func (c *Controller) ruleSubject(ctx echo.Context) (commands.RuleSubject, error)
 		LanguageName: learningcommands.LanguageName(language), ExplanationName: learningcommands.LanguageName(explain),
 		NativeName: learningcommands.LanguageName(teacher.TranslationLanguage),
 		Level:      rule.Level, Title: rule.Title, Theory: rule.Theory, Forms: rule.Extra.Forms,
+		Examples: rule.Extra.Examples, Mistakes: rule.Extra.Mistakes,
 	}, nil
 }
 

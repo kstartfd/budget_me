@@ -21,6 +21,7 @@ import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useLesson, useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { topicSetComing, writerHasHeadStart } from "../progress"
 import { rememberReturnPoint, seeAlsoAnchor } from "../return-point"
+import { CompoundInput, displayAnswer, isCompound } from "./exercise-kinds"
 import { PlayButton } from "./play-button"
 import { withExamples } from "@/components/example"
 import { englishClass, Mixed, Prose, RuleCard } from "./rule-card"
@@ -385,7 +386,7 @@ function ExerciseCard({
 
   return (
     <section className="border-border space-y-3 border-t-2 pt-5 first-of-type:border-t-0 first-of-type:pt-0">
-      {exercise.text && !(exercise.kind === "listen" && !result) && (
+      {exercise.text && exercise.kind !== "cloze" && !(exercise.kind === "listen" && !result) && (
         <p className="text-muted-foreground text-sm leading-relaxed italic">
           {exercise.text}
         </p>
@@ -481,6 +482,15 @@ function ExerciseCard({
             {t(attempt.isPending ? "checking" : "check")}
           </Button>
         </div>
+      ) : isCompound(exercise.kind) ? (
+        <CompoundInput
+          exercise={exercise}
+          result={result}
+          pending={attempt.isPending}
+          onSubmit={submit}
+          revealed={revealed}
+          onReveal={() => setRevealed((open) => !open)}
+        />
       ) : voice ? (
         <div className="space-y-2.5">
           <p className="bg-muted rounded-lg px-3.5 py-3 text-[15px] leading-snug font-medium">
@@ -580,7 +590,7 @@ function ExerciseCard({
         <div className="bg-muted space-y-1 rounded-lg px-3.5 py-3 text-[13px] leading-relaxed">
           <p>
             <span className="text-muted-foreground">{t("correctAnswer")}: </span>
-            <strong>{exercise.answer}</strong>
+            <strong>{displayAnswer(exercise)}</strong>
           </p>
           {exercise.rule && (
             <p className="text-muted-foreground">

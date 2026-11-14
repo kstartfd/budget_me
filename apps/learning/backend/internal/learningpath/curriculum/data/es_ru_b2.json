@@ -1,0 +1,559 @@
+[
+  {
+    "id": "b2-subjuntivo-imperfecto",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Imperfecto de subjuntivo: trabajara, comiera",
+    "goal": "Образовать и употребить imperfecto de subjuntivo в прошедшем и в вежливых формулах.",
+    "theory": "Основа берётся от формы `ellos` в indefinido: отбросьте `-ron` и добавьте `-ra, -ras, -ra, -ramos, -rais, -ran`: `trabajaron → trabajara`, `comieron → comiera`, `fueron → fuera`, `tuvieron → tuviera`. Есть и вариант на `-se`: `trabajase`. Нужен там, где в настоящем был бы presente: после прошедшего главного глагола (`Quería que vinieras`), в нереальных условиях (`Si tuviera tiempo, viajaría`) и в вежливой просьбе: `Quisiera pedir una mesa.`",
+    "tags": [
+      "imperfecto de subjuntivo",
+      "trabajara",
+      "если бы",
+      "quisiera"
+    ]
+  },
+  {
+    "id": "b2-subjuntivo-perfecto",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Pretérito perfecto de subjuntivo: haya hecho",
+    "goal": "Выразить чувства и сомнение по поводу уже завершённого события.",
+    "theory": "Форма: `haya, hayas, haya, hayamos, hayáis, hayan` + причастие: `haya llegado`, `hayas terminado`. Нужен там, где требуется subjuntivo, а действие уже совершилось к моменту речи: `Espero que hayas llegado bien.` `Me alegro de que hayáis venido.` `No creo que haya hecho eso.` Сравните: `Espero que vengas` (в будущем) и `Espero que hayas venido` (уже случилось). После `cuando` для будущего завершённого: `Cuando hayas terminado, avísame.`",
+    "tags": [
+      "perfecto de subjuntivo",
+      "haya llegado",
+      "espero que hayas"
+    ]
+  },
+  {
+    "id": "b2-indicativo-vs-subjuntivo",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Indicativo или subjuntivo: уверенность и сомнение",
+    "goal": "Выбрать indicativo или subjuntivo в зависимости от уверенности говорящего.",
+    "theory": "Indicativo — когда говорящий уверен и сообщает факт, subjuntivo — когда сомневается, отрицает или оценивает. `Creo que viene` (уверен) и `No creo que venga` (сомнение). `Es verdad que…` + indicativo, `No es verdad que…` + subjuntivo. `Pienso que` — indicativo, `No pienso que` — subjuntivo. Если `creer` в вопросе, возможно и то и другое: `¿Crees que viene?` или `¿Crees que venga?` — второе передаёт сомнение. После `aunque`: факт — indicativo, предположение — subjuntivo.",
+    "tags": [
+      "indicativo subjuntivo",
+      "creo que",
+      "no creo que",
+      "уверенность и сомнение"
+    ]
+  },
+  {
+    "id": "b2-estilo-indirecto",
+    "skill": "grammar",
+    "unit": "Косвенная речь",
+    "title": "Косвенная речь: dijo que, preguntó si",
+    "goal": "Пересказать чужие слова, вопросы и просьбы, согласовав времена.",
+    "theory": "Если вводящий глагол в настоящем, времена не меняются: `Dice que vive aquí.` Если он в прошедшем, происходит сдвиг: `presente → imperfecto` (`vivo → vivía`), `perfecto → pluscuamperfecto`, `futuro → condicional` (`vendré → vendría`), `imperativo → imperfecto de subjuntivo` (`ven → viniera`). Меняются указатели: `aquí → allí`, `hoy → ese día`, `mañana → al día siguiente`. Вопросы вводят `si` или вопросительным словом: `Preguntó si venía.` `Preguntó dónde vivía.`",
+    "tags": [
+      "estilo indirecto",
+      "dijo que",
+      "preguntó si",
+      "косвенная речь",
+      "согласование времён"
+    ]
+  },
+  {
+    "id": "b2-condicionales-si",
+    "skill": "grammar",
+    "unit": "Сложное предложение",
+    "title": "Условные предложения с si: реальные и нереальные",
+    "goal": "Построить реальное, нереальное и невозможное условие.",
+    "theory": "Три типа условия. Реальное: `si` + presente и `presente / futuro / imperativo`: `Si llueve, me quedo.` Нереальное в настоящем или будущем: `si` + imperfecto de subjuntivo и `condicional`: `Si tuviera dinero, viajaría.` Невозможное в прошлом: `si` + pluscuamperfecto de subjuntivo и `condicional perfecto`: `Si hubiera estudiado, habría aprobado.` После `si` в условии никогда не ставят futuro и condicional: `Si tengo tiempo, voy`, а не `Si tendré`.",
+    "tags": [
+      "si",
+      "условные",
+      "если бы",
+      "hubiera"
+    ]
+  },
+  {
+    "id": "b2-tiempos-compuestos",
+    "skill": "grammar",
+    "unit": "Прошедшее время",
+    "title": "Futuro perfecto и condicional perfecto",
+    "goal": "Сказать о завершённом к будущему моменту действии и предположить о прошлом.",
+    "theory": "`Futuro perfecto` = `habré, habrás, habrá, habremos, habréis, habrán` + причастие: `Mañana a las diez habré terminado.` Также выражает предположение о прошлом: `Habrá llegado ya.` — наверное, уже приехал. `Condicional perfecto` = `habría, habrías, habría, habríamos, habríais, habrían` + причастие: `Habría ido, pero estaba enfermo.` Он нужен для невозможного условия и для будущего в прошлом: `Dijo que habría terminado.`",
+    "tags": [
+      "futuro perfecto",
+      "condicional perfecto",
+      "habré hecho",
+      "habría ido"
+    ]
+  },
+  {
+    "id": "b2-concesivas-consecutivas",
+    "skill": "grammar",
+    "unit": "Сложное предложение",
+    "title": "Уступка и следствие: aunque, a pesar de que, así que",
+    "goal": "Выразить уступку и следствие, выбрав нужное наклонение.",
+    "theory": "`Aunque` + indicativo говорит о факте: `Aunque llueve, salgo.` (дождь идёт). `Aunque` + subjuntivo — о предположении или неважной информации: `Aunque llueva, saldré.` (может быть, пойдёт). `A pesar de que` работает так же, а `a pesar de` — с существительным и инфинитивом. Следствие: `así que`, `por eso`, `de modo que` + indicativo: `Llovía, así que me quedé.` Усиление: `tan… que`, `tanto… que`: `Estaba tan cansado que se durmió.`",
+    "tags": [
+      "aunque",
+      "a pesar de que",
+      "así que",
+      "tan que",
+      "уступка"
+    ]
+  },
+  {
+    "id": "b2-temporales-subjuntivo",
+    "skill": "grammar",
+    "unit": "Сложное предложение",
+    "title": "Время и цель: cuando, antes de que, hasta que",
+    "goal": "Употребить subjuntivo в придаточных времени и цели, говоря о будущем.",
+    "theory": "Если действие ещё не произошло, после `cuando`, `hasta que`, `en cuanto`, `después de que`, `mientras` нужен subjuntivo: `Cuando llegues, llámame.` Если действие привычное или прошлое, то indicativo: `Cuando llego, siempre te llamo.` После `antes de que` и `para que` subjuntivo нужен всегда: `Antes de que salgas, cierra la ventana.` Если подлежащее одно, используют `antes de` и `para` с инфинитивом: `Antes de salir, cierra.`",
+    "tags": [
+      "cuando + subjuntivo",
+      "antes de que",
+      "hasta que",
+      "en cuanto"
+    ]
+  },
+  {
+    "id": "b2-pasiva",
+    "skill": "grammar",
+    "unit": "Страдательный залог",
+    "title": "Страдательный залог: ser + причастие, se pasiva",
+    "goal": "Выбрать между пассивом с ser, возвратной пассивой и безличной формой.",
+    "theory": "Пассив с `ser` = `ser` + причастие, согласующееся с подлежащим: `La casa fue construida en 1900.` Исполнитель вводят предлогом `por`: `fue escrita por Cervantes.` Он характерен для письменной речи. В разговорной речи чаще употребляют `se` пассивное: `Se venden pisos.` `Se habla español.` Если подлежащее — предмет, глагол согласуется с ним: `se vende una casa`, `se venden casas`. С `estar` + причастие говорят о результате: `La puerta está cerrada.`",
+    "tags": [
+      "pasiva",
+      "ser + participio",
+      "se pasivo",
+      "por"
+    ]
+  },
+  {
+    "id": "b2-se-impersonal",
+    "skill": "grammar",
+    "unit": "Страдательный залог",
+    "title": "Безличные предложения с se",
+    "goal": "Говорить обобщённо, без называния деятеля, с помощью se.",
+    "theory": "Безличное `se` + глагол в 3-м лице единственного числа говорит об общем: `Aquí se trabaja mucho.` `En España se come tarde.` Разница с пассивным `se`: после безличного глагола нет подлежащего-предмета. С прямым дополнением-человеком нужен предлог `a`, и глагол остаётся в единственном числе: `Se busca a los culpables.` Другие способы обобщения: `uno`, `la gente`, форма `ellos`: `Dicen que va a llover.`",
+    "tags": [
+      "se безличное",
+      "impersonal",
+      "se come tarde",
+      "обобщение"
+    ]
+  },
+  {
+    "id": "b2-ser-estar-matices",
+    "skill": "grammar",
+    "unit": "Глагол",
+    "title": "Ser и estar: тонкие различия",
+    "goal": "Передать оттенки смысла в парах ser и estar.",
+    "theory": "Одно и то же прилагательное с `ser` описывает свойство, а с `estar` — состояние или впечатление: `Es guapa` (красивая вообще), `Está guapa` (сегодня красиво выглядит). `Es verde` — зелёный цвет, `Está verde` — незрелый. `Es bueno` — хороший по сути, `Está bueno` — вкусный. С `estar` часто говорят о результате: `Está terminado`, `Está roto`. Для оценки действия: `Es difícil` и `Está difícil`. Нет общего правила для всех слов: такие пары лучше запоминать.",
+    "tags": [
+      "ser estar",
+      "es está",
+      "оттенки",
+      "ser aburrido estar aburrido"
+    ]
+  },
+  {
+    "id": "b2-lo-neutro",
+    "skill": "grammar",
+    "unit": "Описание",
+    "title": "Нейтральное lo: lo bueno, lo que, lo de",
+    "goal": "Превратить прилагательное, наречие или целую мысль в существительное с помощью lo.",
+    "theory": "`Lo` + прилагательное даёт обобщённое понятие: `lo bueno`, `lo importante` — «хорошее», «важное». `Lo que` значит «то, что»: `Lo que dices es verdad.` `Lo` + прилагательное + `que` усиливает: `No sabes lo difícil que es.` `Lo de` вводит тему: `Lo de ayer fue un error.` — «то, что было вчера». Не путайте с артиклем: `el bueno` (тот хороший) и `lo bueno` (хорошее). `Lo` может также быть местоимением: `Lo vi.`",
+    "tags": [
+      "lo",
+      "lo que",
+      "lo bueno",
+      "lo de"
+    ]
+  },
+  {
+    "id": "b2-vocab-trabajo",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Работа, карьера и собеседование",
+    "goal": "Рассказать об опыте, обязанностях и целях на собеседовании.",
+    "theory": "На собеседовании нужны глаголы деятельности и формулы вежливости: `Me encargo de…`, `Tengo experiencia en…`, `Me gustaría trabajar en…`. Полезные слова: `el currículum`, `la entrevista`, `el puesto`, `el sueldo`, `el contrato`. Для описания навыков: `tener capacidad para…`, `trabajar en equipo`.",
+    "vocabulary": [
+      {
+        "word": "el currículum",
+        "translation": "резюме"
+      },
+      {
+        "word": "la entrevista",
+        "translation": "собеседование"
+      },
+      {
+        "word": "el puesto",
+        "translation": "должность"
+      },
+      {
+        "word": "el sueldo",
+        "translation": "зарплата"
+      },
+      {
+        "word": "el contrato",
+        "translation": "контракт"
+      },
+      {
+        "word": "la experiencia",
+        "translation": "опыт"
+      },
+      {
+        "word": "trabajar en equipo",
+        "translation": "работать в команде"
+      },
+      {
+        "word": "encargarse de",
+        "translation": "отвечать за"
+      }
+    ],
+    "tags": [
+      "работа",
+      "собеседование",
+      "карьера"
+    ]
+  },
+  {
+    "id": "b2-vocab-medio",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Общество и окружающая среда",
+    "goal": "Обсудить общие темы: экология, технологии, общество.",
+    "theory": "Для обсуждения нужны абстрактные слова и клише: `el medio ambiente`, `el cambio climático`, `la contaminación`. Выражения мнения: `Es necesario que…`, `Hay que` + инфинитив. Для аргумента: `Por un lado… por otro lado…`. Эти слова часто встречаются в новостях и статьях.",
+    "vocabulary": [
+      {
+        "word": "el medio ambiente",
+        "translation": "окружающая среда"
+      },
+      {
+        "word": "el cambio climático",
+        "translation": "изменение климата"
+      },
+      {
+        "word": "la contaminación",
+        "translation": "загрязнение"
+      },
+      {
+        "word": "la energía renovable",
+        "translation": "возобновляемая энергия"
+      },
+      {
+        "word": "el reciclaje",
+        "translation": "переработка"
+      },
+      {
+        "word": "la sociedad",
+        "translation": "общество"
+      },
+      {
+        "word": "el desarrollo",
+        "translation": "развитие"
+      },
+      {
+        "word": "la tecnología",
+        "translation": "технология"
+      }
+    ],
+    "tags": [
+      "общество",
+      "экология",
+      "технологии"
+    ]
+  },
+  {
+    "id": "b2-vocab-conectores",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Связки и вводные слова",
+    "goal": "Связно строить рассуждение, используя связки.",
+    "theory": "Для связного рассуждения нужны связки: добавление (`además`, `incluso`), противопоставление (`sin embargo`, `no obstante`, `en cambio`), причина и следствие (`por lo tanto`, `por consiguiente`), вывод (`en conclusión`, `en definitiva`). После некоторых связок нужна запятая: `Sin embargo, no vino.`",
+    "vocabulary": [
+      {
+        "word": "además",
+        "translation": "кроме того"
+      },
+      {
+        "word": "sin embargo",
+        "translation": "однако"
+      },
+      {
+        "word": "no obstante",
+        "translation": "тем не менее"
+      },
+      {
+        "word": "por lo tanto",
+        "translation": "поэтому"
+      },
+      {
+        "word": "en definitiva",
+        "translation": "в итоге"
+      },
+      {
+        "word": "en conclusión",
+        "translation": "в заключение"
+      },
+      {
+        "word": "por un lado",
+        "translation": "с одной стороны"
+      },
+      {
+        "word": "en cambio",
+        "translation": "зато"
+      }
+    ],
+    "tags": [
+      "связки",
+      "рассуждение",
+      "вводные слова"
+    ]
+  },
+  {
+    "id": "b2-reading-opinion",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем статью-мнение",
+    "goal": "Понять позицию автора, его аргументы и отношение к теме.",
+    "theory": "В статье-мнении найдите тезис (главную мысль), аргументы и вывод. Обратите внимание на оценочные слова и связки: `desde mi punto de vista`, `es evidente que`, `sin embargo`. Различайте факты и мнения: факты стоят в indicativo, мнения и сомнения — в subjuntivo. Прочитав, перескажите тезис своими словами.",
+    "vocabulary": [
+      {
+        "word": "desde mi punto de vista",
+        "translation": "с моей точки зрения"
+      },
+      {
+        "word": "es evidente que",
+        "translation": "очевидно, что"
+      },
+      {
+        "word": "el argumento",
+        "translation": "аргумент"
+      },
+      {
+        "word": "la conclusión",
+        "translation": "вывод"
+      },
+      {
+        "word": "a favor",
+        "translation": "за"
+      },
+      {
+        "word": "en contra",
+        "translation": "против"
+      }
+    ],
+    "tags": [
+      "чтение",
+      "статья",
+      "мнение"
+    ]
+  },
+  {
+    "id": "b2-reading-literario",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем отрывок рассказа",
+    "goal": "Понять сюжет, героев и настроение в отрывке художественного текста.",
+    "theory": "В рассказе обратите внимание на времена: indefinido ведёт сюжет, imperfecto создаёт фон и описывает героев. Диалоги в испанском оформляют тире: `—¿Dónde vas? —preguntó ella.` После прочтения ответьте: кто герой, что случилось, чем закончилось. Не бойтесь незнакомых слов: смысл понятен из контекста.",
+    "vocabulary": [
+      {
+        "word": "el personaje",
+        "translation": "персонаж"
+      },
+      {
+        "word": "el narrador",
+        "translation": "рассказчик"
+      },
+      {
+        "word": "el argumento",
+        "translation": "сюжет"
+      },
+      {
+        "word": "el final",
+        "translation": "финал"
+      },
+      {
+        "word": "describir",
+        "translation": "описывать"
+      },
+      {
+        "word": "el diálogo",
+        "translation": "диалог"
+      }
+    ],
+    "tags": [
+      "чтение",
+      "рассказ",
+      "сюжет"
+    ]
+  },
+  {
+    "id": "b2-writing-ensayo",
+    "skill": "writing",
+    "unit": "Чтение и письмо",
+    "title": "Пишем эссе-рассуждение",
+    "goal": "Написать связный текст из 150–200 слов с тезисом, аргументами и выводом.",
+    "theory": "Эссе состоит из введения, двух-трёх аргументов и заключения. Начните с тезиса: `En mi opinión, …`. Дальше аргументы со связками: `En primer lugar…`, `Además…`, `Sin embargo…`. Закончите выводом: `En conclusión, …`. Используйте subjuntivo там, где выражаете сомнение или оценку: `Es necesario que se tomen medidas.`",
+    "tags": [
+      "письмо",
+      "эссе",
+      "аргументация"
+    ]
+  },
+  {
+    "id": "b2-listening-debate",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем обсуждение и дебаты",
+    "goal": "Понять позиции нескольких говорящих и аргументы каждого.",
+    "theory": "В дискуссии важно различать, кто что говорит. Слушайте формулы согласия и возражения: `Estoy de acuerdo`, `No estoy de acuerdo`, `Eso es cierto, pero…`. Записывайте тезисы каждого, а не отдельные слова. Говорящие часто перебивают друг друга и произносят слова слитно, поэтому прослушайте фрагмент два-три раза.",
+    "vocabulary": [
+      {
+        "word": "Estoy de acuerdo",
+        "translation": "Я согласен"
+      },
+      {
+        "word": "No estoy de acuerdo",
+        "translation": "Я не согласен"
+      },
+      {
+        "word": "Eso es cierto, pero…",
+        "translation": "Это правда, но…"
+      },
+      {
+        "word": "Perdona, pero…",
+        "translation": "Прости, но…"
+      },
+      {
+        "word": "A mi juicio…",
+        "translation": "На мой взгляд…"
+      },
+      {
+        "word": "Permíteme terminar",
+        "translation": "Позволь мне закончить"
+      }
+    ],
+    "tags": [
+      "аудирование",
+      "дебаты",
+      "обсуждение"
+    ]
+  },
+  {
+    "id": "b2-listening-conferencia",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем лекцию и выступление",
+    "goal": "Понять структуру выступления и записать главные мысли.",
+    "theory": "В выступлении ловите структуру: введение (`Hoy voy a hablar de…`), пункты (`en primer lugar`, `en segundo lugar`) и вывод (`para terminar`). Записывайте ключевые слова и числа. Если потеряли нить, дождитесь следующей связки: она вернёт вас к структуре. Пересказ своими словами проверяет понимание.",
+    "vocabulary": [
+      {
+        "word": "Hoy voy a hablar de…",
+        "translation": "Сегодня я расскажу о…"
+      },
+      {
+        "word": "en primer lugar",
+        "translation": "во-первых"
+      },
+      {
+        "word": "en segundo lugar",
+        "translation": "во-вторых"
+      },
+      {
+        "word": "para terminar",
+        "translation": "в заключение"
+      },
+      {
+        "word": "como he dicho",
+        "translation": "как я сказал"
+      },
+      {
+        "word": "en resumen",
+        "translation": "вкратце"
+      }
+    ],
+    "tags": [
+      "аудирование",
+      "лекция",
+      "выступление"
+    ]
+  },
+  {
+    "id": "b2-speaking-debate",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: дебаты и аргументация",
+    "goal": "Защитить позицию, привести аргумент и вежливо возразить.",
+    "theory": "Структура ответа: позиция, причина, пример. `Creo que… porque… Por ejemplo…` Для вежливого возражения: `Entiendo tu punto de vista, pero…`, `No estoy del todo de acuerdo`. Не повышайте тон и не перебивайте: пауза и уточняющий вопрос звучат уверенно. Используйте subjuntivo для оценок: `Es importante que se escuchen todas las opiniones.`",
+    "vocabulary": [
+      {
+        "word": "Entiendo tu punto de vista, pero…",
+        "translation": "Я понимаю твою точку зрения, но…"
+      },
+      {
+        "word": "No estoy del todo de acuerdo",
+        "translation": "Я не совсем согласен"
+      },
+      {
+        "word": "Por ejemplo…",
+        "translation": "Например…"
+      },
+      {
+        "word": "Lo que quiero decir es…",
+        "translation": "Я хочу сказать, что…"
+      },
+      {
+        "word": "Eso depende de…",
+        "translation": "Это зависит от…"
+      },
+      {
+        "word": "En definitiva…",
+        "translation": "В итоге…"
+      }
+    ],
+    "tags": [
+      "говорение",
+      "дебаты",
+      "аргументация"
+    ]
+  },
+  {
+    "id": "b2-speaking-presentacion",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: короткая презентация",
+    "goal": "Выступить с презентацией на 2–3 минуты по плану.",
+    "theory": "Структура презентации: приветствие, тема, три пункта, вывод. `Buenos días, hoy voy a hablar de… Primero… Después… Por último…` Говорите вслух по плану, а не читайте. Смотрите на слушателей и делайте паузы после каждого пункта. В конце: `¿Tienen alguna pregunta?`",
+    "vocabulary": [
+      {
+        "word": "Hoy voy a hablar de…",
+        "translation": "Сегодня я расскажу о…"
+      },
+      {
+        "word": "Primero, quisiera…",
+        "translation": "Сначала я бы хотел…"
+      },
+      {
+        "word": "Pasemos a…",
+        "translation": "Перейдём к…"
+      },
+      {
+        "word": "Para terminar…",
+        "translation": "В заключение…"
+      },
+      {
+        "word": "¿Tienen alguna pregunta?",
+        "translation": "Есть ли вопросы?"
+      },
+      {
+        "word": "Gracias por su atención",
+        "translation": "Спасибо за внимание"
+      }
+    ],
+    "tags": [
+      "говорение",
+      "презентация",
+      "выступление"
+    ]
+  }
+]

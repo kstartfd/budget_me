@@ -21,7 +21,7 @@ func TestListeningIsAskedInTheLearnedLanguageFromA2(t *testing.T) {
 		{"A1", "English", "English"},
 		{"", "Russian", "Russian"},
 	} {
-		_, prompt := exercisesPrompt("English", tc.explain, "Russian", tc.level, "listening", "Numbers", "Hear numbers", "", nil, 0, 0)
+		_, prompt := exercisesPrompt("English", tc.explain, "Russian", tc.level, "listening", "Numbers", "Hear numbers", "", nil, 0, 0, nil)
 
 		var data map[string]any
 		if err := json.Unmarshal([]byte(prompt), &data); err != nil {

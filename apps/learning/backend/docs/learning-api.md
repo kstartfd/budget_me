@@ -324,7 +324,7 @@ under `/api/v1/learning/path`.
 | `GET /?language=`, `GET /history`, `POST /reset` | The running program of a language, the closed ones, and closing the running one. Each topic of a program carries `exercises: {total, done}`: how many exercises its current set holds (0 while it is not written) and how many of them the learner has answered right. A regenerated set starts from `done: 0`. |
 | `POST /lessons`, `GET /lessons`, `GET /lessons/active`, `POST /lessons/:id/pause`, `/resume`, `/finish` | The learner's 30-minute lesson, which belongs to them and not to a topic: they move between topics while it runs. `POST` opens it or hands back the one running; `GET /lessons` lists the latest 30 (`id`, `status`, `startedAt`, `endsAt`, `finishedAt`, `pausedAt`, `pausedSeconds`, `pauseCount`, `attempts`, `correct`); `/active` is the running one or `null`. The clock is the server's and pausing does not move the end; a lesson past its end is closed at that end the next time anyone looks (so `finishedAt` equal to `endsAt` means the time ran out). Every answer given while it runs counts to it, on whichever topic. |
 | `GET /topics/:id`, `POST /topics/:id/exercises`, `POST /topics/:id/complete` | A topic with its rule and words, its exercise set (`?regenerate=1` writes a new one), and completing it. |
-| `POST /exercises/:id/attempt` | Checks one answer. Kinds: `choice`, `fill`, `listen` are graded here; `speak` is compared with the phrase; `translate` and `write` are judged by the agent. |
+| `POST /exercises/:id/attempt` | Checks one answer. Kinds: `choice`, `fill`, `listen` are graded here; `order` (the words of a sentence in order: `options` hold the scrambled words, `answer` the right order, other natural orders after ` \| `) and `cloze` (a passage with gaps `[1]`, `[2]`…, `answer` lists what goes into each, parts separated by ` \| `, variants of one gap by `/`; `mistakes` is the number of wrong gaps) are graded here against the key; `speak` is compared with the phrase; `translate`, `write` and `read` (a passage with questions in `options`, answered in the same ` \| ` form) are judged by the agent. |
 | `GET /exercises/:id/audio`, `GET /topics/:id/words/:index/audio` | The voice of a listening sentence or a phrase to repeat, and of a key word of a topic. |
 
 Once a program is saved the job is done and the learner can start; the agent then
@@ -334,7 +334,7 @@ scale can be counted by them. A set that fails to write is left for when the
 learner opens the topic, and the learner can regenerate any set: the counts follow
 the current set.
 
-For a language pair that has a library (English for Russian speakers, A1 to B2)
+For a language pair that has a library (English and Spanish for Russian speakers, A1 to B2)
 the program is planned from it: the agent only picks topics, and each topic
 carries the library's own rule, words and goal.
 

@@ -8,11 +8,11 @@ import (
 // TestTheRuleBookIsOfThePairAskedFor: a learner who studies English and a
 // language whose pair has no rule book gets the English rules on the English
 // teacher's screen only. The other teacher's screen gets nothing, not the
-// English rules thrown at someone studying Spanish.
+// English rules thrown at someone studying French.
 func TestTheRuleBookIsOfThePairAskedFor(t *testing.T) {
 	e := setup(t)
 
-	for _, language := range []string{"es", "en"} {
+	for _, language := range []string{"fr", "en"} {
 		code, body := request(t, e.e, "POST", "/api/v1/learning/path/teachers", e.session, map[string]any{"language": language, "translationLanguage": "ru"})
 		if code >= 300 {
 			t.Fatalf("a %s teacher: %d %v", language, code, body)
@@ -21,16 +21,16 @@ func TestTheRuleBookIsOfThePairAskedFor(t *testing.T) {
 
 	const rules = "/api/v1/learning/path/rules"
 
-	if code, _ := request(t, e.e, "GET", rules+"?language=es", e.session, nil); code != http.StatusForbidden {
-		t.Fatalf("the Spanish teacher has no rule book, the English one must not stand in for it: %d", code)
+	if code, _ := request(t, e.e, "GET", rules+"?language=fr", e.session, nil); code != http.StatusForbidden {
+		t.Fatalf("the French teacher has no rule book, the English one must not stand in for it: %d", code)
 	}
 
-	if code, _ := request(t, e.e, "GET", rules+"/b2-past-perfect?language=es", e.session, nil); code != http.StatusForbidden {
-		t.Fatalf("an English rule on the Spanish teacher's screen: %d", code)
+	if code, _ := request(t, e.e, "GET", rules+"/b2-past-perfect?language=fr", e.session, nil); code != http.StatusForbidden {
+		t.Fatalf("an English rule on the French teacher's screen: %d", code)
 	}
 
-	if code, _ := request(t, e.e, "GET", rules+"/b2-past-perfect/practice?language=es", e.session, nil); code != http.StatusForbidden {
-		t.Fatalf("practice of an English rule on the Spanish teacher's screen: %d", code)
+	if code, _ := request(t, e.e, "GET", rules+"/b2-past-perfect/practice?language=fr", e.session, nil); code != http.StatusForbidden {
+		t.Fatalf("practice of an English rule on the French teacher's screen: %d", code)
 	}
 
 	code, body := request(t, e.e, "GET", rules+"?language=en", e.session, nil)

@@ -112,7 +112,7 @@ export type PathJob = z.infer<typeof pathJobSchema>
 export const pathExerciseSchema = z.object({
   id: z.string(),
   position: z.number(),
-  kind: z.enum(["choice", "fill", "translate", "write", "listen", "speak"]),
+  kind: z.enum(["choice", "fill", "translate", "write", "listen", "speak", "order", "cloze", "read"]),
   text: z.string(),
   prompt: z.string(),
   options: z.array(z.string()),

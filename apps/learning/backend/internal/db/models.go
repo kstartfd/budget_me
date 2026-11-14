@@ -282,6 +282,9 @@ const (
 	LearningPathExerciseKindWrite     LearningPathExerciseKind = "write"
 	LearningPathExerciseKindListen    LearningPathExerciseKind = "listen"
 	LearningPathExerciseKindSpeak     LearningPathExerciseKind = "speak"
+	LearningPathExerciseKindOrder     LearningPathExerciseKind = "order"
+	LearningPathExerciseKindCloze     LearningPathExerciseKind = "cloze"
+	LearningPathExerciseKindRead      LearningPathExerciseKind = "read"
 )
 
 func (e *LearningPathExerciseKind) Scan(src interface{}) error {

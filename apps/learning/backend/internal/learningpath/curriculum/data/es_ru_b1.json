@@ -1,0 +1,565 @@
+[
+  {
+    "id": "b1-indefinido-vs-imperfecto",
+    "skill": "grammar",
+    "unit": "Прошедшее время",
+    "title": "Indefinido и imperfecto вместе",
+    "goal": "Выбрать между законченным событием и фоном в одном рассказе.",
+    "theory": "В рассказе `imperfecto` создаёт фон, а `indefinido` двигает сюжет: `Era de noche y llovía cuando llegué a casa.` Imperfecto описывает обстановку, возраст, погоду, привычку; indefinido называет законченное событие: `Entré, encendí la luz y me senté.` Если действие было в процессе, когда произошло другое, используют `estaba` + герундий: `Estaba cocinando cuando sonó el teléfono.` Некоторые глаголы меняют смысл: `Conocí a Ana en 2010` (познакомился), `Conocía a Ana` (был знаком).",
+    "tags": [
+      "indefinido imperfecto",
+      "рассказ в прошлом",
+      "фон и событие",
+      "estaba + gerundio"
+    ]
+  },
+  {
+    "id": "b1-pluscuamperfecto",
+    "skill": "grammar",
+    "unit": "Прошедшее время",
+    "title": "Pluscuamperfecto: что было раньше",
+    "goal": "Сказать, что одно действие в прошлом произошло раньше другого.",
+    "theory": "`Pluscuamperfecto` = `había, habías, había, habíamos, habíais, habían` + причастие: `había trabajado`, `habías comido`. Оно показывает, что действие закончилось до другого действия в прошлом: `Cuando llegué, ya se había ido.` Часто идёт с `ya`, `todavía no`, `nunca`: `Nunca había visto el mar.` Неправильные причастия те же: `hecho`, `dicho`, `visto`, `escrito`, `puesto`, `vuelto`.",
+    "tags": [
+      "pluscuamperfecto",
+      "había hecho",
+      "до другого действия"
+    ]
+  },
+  {
+    "id": "b1-futuro-simple",
+    "skill": "grammar",
+    "unit": "Будущее и condicional",
+    "title": "Futuro simple: будет и, наверное, есть",
+    "goal": "Говорить о будущем и предположениях в настоящем.",
+    "theory": "Окончания `-é, -ás, -á, -emos, -éis, -án` добавляют к инфинитиву: `hablaré`, `comerás`, `vivirá`. У ряда глаголов особый корень: `tener → tendré`, `hacer → haré`, `poder → podré`, `salir → saldré`, `decir → diré`, `venir → vendré`. Futuro говорит о будущем и о предположении в настоящем: `Serán las ocho` — наверное, восемь часов. Разговорное будущее — `ir a`: `Voy a salir`. Для обещаний и прогнозов — futuro: `Mañana lloverá.`",
+    "tags": [
+      "futuro simple",
+      "hablaré",
+      "предположение",
+      "будущее"
+    ]
+  },
+  {
+    "id": "b1-condicional",
+    "skill": "grammar",
+    "unit": "Будущее и condicional",
+    "title": "Condicional: я бы, вежливая просьба",
+    "goal": "Дать совет, вежливо попросить и сказать о нереальном желании.",
+    "theory": "Окончания `-ía, -ías, -ía, -íamos, -íais, -ían` добавляют к инфинитиву: `hablaría`, `comería`, `viviría`. Те же особые корни, что у futuro: `tendría`, `haría`, `podría`, `saldría`, `diría`. Condicional нужен для вежливой просьбы (`¿Podría ayudarme?`), совета (`Deberías descansar`), желания (`Me gustaría viajar`) и предположения в прошлом (`Serían las ocho`). В пересказе будущее становится condicional: `Dijo que vendría`.",
+    "tags": [
+      "condicional",
+      "hablaría",
+      "вежливая просьба",
+      "совет"
+    ]
+  },
+  {
+    "id": "b1-pronombres-combinados",
+    "skill": "grammar",
+    "unit": "Местоимения",
+    "title": "Два местоимения вместе: se lo doy",
+    "goal": "Поставить косвенное и прямое дополнение рядом.",
+    "theory": "Порядок всегда один: сначала косвенное, потом прямое: `Me lo da`, `Te la envío`. Если оба местоимения третьего лица, `le/les` превращается в `se`: `Le doy el libro → Se lo doy.` Нельзя говорить `le lo`. Местоимения ставят перед спрягаемым глаголом, а с инфинитивом, герундием и императивом присоединяют: `Dámelo`, `Voy a dárselo`, `Estoy escribiéndotela`. Прямое дополнение — `lo/la`, косвенное — `le`.",
+    "tags": [
+      "pronombres combinados",
+      "se lo",
+      "порядок местоимений"
+    ]
+  },
+  {
+    "id": "b1-imperativo-pronombres",
+    "skill": "grammar",
+    "unit": "Местоимения",
+    "title": "Императив: usted, ustedes и с местоимениями",
+    "goal": "Дать указание вежливо и с местоимениями, утвердительно и отрицательно.",
+    "theory": "Для вежливого обращения используют формы subjuntivo: `hable`, `coma`, `escriba` (usted) и `hablen`, `coman`, `escriban` (ustedes). Для `vosotros` в утверждении инфинитив меняет `-r` на `-d`: `hablad`, `comed`, `escribid`; в запрете — subjuntivo: `no habléis`. С местоимениями в утверждении они присоединяются: `Cómpralo`, `Dímelo`, `Siéntese`; в запрете стоят перед глаголом: `No lo compres`, `No me lo digas`. Ударный знак ставят, чтобы сохранить ударение.",
+    "tags": [
+      "imperativo",
+      "usted",
+      "pronombres",
+      "no me lo digas"
+    ]
+  },
+  {
+    "id": "b1-subjuntivo-presente",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Presente de subjuntivo: форма и когда нужен",
+    "goal": "Образовать subjuntivo presente и употребить его после просьбы, желания и эмоции.",
+    "theory": "Форма строится от формы `yo` настоящего времени: отбросьте `-o` и поменяйте гласную на противоположную. `-ar` получает `-e, -es, -e, -emos, -éis, -en`: `hable`; `-er/-ir` получает `-a, -as, -a, -amos, -áis, -an`: `coma`, `viva`. Особые: `ser → sea`, `ir → vaya`, `estar → esté`, `saber → sepa`, `haber → haya`. Нужен после желания, просьбы и эмоции, когда у частей разные подлежащие: `Quiero que vengas.` `Me alegro de que estés aquí.`",
+    "tags": [
+      "subjuntivo",
+      "presente de subjuntivo",
+      "quiero que",
+      "hable coma"
+    ]
+  },
+  {
+    "id": "b1-subjuntivo-sentimientos",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Subjuntivo: желание, вероятность, эмоция",
+    "goal": "Выразить желание, вероятность и оценку с помощью subjuntivo.",
+    "theory": "Желание и просьба: `Quiero que…`, `Espero que…`, `Prefiero que…`: `Espero que llegues pronto.` Вероятность: `Quizás`, `tal vez`, `probablemente` + subjuntivo: `Quizás vaya.` Если вы уверены, то indicativo: `Seguramente viene.` Эмоции и оценка: `Me gusta que…`, `Es una pena que…`, `Es importante que…`: `Es importante que estudies.` Для общих оценок без конкретного подлежащего используют инфинитив: `Es importante estudiar.`",
+    "tags": [
+      "subjuntivo",
+      "espero que",
+      "quizás",
+      "оценка"
+    ]
+  },
+  {
+    "id": "b1-relativos",
+    "skill": "grammar",
+    "unit": "Сложное предложение",
+    "title": "Относительные слова: que, quien, donde",
+    "goal": "Соединить два предложения словом que, quien, donde, cuyo.",
+    "theory": "`Que` — самое частое относительное слово: `El libro que leo es interesante.` После предлога перед ним ставят артикль: `la casa en la que vivo`, `el chico con el que hablas`. О людях можно `quien`: `La chica con quien hablas`. `Donde` — место: `La ciudad donde nací`. `Cuyo` — «чей», согласуется с тем, чем владеют: `El hombre cuya hija vive aquí`. Если искомое неизвестно или его нет, нужен subjuntivo: `Busco una casa que tenga jardín.`",
+    "tags": [
+      "относительные",
+      "que quien donde",
+      "cuyo",
+      "relativos"
+    ]
+  },
+  {
+    "id": "b1-perifrasis",
+    "skill": "grammar",
+    "unit": "Неличные формы",
+    "title": "Перифразы: tener que, acabar de, soler",
+    "goal": "Выразить обязанность, привычку, начало и конец действия с помощью перифраз.",
+    "theory": "Перифраза состоит из спрягаемого глагола и неличной формы. Обязанность: `tener que` + инфинитив (`Tengo que estudiar`), `hay que` + инфинитив (`Hay que descansar`), `deber` + инфинитив. Привычка: `soler` + инфинитив (`Suelo comer en casa`). Начало и конец: `empezar a`, `ponerse a`, `acabar de` (только что), `dejar de`: `Acabo de llegar.` `He dejado de fumar.` Продолжение: `seguir` + герундий: `Sigo trabajando.` Повторение: `volver a` + инфинитив: `Vuelvo a llamar.`",
+    "tags": [
+      "перифразы",
+      "tener que",
+      "acabar de",
+      "soler",
+      "seguir + gerundio"
+    ]
+  },
+  {
+    "id": "b1-gerundio-participio",
+    "skill": "grammar",
+    "unit": "Неличные формы",
+    "title": "Герундий и причастие в предложении",
+    "goal": "Использовать герундий для образа действия и причастие как прилагательное.",
+    "theory": "Герундий показывает, как или одновременно с чем происходит действие: `Aprendo español leyendo.` `Entró cantando.` Он не меняется и не стоит после предлога (вместо этого инфинитив): `antes de salir`. Причастие `-ado/-ido` в сложных временах не меняется: `He comido`. Как прилагательное оно согласуется: `la puerta cerrada`, `los libros escritos`. С `estar` показывает результат: `La tienda está cerrada.`",
+    "tags": [
+      "герундий",
+      "причастие",
+      "participio",
+      "gerundio"
+    ]
+  },
+  {
+    "id": "b1-conectores",
+    "skill": "grammar",
+    "unit": "Сложное предложение",
+    "title": "Союзы и придаточные: porque, cuando, para que",
+    "goal": "Соединять предложения причиной, временем, целью и уступкой.",
+    "theory": "Причина: `porque`, `como`, `puesto que`: `Como llueve, me quedo.` Цель: `para` + инфинитив (то же подлежащее) или `para que` + subjuntivo (разные): `Estudio para aprobar.` `Te lo explico para que lo entiendas.` Время: `cuando`, `antes de que`, `después de que`; в будущем после `cuando` нужен subjuntivo: `Cuando llegues, llámame.` Уступка: `aunque`, `a pesar de que`. Следствие: `por eso`, `así que`.",
+    "tags": [
+      "союзы",
+      "porque como",
+      "para que",
+      "cuando + subjuntivo",
+      "conectores"
+    ]
+  },
+  {
+    "id": "b1-adverbios",
+    "skill": "grammar",
+    "unit": "Описание",
+    "title": "Наречия: образ действия, времени и частоты",
+    "goal": "Употреблять наречия на -mente и наречия времени и частоты.",
+    "theory": "Наречия на `-mente` образуют от женской формы прилагательного: `rápida → rápidamente`, `fácil → fácilmente`. Если подряд два, `-mente` только у последнего: `rápida y claramente`. Время и частота: `ya`, `todavía`, `aún`, `siempre`, `nunca`, `a veces`, `de vez en cuando`. Количество: `muy`, `mucho`, `bastante`, `demasiado`. `Muy` ставят перед прилагательным и наречием: `muy bien`; `mucho` — после глагола: `trabajo mucho`. Перед `mejor`, `peor` ставят `mucho`: `mucho mejor`.",
+    "tags": [
+      "наречия",
+      "-mente",
+      "muy mucho",
+      "adverbios",
+      "частота"
+    ]
+  },
+  {
+    "id": "b1-vocab-salud",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Здоровье и самочувствие",
+    "goal": "Рассказать врачу, что болит, и понять простые советы.",
+    "theory": "Говоря о боли, используют `doler`: `Me duele la cabeza.` `Me duelen los pies.` Врач может спросить: `¿Qué le pasa?` `¿Desde cuándo?` Советы: `Debe descansar.` `Tiene que tomar este medicamento.` Полезные слова: `la fiebre`, `la receta`, `el dolor`, `el resfriado`.",
+    "vocabulary": [
+      {
+        "word": "el dolor",
+        "translation": "боль"
+      },
+      {
+        "word": "la fiebre",
+        "translation": "температура"
+      },
+      {
+        "word": "el resfriado",
+        "translation": "простуда"
+      },
+      {
+        "word": "la receta",
+        "translation": "рецепт"
+      },
+      {
+        "word": "el medicamento",
+        "translation": "лекарство"
+      },
+      {
+        "word": "la cita",
+        "translation": "приём, запись"
+      },
+      {
+        "word": "Me duele…",
+        "translation": "У меня болит…"
+      },
+      {
+        "word": "¿Qué le pasa?",
+        "translation": "Что с вами?"
+      }
+    ],
+    "tags": [
+      "здоровье",
+      "врач",
+      "боль"
+    ]
+  },
+  {
+    "id": "b1-vocab-viajes",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Путешествия и отели",
+    "goal": "Забронировать номер, купить билет и решить проблему в поездке.",
+    "theory": "В поездке полезны формулы просьбы: `Quería reservar una habitación.` `¿Tiene alguna habitación libre?` `¿Cuánto cuesta la noche?` Билеты: `un billete de ida y vuelta`. Проблемы: `He perdido…`, `Se ha estropeado…`. Слова: `la reserva`, `el equipaje`, `el vuelo`, `la llegada`, `la salida`.",
+    "vocabulary": [
+      {
+        "word": "la reserva",
+        "translation": "бронь"
+      },
+      {
+        "word": "el equipaje",
+        "translation": "багаж"
+      },
+      {
+        "word": "el vuelo",
+        "translation": "рейс"
+      },
+      {
+        "word": "la habitación",
+        "translation": "номер"
+      },
+      {
+        "word": "ida y vuelta",
+        "translation": "туда и обратно"
+      },
+      {
+        "word": "el pasaporte",
+        "translation": "паспорт"
+      },
+      {
+        "word": "la llegada",
+        "translation": "прибытие"
+      },
+      {
+        "word": "la salida",
+        "translation": "отправление"
+      }
+    ],
+    "tags": [
+      "путешествия",
+      "отель",
+      "билеты"
+    ]
+  },
+  {
+    "id": "b1-vocab-opinion",
+    "skill": "vocabulary",
+    "unit": "Слова",
+    "title": "Мнения и чувства",
+    "goal": "Высказать мнение, согласиться или возразить.",
+    "theory": "Чтобы высказать мнение: `Creo que…`, `Me parece que…`, `En mi opinión…`. После `creo que` indicativo: `Creo que es bueno`; после `no creo que` — subjuntivo: `No creo que sea bueno.` Согласие: `Estoy de acuerdo`, `Tienes razón`. Возражение: `No estoy de acuerdo`, `Eso no es verdad`.",
+    "vocabulary": [
+      {
+        "word": "Creo que…",
+        "translation": "Я думаю, что…"
+      },
+      {
+        "word": "Me parece que…",
+        "translation": "Мне кажется, что…"
+      },
+      {
+        "word": "En mi opinión…",
+        "translation": "По моему мнению…"
+      },
+      {
+        "word": "Estoy de acuerdo",
+        "translation": "Я согласен"
+      },
+      {
+        "word": "No estoy de acuerdo",
+        "translation": "Я не согласен"
+      },
+      {
+        "word": "Tienes razón",
+        "translation": "Ты прав"
+      }
+    ],
+    "tags": [
+      "мнение",
+      "чувства",
+      "согласие"
+    ]
+  },
+  {
+    "id": "b1-reading-articulo",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем короткую статью",
+    "goal": "Понять тему статьи, главные мысли и отношение автора.",
+    "theory": "Читая статью, сначала прочитайте заголовок и первый абзац, потом найдите ключевые слова. Не пытайтесь перевести каждое слово. Обратите внимание на связки: `sin embargo` (однако), `por eso` (поэтому), `además` (кроме того), `en cambio` (зато). Они показывают, как связаны мысли.",
+    "vocabulary": [
+      {
+        "word": "sin embargo",
+        "translation": "однако"
+      },
+      {
+        "word": "por eso",
+        "translation": "поэтому"
+      },
+      {
+        "word": "además",
+        "translation": "кроме того"
+      },
+      {
+        "word": "en cambio",
+        "translation": "зато"
+      },
+      {
+        "word": "por un lado",
+        "translation": "с одной стороны"
+      },
+      {
+        "word": "por otro lado",
+        "translation": "с другой стороны"
+      }
+    ],
+    "tags": [
+      "чтение",
+      "статья",
+      "связки"
+    ]
+  },
+  {
+    "id": "b1-reading-instrucciones",
+    "skill": "reading",
+    "unit": "Чтение и письмо",
+    "title": "Читаем инструкции и правила",
+    "goal": "Понять инструкцию и правила, найти запреты и обязанности.",
+    "theory": "В инструкциях ищите глаголы повеления и запрета: `Pulse`, `No abra`, `Debe`. Часто используют безличные формы: `Se prohíbe fumar`, `Se ruega silencio`. Числа и порядок обозначают шаги: `1.º`, `2.º`, `primero`, `después`, `por último`. Читайте до конца: запрет часто стоит в конце.",
+    "vocabulary": [
+      {
+        "word": "Se prohíbe",
+        "translation": "Запрещается"
+      },
+      {
+        "word": "Pulse",
+        "translation": "Нажмите"
+      },
+      {
+        "word": "Debe",
+        "translation": "Нужно"
+      },
+      {
+        "word": "primero",
+        "translation": "сначала"
+      },
+      {
+        "word": "después",
+        "translation": "потом"
+      },
+      {
+        "word": "por último",
+        "translation": "в конце"
+      }
+    ],
+    "tags": [
+      "чтение",
+      "инструкции",
+      "правила"
+    ]
+  },
+  {
+    "id": "b1-writing-correo",
+    "skill": "writing",
+    "unit": "Чтение и письмо",
+    "title": "Пишем письмо: просьба и жалоба",
+    "goal": "Написать письмо с просьбой или жалобой и вежливо изложить суть.",
+    "theory": "В официальном письме есть приветствие, цель, детали, просьба и прощание. Образец: `Estimados señores: Les escribo para… Les agradecería que… Atentamente, Ana García.` Для просьбы используйте `¿Podría…?`, `Le agradecería que` + subjuntivo. Пишите короткими предложениями, избегайте разговорных слов.",
+    "tags": [
+      "письмо",
+      "жалоба",
+      "официальный стиль"
+    ]
+  },
+  {
+    "id": "b1-listening-radio",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем радио и новости",
+    "goal": "Понять главную тему короткого сообщения и основные факты.",
+    "theory": "Новости говорят быстрее. Сначала поймите тему, потом детали: кто, что, где, когда. Слушайте цифры и названия мест. Не останавливайтесь на незнакомых словах: смысл часто ясен из контекста. Ключевые слова: `según`, `fuentes`, `ayer`, `hoy`.",
+    "vocabulary": [
+      {
+        "word": "según",
+        "translation": "по сообщению"
+      },
+      {
+        "word": "las fuentes",
+        "translation": "источники"
+      },
+      {
+        "word": "la noticia",
+        "translation": "новость"
+      },
+      {
+        "word": "el tiempo",
+        "translation": "погода"
+      },
+      {
+        "word": "hoy",
+        "translation": "сегодня"
+      },
+      {
+        "word": "el presentador",
+        "translation": "ведущий"
+      }
+    ],
+    "tags": [
+      "аудирование",
+      "радио",
+      "новости"
+    ]
+  },
+  {
+    "id": "b1-listening-conversacion",
+    "skill": "listening",
+    "unit": "Слушание",
+    "title": "Слушаем разговор о событиях в прошлом",
+    "goal": "Понять, что случилось и в каком порядке, в рассказе из бытовой жизни.",
+    "theory": "В рассказах о прошлом слушайте глаголы: `fui`, `llegué` — события; `era`, `estaba` — фон. Следите за связками порядка: `primero`, `luego`, `después`, `al final`. Запишите последовательность событий в кратких пометках, потом перескажите.",
+    "vocabulary": [
+      {
+        "word": "primero",
+        "translation": "сначала"
+      },
+      {
+        "word": "luego",
+        "translation": "потом"
+      },
+      {
+        "word": "después",
+        "translation": "затем"
+      },
+      {
+        "word": "al final",
+        "translation": "в конце концов"
+      },
+      {
+        "word": "de repente",
+        "translation": "вдруг"
+      },
+      {
+        "word": "mientras",
+        "translation": "пока"
+      }
+    ],
+    "tags": [
+      "аудирование",
+      "рассказ",
+      "прошлое"
+    ]
+  },
+  {
+    "id": "b1-speaking-opinion",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: выразить мнение",
+    "goal": "Высказать мнение и аргументировать его.",
+    "theory": "Мнение удобно строить так: позиция, причина, пример. `Creo que es una buena idea porque ahorramos tiempo. Por ejemplo, …` Для возражения: `Entiendo, pero…`. Не бойтесь паузы: используйте слова-связки `bueno`, `pues`, `a ver`.",
+    "vocabulary": [
+      {
+        "word": "Creo que…",
+        "translation": "Я думаю, что…"
+      },
+      {
+        "word": "Por ejemplo…",
+        "translation": "Например…"
+      },
+      {
+        "word": "Entiendo, pero…",
+        "translation": "Понимаю, но…"
+      },
+      {
+        "word": "Bueno, a ver…",
+        "translation": "Ну, посмотрим…"
+      },
+      {
+        "word": "Estoy de acuerdo",
+        "translation": "Я согласен"
+      },
+      {
+        "word": "En mi opinión…",
+        "translation": "По моему мнению…"
+      }
+    ],
+    "tags": [
+      "говорение",
+      "мнение",
+      "аргумент"
+    ]
+  },
+  {
+    "id": "b1-speaking-experiencia",
+    "skill": "speaking",
+    "unit": "Говорение",
+    "title": "Говорим: рассказ о поездке",
+    "goal": "Рассказать о поездке или событии из прошлого связно.",
+    "theory": "Рассказ о поездке: куда, с кем, что делали, что понравилось. `El año pasado fui a Italia con mi hermana. Visitamos Roma y Florencia. Lo que más me gustó fue…` Используйте indefinido для событий и imperfecto для описания: `Hacía sol y la ciudad era preciosa.` Говорите вслух по плану.",
+    "vocabulary": [
+      {
+        "word": "El año pasado fui a…",
+        "translation": "В прошлом году я ездил в…"
+      },
+      {
+        "word": "Visitamos…",
+        "translation": "Мы посетили…"
+      },
+      {
+        "word": "Lo que más me gustó…",
+        "translation": "Больше всего мне понравилось…"
+      },
+      {
+        "word": "Hacía mucho calor",
+        "translation": "Было очень жарко"
+      },
+      {
+        "word": "Fue una experiencia…",
+        "translation": "Это был…опыт"
+      },
+      {
+        "word": "Me encantó",
+        "translation": "Мне очень понравилось"
+      }
+    ],
+    "tags": [
+      "говорение",
+      "рассказ",
+      "поездка"
+    ]
+  }
+]

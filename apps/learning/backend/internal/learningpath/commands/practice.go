@@ -15,6 +15,7 @@ import (
 	"learning_app/backend/internal/clock"
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
+	"learning_app/backend/internal/learningpath/curriculum"
 	"learning_app/backend/internal/llm"
 )
 
@@ -47,6 +48,10 @@ type RuleSubject struct {
 	Title           string
 	Theory          string
 	Forms           []string
+	// Examples and Mistakes are what the library says about the rule; the
+	// drills are made from them, not from what an agent would invent.
+	Examples []curriculum.Example
+	Mistakes []curriculum.Mistake
 }
 
 // PracticeExample is a sentence an agent wrote to show the rule.
@@ -298,7 +303,7 @@ func (h PracticeHandler) WriteExercises(ctx context.Context, userID uuid.UUID, r
 
 	var set blockSetOut
 
-	if err := h.agent.completeJSON(ctx, userID, llm.PurposePracticeDrills, practiceSystem, rulePrompt(rule, nil), &set, func() error {
+	if err := h.agent.completeJSON(ctx, userID, llm.PurposePracticeDrills, practiceSystemFor(rule.Language), rulePrompt(rule, nil), &set, func() error {
 		return validateBlocks(set.Blocks)
 	}); err != nil {
 		return Practice{}, err
