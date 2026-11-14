@@ -1078,9 +1078,9 @@ func TestRuleBookNeedsTheTeacher(t *testing.T) {
 	}
 
 	// A teacher whose language has no rule book does not open it.
-	request(t, e.e, "POST", "/api/v1/learning/path/teachers", e.session, map[string]any{"language": "es", "translationLanguage": "ru"})
+	request(t, e.e, "POST", "/api/v1/learning/path/teachers", e.session, map[string]any{"language": "fr", "translationLanguage": "ru"})
 	if code, _ := request(t, e.e, "GET", "/api/v1/learning/path/rules", e.session, nil); code != http.StatusForbidden {
-		t.Fatalf("a Spanish teacher must not open the English rule book: %d", code)
+		t.Fatalf("a French teacher must not open the English rule book: %d", code)
 	}
 
 	path := analyze(t, e, climb(t, e, "A1"))
