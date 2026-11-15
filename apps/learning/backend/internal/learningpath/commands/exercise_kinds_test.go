@@ -130,3 +130,14 @@ func TestDrillsAreWrittenAfterTheBookOfTheLanguage(t *testing.T) {
 		t.Error("the Spanish drills are written after an English book")
 	}
 }
+
+func TestALeakedClueIsDroppedNotTheSet(t *testing.T) {
+	list := []exercise{{Kind: "order", Prompt: "Put the words in order", Text: "Voy al cine mañana.", Options: []string{"al", "Voy", "mañana", "cine"}, Answer: "Voy al cine mañana", Rule: "r"}}
+	if err := validateExercises(list); err != nil {
+		t.Fatalf("the set was thrown away: %v", err)
+	}
+
+	if list[0].Text != "" {
+		t.Errorf("the clue that gave the sentence away stayed: %q", list[0].Text)
+	}
+}

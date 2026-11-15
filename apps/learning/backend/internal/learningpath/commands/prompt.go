@@ -383,6 +383,13 @@ func validateExercises(list []exercise) error {
 	}
 
 	for i, e := range list {
+		// A clue that spells out the sentence to be put together is dropped, not
+		// a reason to throw the whole set away: the exercise works without it.
+		if e.Kind == "order" && spellsOutAny(e.Text, e.Answer) {
+			list[i].Text = ""
+			e.Text = ""
+		}
+
 		if err := validExercise(e); err != nil {
 			return fmt.Errorf("exercise %d: %w", i, err)
 		}

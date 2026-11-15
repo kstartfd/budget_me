@@ -917,6 +917,18 @@ func TestTopicExercisesAndAttempts(t *testing.T) {
 	if code != http.StatusConflict {
 		t.Fatalf("generate on a completed topic: %d", code)
 	}
+
+	// Refreshing the exercises of a completed topic writes a new set and puts
+	// the topic back in progress.
+	e.provider.enqueue(exercisesReply)
+	code, body = request(t, e.e, "POST", "/api/v1/learning/path/topics/"+topicID+"/exercises?regenerate=1", e.session, nil)
+	if code != http.StatusOK {
+		t.Fatalf("regenerate a completed topic: %d %v", code, body)
+	}
+
+	if got := topicDetail(t, e, topicID)["topic"].(map[string]any)["status"]; got != "in_progress" {
+		t.Fatalf("a refreshed topic is %v, want in_progress", got)
+	}
 }
 
 func attempt(t *testing.T, e env, exerciseID, answer string, wantCorrect bool, wantFeedback string) map[string]any {

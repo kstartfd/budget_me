@@ -145,6 +145,17 @@ func spellsOut(text, sentence string) bool {
 	return want != "" && strings.Contains(" "+bareWords(text)+" ", " "+want+" ")
 }
 
+// spellsOutAny tells whether text holds any of the orders the key allows.
+func spellsOutAny(text, answer string) bool {
+	for _, o := range splitAnswers(answer) {
+		if spellsOut(text, o) {
+			return true
+		}
+	}
+
+	return false
+}
+
 func validCloze(e exercise) error {
 	if len(e.Options) != 0 {
 		return fmt.Errorf("cloze takes no options")

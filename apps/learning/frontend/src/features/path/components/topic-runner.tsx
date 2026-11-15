@@ -236,6 +236,11 @@ export function TopicRunner({ topicId }: { topicId: string }) {
                 onRefresh={() => generate.mutate(true)}
               />
             </div>
+            {generate.isError && (
+              <p role="alert" className="text-destructive text-sm">
+                {generate.error.message}
+              </p>
+            )}
           </div>
         </>
       )}
