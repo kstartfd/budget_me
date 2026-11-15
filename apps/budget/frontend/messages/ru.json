@@ -236,6 +236,10 @@
     "deleteFailed": "Не удалось удалить",
     "detailTitle": "Транзакция",
     "commentLabel": "Комментарий",
+    "colDate": "Дата",
+    "colTitle": "Название",
+    "colCategory": "Категория",
+    "colAmount": "Сумма",
     "uncounted": "вне расчёта",
     "uncountedDetail": "Вне расчёта — видна в статистике, но не вычитается из остатка и «Свободно»."
   },

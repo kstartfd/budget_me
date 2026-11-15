@@ -236,6 +236,10 @@
     "deleteFailed": "Couldn’t delete",
     "detailTitle": "Transaction",
     "commentLabel": "Note",
+    "colDate": "Date",
+    "colTitle": "Title",
+    "colCategory": "Category",
+    "colAmount": "Amount",
     "uncounted": "not in calculation",
     "uncountedDetail": "Not in the calculation — shown in statistics, but not deducted from Balance or Free."
   },
