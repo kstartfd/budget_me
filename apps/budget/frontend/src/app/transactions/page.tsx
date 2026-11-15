@@ -230,6 +230,21 @@ function TransactionsView() {
                 )
               })}
             </tbody>
+            <tfoot>
+              <tr className="border-border border-t font-semibold">
+                <td colSpan={3} className="px-4 py-3">
+                  {t("colTotal")}
+                </td>
+                <td className="px-4 py-3 text-right font-mono whitespace-nowrap">
+                  {showSpent && <span>−{formatBr(spentTotal)}&nbsp;Br</span>}
+                  {showIncome && (
+                    <span className={cn("text-success", showSpent && "ml-3")}>
+                      +{formatBr(incomeTotal)}&nbsp;Br
+                    </span>
+                  )}
+                </td>
+              </tr>
+            </tfoot>
           </table>
         </div>
       )}

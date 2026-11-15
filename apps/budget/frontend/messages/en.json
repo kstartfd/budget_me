@@ -173,6 +173,7 @@
       "drafts": "Suggestions",
       "done": "Done"
     },
+    "colTotal": "Total",
     "colAmount": "Amount",
     "newPlan": "New plan",
     "empty": "No plans yet — add the first one.",
