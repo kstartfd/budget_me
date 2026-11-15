@@ -41,7 +41,20 @@ export function useLearning() {
     mutationFn: api.fillEntry,
     onSuccess: refresh,
   })
-  return { topics, saveTopic, deleteTopic, saveEntry, deleteEntry, fillEntry }
+  const generatePack = useMutation({
+    mutationFn: ({ topicId, kind }: { topicId: string; kind: "phrases" | "words" }) =>
+      api.generatePack(topicId, kind),
+    onSuccess: refresh,
+  })
+  return {
+    topics,
+    saveTopic,
+    deleteTopic,
+    saveEntry,
+    deleteEntry,
+    fillEntry,
+    generatePack,
+  }
 }
 
 export function useEntries(

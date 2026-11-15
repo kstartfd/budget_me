@@ -12,6 +12,7 @@ import {
   IconPlus,
   IconSearch,
   IconSettings,
+  IconSparkles,
   IconTrash,
 } from "@tabler/icons-react"
 import { BottomBar } from "@/components/bottom-bar"
@@ -29,6 +30,7 @@ import type { Entry, Topic } from "../schemas"
 import { EntryAudioButton } from "./audio-button"
 import { EntryActionBar, EntryDetail } from "./entry-detail"
 import { EntryForm } from "./entry-form"
+import { PackModal } from "./pack-modal"
 
 type Kind = "all" | "word" | "phrase"
 type Status = "all" | "inbox" | "learning" | "known"
@@ -60,6 +62,7 @@ export function TopicScreen({
   const languageName = useLanguageName()
   const [entryForm, setEntryForm] = useState<Entry | "new" | null>(null)
   const [scanning, setScanning] = useState(false)
+  const [packing, setPacking] = useState(false)
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [kind, setKind] = useState<Kind>("all")
@@ -231,6 +234,15 @@ export function TopicScreen({
             <Button
               variant="outline"
               size="lg"
+              onClick={() => setPacking(true)}
+              className="hidden px-3.5 text-[13px] lg:inline-flex"
+            >
+              <IconSparkles size={15} />
+              {t("pack.open")}
+            </Button>
+            <Button
+              variant="outline"
+              size="lg"
               onClick={() => setScanning(true)}
               className="hidden px-3.5 text-[13px] lg:inline-flex"
             >
@@ -393,6 +405,15 @@ export function TopicScreen({
               <Button
                 variant="outline"
                 size="icon"
+                aria-label={t("pack.open")}
+                onClick={() => setPacking(true)}
+                className="size-11 shrink-0"
+              >
+                <IconSparkles size={18} />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
                 aria-label={scanT("open")}
                 onClick={() => setScanning(true)}
                 className="size-11 shrink-0"
@@ -402,6 +423,10 @@ export function TopicScreen({
             </div>
           </BottomBar>
         </>
+      )}
+
+      {packing && (
+        <PackModal topicId={topic.id} onClose={() => setPacking(false)} />
       )}
 
       {scanning && (

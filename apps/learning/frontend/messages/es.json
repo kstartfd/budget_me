@@ -85,6 +85,16 @@
     "entriesEmpty": "Aún no hay entradas",
     "entriesEmptyHint": "Guarda tu primera palabra o frase. Para añadir entradas desde una extensión, crea un token en los ajustes.",
     "noMatchesHint": "Cambia la búsqueda o los filtros.",
+    "pack": {
+      "open": "Paquetes IA",
+      "title": "Paquetes listos",
+      "hint": "El agente de IA escribe entradas en este tema y omite lo que ya tienes. Aparecen en tu bandeja.",
+      "phrases": {"title": "20 frases", "hint": "Lo que los nativos dicen de verdad, con pronunciación, significado y un ejemplo."},
+      "words": {"title": "10 palabras frecuentes", "hint": "Las siguientes palabras más comunes, cada una con un truco sencillo para recordarla."},
+      "writing": "El agente está escribiendo el paquete, tarda hasta un minuto…",
+      "added": "{count, plural, =0 {No se añadió nada nuevo} one {# entrada añadida} other {# entradas añadidas}}",
+      "close": "Listo"
+    },
     "unfilled": "Aún sin traducción",
     "unfilledHint": "Entrada guardada. El agente de IA puede rellenar la traducción, el ejemplo y la regla, o puedes añadirlos tú.",
     "fillEntry": "Rellenar con IA",

@@ -85,6 +85,16 @@
     "entriesEmpty": "No entries yet",
     "entriesEmptyHint": "Save your first word or phrase. To add entries from an extension, create a token in settings.",
     "noMatchesHint": "Change the search or filters.",
+    "pack": {
+      "open": "AI packs",
+      "title": "Ready-made packs",
+      "hint": "The AI agent writes entries into this topic and skips what you already have. They appear in your inbox.",
+      "phrases": {"title": "20 phrases", "hint": "What native speakers really say, with pronunciation, meaning and an example."},
+      "words": {"title": "10 frequent words", "hint": "The next most common words, each with a simple trick to remember it."},
+      "writing": "The agent is writing the pack, this takes up to a minute…",
+      "added": "{count, plural, =0 {Nothing new was added} one {# entry added} other {# entries added}}",
+      "close": "Done"
+    },
     "unfilled": "No translation yet",
     "unfilledHint": "Entry saved. The AI agent can fill in the translation, example and rule, or you can add them yourself.",
     "fillEntry": "Fill in with AI",
