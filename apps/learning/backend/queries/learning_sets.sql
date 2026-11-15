@@ -3,7 +3,7 @@ SELECT * FROM learning_topic_plans WHERE topic_id = $1 AND user_id = $2 FOR UPDA
 
 -- name: EnsureLearningTopicPlan :exec
 INSERT INTO learning_topic_plans (topic_id, user_id, daily_new, front, credit, credited_on, created_at, updated_at)
-VALUES ($1, $2, $3, 'translation', $3, $4, $5, $5)
+VALUES ($1, $2, sqlc.arg(daily_new)::smallint, 'translation', sqlc.arg(daily_new)::smallint::int, $3, $4, $4)
 ON CONFLICT (topic_id) DO NOTHING;
 
 -- name: SetLearningTopicPlanCredit :exec

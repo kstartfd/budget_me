@@ -121,25 +121,25 @@ func (q *Queries) CountLearningWeek(ctx context.Context, arg CountLearningWeekPa
 
 const ensureLearningTopicPlan = `-- name: EnsureLearningTopicPlan :exec
 INSERT INTO learning_topic_plans (topic_id, user_id, daily_new, front, credit, credited_on, created_at, updated_at)
-VALUES ($1, $2, $3, 'translation', $3, $4, $5, $5)
+VALUES ($1, $2, $5::smallint, 'translation', $5::smallint::int, $3, $4, $4)
 ON CONFLICT (topic_id) DO NOTHING
 `
 
 type EnsureLearningTopicPlanParams struct {
 	TopicID    pgtype.UUID
 	UserID     pgtype.UUID
-	DailyNew   int16
 	CreditedOn pgtype.Date
 	CreatedAt  pgtype.Timestamptz
+	DailyNew   int16
 }
 
 func (q *Queries) EnsureLearningTopicPlan(ctx context.Context, arg EnsureLearningTopicPlanParams) error {
 	_, err := q.db.Exec(ctx, ensureLearningTopicPlan,
 		arg.TopicID,
 		arg.UserID,
-		arg.DailyNew,
 		arg.CreditedOn,
 		arg.CreatedAt,
+		arg.DailyNew,
 	)
 	return err
 }
