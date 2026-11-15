@@ -87,14 +87,10 @@
     "noMatchesHint": "Cambia la búsqueda o los filtros.",
     "reminder": {"kicker": "Recordatorio", "title": "Recordatorio diario de repaso", "hint": "El bot te escribe por la mañana cuando hay tarjetas esperando. Como máximo una vez al día y solo si hay algo que repasar.", "failed": "No se pudo actualizar el recordatorio. Inténtalo de nuevo."},
     "quick": {
-      "hint": "Escribe las palabras o frases. El agente de IA completa el resto.",
-      "label": "Palabras o frases, una por línea",
-      "placeholder": "ponerse en marcha\nromper el hielo\ntarde o temprano",
+      "label": "Palabra o frase",
+      "placeholder": "ponerse en marcha",
       "withAgent": "El agente de IA añadirá en segundo plano la transcripción, la traducción, el desglose, la regla, el uso y un ejemplo. Tarda unos segundos por entrada.",
-      "withoutAgent": "No hay un agente de IA conectado, así que solo se guarda el texto. Conecta uno en ajustes para que complete las tarjetas, o edita una entrada para añadir los detalles tú mismo.",
-      "add": "{count, plural, =0 {Añadir} one {Añadir # entrada} other {Añadir # entradas}}",
-      "tooMany": "Como máximo {max} entradas a la vez.",
-      "tooLong": "Cada entrada debe tener menos de 1000 caracteres."
+      "withoutAgent": "No hay un agente de IA conectado, así que solo se guarda el texto. Conecta uno en ajustes para que complete las tarjetas, o edita una entrada para añadir los detalles tú mismo."
     },
     "review": {
       "open": "Repasar ({count})",
