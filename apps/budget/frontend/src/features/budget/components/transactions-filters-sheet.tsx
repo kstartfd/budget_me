@@ -24,15 +24,12 @@ export type TxFilters = {
   category: string // "all" or a category id
 }
 
-/** Default range: the current billing period's start → today. */
+/** Default range: the 1st of the current calendar month → today. */
 export function defaultRange(
   today: string,
-  startDay: number,
+  _startDay?: number,
 ): { from: string; to: string } {
-  return {
-    from: periodStartISO(periodOpenKey(today, startDay), startDay),
-    to: today,
-  }
+  return { from: `${today.slice(0, 7)}-01`, to: today }
 }
 
 function addDaysISO(iso: string, days: number): string {
