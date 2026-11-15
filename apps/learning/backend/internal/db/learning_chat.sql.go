@@ -90,7 +90,7 @@ const ensureLearningChat = `-- name: EnsureLearningChat :one
 INSERT INTO learning_chats (id, user_id, entry_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $4)
 ON CONFLICT (entry_id) DO UPDATE SET entry_id = EXCLUDED.entry_id
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario
 `
 
 type EnsureLearningChatParams struct {
@@ -125,6 +125,7 @@ func (q *Queries) EnsureLearningChat(ctx context.Context, arg EnsureLearningChat
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
@@ -133,7 +134,7 @@ const ensureLearningChatForExample = `-- name: EnsureLearningChatForExample :one
 INSERT INTO learning_chats (id, user_id, practice_id, example_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $5)
 ON CONFLICT (practice_id, example_id) WHERE practice_id IS NOT NULL DO UPDATE SET example_id = EXCLUDED.example_id
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario
 `
 
 type EnsureLearningChatForExampleParams struct {
@@ -170,6 +171,7 @@ func (q *Queries) EnsureLearningChatForExample(ctx context.Context, arg EnsureLe
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
@@ -178,7 +180,7 @@ const ensureLearningChatForPathTopic = `-- name: EnsureLearningChatForPathTopic 
 INSERT INTO learning_chats (id, user_id, path_topic_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $4)
 ON CONFLICT (path_topic_id) WHERE path_topic_id IS NOT NULL DO UPDATE SET path_topic_id = EXCLUDED.path_topic_id
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario
 `
 
 type EnsureLearningChatForPathTopicParams struct {
@@ -213,6 +215,7 @@ func (q *Queries) EnsureLearningChatForPathTopic(ctx context.Context, arg Ensure
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
@@ -222,7 +225,7 @@ INSERT INTO learning_chats (id, user_id, topic_id, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $4)
 ON CONFLICT (topic_id) WHERE topic_id IS NOT NULL AND archived_at IS NULL
 DO UPDATE SET topic_id = EXCLUDED.topic_id
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario
 `
 
 type EnsureOpenTopicChatParams struct {
@@ -257,12 +260,13 @@ func (q *Queries) EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicCh
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
 
 const getArchivedTopicChat = `-- name: GetArchivedTopicChat :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id FROM learning_chats
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario FROM learning_chats
 WHERE id = $1 AND user_id = $2 AND topic_id IS NOT NULL AND archived_at IS NOT NULL
 `
 
@@ -291,12 +295,13 @@ func (q *Queries) GetArchivedTopicChat(ctx context.Context, arg GetArchivedTopic
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
 
 const getLearningChatByEntry = `-- name: GetLearningChatByEntry :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id FROM learning_chats WHERE entry_id = $1 AND user_id = $2
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario FROM learning_chats WHERE entry_id = $1 AND user_id = $2
 `
 
 type GetLearningChatByEntryParams struct {
@@ -324,12 +329,13 @@ func (q *Queries) GetLearningChatByEntry(ctx context.Context, arg GetLearningCha
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
 
 const getLearningChatByExample = `-- name: GetLearningChatByExample :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id FROM learning_chats WHERE practice_id = $1 AND example_id = $2 AND user_id = $3
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario FROM learning_chats WHERE practice_id = $1 AND example_id = $2 AND user_id = $3
 `
 
 type GetLearningChatByExampleParams struct {
@@ -358,12 +364,13 @@ func (q *Queries) GetLearningChatByExample(ctx context.Context, arg GetLearningC
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
 
 const getLearningChatByPathTopic = `-- name: GetLearningChatByPathTopic :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id FROM learning_chats WHERE path_topic_id = $1 AND user_id = $2
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario FROM learning_chats WHERE path_topic_id = $1 AND user_id = $2
 `
 
 type GetLearningChatByPathTopicParams struct {
@@ -391,12 +398,13 @@ func (q *Queries) GetLearningChatByPathTopic(ctx context.Context, arg GetLearnin
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
 
 const getOpenTopicChat = `-- name: GetOpenTopicChat :one
-SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id FROM learning_chats
+SELECT id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario FROM learning_chats
 WHERE topic_id = $1 AND user_id = $2 AND archived_at IS NULL
 `
 
@@ -425,6 +433,7 @@ func (q *Queries) GetOpenTopicChat(ctx context.Context, arg GetOpenTopicChatPara
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
@@ -618,7 +627,7 @@ const lockLearningChat = `-- name: LockLearningChat :one
 UPDATE learning_chats SET busy_until = $1
 WHERE id = $2 AND user_id = $3
   AND (busy_until IS NULL OR busy_until < $4)
-RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario
 `
 
 type LockLearningChatParams struct {
@@ -653,6 +662,7 @@ func (q *Queries) LockLearningChat(ctx context.Context, arg LockLearningChatPara
 		&i.PathTopicID,
 		&i.PracticeID,
 		&i.ExampleID,
+		&i.Scenario,
 	)
 	return i, err
 }
@@ -753,6 +763,43 @@ func (q *Queries) SaveLearningChatSummary(ctx context.Context, arg SaveLearningC
 		arg.UpdatedAt,
 	)
 	return err
+}
+
+const setLearningChatScenario = `-- name: SetLearningChatScenario :one
+UPDATE learning_chats SET scenario = $2
+WHERE learning_chats.id = $1 AND scenario = '' AND NOT EXISTS (SELECT 1 FROM learning_chat_messages WHERE chat_id = $1)
+RETURNING id, user_id, entry_id, summary, summary_upto, context_tokens, busy_until, created_at, updated_at, spent_tokens, spent_since, topic_id, archived_at, path_topic_id, practice_id, example_id, scenario
+`
+
+type SetLearningChatScenarioParams struct {
+	ID       pgtype.UUID
+	Scenario string
+}
+
+// A scenario can only be chosen before the first message; later calls change nothing.
+func (q *Queries) SetLearningChatScenario(ctx context.Context, arg SetLearningChatScenarioParams) (LearningChat, error) {
+	row := q.db.QueryRow(ctx, setLearningChatScenario, arg.ID, arg.Scenario)
+	var i LearningChat
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.EntryID,
+		&i.Summary,
+		&i.SummaryUpto,
+		&i.ContextTokens,
+		&i.BusyUntil,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.SpentTokens,
+		&i.SpentSince,
+		&i.TopicID,
+		&i.ArchivedAt,
+		&i.PathTopicID,
+		&i.PracticeID,
+		&i.ExampleID,
+		&i.Scenario,
+	)
+	return i, err
 }
 
 const unlockLearningChat = `-- name: UnlockLearningChat :exec

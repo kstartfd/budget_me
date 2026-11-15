@@ -58,23 +58,30 @@ export interface ChatTurn {
  */
 function useTurn(
   key: readonly unknown[],
-  stream: (text: string, onDelta: (piece: string) => void) => Promise<ChatDone>,
+  stream: (
+    text: string,
+    onDelta: (piece: string) => void,
+    scenario?: string,
+  ) => Promise<ChatDone>,
 ) {
   const client = useQueryClient()
   const [turn, setTurn] = useState<ChatTurn | null>(null)
   const [error, setError] = useState<ChatError | null>(null)
 
   const send = useCallback(
-    async (text: string): Promise<boolean> => {
+    async (text: string, scenario?: string): Promise<boolean> => {
       setError(null)
       setTurn({ question: text, answer: "" })
 
       try {
-        const done = await stream(text, (piece) =>
-          setTurn(
-            (current) =>
-              current && { ...current, answer: current.answer + piece },
-          ),
+        const done = await stream(
+          text,
+          (piece) =>
+            setTurn(
+              (current) =>
+                current && { ...current, answer: current.answer + piece },
+            ),
+          scenario,
         )
 
         client.setQueryData<Chat>(
@@ -82,6 +89,8 @@ function useTurn(
           (old) =>
             old && {
               ...old,
+              scenario:
+                old.messages.length === 0 && scenario ? scenario : old.scenario,
               messages: [...old.messages, done.question, done.answer],
               budget: done.budget,
               daily: done.daily,
@@ -151,8 +160,8 @@ export function useTopicChatTurn(topicId: string) {
     [user?.id, topicId],
   )
   const stream = useCallback(
-    (text: string, onDelta: (piece: string) => void) =>
-      streamTopicChat(topicId, text, onDelta),
+    (text: string, onDelta: (piece: string) => void, scenario?: string) =>
+      streamTopicChat(topicId, text, onDelta, scenario),
     [topicId],
   )
 

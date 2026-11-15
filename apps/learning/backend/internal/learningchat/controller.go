@@ -164,6 +164,7 @@ func (c *Controller) stream(ctx echo.Context, cmd commands.Send) error {
 	}
 
 	cmd.Text = req.Text
+	cmd.Scenario = req.Scenario
 
 	// Before anything else, so a flood costs as little as possible.
 	release, wait, ok := c.limit.Acquire(cmd.UserID)

@@ -9,7 +9,8 @@ import (
 )
 
 type sendRequest struct {
-	Text string `json:"text"`
+	Text     string `json:"text"`
+	Scenario string `json:"scenario"`
 }
 
 type messageResponse struct {
@@ -31,6 +32,8 @@ type chatResponse struct {
 	Available bool `json:"available"`
 	// Teacher is whether the agent plays the language teacher in this chat.
 	Teacher  bool              `json:"teacher"`
+	// Scenario is the role-play of this dialog, "" for a plain lesson.
+	Scenario string `json:"scenario"`
 	Messages []messageResponse `json:"messages"`
 	Budget   *budgetResponse   `json:"budget"`
 	// Daily is what the user may still spend today across all their chats.
@@ -77,7 +80,7 @@ func budgetDTO(b commands.Budget) budgetResponse {
 }
 
 func chatDTO(chat queries.Chat) chatResponse {
-	out := chatResponse{Available: chat.Available, Teacher: chat.Teacher, Messages: make([]messageResponse, len(chat.Messages))}
+	out := chatResponse{Available: chat.Available, Teacher: chat.Teacher, Scenario: chat.Scenario, Messages: make([]messageResponse, len(chat.Messages))}
 	for i, row := range chat.Messages {
 		out.Messages[i] = messageDTO(row)
 	}

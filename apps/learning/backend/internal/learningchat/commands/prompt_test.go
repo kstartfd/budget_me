@@ -119,8 +119,8 @@ func TestSummaryPromptKeepsMessagesAsData(t *testing.T) {
 func TestFreeSystemPromptIsTheTeacherForTheTopicAndStaysStable(t *testing.T) {
 	topic := db.LearningTopic{Name: `Work "English"`, Language: "en", TranslationLanguage: "ru"}
 
-	first := freeSystem(topic, "")
-	if first != freeSystem(topic, "") {
+	first := freeSystem(topic, "", "")
+	if first != freeSystem(topic, "", "") {
 		t.Fatal("the system prompt must be byte-identical between turns, or the provider cache is lost")
 	}
 
@@ -137,7 +137,7 @@ func TestFreeSystemPromptIsTheTeacherForTheTopicAndStaysStable(t *testing.T) {
 		t.Errorf("the free chat is about no entry and has no summary yet:\n%s", first)
 	}
 
-	if withSummary := freeSystem(topic, "learner knows greetings"); !strings.Contains(withSummary, "learner knows greetings") {
+	if withSummary := freeSystem(topic, "", "learner knows greetings"); !strings.Contains(withSummary, "learner knows greetings") {
 		t.Errorf("summary missing:\n%s", withSummary)
 	}
 }
@@ -178,5 +178,24 @@ func TestTheChatAsksForExamplesInBackticks(t *testing.T) {
 		if !strings.Contains(system, "in backticks") {
 			t.Errorf("%s does not ask for examples in backticks", name)
 		}
+	}
+}
+
+func TestScenarioShapesTheFreeChatAndStaysConstant(t *testing.T) {
+	topic := db.LearningTopic{Language: "en", TranslationLanguage: "ru", Name: "English"}
+
+	plain := freeSystem(topic, "", "")
+	role := freeSystem(topic, "restaurant", "")
+
+	if strings.Contains(plain, "Role-play mode") || !strings.Contains(role, "Role-play mode") || !strings.Contains(role, "waiter") {
+		t.Fatal("the scenario must appear only when picked")
+	}
+
+	if role != freeSystem(topic, "restaurant", "") {
+		t.Fatal("the prompt of a scenario changes between calls: the provider cache would be lost")
+	}
+
+	if freeSystem(topic, "nonsense", "") != plain || ValidScenario("nonsense") {
+		t.Fatal("an unknown scenario must be ignored")
 	}
 }

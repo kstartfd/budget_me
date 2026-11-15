@@ -6,13 +6,17 @@ import { useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import {
   IconBook2,
+  IconBriefcase,
+  IconBuildingStore,
   IconHistory,
   IconListCheck,
   IconMessages,
+  IconPlane,
   IconPlus,
   IconSchool,
   IconSeedling,
   IconSettings,
+  IconToolsKitchen2,
   IconWorld,
 } from "@tabler/icons-react";
 
@@ -46,6 +50,13 @@ const starters = [
   { id: "talk", icon: IconMessages },
   { id: "check", icon: IconListCheck },
   { id: "grammar", icon: IconBook2 },
+] as const;
+
+const scenarios = [
+  { id: "restaurant", icon: IconToolsKitchen2 },
+  { id: "travel", icon: IconPlane },
+  { id: "shopping", icon: IconBuildingStore },
+  { id: "interview", icon: IconBriefcase },
 ] as const;
 
 const quickReplies = ["explain", "hint"] as const;
@@ -228,7 +239,7 @@ function Conversation({
   }, [messages.length, streaming, turn?.question]);
 
   /** Sends what is in the field, or a starter's message and leaves the field alone. */
-  const submit = async (starter?: string) => {
+  const submit = async (starter?: string, scenario?: string) => {
     const question = (starter ?? text).trim();
     if (!question || sending) return;
 
@@ -237,7 +248,7 @@ function Conversation({
     // the learner has already started something else.
     if (starter === undefined) setText("");
 
-    if (!(await send(question)) && starter === undefined)
+    if (!(await send(question, scenario)) && starter === undefined)
       setText((current) => current || question);
   };
 
@@ -364,9 +375,46 @@ function Conversation({
                       </button>
                     ))}
                   </div>
+                  <div className="w-full space-y-2 text-left lg:max-w-[640px]">
+                    <p className="text-sm font-semibold">{t("scenarios.title")}</p>
+                    <p className="text-muted-foreground text-[13px]">
+                      {t("scenarios.hint")}
+                    </p>
+                    <div className="grid gap-2 lg:grid-cols-2 lg:gap-3">
+                      {scenarios.map(({ id, icon: Icon }) => (
+                        <button
+                          key={id}
+                          type="button"
+                          disabled={sending || exhausted}
+                          className="border-border bg-background hover:bg-muted/50 flex items-center gap-3 rounded-lg border p-3 text-left transition-colors disabled:opacity-50"
+                          onClick={() =>
+                            void submit(t(`scenarios.${id}.message`), id)
+                          }
+                        >
+                          <span className="bg-muted flex size-8 shrink-0 items-center justify-center rounded-md">
+                            <Icon size={15} />
+                          </span>
+                          <span className="min-w-0">
+                            <span className="block text-sm font-semibold">
+                              {t(`scenarios.${id}.title`)}
+                            </span>
+                            <span className="text-muted-foreground block text-[13px]">
+                              {t(`scenarios.${id}.hint`)}
+                            </span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               ) : (
                 <div className="space-y-4" aria-live="polite">
+                  {chat.data.scenario && (
+                    <p className="text-muted-foreground text-center text-xs font-semibold tracking-wider uppercase">
+                      {t("scenarios.title")}:{" "}
+                      {t(`scenarios.${chat.data.scenario}.title`)}
+                    </p>
+                  )}
                   {messages.map((m) => (
                     <Bubble key={m.id} role={m.role}>
                       {m.content}

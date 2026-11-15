@@ -152,6 +152,8 @@ type Querier interface {
 	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error
 	SaveLearningRulePracticeExamples(ctx context.Context, arg SaveLearningRulePracticeExamplesParams) (LearningRulePractice, error)
 	SaveLearningRulePracticeExercises(ctx context.Context, arg SaveLearningRulePracticeExercisesParams) (LearningRulePractice, error)
+	// A scenario can only be chosen before the first message; later calls change nothing.
+	SetLearningChatScenario(ctx context.Context, arg SetLearningChatScenarioParams) (LearningChat, error)
 	SetLearningPathJobRunning(ctx context.Context, arg SetLearningPathJobRunningParams) error
 	// The hours a week the learner means to study, kept with the program's
 	// preferences. 0 takes the goal away. The two answers the survey used to ask

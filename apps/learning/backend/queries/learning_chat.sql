@@ -123,3 +123,9 @@ INSERT INTO learning_chats (id, user_id, practice_id, example_id, created_at, up
 VALUES ($1, $2, $3, $4, $5, $5)
 ON CONFLICT (practice_id, example_id) WHERE practice_id IS NOT NULL DO UPDATE SET example_id = EXCLUDED.example_id
 RETURNING *;
+
+-- A scenario can only be chosen before the first message; later calls change nothing.
+-- name: SetLearningChatScenario :one
+UPDATE learning_chats SET scenario = $2
+WHERE learning_chats.id = $1 AND scenario = '' AND NOT EXISTS (SELECT 1 FROM learning_chat_messages WHERE chat_id = $1)
+RETURNING *;

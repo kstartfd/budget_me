@@ -30,6 +30,8 @@ export const chatSchema = z.object({
   available: z.boolean(),
   /** The agent teaches the language and corrects mistakes, instead of just answering. */
   teacher: z.boolean(),
+  /** The role-play picked for this dialog ("" for a plain lesson). */
+  scenario: z.string().default(""),
   messages: chatMessageSchema.array(),
   budget: budgetSchema.nullable(),
   /** The user's spending today across all their chats; same shape as a budget. */

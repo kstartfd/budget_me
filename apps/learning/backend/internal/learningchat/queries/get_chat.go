@@ -35,7 +35,9 @@ type Chat struct {
 	// Teacher is whether the agent teaches the language rather than just
 	// answers; it only matters while the chat is available. The free chat of a
 	// topic is always the teacher, a chat about one saved entry never is.
-	Teacher  bool
+	Teacher bool
+	// Scenario is the role-play picked for this dialog ("" for none).
+	Scenario string
 	Messages []db.LearningChatMessage
 	// Budget is what the chat may still spend; nil while it is not available.
 	Budget *commands.Budget
@@ -100,7 +102,7 @@ func (h ChatHandler) GetPathTopic(ctx context.Context, userID, topicID uuid.UUID
 // state is a chat as the learner sees it. `found` is false for a chat not
 // started yet, whose zero row stands for the whole budget.
 func (h ChatHandler) state(ctx context.Context, userID uuid.UUID, chat db.LearningChat, found, teaches bool) (Chat, error) {
-	out := Chat{Messages: []db.LearningChatMessage{}}
+	out := Chat{Messages: []db.LearningChatMessage{}, Scenario: chat.Scenario}
 
 	var profile llm.ChatProfile
 

@@ -54,6 +54,9 @@ type Send struct {
 	RuleID    string
 	ExampleID string
 	Text      string
+	// Scenario is the role-play picked with the first message of a free chat
+	// (see scenarios); ignored once the dialog has begun.
+	Scenario string
 }
 
 type Reply struct {
@@ -204,7 +207,7 @@ func (h SendHandler) ensureChat(ctx context.Context, t target, now time.Time) (d
 // system is what the model is told before the conversation. The free chat is
 // always the teacher; a chat about an entry only answers about that entry (the
 // learner practises it with the teacher in the free chat).
-func (t target) system(summary string) string {
+func (t target) system(summary, scenario string) string {
 	if t.example != nil {
 		return exampleSystem(*t.example, summary)
 	}
@@ -214,7 +217,7 @@ func (t target) system(summary string) string {
 	}
 
 	if t.entry == nil {
-		return freeSystem(t.topic, summary)
+		return freeSystem(t.topic, scenario, summary)
 	}
 
 	return chatSystem(t.topic, *t.entry, summary)
@@ -257,6 +260,14 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 	work := context.WithoutCancel(ctx)
 	defer func() { _ = h.q.UnlockLearningChat(work, chat.ID) }()
 
+	if subject.topic.ID.Valid && subject.entry == nil && subject.lesson == nil && subject.example == nil && ValidScenario(cmd.Scenario) {
+		if updated, err := h.q.SetLearningChatScenario(work, db.SetLearningChatScenarioParams{ID: chat.ID, Scenario: cmd.Scenario}); err == nil {
+			chat = updated
+		} else if !db.IsNotFound(err) {
+			return err
+		}
+	}
+
 	// Read under the lease, so two questions cannot both slip in below the limit.
 	budget := BudgetOf(chat, agent.profile, now)
 	if budget.Exhausted() {
@@ -287,7 +298,7 @@ func (h SendHandler) Handle(ctx context.Context, cmd Send, stream Stream) error 
 		Provider: llm.Provider(agent.settings.Provider),
 		Model:    agent.settings.Model,
 		Key:      agent.key,
-		System:   subject.system(chat.Summary),
+		System:   subject.system(chat.Summary, chat.Scenario),
 		Messages: history(stored, question),
 		UserID:   cmd.UserID,
 		Purpose:  llm.PurposeChat,

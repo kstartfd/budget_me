@@ -247,6 +247,14 @@
         "message": "Explain one useful grammar rule and give me exercises for it."
       }
     },
+    "scenarios": {
+      "title": "Role-play",
+      "hint": "Practise a real situation. The teacher plays the other side and speaks only the language you learn.",
+      "restaurant": {"title": "Ordering food", "hint": "Cafe or restaurant", "message": "Let's role-play ordering food in a cafe. You are the waiter."},
+      "travel": {"title": "Travelling", "hint": "Airport, hotel, directions", "message": "Let's role-play a trip: airport, hotel and asking for directions. You play the people I meet."},
+      "shopping": {"title": "Shopping", "hint": "Sizes, prices, returns", "message": "Let's role-play shopping. You are the shop assistant."},
+      "interview": {"title": "Job interview", "hint": "Typical questions", "message": "Let's role-play a job interview. You are the interviewer."}
+    },
     "loadFailed": "Couldn't load the chat. Try refreshing the page.",
     "clearDialogConfirm": "Clear the chat? This dialog stays in the history, and your next message starts a new one.",
     "history": "Dialog history",

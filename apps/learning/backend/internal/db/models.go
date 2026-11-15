@@ -690,6 +690,7 @@ type LearningChat struct {
 	PathTopicID   pgtype.UUID
 	PracticeID    pgtype.UUID
 	ExampleID     pgtype.Text
+	Scenario      string
 }
 
 type LearningChatMark struct {

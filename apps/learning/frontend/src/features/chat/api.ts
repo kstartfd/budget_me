@@ -109,7 +109,8 @@ export const streamTopicChat = (
   topicId: string,
   text: string,
   onDelta: (piece: string) => void,
-) => streamAnswer(`/topics/${topicId}/chat`, text, onDelta)
+  scenario?: string,
+) => streamAnswer(`/topics/${topicId}/chat`, text, onDelta, scenario)
 
 export const streamPathTopicChat = (
   topicId: string,
@@ -128,6 +129,7 @@ async function streamAnswer(
   path: string,
   text: string,
   onDelta: (piece: string) => void,
+  scenario?: string,
 ): Promise<ChatDone> {
   const token = readToken()
   const res = await fetch(`/api/v1/learning${path}`, {
@@ -137,7 +139,7 @@ async function streamAnswer(
       "Content-Type": "application/json",
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
-    body: JSON.stringify({ text }),
+    body: JSON.stringify(scenario ? { text, scenario } : { text }),
   })
 
   if (!res.ok || !res.body) {

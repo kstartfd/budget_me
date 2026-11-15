@@ -247,6 +247,14 @@
         "message": "Explícame una regla de gramática útil y dame ejercicios sobre ella."
       }
     },
+    "scenarios": {
+      "title": "Juego de rol",
+      "hint": "Practica una situación real. El profesor hace de la otra parte y habla solo en el idioma que aprendes.",
+      "restaurant": {"title": "Pedir comida", "hint": "Café o restaurante", "message": "Hagamos un juego de rol: pedir comida en un café. Tú eres el camarero."},
+      "travel": {"title": "De viaje", "hint": "Aeropuerto, hotel, direcciones", "message": "Hagamos un juego de rol de un viaje: aeropuerto, hotel y pedir indicaciones. Tú haces de las personas que encuentro."},
+      "shopping": {"title": "De compras", "hint": "Tallas, precios, devoluciones", "message": "Hagamos un juego de rol de compras. Tú eres el dependiente."},
+      "interview": {"title": "Entrevista de trabajo", "hint": "Preguntas habituales", "message": "Hagamos un juego de rol de una entrevista de trabajo. Tú eres el entrevistador."}
+    },
     "loadFailed": "No se pudo cargar el chat. Prueba a recargar la página.",
     "clearDialogConfirm": "¿Borrar el chat? Este diálogo se queda en el historial y tu próximo mensaje empieza uno nuevo.",
     "history": "Historial de diálogos",
