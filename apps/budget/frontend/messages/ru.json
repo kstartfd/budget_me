@@ -239,8 +239,8 @@
     "colDate": "Дата",
     "colTitle": "Название",
     "colCategory": "Категория",
-        "colTotal": "Итого за период {from} – {to}",
-"colAmount": "Сумма",
+    "colTotal": "Итого за период {from} – {to}",
+    "colAmount": "Сумма",
     "uncounted": "вне расчёта",
     "uncountedDetail": "Вне расчёта — видна в статистике, но не вычитается из остатка и «Свободно»."
   },

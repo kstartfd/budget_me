@@ -239,8 +239,8 @@
     "colDate": "Date",
     "colTitle": "Title",
     "colCategory": "Category",
-        "colTotal": "Total for {from} – {to}",
-"colAmount": "Amount",
+    "colTotal": "Total for {from} – {to}",
+    "colAmount": "Amount",
     "uncounted": "not in calculation",
     "uncountedDetail": "Not in the calculation — shown in statistics, but not deducted from Balance or Free."
   },
