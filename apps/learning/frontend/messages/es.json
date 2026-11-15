@@ -464,6 +464,7 @@
       "reset": "nuevo análisis",
       "chosen": "nivel elegido"
     },
+    "schedule": {"finish": "Plan: todo el programa para el {date}, a tu ritmo semanal.", "day": "Plan: {date}"},
     "topicAfter": "Termina primero el tema {n}: este se apoya en él.",
     "topicAfterHint": "El tema {n} aún no está terminado. Este se apoya en él, así que resulta más fácil después.",
     "topicStatus": {

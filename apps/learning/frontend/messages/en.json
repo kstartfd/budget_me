@@ -464,6 +464,7 @@
       "reset": "re-analysis",
       "chosen": "picked level"
     },
+    "schedule": {"finish": "Plan: the whole program by {date}, at your weekly pace.", "day": "Plan: {date}"},
     "topicAfter": "Finish topic {n} first: this one builds on it.",
     "topicAfterHint": "Topic {n} is not finished yet. This topic builds on it, so it is easier after.",
     "topicStatus": {

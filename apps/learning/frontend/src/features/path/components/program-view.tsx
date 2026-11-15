@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useTranslations } from "next-intl"
+import { useLocale, useTranslations } from "next-intl"
 import { IconChevronRight, IconChevronUp } from "@tabler/icons-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -18,6 +18,7 @@ import {
   rulesButtonAnchor,
 } from "../return-point"
 import type { Path } from "../schemas"
+import { scheduleTopics } from "../schedule"
 import { LessonBar, lessonBarHeight } from "./lesson-bar"
 import { WeeklyScale } from "./weekly-scale"
 import { Mixed, rulesPath } from "./rule-card"
@@ -58,6 +59,7 @@ export function ProgramView({
   starting: boolean
 }) {
   const t = useTranslations("path")
+  const locale = useLocale()
   // Coming back from the rule book: the topic that was open opens again and the
   // link that was pressed is scrolled to and framed. The program is only drawn
   // once it is loaded, in the browser, so the way back can be read right here.
@@ -118,6 +120,11 @@ export function ProgramView({
   const done = path.topics.filter((topic) => topic.status === "completed").length
   // Topics build on each other, so the first one not yet completed is the one to
   // do now. Later ones stay open (a learner may know them already) but say so.
+  // The pace the weekly goal sets, as a day for each open topic.
+  const [today] = useState(() => new Date())
+  const plan = scheduleTopics(path, today)
+  const dayLabel = (day: Date) =>
+    day.toLocaleDateString(locale, { day: "numeric", month: "short" })
   const currentIndex = path.topics.findIndex(
     (topic) => topic.status !== "completed",
   )
@@ -146,6 +153,11 @@ export function ProgramView({
         {path.summary && (
           <p className="text-muted-foreground text-sm leading-relaxed">
             <Mixed text={path.summary} />
+          </p>
+        )}
+        {plan.finish && !finished && (
+          <p className="text-muted-foreground text-[13px]">
+            {t("schedule.finish", { date: dayLabel(plan.finish) })}
           </p>
         )}
         {finished && (
@@ -286,6 +298,11 @@ export function ProgramView({
                     <SkillIcon skill={topic.skill} size={12} />
                     {t(`skill.${topic.skill}`)}
                   </p>
+                  {plan.days.has(topic.id) && (
+                    <p className="text-faint mt-0.5 text-xs">
+                      {t("schedule.day", { date: dayLabel(plan.days.get(topic.id)!) })}
+                    </p>
+                  )}
                   {ahead && (
                     <p className="text-faint mt-0.5 text-xs break-words">
                       {t("topicAfter", { n: path.topics[currentIndex].position + 1 })}
