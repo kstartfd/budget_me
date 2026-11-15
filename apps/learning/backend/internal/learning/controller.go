@@ -27,12 +27,13 @@ type Controller struct {
 	entries  commands.EntryHandler
 	captures commands.CaptureHandler
 	fills    commands.FillHandler
+	packs    commands.PackHandler
 	read     queries.ReadHandler
 	audio    learningaudio.Service
 }
 
 func NewController(q *db.Queries, clk clock.Clock, audio learningaudio.Service, vault secretbox.Box, agent commands.Completer) *Controller {
-	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), read: queries.NewReadHandler(q), audio: audio}
+	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), packs: commands.NewPackHandler(q, clk, vault, agent), read: queries.NewReadHandler(q), audio: audio}
 }
 
 // fillEntry has the learner's agent write the fields the entry still lacks. It
@@ -58,6 +59,41 @@ func (c *Controller) fillEntry(ctx echo.Context) error {
 	ctx.Response().Header().Set("Cache-Control", "no-store")
 
 	return httpx.OK(ctx, entryDTO(row))
+}
+
+// generatePack has the learner's agent write a pack of phrases or frequent
+// words into a topic. Like fill it spends the learner's own key, so it is
+// served to the account's own session only.
+func (c *Controller) generatePack(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid topic id")
+	}
+
+	var req packRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	rows, err := c.packs.Handle(ctx.Request().Context(), commands.GeneratePack{UserID: httpx.UserIDFromContext(ctx.Request().Context()), TopicID: id, Kind: req.Kind})
+
+	switch {
+	case errors.Is(err, llm.ErrRejected):
+		return apperr.NewInvalid("the provider rejected your API key: enter it again in settings")
+	case errors.Is(err, llm.ErrTemporary), errors.Is(err, commands.ErrPackFailed):
+		return httpx.AgentUnavailable
+	case err != nil:
+		return err
+	}
+
+	out := make([]entryResponse, len(rows))
+	for i, row := range rows {
+		out[i] = entryDTO(row)
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, out)
 }
 
 func (c *Controller) listTopics(ctx echo.Context) error {

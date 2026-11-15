@@ -24,6 +24,11 @@ func topicDTO(row db.LearningTopic) topicResponse {
 	return topicResponse{ID: ids.FromPg(row.ID).String(), Name: row.Name, Language: row.Language, TranslationLanguage: row.TranslationLanguage}
 }
 
+// packRequest names the pack to write: "phrases" or "words".
+type packRequest struct {
+	Kind string `json:"kind"`
+}
+
 type entryResponse struct {
 	ID string `json:"id"`
 	commands.EntryFields

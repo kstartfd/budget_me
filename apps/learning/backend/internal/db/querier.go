@@ -118,6 +118,9 @@ type Querier interface {
 	ListLearningChatMessagesAfter(ctx context.Context, arg ListLearningChatMessagesAfterParams) ([]LearningChatMessage, error)
 	ListLearningChatUsage(ctx context.Context, arg ListLearningChatUsageParams) ([]ListLearningChatUsageRow, error)
 	ListLearningEntries(ctx context.Context, arg ListLearningEntriesParams) ([]LearningEntry, error)
+	// What a topic already holds, newest first: a pack is written around it and
+	// never repeats it (InsertLearningEntry would overwrite a clash).
+	ListLearningEntryTexts(ctx context.Context, arg ListLearningEntryTextsParams) ([]ListLearningEntryTextsRow, error)
 	ListLearningPathAttemptsByTopic(ctx context.Context, arg ListLearningPathAttemptsByTopicParams) ([]LearningPathAttempt, error)
 	ListLearningPathExercises(ctx context.Context, topicID pgtype.UUID) ([]LearningPathExercise, error)
 	ListLearningPathHistory(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error)

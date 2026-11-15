@@ -44,6 +44,7 @@ const (
 	PurposeChatSummary      = "chat-summary"
 	PurposeFill             = "fill"
 	PurposeEnrich           = "enrich"
+	PurposePack             = "pack"
 	PurposeComplete         = "complete"
 )
 

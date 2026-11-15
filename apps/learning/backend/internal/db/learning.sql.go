@@ -514,6 +514,44 @@ func (q *Queries) ListLearningEntries(ctx context.Context, arg ListLearningEntri
 	return items, nil
 }
 
+const listLearningEntryTexts = `-- name: ListLearningEntryTexts :many
+SELECT text, text_hash FROM learning_entries
+WHERE user_id = $1 AND topic_id = $2
+ORDER BY created_at DESC, id
+`
+
+type ListLearningEntryTextsParams struct {
+	UserID  pgtype.UUID
+	TopicID pgtype.UUID
+}
+
+type ListLearningEntryTextsRow struct {
+	Text     string
+	TextHash []byte
+}
+
+// What a topic already holds, newest first: a pack is written around it and
+// never repeats it (InsertLearningEntry would overwrite a clash).
+func (q *Queries) ListLearningEntryTexts(ctx context.Context, arg ListLearningEntryTextsParams) ([]ListLearningEntryTextsRow, error) {
+	rows, err := q.db.Query(ctx, listLearningEntryTexts, arg.UserID, arg.TopicID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []ListLearningEntryTextsRow{}
+	for rows.Next() {
+		var i ListLearningEntryTextsRow
+		if err := rows.Scan(&i.Text, &i.TextHash); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listLearningTopics = `-- name: ListLearningTopics :many
 SELECT id, user_id, name, language, translation_language, created_at FROM learning_topics WHERE user_id = $1 ORDER BY created_at, id
 `

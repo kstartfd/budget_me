@@ -88,3 +88,10 @@ INSERT INTO learning_audio_cache (id, language, text, text_hash, content_hash, s
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $10)
 ON CONFLICT (language, text_hash) DO UPDATE SET last_used_at = EXCLUDED.last_used_at
 RETURNING *;
+
+-- What a topic already holds, newest first: a pack is written around it and
+-- never repeats it (InsertLearningEntry would overwrite a clash).
+-- name: ListLearningEntryTexts :many
+SELECT text, text_hash FROM learning_entries
+WHERE user_id = $1 AND topic_id = $2
+ORDER BY created_at DESC, id;
