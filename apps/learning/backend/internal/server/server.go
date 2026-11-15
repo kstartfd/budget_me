@@ -70,7 +70,7 @@ func New(cfg config.Config, pool, accountPool *pgxpool.Pool) *echo.Echo {
 	group := e.Group("/api/v1/learning", httpx.RequireLearningAuth(codec, learningAuth.Authenticate), echomw.BodyLimit("64K"))
 	audio := learningaudio.NewService(queries, learningaudio.NewGoogleProvider(cfg.TTSURL), cfg.AudioCacheDir, clk)
 	agent := llm.New(cfg.LLMURLs).WithRecorder(learningusage.NewRecorder(queries, clk))
-	learningEntries := learning.NewController(queries, clk, audio, vault, agent)
+	learningEntries := learning.NewController(pool, queries, clk, audio, vault, agent)
 	learningEntries.Routes(group)
 	learningEntries.AgentRoutes(protected)
 	learningtokens.NewController(queries, clk, vault).Routes(protected)

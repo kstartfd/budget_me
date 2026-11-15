@@ -265,7 +265,7 @@ func (q *Queries) GetLearningCaptureByKey(ctx context.Context, arg GetLearningCa
 }
 
 const getLearningEntry = `-- name: GetLearningEntry :one
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at FROM learning_entries WHERE id = $1 AND user_id = $2
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at, introduced_on, weak, week_reviewed_on, month_reviewed_on FROM learning_entries WHERE id = $1 AND user_id = $2
 `
 
 type GetLearningEntryParams struct {
@@ -296,6 +296,10 @@ func (q *Queries) GetLearningEntry(ctx context.Context, arg GetLearningEntryPara
 		&i.ReviewStage,
 		&i.NextReviewAt,
 		&i.LastReviewedAt,
+		&i.IntroducedOn,
+		&i.Weak,
+		&i.WeekReviewedOn,
+		&i.MonthReviewedOn,
 	)
 	return i, err
 }
@@ -388,7 +392,7 @@ rule = COALESCE(NULLIF(EXCLUDED.rule, ''), learning_entries.rule),
 source = COALESCE(NULLIF(EXCLUDED.source, ''), learning_entries.source),
 status = EXCLUDED.status,
 updated_at = EXCLUDED.updated_at
-RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at
+RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at, introduced_on, weak, week_reviewed_on, month_reviewed_on
 `
 
 type InsertLearningEntryParams struct {
@@ -452,6 +456,10 @@ func (q *Queries) InsertLearningEntry(ctx context.Context, arg InsertLearningEnt
 		&i.ReviewStage,
 		&i.NextReviewAt,
 		&i.LastReviewedAt,
+		&i.IntroducedOn,
+		&i.Weak,
+		&i.WeekReviewedOn,
+		&i.MonthReviewedOn,
 	)
 	return i, err
 }
@@ -492,7 +500,7 @@ func (q *Queries) InsertLearningTopic(ctx context.Context, arg InsertLearningTop
 }
 
 const listDueLearningEntries = `-- name: ListDueLearningEntries :many
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at FROM learning_entries
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at, introduced_on, weak, week_reviewed_on, month_reviewed_on FROM learning_entries
 WHERE user_id = $1 AND topic_id = $2 AND status <> 'known'
   AND (next_review_at IS NULL OR next_review_at <= $3)
 ORDER BY next_review_at NULLS LAST, created_at, id
@@ -541,6 +549,10 @@ func (q *Queries) ListDueLearningEntries(ctx context.Context, arg ListDueLearnin
 			&i.ReviewStage,
 			&i.NextReviewAt,
 			&i.LastReviewedAt,
+			&i.IntroducedOn,
+			&i.Weak,
+			&i.WeekReviewedOn,
+			&i.MonthReviewedOn,
 		); err != nil {
 			return nil, err
 		}
@@ -553,7 +565,7 @@ func (q *Queries) ListDueLearningEntries(ctx context.Context, arg ListDueLearnin
 }
 
 const listLearningEntries = `-- name: ListLearningEntries :many
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at FROM learning_entries WHERE user_id = $1 AND topic_id = $2
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at, introduced_on, weak, week_reviewed_on, month_reviewed_on FROM learning_entries WHERE user_id = $1 AND topic_id = $2
 AND ($3::text = '' OR kind::text = $3)
 AND ($4::text = '' OR status::text = $4)
 AND ($5::text = '' OR strpos(lower(text || ' ' || translation || ' ' || explanation || ' ' || rule || ' ' || source), lower($5)) > 0)
@@ -607,6 +619,10 @@ func (q *Queries) ListLearningEntries(ctx context.Context, arg ListLearningEntri
 			&i.ReviewStage,
 			&i.NextReviewAt,
 			&i.LastReviewedAt,
+			&i.IntroducedOn,
+			&i.Weak,
+			&i.WeekReviewedOn,
+			&i.MonthReviewedOn,
 		); err != nil {
 			return nil, err
 		}
@@ -747,7 +763,7 @@ const reviewLearningEntry = `-- name: ReviewLearningEntry :one
 UPDATE learning_entries
 SET review_stage = $3, next_review_at = $4, last_reviewed_at = $5, status = $6, updated_at = $5
 WHERE id = $1 AND user_id = $2
-RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at
+RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at, introduced_on, weak, week_reviewed_on, month_reviewed_on
 `
 
 type ReviewLearningEntryParams struct {
@@ -789,6 +805,10 @@ func (q *Queries) ReviewLearningEntry(ctx context.Context, arg ReviewLearningEnt
 		&i.ReviewStage,
 		&i.NextReviewAt,
 		&i.LastReviewedAt,
+		&i.IntroducedOn,
+		&i.Weak,
+		&i.WeekReviewedOn,
+		&i.MonthReviewedOn,
 	)
 	return i, err
 }
@@ -796,7 +816,7 @@ func (q *Queries) ReviewLearningEntry(ctx context.Context, arg ReviewLearningEnt
 const updateLearningEntry = `-- name: UpdateLearningEntry :one
 UPDATE learning_entries SET topic_id = $3, kind = $4, text = $5, text_hash = $6, transcription = $7,
 translation = $8, explanation = $9, native_usage = $10, example = $11, rule = $12, source = $13, status = $14, updated_at = $15
-WHERE id = $1 AND user_id = $2 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at
+WHERE id = $1 AND user_id = $2 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at, introduced_on, weak, week_reviewed_on, month_reviewed_on
 `
 
 type UpdateLearningEntryParams struct {
@@ -856,6 +876,10 @@ func (q *Queries) UpdateLearningEntry(ctx context.Context, arg UpdateLearningEnt
 		&i.ReviewStage,
 		&i.NextReviewAt,
 		&i.LastReviewedAt,
+		&i.IntroducedOn,
+		&i.Weak,
+		&i.WeekReviewedOn,
+		&i.MonthReviewedOn,
 	)
 	return i, err
 }

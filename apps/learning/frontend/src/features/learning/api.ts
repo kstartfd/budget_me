@@ -3,8 +3,10 @@ import {
   entryInputSchema,
   entrySchema,
   issuedTokenSchema,
+  planSchema,
   reminderSchema,
   reviewSchema,
+  setsSchema,
   tokenInputSchema,
   tokenSchema,
   tokenSecretSchema,
@@ -12,6 +14,7 @@ import {
   topicSchema,
   type EntryInput,
   type Grade,
+  type Plan,
   type TokenInput,
   type TopicInput,
 } from "./schemas"
@@ -96,6 +99,31 @@ export const enqueueCapture = (input: {
     ...input,
     source: "",
     status: "inbox",
+  })
+const zone = () => Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC"
+
+/** Opens the topic's daily sets for the learner's today. */
+export const fetchSets = (topicId: string) =>
+  call(`/topics/${topicId}/sets?tz=${encodeURIComponent(zone())}`, "GET", (d) =>
+    setsSchema.parse(d),
+  )
+/** The next batch of a weekly or monthly review. */
+export const fetchSetPeriod = (topicId: string, period: "week" | "month") =>
+  call(
+    `/topics/${topicId}/sets/${period}?tz=${encodeURIComponent(zone())}`,
+    "GET",
+    (d) => entrySchema.array().parse(d),
+  )
+export const savePlan = (topicId: string, plan: Plan) =>
+  call(`/topics/${topicId}/plan`, "PUT", (d) => planSchema.parse(d), plan)
+/** How a card went in a set: known or not. */
+export const gradeSetEntry = (
+  id: string,
+  input: { period: "day" | "week" | "month"; known: boolean },
+) =>
+  call(`/entries/${id}/set-grade`, "POST", (d) => entrySchema.parse(d), {
+    ...input,
+    tz: zone(),
   })
 export const fetchReminder = () =>
   call("/reminder", "GET", (d) => reminderSchema.parse(d))

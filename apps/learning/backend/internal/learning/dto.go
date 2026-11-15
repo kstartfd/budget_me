@@ -54,6 +54,40 @@ type reminderResponse struct {
 	Timezone string `json:"timezone"`
 }
 
+// planResponse is a topic's daily-set settings: how many new cards a day and
+// which side is shown first ("translation" or "text").
+type planResponse struct {
+	DailyNew int    `json:"dailyNew"`
+	Front    string `json:"front"`
+}
+
+// periodResponse is a weekly or monthly review: its calendar dates, how many cards
+// belong to it and how many are still to go through.
+type periodResponse struct {
+	From    string `json:"from"`
+	To      string `json:"to"`
+	Total   int64  `json:"total"`
+	Pending int64  `json:"pending"`
+}
+
+type setsResponse struct {
+	Plan planResponse `json:"plan"`
+	// Available is how many saved entries are still waiting to join a set.
+	Available int64 `json:"available"`
+	// Fresh is today's new cards, Weak the earlier ones the learner did not know.
+	Fresh int64           `json:"fresh"`
+	Weak  int64           `json:"weak"`
+	Today []entryResponse `json:"today"`
+	Week  periodResponse  `json:"week"`
+	Month periodResponse  `json:"month"`
+}
+
+type gradeSetRequest struct {
+	Period   string `json:"period"`
+	Known    bool   `json:"known"`
+	Timezone string `json:"tz"`
+}
+
 type entryResponse struct {
 	ID string `json:"id"`
 	commands.EntryFields

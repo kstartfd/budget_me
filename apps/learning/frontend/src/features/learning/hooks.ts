@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query"
 import { useAuth } from "@/features/auth"
 import * as api from "./api"
-import type { Entry, Grade } from "./schemas"
+import type { Entry, Grade, Plan } from "./schemas"
 
 export function useLearning() {
   const { user } = useAuth()
@@ -66,6 +66,43 @@ export function useReview(topicId: string, enabled = true) {
     queryFn: () => api.fetchReview(topicId),
     enabled: !!user && enabled,
     staleTime: 60_000,
+  })
+}
+
+/** The topic's daily sets. Opening them also puts today's cards into the set. */
+export function useSets(topicId: string, enabled = true) {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: ["learning", user?.id, "sets", topicId],
+    queryFn: () => api.fetchSets(topicId),
+    enabled: !!user && enabled,
+    staleTime: 60_000,
+  })
+}
+
+export function useSavePlan(topicId: string) {
+  const { user } = useAuth()
+  const client = useQueryClient()
+
+  return useMutation({
+    mutationFn: (plan: Plan) => api.savePlan(topicId, plan),
+    onSuccess: () =>
+      client.invalidateQueries({ queryKey: ["learning", user?.id, "sets", topicId] }),
+  })
+}
+
+export function useGradeSet() {
+  return useMutation({
+    mutationFn: ({
+      id,
+      period,
+      known,
+    }: {
+      id: string
+      period: "day" | "week" | "month"
+      known: boolean
+    }) => api.gradeSetEntry(id, { period, known }),
   })
 }
 

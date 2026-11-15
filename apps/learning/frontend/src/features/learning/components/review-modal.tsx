@@ -4,11 +4,10 @@ import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/features/auth";
 import { useReview, useReviewEntry } from "../hooks";
 import type { Entry, Grade } from "../schemas";
-import { EntryAudioButton } from "./audio-button";
+import { FlipCard } from "./flip-card";
 import { LearningModal } from "./learning-modal";
 
 /**
@@ -123,52 +122,14 @@ function Sitting({
         {t("left", { count: queue.length })}
       </p>
 
-      {/* key: the next card appears face up at once, never turning from the old answer */}
-      <div
+      <FlipCard
         key={card.id}
-        onClick={() => setShown((v) => !v)}
-        className="cursor-pointer [perspective:1200px]"
-      >
-        <div
-          className={cn(
-            "grid [transform-style:preserve-3d] transition-transform duration-500 ease-out motion-reduce:transition-none",
-            shown && "[transform:rotateY(180deg)]",
-          )}
-        >
-          <div
-            aria-hidden={shown}
-            className="border-border bg-background col-start-1 row-start-1 flex min-h-48 flex-col items-center justify-center gap-3 rounded-lg border p-5 text-center [backface-visibility:hidden]"
-          >
-            <p className="text-2xl font-semibold break-words">{card.text}</p>
-            {card.transcription && (
-              <p className="text-muted-foreground font-mono text-sm">
-                {card.transcription}
-              </p>
-            )}
-            <div onClick={(e) => e.stopPropagation()}>
-              <EntryAudioButton entryId={card.id} />
-            </div>
-            <p className="text-faint text-xs">{t("tapToFlip")}</p>
-          </div>
-
-          <div
-            aria-hidden={!shown}
-            className="border-border bg-muted/40 col-start-1 row-start-1 flex min-h-48 flex-col justify-center gap-3 rounded-lg border p-5 text-left text-sm [backface-visibility:hidden] [transform:rotateY(180deg)]"
-          >
-            <p className="text-center text-xl font-semibold break-words">
-              {card.translation || card.text}
-            </p>
-            {card.explanation && (
-              <p className="text-muted-foreground leading-relaxed">
-                {card.explanation}
-              </p>
-            )}
-            {card.example && (
-              <p className="leading-relaxed italic">{card.example}</p>
-            )}
-          </div>
-        </div>
-      </div>
+        entry={card}
+        front="text"
+        flipped={shown}
+        onFlip={() => setShown((v) => !v)}
+        hint={t("tapToFlip")}
+      />
 
       {grade.isError && (
         <p role="alert" className="text-destructive text-center text-[13px]">

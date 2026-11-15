@@ -21,13 +21,19 @@ type Querier interface {
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
 	CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error)
 	CountDueLearningEntries(ctx context.Context, arg CountDueLearningEntriesParams) (CountDueLearningEntriesRow, error)
+	// Entries not yet in any set that can be shown: with the side the learner sees
+	// first filled in, never the ones already known.
+	CountIntroducibleLearningEntries(ctx context.Context, arg CountIntroducibleLearningEntriesParams) (int64, error)
 	// What is waiting for a user across all topics: seen before and due again, and never reviewed.
 	CountLearningDueForUser(ctx context.Context, arg CountLearningDueForUserParams) (CountLearningDueForUserRow, error)
+	CountLearningMonth(ctx context.Context, arg CountLearningMonthParams) (CountLearningMonthRow, error)
 	// What each topic's current exercise set holds, and how many of its exercises the
 	// learner has answered right. Only the current set counts: a regenerated topic
 	// starts from nothing again, whatever was answered in the sets before.
 	CountLearningPathExercises(ctx context.Context, arg CountLearningPathExercisesParams) ([]CountLearningPathExercisesRow, error)
 	CountLearningPathTopics(ctx context.Context, dollar_1 []pgtype.UUID) ([]CountLearningPathTopicsRow, error)
+	CountLearningSetToday(ctx context.Context, arg CountLearningSetTodayParams) (CountLearningSetTodayRow, error)
+	CountLearningWeek(ctx context.Context, arg CountLearningWeekParams) (CountLearningWeekRow, error)
 	DeleteArchivedTopicChat(ctx context.Context, arg DeleteArchivedTopicChatParams) (int64, error)
 	// A sitting whose time has run out goes, with the chats about its sentences.
 	DeleteExpiredLearningRulePractice(ctx context.Context, arg DeleteExpiredLearningRulePracticeParams) error
@@ -60,6 +66,7 @@ type Querier interface {
 	EnsureLearningChatForPathTopic(ctx context.Context, arg EnsureLearningChatForPathTopicParams) (LearningChat, error)
 	// The sitting is made with the first thing written into it.
 	EnsureLearningRulePractice(ctx context.Context, arg EnsureLearningRulePracticeParams) (LearningRulePractice, error)
+	EnsureLearningTopicPlan(ctx context.Context, arg EnsureLearningTopicPlanParams) error
 	EnsureOpenTopicChat(ctx context.Context, arg EnsureOpenTopicChatParams) (LearningChat, error)
 	FinishLearningPathJob(ctx context.Context, arg FinishLearningPathJobParams) error
 	// Closing a lesson also closes a pause that was still open, so the paused
@@ -92,12 +99,16 @@ type Querier interface {
 	GetLearningTeacherByLanguage(ctx context.Context, arg GetLearningTeacherByLanguageParams) (LearningTeacher, error)
 	GetLearningToken(ctx context.Context, arg GetLearningTokenParams) (LearningToken, error)
 	GetLearningTopic(ctx context.Context, arg GetLearningTopicParams) (LearningTopic, error)
+	GetLearningTopicPlanForUpdate(ctx context.Context, arg GetLearningTopicPlanForUpdateParams) (LearningTopicPlan, error)
 	GetNextLearningPathExerciseGeneration(ctx context.Context, topicID pgtype.UUID) (int32, error)
 	GetOpenLearningPathTest(ctx context.Context, arg GetOpenLearningPathTestParams) (LearningPathTest, error)
 	GetOpenTopicChat(ctx context.Context, arg GetOpenTopicChatParams) (LearningChat, error)
 	GetUserByAccountID(ctx context.Context, accountID pgtype.UUID) (User, error)
 	GetUserByID(ctx context.Context, id pgtype.UUID) (User, error)
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
+	// How a card went in a set: known or not, and the date it was last reviewed in the
+	// week / month, when the review was one of those.
+	GradeLearningSetEntry(ctx context.Context, arg GradeLearningSetEntryParams) (LearningEntry, error)
 	InsertLearningAudioCache(ctx context.Context, arg InsertLearningAudioCacheParams) (LearningAudioCache, error)
 	InsertLearningChatMessage(ctx context.Context, arg InsertLearningChatMessageParams) (LearningChatMessage, error)
 	// Saving the same text again fills what was empty and never blanks what the
@@ -117,6 +128,7 @@ type Querier interface {
 	InsertLearningToken(ctx context.Context, arg InsertLearningTokenParams) (LearningToken, error)
 	InsertLearningTopic(ctx context.Context, arg InsertLearningTopicParams) (LearningTopic, error)
 	InsertUser(ctx context.Context, arg InsertUserParams) (User, error)
+	IntroduceLearningEntries(ctx context.Context, arg IntroduceLearningEntriesParams) (int64, error)
 	KnownLearningTextHashes(ctx context.Context, arg KnownLearningTextHashesParams) ([][]byte, error)
 	// Leaving the page of a rule: the sitting stays for a short while, then goes.
 	LeaveLearningRulePractice(ctx context.Context, arg LeaveLearningRulePracticeParams) error
@@ -133,6 +145,7 @@ type Querier interface {
 	// What a topic already holds, newest first: a pack is written around it and
 	// never repeats it (InsertLearningEntry would overwrite a clash).
 	ListLearningEntryTexts(ctx context.Context, arg ListLearningEntryTextsParams) ([]ListLearningEntryTextsRow, error)
+	ListLearningMonthPending(ctx context.Context, arg ListLearningMonthPendingParams) ([]LearningEntry, error)
 	ListLearningPathAttemptsByTopic(ctx context.Context, arg ListLearningPathAttemptsByTopicParams) ([]LearningPathAttempt, error)
 	ListLearningPathExercises(ctx context.Context, topicID pgtype.UUID) ([]LearningPathExercise, error)
 	ListLearningPathHistory(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error)
@@ -141,9 +154,15 @@ type Querier interface {
 	ListLearningPathTestAnswers(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestAnswer, error)
 	ListLearningPathTestQuestions(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestQuestion, error)
 	ListLearningPathTopics(ctx context.Context, pathID pgtype.UUID) ([]LearningPathTopic, error)
+	// Today's set: what was introduced today, then what the learner did not know
+	// before (which comes along with the new ones).
+	ListLearningSetToday(ctx context.Context, arg ListLearningSetTodayParams) ([]LearningEntry, error)
 	ListLearningTeachers(ctx context.Context, userID pgtype.UUID) ([]LearningTeacher, error)
 	ListLearningTokens(ctx context.Context, userID pgtype.UUID) ([]LearningToken, error)
 	ListLearningTopics(ctx context.Context, userID pgtype.UUID) ([]LearningTopic, error)
+	// Cards of a calendar week still to go through: introduced inside it and not yet
+	// reviewed in it. Cards the learner did not know come first, the rest shuffled.
+	ListLearningWeekPending(ctx context.Context, arg ListLearningWeekPendingParams) ([]LearningEntry, error)
 	ListUsersWithoutAccount(ctx context.Context) ([]User, error)
 	LockLearningCaptureLease(ctx context.Context, arg LockLearningCaptureLeaseParams) (LearningCapture, error)
 	LockLearningChat(ctx context.Context, arg LockLearningChatParams) (LearningChat, error)
@@ -177,6 +196,8 @@ type Querier interface {
 	// (minutes a day, days a week) go too: the goal is one number now.
 	SetLearningPathWeeklyHours(ctx context.Context, arg SetLearningPathWeeklyHoursParams) (int64, error)
 	SetLearningTeacherExplain(ctx context.Context, arg SetLearningTeacherExplainParams) (LearningTeacher, error)
+	SetLearningTopicPlanCredit(ctx context.Context, arg SetLearningTopicPlanCreditParams) error
+	SetLearningTopicPlanSettings(ctx context.Context, arg SetLearningTopicPlanSettingsParams) (LearningTopicPlan, error)
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
 	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)
 	// Time studied in lessons, in three windows that end now. A lesson counts for

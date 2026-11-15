@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 
 	"learning_app/backend/internal/apperr"
@@ -30,13 +31,14 @@ type Controller struct {
 	packs    commands.PackHandler
 	reviews  commands.ReviewHandler
 	reminder commands.ReminderHandler
+	sets     commands.SetsHandler
 	clock    clock.Clock
 	read     queries.ReadHandler
 	audio    learningaudio.Service
 }
 
-func NewController(q *db.Queries, clk clock.Clock, audio learningaudio.Service, vault secretbox.Box, agent commands.Completer) *Controller {
-	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), packs: commands.NewPackHandler(q, clk, vault, agent), reviews: commands.NewReviewHandler(q, clk), reminder: commands.NewReminderHandler(q, clk), clock: clk, read: queries.NewReadHandler(q), audio: audio}
+func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, audio learningaudio.Service, vault secretbox.Box, agent commands.Completer) *Controller {
+	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), packs: commands.NewPackHandler(q, clk, vault, agent), reviews: commands.NewReviewHandler(q, clk), reminder: commands.NewReminderHandler(q, clk), sets: commands.NewSetsHandler(pool, q, clk), clock: clk, read: queries.NewReadHandler(q), audio: audio}
 }
 
 // fillEntry has the learner's agent write the fields the entry still lacks. It
@@ -138,6 +140,101 @@ func (c *Controller) reviewEntry(ctx echo.Context) error {
 	}
 
 	row, err := c.reviews.Handle(ctx.Request().Context(), commands.ReviewEntry{UserID: httpx.UserIDFromContext(ctx.Request().Context()), EntryID: id, Grade: req.Grade})
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, entryDTO(row))
+}
+
+func dateString(t time.Time) string { return t.UTC().Format("2006-01-02") }
+
+func periodDTO(p commands.Period) periodResponse {
+	return periodResponse{From: dateString(p.From), To: dateString(p.To), Total: p.Total, Pending: p.Pending}
+}
+
+// getSets opens the topic's daily sets for today (the learner's own day, given as
+// their IANA zone in `tz`): it brings the plan up to date and returns today's set
+// with the weekly and monthly reviews.
+func (c *Controller) getSets(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid topic id")
+	}
+
+	state, err := c.sets.Open(ctx.Request().Context(), httpx.UserIDFromContext(ctx.Request().Context()), id, ctx.QueryParam("tz"))
+	if err != nil {
+		return err
+	}
+
+	out := setsResponse{
+		Plan:      planResponse{DailyNew: state.Plan.DailyNew, Front: state.Plan.Front},
+		Available: state.Available, Fresh: state.Fresh, Weak: state.Weak,
+		Today: make([]entryResponse, len(state.Today)),
+		Week:  periodDTO(state.Week), Month: periodDTO(state.Month),
+	}
+	for i, row := range state.Today {
+		out.Today[i] = entryDTO(row)
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, out)
+}
+
+// getSetPeriod returns the next batch of a weekly or monthly review.
+func (c *Controller) getSetPeriod(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid topic id")
+	}
+
+	rows, err := c.sets.Pending(ctx.Request().Context(), httpx.UserIDFromContext(ctx.Request().Context()), id, ctx.Param("period"), ctx.QueryParam("tz"))
+	if err != nil {
+		return err
+	}
+
+	out := make([]entryResponse, len(rows))
+	for i, row := range rows {
+		out[i] = entryDTO(row)
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, out)
+}
+
+func (c *Controller) setPlan(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid topic id")
+	}
+
+	var req planResponse
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	plan, err := c.sets.SetPlan(ctx.Request().Context(), httpx.UserIDFromContext(ctx.Request().Context()), id, commands.Plan{DailyNew: req.DailyNew, Front: req.Front})
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, planResponse{DailyNew: plan.DailyNew, Front: plan.Front})
+}
+
+func (c *Controller) gradeSet(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid entry id")
+	}
+
+	var req gradeSetRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	row, err := c.sets.Grade(ctx.Request().Context(), commands.GradeSet{UserID: httpx.UserIDFromContext(ctx.Request().Context()), EntryID: id, Period: req.Period, Known: req.Known, Timezone: req.Timezone})
 	if err != nil {
 		return err
 	}

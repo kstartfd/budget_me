@@ -10,6 +10,7 @@ import {
   IconLanguage,
   IconPencil,
   IconPlus,
+  IconCards,
   IconRepeat,
   IconSearch,
   IconSettings,
@@ -33,6 +34,7 @@ import { EntryActionBar, EntryDetail } from "./entry-detail"
 import { EntryForm } from "./entry-form"
 import { PackModal } from "./pack-modal"
 import { ReviewModal } from "./review-modal"
+import { SetsModal } from "./sets-modal"
 
 type Kind = "all" | "word" | "phrase"
 type Status = "all" | "inbox" | "learning" | "known"
@@ -66,6 +68,7 @@ export function TopicScreen({
   const [scanning, setScanning] = useState(false)
   const [packing, setPacking] = useState(false)
   const [reviewing, setReviewing] = useState(false)
+  const [setsOpen, setSetsOpen] = useState(false)
   const review = useReview(topic.id)
   const dueCount = review.data ? review.data.overdue + review.data.fresh : 0
   const [selectedId, setSelectedId] = useState<string | null>(null)
@@ -236,6 +239,15 @@ export function TopicScreen({
                 className="bg-background h-9 pl-9 text-sm md:text-sm"
               />
             </div>
+            <Button
+              variant="outline"
+              size="lg"
+              onClick={() => setSetsOpen(true)}
+              className="hidden px-3.5 text-[13px] lg:inline-flex"
+            >
+              <IconCards size={15} />
+              {t("sets.open")}
+            </Button>
             <Button
               variant={dueCount > 0 ? "default" : "outline"}
               size="lg"
@@ -418,6 +430,15 @@ export function TopicScreen({
                 {t("newEntry")}
               </Button>
               <Button
+                variant="outline"
+                size="icon"
+                aria-label={t("sets.open")}
+                onClick={() => setSetsOpen(true)}
+                className="size-11 shrink-0"
+              >
+                <IconCards size={18} />
+              </Button>
+              <Button
                 variant={dueCount > 0 ? "default" : "outline"}
                 size="icon"
                 disabled={dueCount === 0}
@@ -448,6 +469,10 @@ export function TopicScreen({
             </div>
           </BottomBar>
         </>
+      )}
+
+      {setsOpen && (
+        <SetsModal topicId={topic.id} onClose={() => setSetsOpen(false)} />
       )}
 
       {reviewing && (

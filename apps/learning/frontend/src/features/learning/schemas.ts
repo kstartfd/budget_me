@@ -38,6 +38,33 @@ export const reviewSchema = z.object({
 export type Review = z.infer<typeof reviewSchema>
 export type Grade = "again" | "good" | "easy"
 
+/** A topic's daily-set settings: cards a day, and which side is face up. */
+export const planSchema = z.object({
+  dailyNew: z.number(),
+  front: z.enum(["translation", "text"]),
+})
+export type Plan = z.infer<typeof planSchema>
+
+const periodSchema = z.object({
+  from: z.string(),
+  to: z.string(),
+  total: z.number(),
+  pending: z.number(),
+})
+export type Period = z.infer<typeof periodSchema>
+
+/** Today's daily set with the weekly and monthly reviews. */
+export const setsSchema = z.object({
+  plan: planSchema,
+  available: z.number(),
+  fresh: z.number(),
+  weak: z.number(),
+  today: entrySchema.array(),
+  week: periodSchema,
+  month: periodSchema,
+})
+export type Sets = z.infer<typeof setsSchema>
+
 /** The daily review reminder the bot sends; `timezone` is the learner's own. */
 export const reminderSchema = z.object({
   enabled: z.boolean(),

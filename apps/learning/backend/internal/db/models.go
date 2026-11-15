@@ -718,25 +718,29 @@ type LearningChatUsage struct {
 }
 
 type LearningEntry struct {
-	ID             pgtype.UUID
-	UserID         pgtype.UUID
-	TopicID        pgtype.UUID
-	Kind           LearningEntryKind
-	Text           string
-	Transcription  string
-	Translation    string
-	NativeUsage    string
-	Example        string
-	Rule           string
-	Status         LearningEntryStatus
-	CreatedAt      pgtype.Timestamptz
-	UpdatedAt      pgtype.Timestamptz
-	Explanation    string
-	Source         string
-	TextHash       []byte
-	ReviewStage    int16
-	NextReviewAt   pgtype.Timestamptz
-	LastReviewedAt pgtype.Timestamptz
+	ID              pgtype.UUID
+	UserID          pgtype.UUID
+	TopicID         pgtype.UUID
+	Kind            LearningEntryKind
+	Text            string
+	Transcription   string
+	Translation     string
+	NativeUsage     string
+	Example         string
+	Rule            string
+	Status          LearningEntryStatus
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+	Explanation     string
+	Source          string
+	TextHash        []byte
+	ReviewStage     int16
+	NextReviewAt    pgtype.Timestamptz
+	LastReviewedAt  pgtype.Timestamptz
+	IntroducedOn    pgtype.Date
+	Weak            bool
+	WeekReviewedOn  pgtype.Date
+	MonthReviewedOn pgtype.Date
 }
 
 type LearningEntryChatMerge struct {
@@ -934,6 +938,17 @@ type LearningTopic struct {
 	Language            string
 	TranslationLanguage string
 	CreatedAt           pgtype.Timestamptz
+}
+
+type LearningTopicPlan struct {
+	TopicID    pgtype.UUID
+	UserID     pgtype.UUID
+	DailyNew   int16
+	Front      string
+	Credit     int32
+	CreditedOn pgtype.Date
+	CreatedAt  pgtype.Timestamptz
+	UpdatedAt  pgtype.Timestamptz
 }
 
 type User struct {
