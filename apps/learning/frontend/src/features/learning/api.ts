@@ -3,12 +3,14 @@ import {
   entryInputSchema,
   entrySchema,
   issuedTokenSchema,
+  reviewSchema,
   tokenInputSchema,
   tokenSchema,
   tokenSecretSchema,
   topicInputSchema,
   topicSchema,
   type EntryInput,
+  type Grade,
   type TokenInput,
   type TopicInput,
 } from "./schemas"
@@ -73,6 +75,12 @@ export const generatePack = (topicId: string, kind: "phrases" | "words") =>
   call(`/topics/${topicId}/pack`, "POST", (d) => entrySchema.array().parse(d), {
     kind,
   })
+/** The cards due for review in a topic. */
+export const fetchReview = (topicId: string) =>
+  call(`/topics/${topicId}/review`, "GET", (d) => reviewSchema.parse(d))
+/** Records how a review of one entry went; the server moves it along its schedule. */
+export const reviewEntry = (id: string, grade: Grade) =>
+  call(`/entries/${id}/review`, "POST", (d) => entrySchema.parse(d), { grade })
 export const fetchEntry = (id: string) =>
   call(`/entries/${id}`, "GET", (d) => entrySchema.parse(d))
 export async function fetchEntryAudio(id: string): Promise<Blob> {

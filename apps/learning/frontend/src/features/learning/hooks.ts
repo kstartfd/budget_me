@@ -8,7 +8,7 @@ import {
 } from "@tanstack/react-query"
 import { useAuth } from "@/features/auth"
 import * as api from "./api"
-import type { Entry } from "./schemas"
+import type { Entry, Grade } from "./schemas"
 
 export function useLearning() {
   const { user } = useAuth()
@@ -55,6 +55,26 @@ export function useLearning() {
     fillEntry,
     generatePack,
   }
+}
+
+/** What is due for review in a topic. Kept fresh, since it moves with the clock. */
+export function useReview(topicId: string, enabled = true) {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: ["learning", user?.id, "review", topicId],
+    queryFn: () => api.fetchReview(topicId),
+    enabled: !!user && enabled,
+    staleTime: 60_000,
+  })
+}
+
+/** Records a review. The due list is refetched when the sitting ends, not per card. */
+export function useReviewEntry() {
+  return useMutation({
+    mutationFn: ({ id, grade }: { id: string; grade: Grade }) =>
+      api.reviewEntry(id, grade),
+  })
 }
 
 export function useEntries(

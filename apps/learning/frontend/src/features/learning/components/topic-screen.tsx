@@ -10,6 +10,7 @@ import {
   IconLanguage,
   IconPencil,
   IconPlus,
+  IconRepeat,
   IconSearch,
   IconSettings,
   IconSparkles,
@@ -24,13 +25,14 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { ScanModal } from "@/features/scan"
 import { useIsDesktop } from "@/hooks/use-is-desktop"
 import { cn } from "@/lib/utils"
-import { useEntries, useEntry } from "../hooks"
+import { useEntries, useEntry, useReview } from "../hooks"
 import { useLanguageName } from "../language"
 import type { Entry, Topic } from "../schemas"
 import { EntryAudioButton } from "./audio-button"
 import { EntryActionBar, EntryDetail } from "./entry-detail"
 import { EntryForm } from "./entry-form"
 import { PackModal } from "./pack-modal"
+import { ReviewModal } from "./review-modal"
 
 type Kind = "all" | "word" | "phrase"
 type Status = "all" | "inbox" | "learning" | "known"
@@ -63,6 +65,9 @@ export function TopicScreen({
   const [entryForm, setEntryForm] = useState<Entry | "new" | null>(null)
   const [scanning, setScanning] = useState(false)
   const [packing, setPacking] = useState(false)
+  const [reviewing, setReviewing] = useState(false)
+  const review = useReview(topic.id)
+  const dueCount = review.data ? review.data.overdue + review.data.fresh : 0
   const [selectedId, setSelectedId] = useState<string | null>(null)
   const [search, setSearch] = useState("")
   const [kind, setKind] = useState<Kind>("all")
@@ -231,6 +236,16 @@ export function TopicScreen({
                 className="bg-background h-9 pl-9 text-sm md:text-sm"
               />
             </div>
+            <Button
+              variant={dueCount > 0 ? "default" : "outline"}
+              size="lg"
+              disabled={dueCount === 0}
+              onClick={() => setReviewing(true)}
+              className="hidden px-3.5 text-[13px] lg:inline-flex"
+            >
+              <IconRepeat size={15} />
+              {t("review.open", { count: dueCount })}
+            </Button>
             <Button
               variant="outline"
               size="lg"
@@ -403,6 +418,16 @@ export function TopicScreen({
                 {t("newEntry")}
               </Button>
               <Button
+                variant={dueCount > 0 ? "default" : "outline"}
+                size="icon"
+                disabled={dueCount === 0}
+                aria-label={t("review.open", { count: dueCount })}
+                onClick={() => setReviewing(true)}
+                className="size-11 shrink-0"
+              >
+                <IconRepeat size={18} />
+              </Button>
+              <Button
                 variant="outline"
                 size="icon"
                 aria-label={t("pack.open")}
@@ -423,6 +448,10 @@ export function TopicScreen({
             </div>
           </BottomBar>
         </>
+      )}
+
+      {reviewing && (
+        <ReviewModal topicId={topic.id} onClose={() => setReviewing(false)} />
       )}
 
       {packing && (

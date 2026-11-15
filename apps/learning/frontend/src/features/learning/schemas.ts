@@ -28,6 +28,15 @@ export const entrySchema = entryInputSchema.extend({
   updatedAt: z.string(),
 })
 export type Entry = z.infer<typeof entrySchema>
+
+/** What is due for review in a topic: the counts waiting and the next cards. */
+export const reviewSchema = z.object({
+  overdue: z.number(),
+  fresh: z.number(),
+  entries: entrySchema.array(),
+})
+export type Review = z.infer<typeof reviewSchema>
+export type Grade = "again" | "good" | "easy"
 export type EntryInput = z.infer<typeof entryInputSchema>
 
 export const tokenInputSchema = z.object({

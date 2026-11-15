@@ -85,6 +85,22 @@
     "entriesEmpty": "No entries yet",
     "entriesEmptyHint": "Save your first word or phrase. To add entries from an extension, create a token in settings.",
     "noMatchesHint": "Change the search or filters.",
+    "review": {
+      "open": "Review ({count})",
+      "title": "Review",
+      "loading": "Loading cards…",
+      "loadFailed": "Couldn't load the cards. Try again.",
+      "left": "{count, plural, one {# card left} other {# cards left}}",
+      "show": "Show answer",
+      "again": "Forgot",
+      "good": "Remembered",
+      "easy": "Easy",
+      "nothing": "Nothing to review right now.",
+      "finished": "{count, plural, one {# card reviewed} other {# cards reviewed}}",
+      "againCount": "{count, plural, one {# came back and was repeated} other {# came back and were repeated}}",
+      "close": "Done",
+      "saveFailed": "Couldn't save the answer. Try again."
+    },
     "pack": {
       "open": "AI packs",
       "title": "Ready-made packs",
