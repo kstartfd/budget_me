@@ -42,6 +42,15 @@ export function ListIcon({ size = 22, strokeWidth = 1.9 }: IconProps) {
   )
 }
 
+export function TableIcon({ size = 22, strokeWidth = 1.9 }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <path d="M3 10h18M3 15h18M9 4v16" />
+    </svg>
+  )
+}
+
 export function PieIcon({ size = 22, strokeWidth = 1.9 }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">

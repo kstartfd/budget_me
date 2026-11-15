@@ -29,9 +29,10 @@ export function BottomNav() {
   const space = useSpace()
   const { trigger, enabled } = useAddAction()
 
-  const midpoint = Math.ceil(space.tabs.length / 2)
-  const left = space.tabs.slice(0, midpoint)
-  const right = space.tabs.slice(midpoint)
+  const phoneTabs = space.tabs.filter((tab) => !tab.desktopOnly)
+  const midpoint = Math.ceil(phoneTabs.length / 2)
+  const left = phoneTabs.slice(0, midpoint)
+  const right = phoneTabs.slice(midpoint)
 
   const money = space.id === "money"
   const addLabel = tAdd(

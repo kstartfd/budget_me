@@ -4,9 +4,6 @@ import { Suspense, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 
-import { useCategoryLabel } from "@/features/budget/category-label"
-import { useBudgetUI } from "@/features/budget/components/ui-context"
-
 import {
   TransactionsFiltersSheet,
   defaultRange,
@@ -37,8 +34,6 @@ function TransactionsView() {
   const locale = useLocale()
   const t = useTranslations("transactions")
   const tCommon = useTranslations("common")
-  const label = useCategoryLabel()
-  const { openDetail } = useBudgetUI()
   const searchParams = useSearchParams()
 
   const today = useToday()
@@ -65,8 +60,6 @@ function TransactionsView() {
   // gated in the loading check below — it's supplementary, and the header falls
   // back to summing the rows it already has until this lands.
   const totals = useTransactionTotals(filters.from, filters.to, filters.category)
-  // Table footer: spend/income over the selected dates only (no category filter).
-  const periodTotals = useTransactionTotals(filters.from, filters.to, "all")
 
   if (transactions.isPending || categories.isPending) return <ListSkeleton />
   if (transactions.isError || categories.isError) {
@@ -177,83 +170,6 @@ function TransactionsView() {
         </span>
       </div>
 
-      {filtered.length > 0 && (
-        <div className="bg-card border-border hidden overflow-hidden rounded-[20px] border shadow-[var(--shadow-card)] lg:block">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-border text-faint border-b text-left font-mono text-[11px] font-semibold tracking-[0.05em] uppercase">
-                <th className="px-4 py-3">{t("colDate")}</th>
-                <th className="px-4 py-3">{t("colTitle")}</th>
-                <th className="px-4 py-3">{t("colCategory")}</th>
-                <th className="px-4 py-3 text-right">{t("colAmount")}</th>
-              </tr>
-            </thead>
-            <tbody className="divide-rowline divide-y">
-              {filtered.map((tx) => {
-                const income = tx.direction === "income"
-                return (
-                  <tr
-                    key={tx.id}
-                    onClick={() => openDetail(tx)}
-                    className="hover:bg-secondary/50 cursor-pointer transition-colors"
-                  >
-                    <td className="text-muted-foreground px-4 py-3 font-mono whitespace-nowrap">
-                      {fmtDate(tx.date, locale)}, {tx.time}
-                    </td>
-                    <td className="max-w-[320px] truncate px-4 py-3 font-medium">
-                      {tx.title}
-                      {!tx.counted && (
-                        <span className="text-faint font-normal italic">
-                          {" "}· {t("uncounted")}
-                        </span>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className="inline-flex items-center gap-2">
-                        <span
-                          className="size-[9px] rounded-full"
-                          style={{
-                            background: catById.get(tx.categoryId)?.color ?? "#9198a6",
-                          }}
-                        />
-                        {label(catById.get(tx.categoryId))}
-                      </span>
-                    </td>
-                    <td
-                      className={cn(
-                        "px-4 py-3 text-right font-mono font-semibold whitespace-nowrap",
-                        income && "text-success",
-                      )}
-                    >
-                      {income ? "+" : "−"}
-                      {formatBr(tx.amountMinor)} Br
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-            <tfoot>
-              <tr className="border-border border-t font-semibold">
-                <td colSpan={3} className="px-4 py-3">
-                  {t("colTotal", {
-                    from: fmtDate(filters.from, locale),
-                    to: fmtDate(filters.to, locale),
-                  })}
-                </td>
-                <td className="px-4 py-3 text-right font-mono whitespace-nowrap">
-                  <span>−{formatBr(periodTotals.data?.spentMinor ?? 0)}&nbsp;Br</span>
-                  {(periodTotals.data?.incomeMinor ?? 0) > 0 && (
-                    <span className="text-success ml-3">
-                      +{formatBr(periodTotals.data?.incomeMinor ?? 0)}&nbsp;Br
-                    </span>
-                  )}
-                </td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      )}
-
       {groups.length === 0 && (
         <p className="text-muted-foreground py-12 text-center text-sm">
           {t("empty")}
@@ -272,7 +188,7 @@ function TransactionsView() {
           0,
         )
         return (
-          <section key={group.date} className="lg:hidden">
+          <section key={group.date}>
             <div className="flex items-center justify-between px-1 pb-[9px]">
               <span className="text-faint font-mono text-[11px] font-semibold tracking-[0.05em] uppercase">
                 {dayLabel(group.date, locale, tCommon("today"), tCommon("yesterday"), today)}

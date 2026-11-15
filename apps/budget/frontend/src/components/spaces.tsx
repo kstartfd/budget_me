@@ -10,6 +10,7 @@ import {
   HomeIcon,
   ListIcon,
   PieIcon,
+  TableIcon,
   SparklesIcon,
   StackIcon,
 } from "@/components/app-icons"
@@ -37,13 +38,15 @@ export interface NavTab {
   addKey?: string
   /** Bottom bar only — the sidebar reaches it another way (settings: the gear). */
   bottomOnly?: boolean
+  /** Desktop sidebar only — hidden from the phone bottom bar. */
+  desktopOnly?: boolean
 }
 
 export interface Space {
   id: SpaceId
   /** Key under the `spaces` message namespace. */
   labelKey: string
-  /** Exactly four — the bottom bar hangs two on each side of the ＋ button. */
+  /** Exactly four phone tabs (desktopOnly tabs excluded) — the bottom bar hangs two on each side of the ＋ button. */
   tabs: NavTab[]
   /** Fallback label key for ＋ on routes that declare none. */
   addKey: string
@@ -57,6 +60,7 @@ export const SPACES: Space[] = [
     tabs: [
       { href: "/", icon: HomeIcon, labelKey: "overview" },
       { href: "/transactions", icon: ListIcon, labelKey: "transactions" },
+      { href: "/table", icon: TableIcon, labelKey: "table", desktopOnly: true },
       { href: "/analytics", icon: PieIcon, labelKey: "analytics" },
       { href: "/ai", icon: SparklesIcon, labelKey: "ai" },
     ],
