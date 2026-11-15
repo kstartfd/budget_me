@@ -8,7 +8,8 @@ RUN go mod download
 COPY libs/account /src/libs/account
 COPY apps/learning/backend/ ./
 RUN CGO_ENABLED=0 go build -trimpath -o /out/server ./cmd/http_server \
- && CGO_ENABLED=0 go build -trimpath -o /out/migrate ./cmd/migrate \n && CGO_ENABLED=0 go build -trimpath -o /out/remind ./cmd/remind
+ && CGO_ENABLED=0 go build -trimpath -o /out/migrate ./cmd/migrate \
+ && CGO_ENABLED=0 go build -trimpath -o /out/remind ./cmd/remind
 
 # Pictures are read on this machine by tesseract, never sent to an AI agent.
 # OCR_LANGS is the language data installed (each is ~20 MB); internal/ocr lists
