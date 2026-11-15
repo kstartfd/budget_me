@@ -116,6 +116,11 @@ export function ProgramView({
     }
   }, [returnTo])
   const done = path.topics.filter((topic) => topic.status === "completed").length
+  // Topics build on each other, so the first one not yet completed is the one to
+  // do now. Later ones stay open (a learner may know them already) but say so.
+  const currentIndex = path.topics.findIndex(
+    (topic) => topic.status !== "completed",
+  )
   // The rule book is there for a teacher whose language it covers; for any other
   // the request is refused and the button stays out.
   const rules = useRules(path.language)
@@ -228,6 +233,10 @@ export function ProgramView({
       <section className="space-y-3">
         {path.topics.map((topic, index) => {
           const open = openTopic === topic.id
+          const ahead =
+            currentIndex >= 0 &&
+            index > currentIndex &&
+            topic.status === "not_started"
           const newUnit =
             !!topic.unit && topic.unit !== path.topics[index - 1]?.unit
 
@@ -277,6 +286,11 @@ export function ProgramView({
                     <SkillIcon skill={topic.skill} size={12} />
                     {t(`skill.${topic.skill}`)}
                   </p>
+                  {ahead && (
+                    <p className="text-faint mt-0.5 text-xs break-words">
+                      {t("topicAfter", { n: path.topics[currentIndex].position + 1 })}
+                    </p>
+                  )}
                 </div>
                 <Badge
                   variant={statusBadge[topic.status].variant}
@@ -311,6 +325,11 @@ export function ProgramView({
                   </span>
                 )}
               </button>
+              {open && ahead && (
+                <p className="text-muted-foreground border-border bg-muted/40 border-b px-4 py-2.5 text-[13px] leading-relaxed">
+                  {t("topicAfterHint", { n: path.topics[currentIndex].position + 1 })}
+                </p>
+              )}
               {open && <TopicRunner topicId={topic.id} />}
             </div>
             </div>

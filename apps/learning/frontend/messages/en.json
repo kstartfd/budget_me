@@ -454,6 +454,8 @@
       "reset": "re-analysis",
       "chosen": "picked level"
     },
+    "topicAfter": "Finish topic {n} first: this one builds on it.",
+    "topicAfterHint": "Topic {n} is not finished yet. This topic builds on it, so it is easier after.",
     "topicStatus": {
       "not_started": "not started",
       "in_progress": "in progress",

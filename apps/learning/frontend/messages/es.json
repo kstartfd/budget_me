@@ -454,6 +454,8 @@
       "reset": "nuevo análisis",
       "chosen": "nivel elegido"
     },
+    "topicAfter": "Termina primero el tema {n}: este se apoya en él.",
+    "topicAfterHint": "El tema {n} aún no está terminado. Este se apoya en él, así que resulta más fácil después.",
     "topicStatus": {
       "not_started": "sin empezar",
       "in_progress": "en curso",
