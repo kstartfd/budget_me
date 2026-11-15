@@ -1,0 +1,565 @@
+[
+  {
+    "id": "b1-indefinido-vs-imperfecto",
+    "skill": "grammar",
+    "unit": "Past tenses",
+    "title": "Indefinido and imperfecto together",
+    "goal": "Choose between a completed event and the background in one story.",
+    "theory": "In a story `imperfecto` sets the background and `indefinido` moves the plot on: `Era de noche y llovía cuando llegué a casa.` Imperfecto describes setting, age, weather, habit; indefinido names a completed event: `Entré, encendí la luz y me senté.` If an action was in progress when another happened, use `estaba` + gerund: `Estaba cocinando cuando sonó el teléfono.` Some verbs change meaning: `Conocí a Ana en 2010` (I met her), `Conocía a Ana` (I knew her).",
+    "tags": [
+      "indefinido imperfecto",
+      "story in the past",
+      "background and event",
+      "estaba + gerund"
+    ]
+  },
+  {
+    "id": "b1-pluscuamperfecto",
+    "skill": "grammar",
+    "unit": "Past tenses",
+    "title": "Pluscuamperfecto: what happened earlier",
+    "goal": "Say that one action in the past happened before another.",
+    "theory": "`Pluscuamperfecto` = `había, habías, había, habíamos, habíais, habían` + participle: `había trabajado`, `habías comido`. It shows that an action was finished before another action in the past: `Cuando llegué, ya se había ido.` It often goes with `ya`, `todavía no`, `nunca`: `Nunca había visto el mar.` The irregular participles are the same: `hecho`, `dicho`, `visto`, `escrito`, `puesto`, `vuelto`.",
+    "tags": [
+      "pluscuamperfecto",
+      "había hecho",
+      "before another action"
+    ]
+  },
+  {
+    "id": "b1-futuro-simple",
+    "skill": "grammar",
+    "unit": "Future and conditional",
+    "title": "Futuro simple: will be and probably is",
+    "goal": "Talk about the future and about guesses in the present.",
+    "theory": "Add the endings `-é, -ás, -á, -emos, -éis, -án` to the infinitive: `hablaré`, `comerás`, `vivirá`. Some verbs have a special stem: `tener → tendré`, `hacer → haré`, `poder → podré`, `salir → saldré`, `decir → diré`, `venir → vendré`. The futuro speaks about the future and about a guess in the present: `Serán las ocho` — it must be about eight o'clock. The spoken future is `ir a`: `Voy a salir`. For promises and forecasts use the futuro: `Mañana lloverá.`",
+    "tags": [
+      "futuro simple",
+      "hablaré",
+      "guess",
+      "future"
+    ]
+  },
+  {
+    "id": "b1-condicional",
+    "skill": "grammar",
+    "unit": "Future and conditional",
+    "title": "Condicional: I would, a polite request",
+    "goal": "Give advice, ask politely and speak about an unreal wish.",
+    "theory": "Add the endings `-ía, -ías, -ía, -íamos, -íais, -ían` to the infinitive: `hablaría`, `comería`, `viviría`. The special stems are the same as in the futuro: `tendría`, `haría`, `podría`, `saldría`, `diría`. The condicional is used for a polite request (`¿Podría ayudarme?`), advice (`Deberías descansar`), a wish (`Me gustaría viajar`) and a guess about the past (`Serían las ocho`). In reported speech the future becomes the condicional: `Dijo que vendría`.",
+    "tags": [
+      "condicional",
+      "hablaría",
+      "polite request",
+      "advice"
+    ]
+  },
+  {
+    "id": "b1-pronombres-combinados",
+    "skill": "grammar",
+    "unit": "Pronouns",
+    "title": "Two pronouns together: se lo doy",
+    "goal": "Put the indirect and the direct object next to each other.",
+    "theory": "The order is always the same: indirect first, then direct: `Me lo da`, `Te la envío`. If both pronouns are third person, `le/les` becomes `se`: `Le doy el libro → Se lo doy.` You cannot say `le lo`. Pronouns go before the conjugated verb, and with an infinitive, gerund and imperative they are attached: `Dámelo`, `Voy a dárselo`, `Estoy escribiéndotela`. The direct object is `lo/la`, the indirect is `le`.",
+    "tags": [
+      "combined pronouns",
+      "se lo",
+      "pronoun order"
+    ]
+  },
+  {
+    "id": "b1-imperativo-pronombres",
+    "skill": "grammar",
+    "unit": "Pronouns",
+    "title": "Imperative: usted, ustedes and with pronouns",
+    "goal": "Give instructions politely and with pronouns, in the affirmative and the negative.",
+    "theory": "For polite address use subjunctive forms: `hable`, `coma`, `escriba` (usted) and `hablen`, `coman`, `escriban` (ustedes). For `vosotros` in the affirmative the infinitive changes `-r` into `-d`: `hablad`, `comed`, `escribid`; in the negative use the subjunctive: `no habléis`. With pronouns, in the affirmative they are attached: `Cómpralo`, `Dímelo`, `Siéntese`; in the negative they go before the verb: `No lo compres`, `No me lo digas`. An accent is written to keep the stress.",
+    "tags": [
+      "imperative",
+      "usted",
+      "pronouns",
+      "no me lo digas"
+    ]
+  },
+  {
+    "id": "b1-subjuntivo-presente",
+    "skill": "grammar",
+    "unit": "Subjunctive",
+    "title": "Present subjunctive: the form and when it is needed",
+    "goal": "Form the present subjunctive and use it after a request, a wish and an emotion.",
+    "theory": "The form comes from the `yo` form of the present: drop `-o` and change the vowel to the opposite one. `-ar` takes `-e, -es, -e, -emos, -éis, -en`: `hable`; `-er/-ir` takes `-a, -as, -a, -amos, -áis, -an`: `coma`, `viva`. Special forms: `ser → sea`, `ir → vaya`, `estar → esté`, `saber → sepa`, `haber → haya`. It is needed after a wish, a request and an emotion when the two clauses have different subjects: `Quiero que vengas.` `Me alegro de que estés aquí.`",
+    "tags": [
+      "subjuntivo",
+      "present subjunctive",
+      "quiero que",
+      "hable coma"
+    ]
+  },
+  {
+    "id": "b1-subjuntivo-sentimientos",
+    "skill": "grammar",
+    "unit": "Subjunctive",
+    "title": "Subjunctive: wish, probability, emotion",
+    "goal": "Express a wish, probability and an opinion with the subjunctive.",
+    "theory": "Wish and request: `Quiero que…`, `Espero que…`, `Prefiero que…`: `Espero que llegues pronto.` Probability: `Quizás`, `tal vez`, `probablemente` + subjunctive: `Quizás vaya.` If you are sure, use the indicative: `Seguramente viene.` Emotion and judgement: `Me gusta que…`, `Es una pena que…`, `Es importante que…`: `Es importante que estudies.` For general judgements with no specific subject use the infinitive: `Es importante estudiar.`",
+    "tags": [
+      "subjuntivo",
+      "espero que",
+      "quizás",
+      "judgement"
+    ]
+  },
+  {
+    "id": "b1-relativos",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Relative words: que, quien, donde",
+    "goal": "Join two sentences with que, quien, donde, cuyo.",
+    "theory": "`Que` is the most common relative word: `El libro que leo es interesante.` After a preposition put an article before it: `la casa en la que vivo`, `el chico con el que hablas`. For people you can use `quien`: `La chica con quien hablas`. `Donde` is place: `La ciudad donde nací`. `Cuyo` means \"whose\" and agrees with what is owned: `El hombre cuya hija vive aquí`. If the thing sought is unknown or does not exist, use the subjunctive: `Busco una casa que tenga jardín.`",
+    "tags": [
+      "relative words",
+      "que quien donde",
+      "cuyo",
+      "relativos"
+    ]
+  },
+  {
+    "id": "b1-perifrasis",
+    "skill": "grammar",
+    "unit": "Non-finite forms",
+    "title": "Periphrases: tener que, acabar de, soler",
+    "goal": "Express obligation, habit, beginning and end of an action with periphrases.",
+    "theory": "A periphrasis is a conjugated verb plus a non-finite form. Obligation: `tener que` + infinitive (`Tengo que estudiar`), `hay que` + infinitive (`Hay que descansar`), `deber` + infinitive. Habit: `soler` + infinitive (`Suelo comer en casa`). Beginning and end: `empezar a`, `ponerse a`, `acabar de` (have just), `dejar de`: `Acabo de llegar.` `He dejado de fumar.` Continuing: `seguir` + gerund: `Sigo trabajando.` Repeating: `volver a` + infinitive: `Vuelvo a llamar.`",
+    "tags": [
+      "periphrases",
+      "tener que",
+      "acabar de",
+      "soler",
+      "seguir + gerund"
+    ]
+  },
+  {
+    "id": "b1-gerundio-participio",
+    "skill": "grammar",
+    "unit": "Non-finite forms",
+    "title": "Gerund and participle in a sentence",
+    "goal": "Use the gerund for manner and the participle as an adjective.",
+    "theory": "The gerund shows how, or at the same time as what, an action happens: `Aprendo español leyendo.` `Entró cantando.` It does not change and does not come after a preposition (use the infinitive instead): `antes de salir`. The participle `-ado/-ido` does not change in compound tenses: `He comido`. As an adjective it agrees: `la puerta cerrada`, `los libros escritos`. With `estar` it shows a result: `La tienda está cerrada.`",
+    "tags": [
+      "gerund",
+      "participle",
+      "participio",
+      "gerundio"
+    ]
+  },
+  {
+    "id": "b1-conectores",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Conjunctions and clauses: porque, cuando, para que",
+    "goal": "Join sentences with reason, time, purpose and concession.",
+    "theory": "Reason: `porque`, `como`, `puesto que`: `Como llueve, me quedo.` Purpose: `para` + infinitive (same subject) or `para que` + subjunctive (different subjects): `Estudio para aprobar.` `Te lo explico para que lo entiendas.` Time: `cuando`, `antes de que`, `después de que`; about the future `cuando` needs the subjunctive: `Cuando llegues, llámame.` Concession: `aunque`, `a pesar de que`. Result: `por eso`, `así que`.",
+    "tags": [
+      "conjunctions",
+      "porque como",
+      "para que",
+      "cuando + subjunctive",
+      "conectores"
+    ]
+  },
+  {
+    "id": "b1-adverbios",
+    "skill": "grammar",
+    "unit": "Description",
+    "title": "Adverbs: manner, time and frequency",
+    "goal": "Use adverbs in -mente and adverbs of time and frequency.",
+    "theory": "Adverbs in `-mente` are formed from the feminine form of the adjective: `rápida → rápidamente`, `fácil → fácilmente`. If there are two in a row, only the last takes `-mente`: `rápida y claramente`. Time and frequency: `ya`, `todavía`, `aún`, `siempre`, `nunca`, `a veces`, `de vez en cuando`. Quantity: `muy`, `mucho`, `bastante`, `demasiado`. `Muy` goes before an adjective and adverb: `muy bien`; `mucho` goes after a verb: `trabajo mucho`. Before `mejor`, `peor` use `mucho`: `mucho mejor`.",
+    "tags": [
+      "adverbs",
+      "-mente",
+      "muy mucho",
+      "adverbios",
+      "frequency"
+    ]
+  },
+  {
+    "id": "b1-vocab-salud",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Health and how you feel",
+    "goal": "Tell a doctor what hurts and understand simple advice.",
+    "theory": "To speak about pain use `doler`: `Me duele la cabeza.` `Me duelen los pies.` A doctor may ask: `¿Qué le pasa?` `¿Desde cuándo?` Advice: `Debe descansar.` `Tiene que tomar este medicamento.` Useful words: `la fiebre`, `la receta`, `el dolor`, `el resfriado`.",
+    "vocabulary": [
+      {
+        "word": "el dolor",
+        "translation": "pain"
+      },
+      {
+        "word": "la fiebre",
+        "translation": "fever"
+      },
+      {
+        "word": "el resfriado",
+        "translation": "cold"
+      },
+      {
+        "word": "la receta",
+        "translation": "prescription"
+      },
+      {
+        "word": "el medicamento",
+        "translation": "medicine"
+      },
+      {
+        "word": "la cita",
+        "translation": "appointment"
+      },
+      {
+        "word": "Me duele…",
+        "translation": "My … hurts"
+      },
+      {
+        "word": "¿Qué le pasa?",
+        "translation": "What is the matter?"
+      }
+    ],
+    "tags": [
+      "health",
+      "doctor",
+      "pain"
+    ]
+  },
+  {
+    "id": "b1-vocab-viajes",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Travel and hotels",
+    "goal": "Book a room, buy a ticket and deal with a problem on a trip.",
+    "theory": "On a trip request formulas are useful: `Quería reservar una habitación.` `¿Tiene alguna habitación libre?` `¿Cuánto cuesta la noche?` Tickets: `un billete de ida y vuelta`. Problems: `He perdido…`, `Se ha estropeado…`. Words: `la reserva`, `el equipaje`, `el vuelo`, `la llegada`, `la salida`.",
+    "vocabulary": [
+      {
+        "word": "la reserva",
+        "translation": "booking"
+      },
+      {
+        "word": "el equipaje",
+        "translation": "luggage"
+      },
+      {
+        "word": "el vuelo",
+        "translation": "flight"
+      },
+      {
+        "word": "la habitación",
+        "translation": "room"
+      },
+      {
+        "word": "ida y vuelta",
+        "translation": "return ticket"
+      },
+      {
+        "word": "el pasaporte",
+        "translation": "passport"
+      },
+      {
+        "word": "la llegada",
+        "translation": "arrival"
+      },
+      {
+        "word": "la salida",
+        "translation": "departure"
+      }
+    ],
+    "tags": [
+      "travel",
+      "hotel",
+      "tickets"
+    ]
+  },
+  {
+    "id": "b1-vocab-opinion",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Opinions and feelings",
+    "goal": "Give an opinion, agree or object.",
+    "theory": "To give an opinion: `Creo que…`, `Me parece que…`, `En mi opinión…`. After `creo que` the indicative: `Creo que es bueno`; after `no creo que` the subjunctive: `No creo que sea bueno.` Agreement: `Estoy de acuerdo`, `Tienes razón`. Objection: `No estoy de acuerdo`, `Eso no es verdad`.",
+    "vocabulary": [
+      {
+        "word": "Creo que…",
+        "translation": "I think that…"
+      },
+      {
+        "word": "Me parece que…",
+        "translation": "It seems to me that…"
+      },
+      {
+        "word": "En mi opinión…",
+        "translation": "In my opinion…"
+      },
+      {
+        "word": "Estoy de acuerdo",
+        "translation": "I agree"
+      },
+      {
+        "word": "No estoy de acuerdo",
+        "translation": "I disagree"
+      },
+      {
+        "word": "Tienes razón",
+        "translation": "You are right"
+      }
+    ],
+    "tags": [
+      "opinion",
+      "feelings",
+      "agreement"
+    ]
+  },
+  {
+    "id": "b1-reading-articulo",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading a short article",
+    "goal": "Understand the topic of an article, its main ideas and the author's attitude.",
+    "theory": "When you read an article, first read the headline and the first paragraph, then find the key words. Do not try to translate every word. Notice the linking words: `sin embargo` (however), `por eso` (that is why), `además` (besides), `en cambio` (on the other hand). They show how ideas are connected.",
+    "vocabulary": [
+      {
+        "word": "sin embargo",
+        "translation": "however"
+      },
+      {
+        "word": "por eso",
+        "translation": "that is why"
+      },
+      {
+        "word": "además",
+        "translation": "besides"
+      },
+      {
+        "word": "en cambio",
+        "translation": "on the other hand"
+      },
+      {
+        "word": "por un lado",
+        "translation": "on the one hand"
+      },
+      {
+        "word": "por otro lado",
+        "translation": "on the other side"
+      }
+    ],
+    "tags": [
+      "reading",
+      "article",
+      "linking words"
+    ]
+  },
+  {
+    "id": "b1-reading-instrucciones",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading instructions and rules",
+    "goal": "Understand instructions and rules and find prohibitions and obligations.",
+    "theory": "In instructions look for verbs of command and prohibition: `Pulse`, `No abra`, `Debe`. Impersonal forms are common: `Se prohíbe fumar`, `Se ruega silencio`. Numbers and order mark the steps: `1.º`, `2.º`, `primero`, `después`, `por último`. Read to the end: the prohibition is often at the end.",
+    "vocabulary": [
+      {
+        "word": "Se prohíbe",
+        "translation": "It is forbidden"
+      },
+      {
+        "word": "Pulse",
+        "translation": "Press"
+      },
+      {
+        "word": "Debe",
+        "translation": "You must"
+      },
+      {
+        "word": "primero",
+        "translation": "first"
+      },
+      {
+        "word": "después",
+        "translation": "then"
+      },
+      {
+        "word": "por último",
+        "translation": "finally"
+      }
+    ],
+    "tags": [
+      "reading",
+      "instructions",
+      "rules"
+    ]
+  },
+  {
+    "id": "b1-writing-correo",
+    "skill": "writing",
+    "unit": "Reading and writing",
+    "title": "Writing a letter: a request and a complaint",
+    "goal": "Write a letter with a request or a complaint and state the point politely.",
+    "theory": "A formal letter has a greeting, a purpose, details, a request and a closing. A model: `Estimados señores: Les escribo para… Les agradecería que… Atentamente, Ana García.` For a request use `¿Podría…?`, `Le agradecería que` + subjunctive. Write short sentences and avoid colloquial words.",
+    "tags": [
+      "writing",
+      "complaint",
+      "formal style"
+    ]
+  },
+  {
+    "id": "b1-listening-radio",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to radio and news",
+    "goal": "Understand the main topic of a short report and the main facts.",
+    "theory": "News is spoken faster. First get the topic, then the details: who, what, where, when. Listen for numbers and place names. Do not stop at unknown words: the meaning is often clear from context. Key words: `según`, `fuentes`, `ayer`, `hoy`.",
+    "vocabulary": [
+      {
+        "word": "según",
+        "translation": "according to"
+      },
+      {
+        "word": "las fuentes",
+        "translation": "sources"
+      },
+      {
+        "word": "la noticia",
+        "translation": "news item"
+      },
+      {
+        "word": "el tiempo",
+        "translation": "weather"
+      },
+      {
+        "word": "hoy",
+        "translation": "today"
+      },
+      {
+        "word": "el presentador",
+        "translation": "presenter"
+      }
+    ],
+    "tags": [
+      "listening",
+      "radio",
+      "news"
+    ]
+  },
+  {
+    "id": "b1-listening-conversacion",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to a conversation about past events",
+    "goal": "Understand what happened and in what order in an everyday story.",
+    "theory": "In stories about the past listen to the verbs: `fui`, `llegué` are events; `era`, `estaba` are background. Follow the order words: `primero`, `luego`, `después`, `al final`. Write the sequence of events in brief notes, then retell it.",
+    "vocabulary": [
+      {
+        "word": "primero",
+        "translation": "first"
+      },
+      {
+        "word": "luego",
+        "translation": "then"
+      },
+      {
+        "word": "después",
+        "translation": "afterwards"
+      },
+      {
+        "word": "al final",
+        "translation": "in the end"
+      },
+      {
+        "word": "de repente",
+        "translation": "suddenly"
+      },
+      {
+        "word": "mientras",
+        "translation": "while"
+      }
+    ],
+    "tags": [
+      "listening",
+      "story",
+      "past"
+    ]
+  },
+  {
+    "id": "b1-speaking-opinion",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: giving an opinion",
+    "goal": "Give an opinion and support it with arguments.",
+    "theory": "It is handy to build an opinion like this: position, reason, example. `Creo que es una buena idea porque ahorramos tiempo. Por ejemplo, ...` To object: `Entiendo, pero…`. Do not be afraid of a pause: use linking words `bueno`, `pues`, `a ver`.",
+    "vocabulary": [
+      {
+        "word": "Creo que…",
+        "translation": "I think that…"
+      },
+      {
+        "word": "Por ejemplo…",
+        "translation": "For example…"
+      },
+      {
+        "word": "Entiendo, pero…",
+        "translation": "I understand, but…"
+      },
+      {
+        "word": "Bueno, a ver…",
+        "translation": "Well, let's see…"
+      },
+      {
+        "word": "Estoy de acuerdo",
+        "translation": "I agree"
+      },
+      {
+        "word": "En mi opinión…",
+        "translation": "In my opinion…"
+      }
+    ],
+    "tags": [
+      "speaking",
+      "opinion",
+      "argument"
+    ]
+  },
+  {
+    "id": "b1-speaking-experiencia",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: telling about a trip",
+    "goal": "Tell about a trip or an event from the past in a connected way.",
+    "theory": "A story about a trip: where, with whom, what you did, what you liked. `El año pasado fui a Italia con mi hermana. Visitamos Roma y Florencia. Lo que más me gustó fue…` Use indefinido for events and imperfecto for description: `Hacía sol y la ciudad era preciosa.` Speak aloud following a plan.",
+    "vocabulary": [
+      {
+        "word": "El año pasado fui a…",
+        "translation": "Last year I went to…"
+      },
+      {
+        "word": "Visitamos…",
+        "translation": "We visited…"
+      },
+      {
+        "word": "Lo que más me gustó…",
+        "translation": "What I liked most…"
+      },
+      {
+        "word": "Hacía mucho calor",
+        "translation": "It was very hot"
+      },
+      {
+        "word": "Fue una experiencia…",
+        "translation": "It was an … experience"
+      },
+      {
+        "word": "Me encantó",
+        "translation": "I loved it"
+      }
+    ],
+    "tags": [
+      "speaking",
+      "story",
+      "trip"
+    ]
+  }
+]

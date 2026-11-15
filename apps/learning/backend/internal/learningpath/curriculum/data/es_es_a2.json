@@ -1,0 +1,313 @@
+[
+  {
+    "id": "a2-adjetivos",
+    "skill": "grammar",
+    "unit": "Nombres y descripción",
+    "title": "Los adjetivos: concordancia y nacionalidad",
+    "goal": "Hacer concordar el adjetivo con el nombre y decir una nacionalidad.",
+    "theory": "El adjetivo concuerda con el nombre en género y número y suele ir después: `un coche pequeño`, `una casa pequeña`, `unos coches pequeños`. Los adjetivos en `-e` o en consonante no cambian de género: `un chico inteligente`, `una chica inteligente`. Las nacionalidades en consonante añaden `-a` en femenino: `español → española`, `alemán → alemana`. Delante de un nombre masculino singular, `bueno` y `malo` se acortan: `un buen amigo`, `un mal día`.",
+    "tags": [
+      "adjetivos",
+      "concordancia",
+      "nacionalidad",
+      "adjetivos"
+    ]
+  },
+  {
+    "id": "a2-comparativos",
+    "skill": "grammar",
+    "unit": "Nombres y descripción",
+    "title": "La comparación y el superlativo",
+    "goal": "Comparar dos cosas y elegir la mejor entre muchas.",
+    "theory": "Para comparar usamos `más… que`, `menos… que`, `tan… como`: `Madrid es más grande que Valencia.` `Ana es tan alta como Luis.` Con nombres: `tanto/a/os/as… como`: `Tengo tantos libros como tú.` Formas especiales: `bueno → mejor`, `malo → peor`, `grande → mayor`, `pequeño → menor`. El superlativo es el artículo + `más/menos`: `la más alta`, `el menos caro`; después va `de`: `la más alta de la clase.`",
+    "tags": [
+      "comparación",
+      "más que",
+      "mejor peor",
+      "superlativo"
+    ]
+  },
+  {
+    "id": "a2-indefinidos",
+    "skill": "grammar",
+    "unit": "Nombres y descripción",
+    "title": "Los indefinidos: algo, nada, mucho, poco",
+    "goal": "Decir «alguien», «nada», «mucho», «poco» y construir bien la negación.",
+    "theory": "`Alguien` es una persona, `nadie` ninguna persona, `algo` una cosa, `nada` ninguna cosa: `¿Hay alguien en casa? — No, no hay nadie.` Si la palabra negativa va después del verbo, antes hace falta `no`: `No veo a nadie.` Cantidad: `mucho`, `poco`, `bastante`, `demasiado` concuerdan con el nombre: `mucha gente`, `pocos amigos`. Sin nombre no cambian: `Trabajo mucho.` `Alguno` y `ninguno` concuerdan y delante de un nombre masculino se acortan: `algún día`, `ningún problema`.",
+    "tags": [
+      "indefinidos",
+      "algo nada",
+      "alguien nadie",
+      "mucho poco",
+      "indefinidos"
+    ]
+  },
+  {
+    "id": "a2-pronombres-complemento",
+    "skill": "grammar",
+    "unit": "Pronombres",
+    "title": "Pronombres de complemento: lo, la, le",
+    "goal": "Sustituir el complemento directo y el indirecto por un pronombre.",
+    "theory": "El complemento directo (a quién, qué) se sustituye por `me`, `te`, `lo/la`, `nos`, `os`, `los/las`: `Veo a Ana → La veo.` `Compro el libro → Lo compro.` El complemento indirecto (a quién) es `me`, `te`, `le`, `nos`, `os`, `les`: `Doy el libro a Ana → Le doy el libro.` El pronombre va delante del verbo conjugado: `Lo tengo.` `No lo tengo.` Con infinitivo o gerundio puede ir unido al final: `Quiero verla.`",
+    "tags": [
+      "pronombres",
+      "lo la los las",
+      "le les",
+      "pronombres"
+    ]
+  },
+  {
+    "id": "a2-reflexivos",
+    "skill": "grammar",
+    "unit": "Pronombres",
+    "title": "Los verbos reflexivos: me levanto, se llama",
+    "goal": "Conjugar los verbos reflexivos y hablar de la rutina diaria.",
+    "theory": "Los verbos reflexivos actúan sobre quien habla y se conjugan con un pronombre: `me`, `te`, `se`, `nos`, `os`, `se`. `Levantarse`: `me levanto`, `te levantas`, `se levanta`, `nos levantamos`, `os levantáis`, `se levantan`. El pronombre va delante del verbo: `Me ducho por la mañana.` Compara: `Lavo el coche` y `Me lavo`. Algunos verbos cambian de significado: `ir` e `irse`, `dormir` y `dormirse`. Con infinitivo el pronombre se une: `Voy a ducharme.`",
+    "tags": [
+      "verbos reflexivos",
+      "me levanto",
+      "reflexivos",
+      "rutina diaria"
+    ]
+  },
+  {
+    "id": "a2-ser-vs-estar",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "Ser y estar: en qué se diferencian",
+    "goal": "Elegir entre ser y estar en situaciones típicas.",
+    "theory": "`Ser` expresa lo que algo es; `estar`, el estado y el lugar. `Ser` indica cualidades, profesión, origen y hora: `Ana es simpática.` `Soy de Madrid.` `Son las tres.` `Estar` indica el lugar y el estado temporal: `Ana está cansada.` `Estamos en Madrid.` El mismo adjetivo cambia de significado: `Es aburrido` (una persona aburrida) y `Está aburrido` (ahora se aburre); `Es listo` (inteligente) y `Está listo` (preparado). Para un acontecimiento usamos `ser`: `La fiesta es en mi casa.`",
+    "tags": [
+      "ser estar",
+      "contraste",
+      "es está"
+    ]
+  },
+  {
+    "id": "a2-futuro-ir-a",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "El futuro próximo: voy a + infinitivo",
+    "goal": "Hablar de planes y de intenciones con ir a.",
+    "theory": "Para hablar de planes usamos `ir a` + infinitivo: `Voy a estudiar español.` `Vamos a salir.` Solo se conjuga `ir`: `voy a`, `vas a`, `va a`, `vamos a`, `vais a`, `van a`. Podemos indicar el momento con `mañana`, `esta noche`, `el sábado`, `la semana que viene`. Para el futuro próximo también se puede usar el presente: `Mañana voy al médico.` Para preguntar: `¿Qué vas a hacer?`",
+    "tags": [
+      "ir a",
+      "futuro",
+      "planes",
+      "voy a"
+    ]
+  },
+  {
+    "id": "a2-presente-estar-gerundio",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "Estar + gerundio: lo que hago ahora",
+    "goal": "Decir lo que pasa ahora mismo y distinguirlo de la costumbre.",
+    "theory": "Una acción que ocurre en el momento de hablar se expresa con `estar` + gerundio: `Estoy estudiando.` `Están comiendo.` El gerundio se forma así: `-ar → -ando`, `-er/-ir → -iendo`: `hablar → hablando`, `comer → comiendo`, `vivir → viviendo`. Formas especiales: `leer → leyendo`, `dormir → durmiendo`, `pedir → pidiendo`. El presente simple habla de una costumbre: `Estudio por las tardes.` Compara: `Hago deporte` (normalmente) y `Estoy haciendo deporte` (ahora).",
+    "tags": [
+      "estar + gerundio",
+      "gerundio",
+      "ahora",
+      "estoy haciendo"
+    ]
+  },
+  {
+    "id": "a2-preterito-indefinido",
+    "skill": "grammar",
+    "unit": "El pasado",
+    "title": "Pretérito indefinido: lo que pasó",
+    "goal": "Contar un hecho terminado en el pasado.",
+    "theory": "El `pretérito indefinido` describe una acción terminada en el pasado: `Ayer trabajé mucho.` Terminaciones de `-ar`: `-é, -aste, -ó, -amos, -asteis, -aron`; de `-er/-ir`: `-í, -iste, -ió, -imos, -isteis, -ieron`: `hablé`, `comí`, `viví`. Formas irregulares frecuentes: `ser/ir`: `fui, fuiste, fue, fuimos, fuisteis, fueron`; `hacer`: `hice`, `hizo`; `tener`: `tuve`; `estar`: `estuve`. Marcadores: `ayer`, `anoche`, `el año pasado`, `hace dos días`.",
+    "tags": [
+      "pretérito indefinido",
+      "pasado",
+      "ayer",
+      "fui hice"
+    ]
+  },
+  {
+    "id": "a2-preterito-perfecto",
+    "skill": "grammar",
+    "unit": "El pasado",
+    "title": "Pretérito perfecto: ya lo he hecho",
+    "goal": "Hablar de un hecho relacionado con el presente y de la experiencia.",
+    "theory": "Es un tiempo compuesto: `haber` + participio. `He`, `has`, `ha`, `hemos`, `habéis`, `han` + `-ado` (`-ar`) o `-ido` (`-er/-ir`): `he trabajado`, `has comido`. Participios irregulares: `hecho`, `dicho`, `visto`, `escrito`, `puesto`, `vuelto`, `abierto`. Se usa cuando el período no ha terminado: `hoy`, `esta semana`, `este año`, y para la experiencia: `¿Has estado en España?` Marcadores: `ya`, `todavía no`, `alguna vez`, `nunca`. Entre `haber` y el participio no va nada: `No he comido`.",
+    "tags": [
+      "pretérito perfecto",
+      "he hecho",
+      "experiencia",
+      "participio"
+    ]
+  },
+  {
+    "id": "a2-preterito-imperfecto",
+    "skill": "grammar",
+    "unit": "El pasado",
+    "title": "Pretérito imperfecto: cómo era antes",
+    "goal": "Describir costumbres y el ambiente en el pasado.",
+    "theory": "El `pretérito imperfecto` cuenta cómo eran las cosas antes y describe el ambiente. Terminaciones de `-ar`: `-aba, -abas, -aba, -ábamos, -abais, -aban`; de `-er/-ir`: `-ía, -ías, -ía, -íamos, -íais, -ían`: `trabajaba`, `comía`, `vivía`. Solo tres verbos son irregulares: `ser` (`era`), `ir` (`iba`), `ver` (`veía`). Marcadores de costumbre: `siempre`, `a menudo`, `todos los días`, `cuando era niño`: `Cuando era niña, vivía en un pueblo.`",
+    "tags": [
+      "pretérito imperfecto",
+      "costumbre en el pasado",
+      "era iba veía"
+    ]
+  },
+  {
+    "id": "a2-imperativo",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "El imperativo",
+    "goal": "Dar consejos, pedir y prohibir con el imperativo.",
+    "theory": "La forma afirmativa para `tú` es la tercera persona del singular: `habla`, `come`, `escribe`. Para `usted`: `hable`, `coma`, `escriba`. La forma negativa para `tú` viene del subjuntivo: `no hables`, `no comas`. Formas irregulares para `tú`: `di`, `haz`, `ve`, `pon`, `sal`, `sé`, `ten`, `ven`. Los verbos reflexivos unen el pronombre al final: `lávate`; en negativo va delante del verbo: `no te laves`.",
+    "tags": [
+      "imperativo",
+      "imperativo",
+      "ven haz di",
+      "orden"
+    ]
+  },
+  {
+    "id": "a2-preposiciones",
+    "skill": "grammar",
+    "unit": "Preposiciones",
+    "title": "Preposiciones de lugar y tiempo: a, en, de, desde",
+    "goal": "Elegir una preposición para la dirección, el lugar y el tiempo.",
+    "theory": "`A` indica dirección y hora: `Voy a Madrid.` `Llego a las cinco.` `En` indica lugar y medio de transporte: `Vivo en Madrid.` `Voy en autobús.` `De` indica origen, posesión y material: `Soy de Rusia.` `El libro de Ana.` Para períodos: `desde` (desde cuándo) y `hasta` (hasta cuándo): `Trabajo desde las nueve hasta las cinco.` `Por la mañana` es durante la mañana. Lugares: `encima de`, `debajo de`, `al lado de`, `delante de`, `detrás de`, `dentro de`.",
+    "tags": [
+      "preposiciones",
+      "a en de",
+      "desde hasta",
+      "preposiciones"
+    ]
+  },
+  {
+    "id": "a2-vocab-ciudad",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "La ciudad y el transporte",
+    "goal": "Preguntar el camino y nombrar un lugar de la ciudad y un medio de transporte.",
+    "theory": "Las palabras de la ciudad sirven para preguntar el camino: `¿Dónde está el banco?` Respuestas: `Todo recto`, `a la derecha`, `a la izquierda`. Transporte: `el autobús`, `el metro`, `el tren`, `el taxi`. Con el transporte se usa `en`: `Voy en metro`, pero `a pie`. Lugares: `la plaza`, `el banco`, `la farmacia`, `la estación`.",
+    "tags": [
+      "ciudad",
+      "transporte",
+      "direcciones"
+    ]
+  },
+  {
+    "id": "a2-vocab-casa",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "La casa y las cosas de cada día",
+    "goal": "Describir tu casa y nombrar cosas del hogar.",
+    "theory": "Para describir una vivienda nombra las habitaciones y los muebles: `la cocina`, `el salón`, `el dormitorio`, `el baño`. Para decir dónde están las cosas: `En mi dormitorio hay una cama y un armario.` No confundas `casa` y `piso` (una vivienda en un edificio, en España). Palabras frecuentes: `la mesa`, `la silla`, `el sofá`, `la ventana`.",
+    "tags": [
+      "casa",
+      "muebles",
+      "vivienda"
+    ]
+  },
+  {
+    "id": "a2-vocab-trabajo",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "El trabajo y los estudios",
+    "goal": "Decir dónde trabajas o estudias y qué haces.",
+    "theory": "Para hablar del trabajo necesitas nombres de profesiones y de lugares. Muchas profesiones tienen forma femenina: `el camarero / la camarera`, `el médico / la médica`. Para preguntar: `¿A qué te dedicas?` Para responder: `Soy ingeniero.` `Trabajo en una oficina.` `Estudio en la universidad.`",
+    "tags": [
+      "trabajo",
+      "profesiones",
+      "estudios"
+    ]
+  },
+  {
+    "id": "a2-reading-correo",
+    "skill": "reading",
+    "unit": "Lectura y escritura",
+    "title": "Leemos mensajes y cartas cortas",
+    "goal": "Entender una carta o un mensaje corto y encontrar lo principal: quién, qué, cuándo.",
+    "theory": "En las cartas informales el saludo es `Hola, Ana:` y la despedida, `Un abrazo`, `Besos`, `Hasta pronto`. En las formales: `Estimado señor:`, `Atentamente`. En el texto busca quién escribe, qué pide y para qué día. Verbos de invitación y petición: `¿Puedes…?`, `¿Quieres venir…?`, `Te escribo para…`.",
+    "tags": [
+      "lectura",
+      "cartas",
+      "mensajes"
+    ]
+  },
+  {
+    "id": "a2-reading-noticias",
+    "skill": "reading",
+    "unit": "Lectura y escritura",
+    "title": "Leemos noticias breves y carteles",
+    "goal": "Entender un titular y la idea principal de una noticia breve o de un cartel.",
+    "theory": "En una noticia son importantes el titular y la primera frase. Busca quién, qué, dónde y cuándo. Entenderás algunas palabras por el contexto. En los carteles busca la fecha y el lugar: `el 12 de mayo, a las 20:00, en el Teatro Real`. Palabras útiles: `entradas`, `concierto`, `exposición`, `estreno`.",
+    "tags": [
+      "lectura",
+      "noticias",
+      "carteles"
+    ]
+  },
+  {
+    "id": "a2-writing-mensaje",
+    "skill": "writing",
+    "unit": "Lectura y escritura",
+    "title": "Escribimos un mensaje y una invitación",
+    "goal": "Escribir un mensaje corto a un amigo: invitar y acordar el lugar y la hora.",
+    "theory": "Una invitación tiene un saludo, una pregunta y los detalles. Un modelo: `Hola, Pablo: ¿Quieres venir al cine el sábado? La película empieza a las 8. Quedamos en la plaza a las 7. Un abrazo.` Usa `¿Quieres…?`, `Podemos…`, `Quedamos…`. No olvides `¿` y `¡` al principio de la pregunta y de la exclamación.",
+    "tags": [
+      "escritura",
+      "invitación",
+      "mensaje"
+    ]
+  },
+  {
+    "id": "a2-listening-anuncios",
+    "skill": "listening",
+    "unit": "Comprensión oral",
+    "title": "Escuchamos anuncios de estación",
+    "goal": "Entender en un anuncio el número de la vía, la hora y el destino.",
+    "theory": "En los anuncios busca números y lugares: `El tren con destino a Sevilla sale a las 18:15 de la vía 3.` Además de los números, escucha palabras clave: `sale`, `llega`, `vía`, `retraso`. No intentes entenderlo todo. Anota la hora, el número y la ciudad y después comprueba.",
+    "tags": [
+      "comprensión oral",
+      "anuncios",
+      "estación"
+    ]
+  },
+  {
+    "id": "a2-listening-conversacion",
+    "skill": "listening",
+    "unit": "Comprensión oral",
+    "title": "Escuchamos una conversación sobre planes",
+    "goal": "Entender de qué planes hablan dos personas y cuándo se van a ver.",
+    "theory": "Una conversación sobre planes se construye con preguntas y respuestas: `¿Qué vas a hacer?`, `Voy a…`, `¿Quedamos?`. Escucha el momento (`mañana`, `el sábado`), el lugar y si aceptan o no. En la lengua hablada las palabras se acortan: `pa` por `para`, `¿qué tal?` por `¿cómo estás?`. Escucha dos veces.",
+    "tags": [
+      "comprensión oral",
+      "planes",
+      "conversación"
+    ]
+  },
+  {
+    "id": "a2-speaking-direcciones",
+    "skill": "speaking",
+    "unit": "Expresión oral",
+    "title": "Hablamos: cómo llegar",
+    "goal": "Preguntar el camino y explicar cómo llegar a un sitio.",
+    "theory": "Para preguntar el camino empieza con educación: `Perdone, ¿dónde está la farmacia?` Para explicar, usa frases cortas: `Siga todo recto.` `Gire a la derecha.` `Está al lado del banco.` Repite las palabras clave para comprobar que has entendido: `¿Todo recto y a la izquierda?`",
+    "tags": [
+      "expresión oral",
+      "direcciones",
+      "camino"
+    ]
+  },
+  {
+    "id": "a2-speaking-planes",
+    "skill": "speaking",
+    "unit": "Expresión oral",
+    "title": "Hablamos: planes para el fin de semana",
+    "goal": "Contar tus planes y proponer quedar.",
+    "theory": "Hablamos de planes con `voy a` + infinitivo: `Este fin de semana voy a visitar a mis padres.` Para proponer: `¿Quieres venir?` `Podemos ir al cine.` Para aceptar: `Vale`, `Me parece bien`. Un rechazo cortés: `Lo siento, no puedo.` Di frases completas en voz alta.",
+    "tags": [
+      "expresión oral",
+      "planes",
+      "fin de semana"
+    ]
+  }
+]

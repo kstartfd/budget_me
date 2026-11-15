@@ -463,3 +463,105 @@ func TestSpanishKeepsItsAccents(t *testing.T) {
 		t.Errorf("the rule of estar lost its accents: %q", topic.Theory)
 	}
 }
+
+// TestTheSpanishLibraryMirrorsInEveryExplanationLanguage: a learner of Spanish
+// who is explained to in English, or in Spanish itself, gets the same topics and
+// the same rules as the one explained to in Russian: same ids, levels, skills,
+// built the same way and referring to the same rules.
+func TestTheSpanishLibraryMirrorsInEveryExplanationLanguage(t *testing.T) {
+	cyrillic := func(s string) bool {
+		return strings.ContainsAny(strings.ToLower(s), "абвгдеёжзийклмнопрстуфхцчшщъыьэюя")
+	}
+
+	ru := curriculum.UpTo("es", "ru", placement.C2)
+
+	for _, native := range []string{"en", "es"} {
+		if !curriculum.Has("es", native) {
+			t.Fatalf("no Spanish library explained in %s", native)
+		}
+
+		other := curriculum.UpTo("es", native, placement.C2)
+		if len(other) != len(ru) {
+			t.Fatalf("%s: %d topics, %d in Russian", native, len(other), len(ru))
+		}
+
+		if len(curriculum.Rules("es", native)) != len(curriculum.Rules("es", "ru")) {
+			t.Errorf("%s: a different number of rules", native)
+		}
+
+		for i, r := range ru {
+			e := other[i]
+			if e.ID != r.ID || e.Level != r.Level || e.Skill != r.Skill {
+				t.Fatalf("%s topic %d: %s/%s/%s, in Russian %s/%s/%s", native, i, e.ID, e.Level, e.Skill, r.ID, r.Level, r.Skill)
+			}
+
+			for field, value := range map[string]string{"title": e.Title, "goal": e.Goal, "unit": e.Unit, "theory": e.Theory} {
+				if strings.TrimSpace(value) == "" || cyrillic(value) {
+					t.Errorf("%s/%s: the %s is empty or in Russian: %q", native, e.ID, field, value)
+				}
+			}
+
+			if n := utf8.RuneCountInString(e.Theory); n < 150 || n > 1200 {
+				t.Errorf("%s/%s: the rule is %d characters", native, e.ID, n)
+			}
+
+			if strings.Count(e.Theory, "`")%2 != 0 || len(e.Tags) == 0 {
+				t.Errorf("%s/%s: an unpaired backtick or no tags", native, e.ID)
+			}
+
+			// Words carry their translation only where the learner's own language is the explanation language.
+			if native == "es" && len(e.Vocabulary) != 0 {
+				t.Errorf("es/%s: the Spanish book carries no words of its own", e.ID)
+			}
+
+			if native == "en" && len(e.Vocabulary) != len(r.Vocabulary) {
+				t.Errorf("en/%s: %d words, %d in Russian", e.ID, len(e.Vocabulary), len(r.Vocabulary))
+			}
+
+			if (r.Extra == nil) != (e.Extra == nil) {
+				t.Fatalf("%s/%s: a rule in one language only", native, e.ID)
+			}
+
+			if r.Extra == nil {
+				continue
+			}
+
+			x, y := e.Extra, r.Extra
+			if len(x.Forms) != len(y.Forms) || len(x.Examples) != len(y.Examples) || len(x.Mistakes) != len(y.Mistakes) {
+				t.Errorf("%s/%s: the rule is built differently", native, e.ID)
+
+				continue
+			}
+
+			if strings.Join(x.Related, ",") != strings.Join(y.Related, ",") {
+				t.Errorf("%s/%s: refers to other rules than in Russian", native, e.ID)
+			}
+
+			for k, ex := range x.Examples {
+				if ex.Text != y.Examples[k].Text {
+					t.Errorf("%s/%s: example %d is another sentence", native, e.ID, k)
+				}
+
+				if native == "es" && ex.Translation != "" {
+					t.Errorf("es/%s: the Spanish book leaves the translating to the Russian one", e.ID)
+				}
+
+				if native == "en" && (strings.TrimSpace(ex.Translation) == "" || cyrillic(ex.Translation)) {
+					t.Errorf("en/%s: example %d has no English translation", e.ID, k)
+				}
+			}
+
+			for _, f := range x.Forms {
+				if cyrillic(f) {
+					t.Errorf("%s/%s: a form in Russian: %q", native, e.ID, f)
+				}
+			}
+
+			for k, m := range x.Mistakes {
+				if m.Wrong != y.Mistakes[k].Wrong || m.Right != y.Mistakes[k].Right || cyrillic(m.Note) || strings.TrimSpace(m.Note) == "" {
+					t.Errorf("%s/%s: mistake %d differs from the Russian one or is not explained: %+v", native, e.ID, k, m)
+				}
+			}
+		}
+	}
+}

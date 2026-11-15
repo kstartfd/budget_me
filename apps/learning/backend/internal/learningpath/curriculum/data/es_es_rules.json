@@ -1,0 +1,1787 @@
+{
+  "a1-genero": {
+    "forms": [
+      "-o → el (masculino): el libro, el niño",
+      "-a → la (femenino): la mesa, la niña",
+      "-ción, -sión, -dad, -tad → la: la canción, la ciudad",
+      "Excepciones: el día, el mapa, el problema, la mano"
+    ],
+    "examples": [
+      {
+        "text": "El padre trabaja en un banco."
+      },
+      {
+        "text": "La profesora es muy simpática."
+      },
+      {
+        "text": "La ciudad tiene un mapa nuevo."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "la problema",
+        "right": "el problema",
+        "note": "Problema termina en -a, pero es masculino."
+      },
+      {
+        "wrong": "el mano",
+        "right": "la mano",
+        "note": "Mano termina en -o, pero es femenino."
+      }
+    ],
+    "related": [
+      "a1-plural",
+      "a1-articulo-determinado"
+    ]
+  },
+  "a1-plural": {
+    "forms": [
+      "Vocal + s: libro → libros, casa → casas",
+      "Consonante + es: ciudad → ciudades, profesor → profesores",
+      "z → ces: lápiz → lápices",
+      "Artículo: el → los, la → las, un → unos, una → unas"
+    ],
+    "examples": [
+      {
+        "text": "Los libros están en la mesa."
+      },
+      {
+        "text": "Las ciudades son grandes."
+      },
+      {
+        "text": "Tengo dos lápices rojos."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "los lápizes",
+        "right": "los lápices",
+        "note": "Delante de -es la z cambia a c."
+      },
+      {
+        "wrong": "las canciónes",
+        "right": "las canciones",
+        "note": "En plural, canción pierde el acento."
+      }
+    ],
+    "related": [
+      "a1-genero",
+      "a1-articulo-indeterminado"
+    ]
+  },
+  "a1-articulo-indeterminado": {
+    "forms": [
+      "Masculino: un libro, unos libros",
+      "Femenino: una casa, unas casas",
+      "Profesión sin artículo: Soy médico.",
+      "Profesión con adjetivo: Es un médico excelente."
+    ],
+    "examples": [
+      {
+        "text": "Tengo un hermano y una hermana."
+      },
+      {
+        "text": "Mi padre es médico."
+      },
+      {
+        "text": "Busco unos zapatos negros."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mi padre es un médico.",
+        "right": "Mi padre es médico.",
+        "note": "Una profesión sin adjetivo se dice sin artículo."
+      },
+      {
+        "wrong": "Tengo una coche.",
+        "right": "Tengo un coche.",
+        "note": "Coche es masculino, por eso un."
+      }
+    ],
+    "related": [
+      "a1-articulo-determinado",
+      "a1-genero"
+    ]
+  },
+  "a1-articulo-determinado": {
+    "forms": [
+      "Formas: el, la, los, las",
+      "a + el = al; de + el = del",
+      "Días: el lunes, los sábados",
+      "Hora: Es la una. Son las tres."
+    ],
+    "examples": [
+      {
+        "text": "El café está caliente."
+      },
+      {
+        "text": "Voy al mercado con la abuela."
+      },
+      {
+        "text": "Es la una y media."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy a el cine.",
+        "right": "Voy al cine.",
+        "note": "A + el siempre es al."
+      },
+      {
+        "wrong": "Trabajo lunes.",
+        "right": "Trabajo el lunes.",
+        "note": "Con un día de la semana hace falta el artículo el."
+      }
+    ],
+    "related": [
+      "a1-articulo-indeterminado",
+      "a1-demostrativos"
+    ]
+  },
+  "a1-demostrativos": {
+    "forms": [
+      "Aquí: este, esta, estos, estas",
+      "No muy lejos: ese, esa, esos, esas",
+      "Lejos: aquel, aquella, aquellos, aquellas",
+      "Sin nombre: esto, eso, aquello"
+    ],
+    "examples": [
+      {
+        "text": "Esta casa es muy grande."
+      },
+      {
+        "text": "Ese chico es mi primo."
+      },
+      {
+        "text": "Aquellas montañas son muy altas."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Este casa es bonita.",
+        "right": "Esta casa es bonita.",
+        "note": "Casa es femenino, por eso esta."
+      },
+      {
+        "wrong": "Estos mesa está limpia.",
+        "right": "Esta mesa está limpia.",
+        "note": "Mesa es singular, por eso esta."
+      }
+    ],
+    "related": [
+      "a1-genero",
+      "a1-posesivos"
+    ]
+  },
+  "a1-posesivos": {
+    "forms": [
+      "mi, tu, su + singular: mi casa",
+      "mis, tus, sus + plural: mis casas",
+      "nuestro/a/os/as, vuestro/a/os/as",
+      "su = de él, de ella, de usted, de ellos"
+    ],
+    "examples": [
+      {
+        "text": "Mi madre se llama Ana."
+      },
+      {
+        "text": "Nuestros padres viven en Madrid."
+      },
+      {
+        "text": "¿Dónde está tu casa?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mis casa es grande.",
+        "right": "Mi casa es grande.",
+        "note": "Casa está en singular, por eso mi."
+      },
+      {
+        "wrong": "La mi madre es profesora.",
+        "right": "Mi madre es profesora.",
+        "note": "Delante de mi no se necesita artículo."
+      }
+    ],
+    "related": [
+      "a1-demostrativos",
+      "a1-ser"
+    ]
+  },
+  "a1-ser": {
+    "forms": [
+      "soy, eres, es, somos, sois, son",
+      "Quién y cómo: Es alto. Soy médico.",
+      "De dónde: Soy de Rusia.",
+      "La hora: Son las tres."
+    ],
+    "examples": [
+      {
+        "text": "Soy de Rusia, pero vivo en Madrid."
+      },
+      {
+        "text": "Ellos son estudiantes."
+      },
+      {
+        "text": "¿De dónde eres?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy ruso.",
+        "right": "Soy ruso.",
+        "note": "La nacionalidad se dice con el verbo ser."
+      },
+      {
+        "wrong": "Soy de veinte años.",
+        "right": "Tengo veinte años.",
+        "note": "La edad se dice con el verbo tener."
+      }
+    ],
+    "related": [
+      "a1-estar",
+      "a1-tener-hay"
+    ]
+  },
+  "a1-estar": {
+    "forms": [
+      "estoy, estás, está, estamos, estáis, están",
+      "Lugar: Está en casa.",
+      "Estado: Estoy cansado, Estamos contentos.",
+      "Pregunta: ¿Cómo está usted?"
+    ],
+    "examples": [
+      {
+        "text": "Madrid está en España."
+      },
+      {
+        "text": "Hoy estoy muy cansada."
+      },
+      {
+        "text": "¿Dónde están mis llaves?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Madrid es en España.",
+        "right": "Madrid está en España.",
+        "note": "El lugar se dice con el verbo estar."
+      },
+      {
+        "wrong": "Estoy en casa cansado y contenta.",
+        "right": "Estoy en casa, cansada y contenta.",
+        "note": "Los adjetivos concuerdan con el sujeto en género."
+      }
+    ],
+    "related": [
+      "a1-ser",
+      "a1-tener-hay"
+    ]
+  },
+  "a1-tener-hay": {
+    "forms": [
+      "tengo, tienes, tiene, tenemos, tenéis, tienen",
+      "Edad: Tengo 20 años.",
+      "Estados: tengo hambre, frío, sueño",
+      "hay + algo nuevo: Hay un museo. Algo conocido: El museo está allí."
+    ],
+    "examples": [
+      {
+        "text": "Tengo dos hermanas."
+      },
+      {
+        "text": "Mi hijo tiene cinco años."
+      },
+      {
+        "text": "En la ciudad hay un museo muy bonito."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Soy veinte años.",
+        "right": "Tengo veinte años.",
+        "note": "La edad se dice con el verbo tener."
+      },
+      {
+        "wrong": "Hay el libro en la mesa.",
+        "right": "El libro está en la mesa.",
+        "note": "Una cosa conocida va con estar, no con hay."
+      }
+    ],
+    "related": [
+      "a1-estar",
+      "a1-articulo-indeterminado"
+    ]
+  },
+  "a1-presente-regular": {
+    "forms": [
+      "-ar: hablo, hablas, habla, hablamos, habláis, hablan",
+      "-er: como, comes, come, comemos, coméis, comen",
+      "-ir: vivo, vives, vive, vivimos, vivís, viven",
+      "Negación: No trabajo hoy."
+    ],
+    "examples": [
+      {
+        "text": "Trabajo en una escuela."
+      },
+      {
+        "text": "Comemos a las dos."
+      },
+      {
+        "text": "¿Vives en Madrid?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Ella hablan español.",
+        "right": "Ella habla español.",
+        "note": "Con ella hace falta la tercera persona del singular."
+      },
+      {
+        "wrong": "Yo no trabajo no hoy.",
+        "right": "Yo no trabajo hoy.",
+        "note": "Basta con un no delante del verbo."
+      }
+    ],
+    "related": [
+      "a1-presente-irregular",
+      "a1-ser"
+    ]
+  },
+  "a1-presente-irregular": {
+    "forms": [
+      "e → ie: querer → quiero; o → ue: poder → puedo",
+      "e → i: pedir → pido",
+      "yo-go: hago, salgo, tengo, digo; conozco",
+      "ir: voy, vas, va, vamos, vais, van"
+    ],
+    "examples": [
+      {
+        "text": "Quiero un café, por favor."
+      },
+      {
+        "text": "¿Puedes ayudarme?"
+      },
+      {
+        "text": "Voy a la universidad en autobús."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo quero agua.",
+        "right": "Yo quiero agua.",
+        "note": "La vocal e de la raíz cambia a ie."
+      },
+      {
+        "wrong": "Nosotros puedemos.",
+        "right": "Nosotros podemos.",
+        "note": "En nosotros la raíz no cambia."
+      }
+    ],
+    "related": [
+      "a1-presente-regular",
+      "a1-gustar"
+    ]
+  },
+  "a1-gustar": {
+    "forms": [
+      "me / te / le / nos / os / les + gusta (singular e infinitivo)",
+      "me / te / le / nos / os / les + gustan (plural)",
+      "A mí me gusta… / A ti te gusta…",
+      "Acuerdo: A mí también / A mí tampoco"
+    ],
+    "examples": [
+      {
+        "text": "Me gusta el café con leche."
+      },
+      {
+        "text": "Nos gustan los libros de historia."
+      },
+      {
+        "text": "¿Te gusta bailar?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo gusto el café.",
+        "right": "Me gusta el café.",
+        "note": "La cosa es la que gusta, por eso me, te, le van delante del verbo."
+      },
+      {
+        "wrong": "Me gusta las manzanas.",
+        "right": "Me gustan las manzanas.",
+        "note": "El verbo concuerda con lo que gusta: manzanas está en plural."
+      }
+    ],
+    "related": [
+      "a1-presente-regular",
+      "a1-interrogativos"
+    ]
+  },
+  "a1-interrogativos": {
+    "forms": [
+      "¿Qué? ¿Quién? ¿Dónde? ¿Cuándo? ¿Cómo?",
+      "¿Cuánto/a/os/as? concuerda con el nombre",
+      "¿Por qué…? — Porque…",
+      "Los signos ¿ ? y el acento en las palabras interrogativas"
+    ],
+    "examples": [
+      {
+        "text": "¿Dónde vives?"
+      },
+      {
+        "text": "¿Cuántos años tienes?"
+      },
+      {
+        "text": "¿Por qué estudias español?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Como te llamas?",
+        "right": "¿Cómo te llamas?",
+        "note": "En una pregunta se escribe ¿ y cómo con acento."
+      },
+      {
+        "wrong": "¿Por que llegas tarde?",
+        "right": "¿Por qué llegas tarde?",
+        "note": "En una pregunta se escribe por qué separado y con acento."
+      }
+    ],
+    "related": [
+      "a1-ser",
+      "a1-tener-hay"
+    ]
+  },
+  "a2-adjetivos": {
+    "forms": [
+      "-o → -a, -os, -as: pequeño, pequeña, pequeños",
+      "-e / consonante: inteligente, joven, fácil",
+      "-or, -ón, -án, nacionalidades: español → española",
+      "bueno → buen, malo → mal (delante de un nombre masculino singular)"
+    ],
+    "examples": [
+      {
+        "text": "Tengo una amiga chilena muy simpática."
+      },
+      {
+        "text": "Es un buen profesor."
+      },
+      {
+        "text": "Mis vecinos son españoles."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "una casa grande y bonito",
+        "right": "una casa grande y bonita",
+        "note": "El adjetivo concuerda con el nombre en género."
+      },
+      {
+        "wrong": "un bueno amigo",
+        "right": "un buen amigo",
+        "note": "Delante de un nombre masculino, bueno se acorta a buen."
+      }
+    ],
+    "related": [
+      "a2-comparativos",
+      "a2-ser-vs-estar"
+    ]
+  },
+  "a2-comparativos": {
+    "forms": [
+      "más / menos + adjetivo + que",
+      "tan + adjetivo + como; tanto/a/os/as + nombre + como",
+      "mejor, peor, mayor, menor",
+      "el / la / los / las + más / menos + adjetivo + de"
+    ],
+    "examples": [
+      {
+        "text": "Mi hermano es más alto que yo."
+      },
+      {
+        "text": "Esta casa es tan cara como aquella."
+      },
+      {
+        "text": "Es la ciudad más bonita del país."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "más grande de Valencia",
+        "right": "más grande que Valencia",
+        "note": "En el segundo término de la comparación hace falta que, no de."
+      },
+      {
+        "wrong": "más bueno",
+        "right": "mejor",
+        "note": "Bueno tiene su propia forma comparativa: mejor."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-indefinidos"
+    ]
+  },
+  "a2-indefinidos": {
+    "forms": [
+      "alguien / nadie; algo / nada",
+      "No + verbo + nada / nadie / nunca",
+      "mucho/a/os/as, poco/a/os/as, bastante, demasiado",
+      "algún, ningún delante de un nombre masculino singular"
+    ],
+    "examples": [
+      {
+        "text": "No hay nadie en la oficina."
+      },
+      {
+        "text": "Tengo muchos amigos, pero poco tiempo libre."
+      },
+      {
+        "text": "¿Quieres algo de beber?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No veo nadie.",
+        "right": "No veo a nadie.",
+        "note": "Una persona como complemento directo lleva la preposición a."
+      },
+      {
+        "wrong": "Tengo mucho amigas.",
+        "right": "Tengo muchas amigas.",
+        "note": "Mucho concuerda con el nombre en género y número."
+      }
+    ],
+    "related": [
+      "a2-comparativos",
+      "a2-adjetivos"
+    ]
+  },
+  "a2-pronombres-complemento": {
+    "forms": [
+      "Directo: me, te, lo/la, nos, os, los/las",
+      "Indirecto: me, te, le, nos, os, les",
+      "Delante del verbo: Lo veo. No lo veo.",
+      "Con infinitivo: Quiero verlo. / Lo quiero ver."
+    ],
+    "examples": [
+      {
+        "text": "¿El libro? Lo tengo yo."
+      },
+      {
+        "text": "Le escribo una carta a mi madre."
+      },
+      {
+        "text": "Te quiero mucho."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Veo la.",
+        "right": "La veo.",
+        "note": "El pronombre va delante del verbo conjugado."
+      },
+      {
+        "wrong": "Les doy un libro a Ana.",
+        "right": "Le doy un libro a Ana.",
+        "note": "Una persona es le; varias personas son les."
+      }
+    ],
+    "related": [
+      "a2-reflexivos",
+      "a2-imperativo"
+    ]
+  },
+  "a2-reflexivos": {
+    "forms": [
+      "me, te, se, nos, os, se + verbo",
+      "levantarse, ducharse, acostarse, llamarse",
+      "Con infinitivo: Voy a ducharme. / Me voy a duchar.",
+      "Contraste: lavar (algo) y lavarse (a uno mismo)"
+    ],
+    "examples": [
+      {
+        "text": "Me levanto a las siete."
+      },
+      {
+        "text": "Mi hermana se llama Laura."
+      },
+      {
+        "text": "Lavo el coche y luego me ducho."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo levanto a las siete.",
+        "right": "Yo me levanto a las siete.",
+        "note": "Levantarse es reflexivo, por eso hace falta me."
+      },
+      {
+        "wrong": "Se llamo Ana.",
+        "right": "Me llamo Ana.",
+        "note": "El pronombre debe coincidir con el sujeto: yo → me."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "a2-ser-vs-estar": {
+    "forms": [
+      "ser: quién, cómo, de dónde, hora, material",
+      "estar: dónde, cómo se siente, resultado",
+      "Cambia el significado: ser aburrido / estar aburrido",
+      "Acontecimiento: ser en + lugar"
+    ],
+    "examples": [
+      {
+        "text": "María es muy simpática, pero hoy está triste."
+      },
+      {
+        "text": "La reunión es en la sala 3."
+      },
+      {
+        "text": "La sopa está fría."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Soy en casa.",
+        "right": "Estoy en casa.",
+        "note": "El lugar se dice con estar."
+      },
+      {
+        "wrong": "Estoy médico.",
+        "right": "Soy médico.",
+        "note": "La profesión se dice con el verbo ser."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "a2-futuro-ir-a": {
+    "forms": [
+      "voy, vas, va, vamos, vais, van + a + infinitivo",
+      "Indicadores: mañana, esta noche, el sábado",
+      "Pregunta: ¿Qué vas a hacer?",
+      "Presente para el futuro: Mañana voy al médico."
+    ],
+    "examples": [
+      {
+        "text": "Voy a estudiar español este año."
+      },
+      {
+        "text": "Mañana vamos a visitar a mis abuelos."
+      },
+      {
+        "text": "¿Qué vas a hacer el sábado?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy estudiar.",
+        "right": "Voy a estudiar.",
+        "note": "Entre ir y el infinitivo hace falta la preposición a."
+      },
+      {
+        "wrong": "Va a come.",
+        "right": "Va a comer.",
+        "note": "Después de ir a el verbo va en infinitivo."
+      }
+    ],
+    "related": [
+      "a2-presente-estar-gerundio",
+      "a2-preterito-indefinido"
+    ]
+  },
+  "a2-presente-estar-gerundio": {
+    "forms": [
+      "estoy, estás, está, estamos, estáis, están + gerundio",
+      "-ar → -ando; -er/-ir → -iendo",
+      "leyendo, durmiendo, pidiendo",
+      "Costumbre: Trabajo aquí. Ahora: Estoy trabajando."
+    ],
+    "examples": [
+      {
+        "text": "Estoy viendo las noticias."
+      },
+      {
+        "text": "Los niños están durmiendo."
+      },
+      {
+        "text": "Hoy estoy trabajando en casa."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy trabajo.",
+        "right": "Estoy trabajando.",
+        "note": "Después de estar hace falta el gerundio, no una forma conjugada."
+      },
+      {
+        "wrong": "Estamos leendo.",
+        "right": "Estamos leyendo.",
+        "note": "El gerundio de leer es leyendo."
+      }
+    ],
+    "related": [
+      "a2-futuro-ir-a",
+      "a2-ser-vs-estar"
+    ]
+  },
+  "a2-preterito-indefinido": {
+    "forms": [
+      "-ar: -é, -aste, -ó, -amos, -asteis, -aron",
+      "-er/-ir: -í, -iste, -ió, -imos, -isteis, -ieron",
+      "ser/ir: fui, fuiste, fue…; hacer: hice, hizo",
+      "Marcadores: ayer, anoche, el año pasado, hace + tiempo"
+    ],
+    "examples": [
+      {
+        "text": "Ayer trabajé hasta las ocho."
+      },
+      {
+        "text": "El año pasado fuimos a México."
+      },
+      {
+        "text": "¿Qué hiciste el sábado?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo comió pizza.",
+        "right": "Yo comí pizza.",
+        "note": "Para yo, en los verbos en -er/-ir la terminación es -í."
+      },
+      {
+        "wrong": "Ayer hací la cena.",
+        "right": "Ayer hice la cena.",
+        "note": "Hacer tiene la forma especial hice."
+      }
+    ],
+    "related": [
+      "a2-preterito-perfecto",
+      "a2-preterito-imperfecto"
+    ]
+  },
+  "a2-preterito-perfecto": {
+    "forms": [
+      "he, has, ha, hemos, habéis, han + -ado / -ido",
+      "Irregulares: hecho, dicho, visto, escrito, puesto, vuelto",
+      "Marcadores: hoy, esta semana, ya, todavía no, alguna vez",
+      "Negación: No he terminado."
+    ],
+    "examples": [
+      {
+        "text": "Hoy he trabajado mucho."
+      },
+      {
+        "text": "¿Has estado alguna vez en España?"
+      },
+      {
+        "text": "Todavía no he comido."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He hacido la tarea.",
+        "right": "He hecho la tarea.",
+        "note": "El participio de hacer es hecho."
+      },
+      {
+        "wrong": "Ayer he trabajado.",
+        "right": "Ayer trabajé.",
+        "note": "Con ayer, un tiempo terminado, se usa el indefinido."
+      }
+    ],
+    "related": [
+      "a2-preterito-indefinido",
+      "a2-preterito-imperfecto"
+    ]
+  },
+  "a2-preterito-imperfecto": {
+    "forms": [
+      "-ar: -aba, -abas, -aba, -ábamos, -abais, -aban",
+      "-er/-ir: -ía, -ías, -ía, -íamos, -íais, -ían",
+      "Irregulares: ser → era, ir → iba, ver → veía",
+      "Marcadores: siempre, todos los días, cuando era niño"
+    ],
+    "examples": [
+      {
+        "text": "Cuando era niño, vivía en un pueblo."
+      },
+      {
+        "text": "Todos los domingos comíamos en casa de mi abuela."
+      },
+      {
+        "text": "Iba al colegio en bicicleta."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo eraba alto.",
+        "right": "Yo era alto.",
+        "note": "El verbo ser tiene la forma especial era."
+      },
+      {
+        "wrong": "Cuando era niña, jugué en la calle todos los días.",
+        "right": "Cuando era niña, jugaba en la calle todos los días.",
+        "note": "Una acción habitual en el pasado se expresa con el imperfecto."
+      }
+    ],
+    "related": [
+      "a2-preterito-indefinido",
+      "a2-preterito-perfecto"
+    ]
+  },
+  "a2-imperativo": {
+    "forms": [
+      "tú: habla, come, escribe",
+      "usted: hable, coma, escriba",
+      "Irregulares: di, haz, ve, pon, sal, sé, ten, ven",
+      "Prohibición: no hables, no comas"
+    ],
+    "examples": [
+      {
+        "text": "Abre la ventana, por favor."
+      },
+      {
+        "text": "No fumes aquí."
+      },
+      {
+        "text": "Ven a mi casa mañana."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No habla tan rápido.",
+        "right": "No hables tan rápido.",
+        "note": "En la prohibición para tú hace falta la forma en -es."
+      },
+      {
+        "wrong": "Hace la tarea.",
+        "right": "Haz la tarea.",
+        "note": "El imperativo de hacer para tú es haz."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "a2-reflexivos"
+    ]
+  },
+  "a2-preposiciones": {
+    "forms": [
+      "a: dirección, hora; en: lugar, transporte",
+      "de: origen, posesión; desde / hasta",
+      "por la mañana / tarde / noche",
+      "encima de, debajo de, al lado de, delante de"
+    ],
+    "examples": [
+      {
+        "text": "Voy a Barcelona en tren."
+      },
+      {
+        "text": "El libro está encima de la mesa."
+      },
+      {
+        "text": "Trabajo desde las nueve hasta las cinco."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy en Madrid.",
+        "right": "Voy a Madrid.",
+        "note": "La dirección se expresa con la preposición a."
+      },
+      {
+        "wrong": "Vivo a Madrid.",
+        "right": "Vivo en Madrid.",
+        "note": "El lugar donde se vive lleva en."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-futuro-ir-a"
+    ]
+  },
+  "b1-indefinido-vs-imperfecto": {
+    "forms": [
+      "Imperfecto: fondo, costumbre, edad, tiempo",
+      "Indefinido: hecho terminado, sucesión",
+      "estaba + gerundio + cuando + indefinido",
+      "Cambia el significado: conocí / conocía, supe / sabía"
+    ],
+    "examples": [
+      {
+        "text": "Llovía y hacía frío cuando salí de casa."
+      },
+      {
+        "text": "Estaba leyendo cuando sonó el teléfono."
+      },
+      {
+        "text": "Cuando era niña, un día me perdí en el bosque."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegué, todos cenaron.",
+        "right": "Cuando llegué, todos cenaban.",
+        "note": "Una acción en curso a la vez que un hecho se expresa con el imperfecto."
+      },
+      {
+        "wrong": "Estuve cenando cuando llamaste.",
+        "right": "Estaba cenando cuando llamaste.",
+        "note": "Una acción de fondo que se interrumpe se expresa con el imperfecto."
+      }
+    ],
+    "related": [
+      "b1-pluscuamperfecto",
+      "b1-futuro-simple"
+    ]
+  },
+  "b1-pluscuamperfecto": {
+    "forms": [
+      "había, habías, había, habíamos, habíais, habían + participio",
+      "ya, todavía no, nunca + pluscuamperfecto",
+      "Orden: pluscuamperfecto = antes, indefinido = después",
+      "Participios irregulares: hecho, dicho, visto, escrito"
+    ],
+    "examples": [
+      {
+        "text": "Cuando llegué, ya se había ido."
+      },
+      {
+        "text": "Nunca había visto el mar."
+      },
+      {
+        "text": "Me dijo que había terminado el trabajo."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegué, ya se fue.",
+        "right": "Cuando llegué, ya se había ido.",
+        "note": "Una acción anterior a otra del pasado necesita el pluscuamperfecto."
+      },
+      {
+        "wrong": "Nunca he visto el mar hasta ayer.",
+        "right": "Nunca había visto el mar hasta ayer.",
+        "note": "La experiencia hasta un momento del pasado se expresa con el pluscuamperfecto, no con el perfecto."
+      }
+    ],
+    "related": [
+      "b1-indefinido-vs-imperfecto",
+      "b2-estilo-indirecto"
+    ]
+  },
+  "b1-futuro-simple": {
+    "forms": [
+      "Infinitivo + é, ás, á, emos, éis, án",
+      "Raíces especiales: tendr-, har-, podr-, saldr-, dir-, vendr-",
+      "Suposición: Estará en casa. = Seguramente está en casa",
+      "Promesa, predicción: Te llamaré. Mañana lloverá."
+    ],
+    "examples": [
+      {
+        "text": "El año que viene viajaré a Italia."
+      },
+      {
+        "text": "Estará en casa, porque su luz está encendida."
+      },
+      {
+        "text": "¿Cuándo vendrás a verme?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo tenderé tiempo.",
+        "right": "Yo tendré tiempo.",
+        "note": "Tener tiene la raíz especial tendr-."
+      },
+      {
+        "wrong": "Mañana yo salirá.",
+        "right": "Mañana saldré.",
+        "note": "Salir tiene la raíz especial saldr-."
+      }
+    ],
+    "related": [
+      "b1-condicional",
+      "b1-indefinido-vs-imperfecto"
+    ]
+  },
+  "b1-condicional": {
+    "forms": [
+      "Infinitivo + ía, ías, ía, íamos, íais, ían",
+      "Raíces especiales: tendr-, har-, podr-, saldr-, dir-",
+      "Cortesía: ¿Podría…? Me gustaría…",
+      "Consejo: Deberías…; indirecto: Dijo que vendría"
+    ],
+    "examples": [
+      {
+        "text": "¿Podría abrir la ventana, por favor?"
+      },
+      {
+        "text": "Deberías descansar un poco."
+      },
+      {
+        "text": "Me gustaría vivir cerca del mar."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo podería ir.",
+        "right": "Yo podría ir.",
+        "note": "Poder tiene la raíz podr-, no poder-."
+      },
+      {
+        "wrong": "Dijo que vendrá.",
+        "right": "Dijo que vendría.",
+        "note": "En estilo indirecto, después de un pasado el futuro se cambia por el condicional."
+      }
+    ],
+    "related": [
+      "b1-futuro-simple",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-pronombres-combinados": {
+    "forms": [
+      "Indirecto + directo: me lo, te la, nos los",
+      "le/les + lo/la → se lo / se la",
+      "Con infinitivo: dárselo; con imperativo: dámelo",
+      "No cambies el orden: me lo, no lo me"
+    ],
+    "examples": [
+      {
+        "text": "Mi madre me lo ha regalado."
+      },
+      {
+        "text": "¿El libro? Se lo di ayer a Pablo."
+      },
+      {
+        "text": "Voy a enviártelo mañana."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Le lo doy.",
+        "right": "Se lo doy.",
+        "note": "Le delante de lo se cambia por se."
+      },
+      {
+        "wrong": "Lo me dijo.",
+        "right": "Me lo dijo.",
+        "note": "El complemento indirecto va delante del directo."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "b1-imperativo-pronombres"
+    ]
+  },
+  "b1-imperativo-pronombres": {
+    "forms": [
+      "usted/ustedes: hable(n), coma(n), escriba(n)",
+      "vosotros: hablad; prohibición: no habléis",
+      "Afirmativo: cómpralo, dímelo, siéntese",
+      "Prohibición: no lo compres, no me lo digas"
+    ],
+    "examples": [
+      {
+        "text": "Siéntese, por favor."
+      },
+      {
+        "text": "Dímelo ahora."
+      },
+      {
+        "text": "No me lo digas."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No lo compra.",
+        "right": "No lo compres.",
+        "note": "En la prohibición para tú hace falta la forma en -es."
+      },
+      {
+        "wrong": "Compralo.",
+        "right": "Cómpralo.",
+        "note": "Hace falta el acento para conservar la sílaba fuerte."
+      }
+    ],
+    "related": [
+      "a2-imperativo",
+      "b1-pronombres-combinados"
+    ]
+  },
+  "b1-subjuntivo-presente": {
+    "forms": [
+      "-ar: -e, -es, -e, -emos, -éis, -en",
+      "-er/-ir: -a, -as, -a, -amos, -áis, -an",
+      "Especiales: sea, vaya, esté, sepa, haya",
+      "Deseo, petición, emoción + que + subjuntivo"
+    ],
+    "examples": [
+      {
+        "text": "Quiero que vengas a mi fiesta."
+      },
+      {
+        "text": "Me alegro de que estés aquí."
+      },
+      {
+        "text": "Te pido que hables más despacio."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quiero que vienes.",
+        "right": "Quiero que vengas.",
+        "note": "Después de quiero que hace falta el subjuntivo."
+      },
+      {
+        "wrong": "Quiero que yo vaya.",
+        "right": "Quiero ir.",
+        "note": "Si el sujeto es el mismo, se usa el infinitivo."
+      }
+    ],
+    "related": [
+      "b1-condicional",
+      "b1-subjuntivo-sentimientos"
+    ]
+  },
+  "b1-subjuntivo-sentimientos": {
+    "forms": [
+      "Deseo: quiero / espero / prefiero que + subj.",
+      "Probabilidad: quizás / tal vez + subj.",
+      "Valoración: es importante / es una pena / me gusta que + subj.",
+      "Sin cambio de sujeto: infinitivo"
+    ],
+    "examples": [
+      {
+        "text": "Espero que no llueva mañana."
+      },
+      {
+        "text": "Quizás vaya al cine esta noche."
+      },
+      {
+        "text": "Es importante que duermas bien."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quizás voy.",
+        "right": "Quizás vaya.",
+        "note": "Quizás para la duda pide subjuntivo."
+      },
+      {
+        "wrong": "Me gusta que vienes.",
+        "right": "Me gusta que vengas.",
+        "note": "Después de me gusta que hace falta el subjuntivo."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-presente",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  },
+  "b1-relativos": {
+    "forms": [
+      "que: El libro que leo",
+      "preposición + el / la / los / las + que: la casa en la que vivo",
+      "quien (personas), donde (lugar), cuyo (de quien)",
+      "No conocido: Busco algo que sea barato."
+    ],
+    "examples": [
+      {
+        "text": "El libro que estoy leyendo es muy bueno."
+      },
+      {
+        "text": "La casa en la que vivo es pequeña."
+      },
+      {
+        "text": "Busco un piso que tenga balcón."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "El chico que hablo es mi amigo.",
+        "right": "El chico con el que hablo es mi amigo.",
+        "note": "Después de una preposición, que necesita un artículo."
+      },
+      {
+        "wrong": "Busco una casa que tiene jardín.",
+        "right": "Busco una casa que tenga jardín.",
+        "note": "Si lo que se busca no se conoce, hace falta el subjuntivo."
+      }
+    ],
+    "related": [
+      "b1-conectores",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-perifrasis": {
+    "forms": [
+      "Obligación: tener que, hay que, deber + infinitivo",
+      "Costumbre: soler + infinitivo",
+      "Principio y fin: empezar a, acabar de, dejar de",
+      "Continuación y repetición: seguir + gerundio, volver a + infinitivo"
+    ],
+    "examples": [
+      {
+        "text": "Tengo que terminar el informe hoy."
+      },
+      {
+        "text": "Acabo de llegar a casa."
+      },
+      {
+        "text": "Sigo viviendo en el mismo barrio."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Tengo estudiar.",
+        "right": "Tengo que estudiar.",
+        "note": "Tener que necesita que."
+      },
+      {
+        "wrong": "Suelo comiendo en casa.",
+        "right": "Suelo comer en casa.",
+        "note": "Después de soler va un infinitivo."
+      }
+    ],
+    "related": [
+      "b1-gerundio-participio",
+      "a2-futuro-ir-a"
+    ]
+  },
+  "b1-gerundio-participio": {
+    "forms": [
+      "Gerundio: modo — leyendo, cantando",
+      "Después de una preposición — infinitivo: antes de salir",
+      "Con haber el participio no cambia: he comido",
+      "El participio-adjetivo concuerda: puertas cerradas"
+    ],
+    "examples": [
+      {
+        "text": "Aprendo español escuchando música."
+      },
+      {
+        "text": "La tienda está cerrada los domingos."
+      },
+      {
+        "text": "Antes de salir, cierra la ventana."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Antes de saliendo.",
+        "right": "Antes de salir.",
+        "note": "Después de una preposición hace falta el infinitivo."
+      },
+      {
+        "wrong": "Las puertas están cerrado.",
+        "right": "Las puertas están cerradas.",
+        "note": "El participio usado como adjetivo concuerda con el nombre."
+      }
+    ],
+    "related": [
+      "b1-perifrasis",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "b1-conectores": {
+    "forms": [
+      "Causa: porque, como, puesto que",
+      "Finalidad: para + inf. / para que + subjuntivo",
+      "Tiempo: cuando, antes de que + subjuntivo",
+      "Consecuencia: por eso, así que"
+    ],
+    "examples": [
+      {
+        "text": "Como llueve, me quedo en casa."
+      },
+      {
+        "text": "Te llamo para que sepas dónde estoy."
+      },
+      {
+        "text": "Cuando llegues, llámame."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estudio para que apruebo.",
+        "right": "Estudio para aprobar.",
+        "note": "Si el sujeto es el mismo, hace falta el infinitivo."
+      },
+      {
+        "wrong": "Cuando llegas mañana, llámame.",
+        "right": "Cuando llegues mañana, llámame.",
+        "note": "Después de cuando, hablando del futuro, hace falta el subjuntivo."
+      }
+    ],
+    "related": [
+      "b1-relativos",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-adverbios": {
+    "forms": [
+      "Forma femenina + -mente: rápida → rápidamente",
+      "Tiempo: ya, todavía, aún; frecuencia: siempre, a veces, nunca",
+      "muy + adjetivo / adverbio; verbo + mucho",
+      "mucho + mejor / peor / más / menos"
+    ],
+    "examples": [
+      {
+        "text": "Habla muy bien español."
+      },
+      {
+        "text": "Siempre llega tarde, pero hoy llegó rápidamente."
+      },
+      {
+        "text": "Todavía no he terminado."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Hablo muy.",
+        "right": "Hablo mucho.",
+        "note": "Después de un verbo hace falta mucho, no muy."
+      },
+      {
+        "wrong": "Es mucho bueno.",
+        "right": "Es muy bueno.",
+        "note": "Delante de un adjetivo hace falta muy."
+      }
+    ],
+    "related": [
+      "b1-perifrasis",
+      "b1-conectores"
+    ]
+  },
+  "b2-subjuntivo-imperfecto": {
+    "forms": [
+      "Raíz: ellos indefinido − ron + ra, ras, ra, ramos, rais, ran",
+      "Forma en -se: trabajase, comiese",
+      "Pasado: Quería que vinieras. Irreal: Si tuviera…",
+      "Cortesía: Quisiera… ¿Pudiera ayudarme?"
+    ],
+    "examples": [
+      {
+        "text": "Quería que me ayudaras con la tarea."
+      },
+      {
+        "text": "Si tuviera más tiempo, viajaría más."
+      },
+      {
+        "text": "Quisiera reservar una mesa para dos."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quería que vienes.",
+        "right": "Quería que vinieras.",
+        "note": "Después de un verbo principal en pasado hace falta el imperfecto de subjuntivo."
+      },
+      {
+        "wrong": "Si tendría tiempo, iría.",
+        "right": "Si tuviera tiempo, iría.",
+        "note": "Después de si en una condición irreal se usa el imperfecto de subjuntivo, no el condicional."
+      }
+    ],
+    "related": [
+      "b2-condicionales-si",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b2-subjuntivo-perfecto": {
+    "forms": [
+      "haya, hayas, haya, hayamos, hayáis, hayan + participio",
+      "Terminado + emoción / duda: Me alegro de que hayas venido",
+      "Cuando + perfecto de subjuntivo: Cuando hayas terminado…",
+      "No confundir: vengas (futuro) y hayas venido (ya)"
+    ],
+    "examples": [
+      {
+        "text": "Espero que hayas llegado bien a casa."
+      },
+      {
+        "text": "No creo que haya dicho eso."
+      },
+      {
+        "text": "Cuando hayas terminado, avísame."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Espero que has llegado bien.",
+        "right": "Espero que hayas llegado bien.",
+        "note": "Después de espero que hace falta el subjuntivo y, si la acción está terminada, el perfecto de subjuntivo."
+      },
+      {
+        "wrong": "No creo que ha venido.",
+        "right": "No creo que haya venido.",
+        "note": "Después de no creo que hace falta el subjuntivo."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-sentimientos",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  },
+  "b2-indicativo-vs-subjuntivo": {
+    "forms": [
+      "Seguridad: creo que, es verdad que, está claro que + indicativo",
+      "Duda, negación: no creo que, no es verdad que + subjuntivo",
+      "aunque + indicativo (hecho) / subjuntivo (suposición)",
+      "Valoración: es normal / es lógico que + subjuntivo"
+    ],
+    "examples": [
+      {
+        "text": "Creo que Pedro viene mañana."
+      },
+      {
+        "text": "No creo que Pedro venga mañana."
+      },
+      {
+        "text": "Es verdad que hace mucho calor."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No creo que viene.",
+        "right": "No creo que venga.",
+        "note": "Después de no creo que hace falta el subjuntivo."
+      },
+      {
+        "wrong": "Está claro que venga.",
+        "right": "Está claro que viene.",
+        "note": "Después de está claro que hace falta el indicativo."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-sentimientos",
+      "b2-subjuntivo-perfecto"
+    ]
+  },
+  "b2-estilo-indirecto": {
+    "forms": [
+      "Verbo introductor en presente: los tiempos no cambian",
+      "Desplazamiento: presente → imperfecto, futuro → condicional, perfecto → pluscuamperfecto",
+      "Petición: Pidió que + imperfecto de subjuntivo",
+      "Pregunta: preguntó si / dónde / cuándo…"
+    ],
+    "examples": [
+      {
+        "text": "Dijo que vivía en Madrid."
+      },
+      {
+        "text": "Me preguntó si quería café."
+      },
+      {
+        "text": "Me pidió que le ayudara."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Dijo que vendrá al día siguiente.",
+        "right": "Dijo que vendría al día siguiente.",
+        "note": "Después de un verbo introductor en pasado, el futuro se cambia por el condicional."
+      },
+      {
+        "wrong": "Preguntó que si venía.",
+        "right": "Preguntó si venía.",
+        "note": "La pregunta se introduce con si, sin un que más."
+      }
+    ],
+    "related": [
+      "b1-pluscuamperfecto",
+      "b2-subjuntivo-imperfecto"
+    ]
+  },
+  "b2-condicionales-si": {
+    "forms": [
+      "Real: si + presente → presente / futuro / imperativo",
+      "Irreal: si + imperfecto de subjuntivo → condicional",
+      "Imposible: si + hubiera + participio → habría + participio",
+      "No se puede: si + futuro / condicional"
+    ],
+    "examples": [
+      {
+        "text": "Si llueve, nos quedamos en casa."
+      },
+      {
+        "text": "Si fuera rico, compraría una casa en la playa."
+      },
+      {
+        "text": "Si hubiera estudiado más, habría aprobado."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Si tendré tiempo, iré.",
+        "right": "Si tengo tiempo, iré.",
+        "note": "Después de si en una condición no se usa el futuro."
+      },
+      {
+        "wrong": "Si tendría dinero, viajaría.",
+        "right": "Si tuviera dinero, viajaría.",
+        "note": "Después de si en una condición irreal hace falta el imperfecto de subjuntivo."
+      }
+    ],
+    "related": [
+      "b2-subjuntivo-imperfecto",
+      "b2-tiempos-compuestos"
+    ]
+  },
+  "b2-tiempos-compuestos": {
+    "forms": [
+      "habré, habrás, habrá, habremos, habréis, habrán + participio",
+      "habría, habrías, habría, habríamos, habríais, habrían + participio",
+      "Suposición sobre el pasado: Habrá llegado",
+      "Imposible: Si hubiera… habría…"
+    ],
+    "examples": [
+      {
+        "text": "Para el viernes habré terminado el informe."
+      },
+      {
+        "text": "Habrá llegado ya a casa."
+      },
+      {
+        "text": "Yo habría aceptado esa oferta."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mañana habré terminar.",
+        "right": "Mañana habré terminado.",
+        "note": "Después de habré hace falta el participio."
+      },
+      {
+        "wrong": "Habría ido, pero estoy enfermo.",
+        "right": "Habría ido, pero estaba enfermo.",
+        "note": "Una causa en el pasado se expresa con el imperfecto."
+      }
+    ],
+    "related": [
+      "b2-condicionales-si",
+      "b1-pluscuamperfecto"
+    ]
+  },
+  "b2-concesivas-consecutivas": {
+    "forms": [
+      "aunque + indicativo (hecho) / subjuntivo (suposición)",
+      "a pesar de que + indicativo; a pesar de + nombre / inf.",
+      "así que, por eso, de modo que + indicativo",
+      "tan + adjetivo + que; tanto + nombre + que"
+    ],
+    "examples": [
+      {
+        "text": "Aunque hace frío, salgo a correr."
+      },
+      {
+        "text": "Aunque llueva, iremos a la playa."
+      },
+      {
+        "text": "Estaba tan cansado que se durmió en el sofá."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Aunque llueve mañana, voy.",
+        "right": "Aunque llueva mañana, voy.",
+        "note": "Una suposición sobre el futuro necesita subjuntivo."
+      },
+      {
+        "wrong": "A pesar de que estar cansado.",
+        "right": "A pesar de estar cansado.",
+        "note": "Con un infinitivo se usa a pesar de sin que."
+      }
+    ],
+    "related": [
+      "b2-temporales-subjuntivo",
+      "b1-conectores"
+    ]
+  },
+  "b2-temporales-subjuntivo": {
+    "forms": [
+      "Futuro: cuando, hasta que, en cuanto + subjuntivo",
+      "Habitual, pasado: cuando + indicativo",
+      "antes de que, para que + siempre subjuntivo",
+      "Mismo sujeto: antes de / para + infinitivo"
+    ],
+    "examples": [
+      {
+        "text": "En cuanto termines, avísame."
+      },
+      {
+        "text": "Cuando llego a casa, me ducho."
+      },
+      {
+        "text": "Espera hasta que vuelva."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegas, llámame.",
+        "right": "Cuando llegues, llámame.",
+        "note": "Para una acción futura después de cuando hace falta el subjuntivo."
+      },
+      {
+        "wrong": "Antes de que salgo, cierro.",
+        "right": "Antes de salir, cierro.",
+        "note": "Con un solo sujeto se usa el infinitivo."
+      }
+    ],
+    "related": [
+      "b2-concesivas-consecutivas",
+      "b1-conectores"
+    ]
+  },
+  "b2-pasiva": {
+    "forms": [
+      "ser + participio (concuerda): fue construida",
+      "Agente: por + agente",
+      "se + verbo en 3.ª persona: Se venden pisos.",
+      "estar + participio = resultado"
+    ],
+    "examples": [
+      {
+        "text": "El Quijote fue escrito por Cervantes."
+      },
+      {
+        "text": "En esta tienda se venden libros usados."
+      },
+      {
+        "text": "La puerta está cerrada."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Se vende pisos.",
+        "right": "Se venden pisos.",
+        "note": "El verbo concuerda con la cosa: pisos está en plural."
+      },
+      {
+        "wrong": "La casa fue construido.",
+        "right": "La casa fue construida.",
+        "note": "El participio concuerda con el sujeto en género."
+      }
+    ],
+    "related": [
+      "b2-se-impersonal",
+      "b1-gerundio-participio"
+    ]
+  },
+  "b2-se-impersonal": {
+    "forms": [
+      "se + 3.ª persona del singular: Se trabaja mucho.",
+      "Una cosa — se + concordancia: Se venden pisos.",
+      "Una persona como complemento: Se busca a los culpables.",
+      "Otras formas: uno, la gente, ellos"
+    ],
+    "examples": [
+      {
+        "text": "En España se cena tarde."
+      },
+      {
+        "text": "Aquí no se puede fumar."
+      },
+      {
+        "text": "Dicen que mañana va a llover."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Se trabajan mucho aquí.",
+        "right": "Se trabaja mucho aquí.",
+        "note": "El se impersonal lleva el verbo en singular."
+      },
+      {
+        "wrong": "Se busca los culpables.",
+        "right": "Se busca a los culpables.",
+        "note": "Delante de un complemento directo de persona hace falta la preposición a."
+      }
+    ],
+    "related": [
+      "b2-pasiva",
+      "b1-perifrasis"
+    ]
+  },
+  "b2-ser-estar-matices": {
+    "forms": [
+      "ser = cualidad; estar = estado, impresión, resultado",
+      "guapo, listo, aburrido, verde, bueno cambian de significado",
+      "Resultado: está roto, está terminado",
+      "estar de + estado: estar de vacaciones, de mal humor"
+    ],
+    "examples": [
+      {
+        "text": "Mi vecino es muy aburrido."
+      },
+      {
+        "text": "Hoy estoy aburrido en el trabajo."
+      },
+      {
+        "text": "Esta sopa está buenísima."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy aburrido siempre.",
+        "right": "Soy aburrido siempre.",
+        "note": "Un rasgo permanente del carácter necesita ser, no estar."
+      },
+      {
+        "wrong": "La manzana es verde.",
+        "right": "La manzana está verde.",
+        "note": "Una manzana sin madurar es estar verde, no ser verde."
+      }
+    ],
+    "related": [
+      "a2-ser-vs-estar",
+      "b2-pasiva"
+    ]
+  },
+  "b2-lo-neutro": {
+    "forms": [
+      "lo + adjetivo: lo bueno, lo importante",
+      "lo que: Aquello que… Lo que dices",
+      "lo + adj. + que: lo difícil que es",
+      "lo de + nombre / inf.: lo de ayer"
+    ],
+    "examples": [
+      {
+        "text": "Lo importante es no rendirse."
+      },
+      {
+        "text": "Lo que dices no tiene sentido."
+      },
+      {
+        "text": "No te imaginas lo cansado que estoy."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "El importante es descansar.",
+        "right": "Lo importante es descansar.",
+        "note": "Para una idea general hace falta lo, no el."
+      },
+      {
+        "wrong": "Lo que dices es lo mismos.",
+        "right": "Lo que dices es lo mismo.",
+        "note": "Lo no cambia de número."
+      }
+    ],
+    "related": [
+      "b1-relativos",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  }
+}

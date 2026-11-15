@@ -1,0 +1,315 @@
+[
+  {
+    "id": "b1-indefinido-vs-imperfecto",
+    "skill": "grammar",
+    "unit": "El pasado",
+    "title": "Indefinido e imperfecto juntos",
+    "goal": "Elegir entre un hecho terminado y el fondo en una misma historia.",
+    "theory": "En una historia el `imperfecto` da el fondo y el `indefinido` hace avanzar la acción: `Era de noche y llovía cuando llegué a casa.` El imperfecto describe el ambiente, la edad, el tiempo y la costumbre; el indefinido nombra un hecho terminado: `Entré, encendí la luz y me senté.` Si una acción estaba en curso cuando ocurrió otra, se usa `estaba` + gerundio: `Estaba cocinando cuando sonó el teléfono.` Algunos verbos cambian de significado: `Conocí a Ana en 2010` y `Conocía a Ana`.",
+    "tags": [
+      "indefinido imperfecto",
+      "historia en pasado",
+      "fondo y hecho",
+      "estaba + gerundio"
+    ]
+  },
+  {
+    "id": "b1-pluscuamperfecto",
+    "skill": "grammar",
+    "unit": "El pasado",
+    "title": "Pluscuamperfecto: lo que pasó antes",
+    "goal": "Decir que una acción del pasado ocurrió antes que otra.",
+    "theory": "El `pluscuamperfecto` es `había, habías, había, habíamos, habíais, habían` + participio: `había trabajado`, `habías comido`. Indica que una acción terminó antes que otra acción del pasado: `Cuando llegué, ya se había ido.` Suele ir con `ya`, `todavía no`, `nunca`: `Nunca había visto el mar.` Los participios irregulares son los mismos: `hecho`, `dicho`, `visto`, `escrito`, `puesto`, `vuelto`.",
+    "tags": [
+      "pluscuamperfecto",
+      "había hecho",
+      "antes de otra acción"
+    ]
+  },
+  {
+    "id": "b1-futuro-simple",
+    "skill": "grammar",
+    "unit": "Futuro y condicional",
+    "title": "Futuro simple: será y seguramente es",
+    "goal": "Hablar del futuro y de suposiciones en el presente.",
+    "theory": "Se añaden las terminaciones `-é, -ás, -á, -emos, -éis, -án` al infinitivo: `hablaré`, `comerás`, `vivirá`. Algunos verbos tienen una raíz especial: `tener → tendré`, `hacer → haré`, `poder → podré`, `salir → saldré`, `decir → diré`, `venir → vendré`. El futuro habla del futuro y de una suposición en el presente: `Serán las ocho`. El futuro hablado es `ir a`: `Voy a salir`. Para promesas y predicciones se usa el futuro: `Mañana lloverá.`",
+    "tags": [
+      "futuro simple",
+      "hablaré",
+      "suposición",
+      "futuro"
+    ]
+  },
+  {
+    "id": "b1-condicional",
+    "skill": "grammar",
+    "unit": "Futuro y condicional",
+    "title": "Condicional: yo haría, petición cortés",
+    "goal": "Dar consejos, pedir con cortesía y hablar de un deseo irreal.",
+    "theory": "Se añaden las terminaciones `-ía, -ías, -ía, -íamos, -íais, -ían` al infinitivo: `hablaría`, `comería`, `viviría`. Las raíces especiales son las del futuro: `tendría`, `haría`, `podría`, `saldría`, `diría`. El condicional sirve para una petición cortés (`¿Podría ayudarme?`), un consejo (`Deberías descansar`), un deseo (`Me gustaría viajar`) y una suposición en el pasado (`Serían las ocho`). En el estilo indirecto el futuro pasa a condicional: `Dijo que vendría`.",
+    "tags": [
+      "condicional",
+      "hablaría",
+      "petición cortés",
+      "consejo"
+    ]
+  },
+  {
+    "id": "b1-pronombres-combinados",
+    "skill": "grammar",
+    "unit": "Pronombres",
+    "title": "Dos pronombres juntos: se lo doy",
+    "goal": "Poner juntos el complemento indirecto y el directo.",
+    "theory": "El orden es siempre el mismo: primero el indirecto y después el directo: `Me lo da`, `Te la envío`. Si los dos pronombres son de tercera persona, `le/les` se convierte en `se`: `Le doy el libro → Se lo doy.` No se puede decir `le lo`. Los pronombres van delante del verbo conjugado; con infinitivo, gerundio e imperativo se unen al verbo: `Dámelo`, `Voy a dárselo`, `Estoy escribiéndotela`. El directo es `lo/la` y el indirecto es `le`.",
+    "tags": [
+      "pronombres combinados",
+      "se lo",
+      "orden de los pronombres"
+    ]
+  },
+  {
+    "id": "b1-imperativo-pronombres",
+    "skill": "grammar",
+    "unit": "Pronombres",
+    "title": "Imperativo: usted, ustedes y con pronombres",
+    "goal": "Dar instrucciones con cortesía y con pronombres, en afirmativo y en negativo.",
+    "theory": "Para tratar con respeto se usan las formas del subjuntivo: `hable`, `coma`, `escriba` (usted) y `hablen`, `coman`, `escriban` (ustedes). Para `vosotros`, en afirmativo el infinitivo cambia `-r` por `-d`: `hablad`, `comed`, `escribid`; en negativo se usa el subjuntivo: `no habléis`. Con pronombres, en afirmativo se unen al verbo: `Cómpralo`, `Dímelo`, `Siéntese`; en negativo van delante: `No lo compres`, `No me lo digas`. Se escribe acento para conservar la sílaba fuerte.",
+    "tags": [
+      "imperativo",
+      "usted",
+      "pronombres",
+      "no me lo digas"
+    ]
+  },
+  {
+    "id": "b1-subjuntivo-presente",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Presente de subjuntivo: forma y cuándo se usa",
+    "goal": "Formar el presente de subjuntivo y usarlo con un deseo, una petición y una emoción.",
+    "theory": "La forma sale de la forma `yo` del presente: se quita la `-o` y se cambia la vocal por la contraria. Los verbos en `-ar` reciben `-e, -es, -e, -emos, -éis, -en`: `hable`; los verbos en `-er/-ir` reciben `-a, -as, -a, -amos, -áis, -an`: `coma`, `viva`. Formas especiales: `ser → sea`, `ir → vaya`, `estar → esté`, `saber → sepa`, `haber → haya`. Se usa con un deseo, una petición o una emoción cuando las dos partes tienen sujetos distintos: `Quiero que vengas.` `Me alegro de que estés aquí.`",
+    "tags": [
+      "subjuntivo",
+      "presente de subjuntivo",
+      "quiero que",
+      "hable coma"
+    ]
+  },
+  {
+    "id": "b1-subjuntivo-sentimientos",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Subjuntivo: deseo, probabilidad, emoción",
+    "goal": "Expresar un deseo, una probabilidad y una valoración con el subjuntivo.",
+    "theory": "Deseo y petición: `Quiero que…`, `Espero que…`, `Prefiero que…`: `Espero que llegues pronto.` Probabilidad: `Quizás`, `tal vez`, `probablemente` + subjuntivo: `Quizás vaya.` Si estás seguro, se usa el indicativo: `Seguramente viene.` Emoción y valoración: `Me gusta que…`, `Es una pena que…`, `Es importante que…`: `Es importante que estudies.` Para valoraciones generales, sin sujeto concreto, se usa el infinitivo: `Es importante estudiar.`",
+    "tags": [
+      "subjuntivo",
+      "espero que",
+      "quizás",
+      "valoración"
+    ]
+  },
+  {
+    "id": "b1-relativos",
+    "skill": "grammar",
+    "unit": "La oración compuesta",
+    "title": "Los relativos: que, quien, donde",
+    "goal": "Unir dos frases con que, quien, donde, cuyo.",
+    "theory": "`Que` es el relativo más frecuente: `El libro que leo es interesante.` Después de una preposición va un artículo delante: `la casa en la que vivo`, `el chico con el que hablas`. Para personas se puede usar `quien`: `La chica con quien hablas`. `Donde` indica lugar: `La ciudad donde nací`. `Cuyo` expresa posesión y concuerda con lo poseído: `El hombre cuya hija vive aquí`. Si lo que se busca no se conoce o no existe, se usa el subjuntivo: `Busco una casa que tenga jardín.`",
+    "tags": [
+      "relativos",
+      "que quien donde",
+      "cuyo",
+      "relativos"
+    ]
+  },
+  {
+    "id": "b1-perifrasis",
+    "skill": "grammar",
+    "unit": "Formas no personales",
+    "title": "Perífrasis: tener que, acabar de, soler",
+    "goal": "Expresar obligación, costumbre, principio y fin de una acción con perífrasis.",
+    "theory": "Una perífrasis tiene un verbo conjugado y una forma no personal. Obligación: `tener que` + infinitivo (`Tengo que estudiar`), `hay que` + infinitivo (`Hay que descansar`), `deber` + infinitivo. Costumbre: `soler` + infinitivo (`Suelo comer en casa`). Principio y fin: `empezar a`, `ponerse a`, `acabar de`, `dejar de`: `Acabo de llegar.` `He dejado de fumar.` Continuación: `seguir` + gerundio: `Sigo trabajando.` Repetición: `volver a` + infinitivo: `Vuelvo a llamar.`",
+    "tags": [
+      "perífrasis",
+      "tener que",
+      "acabar de",
+      "soler",
+      "seguir + gerundio"
+    ]
+  },
+  {
+    "id": "b1-gerundio-participio",
+    "skill": "grammar",
+    "unit": "Formas no personales",
+    "title": "Gerundio y participio en la frase",
+    "goal": "Usar el gerundio para el modo y el participio como adjetivo.",
+    "theory": "El gerundio indica cómo, o a la vez que qué, ocurre una acción: `Aprendo español leyendo.` `Entró cantando.` No cambia y no va después de una preposición (en su lugar, el infinitivo): `antes de salir`. El participio `-ado/-ido` no cambia en los tiempos compuestos: `He comido`. Como adjetivo concuerda: `la puerta cerrada`, `los libros escritos`. Con `estar` indica el resultado: `La tienda está cerrada.`",
+    "tags": [
+      "gerundio",
+      "participio",
+      "participio",
+      "gerundio"
+    ]
+  },
+  {
+    "id": "b1-conectores",
+    "skill": "grammar",
+    "unit": "La oración compuesta",
+    "title": "Conjunciones y oraciones: porque, cuando, para que",
+    "goal": "Unir frases con causa, tiempo, finalidad y concesión.",
+    "theory": "Causa: `porque`, `como`, `puesto que`: `Como llueve, me quedo.` Finalidad: `para` + infinitivo (el mismo sujeto) o `para que` + subjuntivo (sujetos distintos): `Estudio para aprobar.` `Te lo explico para que lo entiendas.` Tiempo: `cuando`, `antes de que`, `después de que`; hablando del futuro, `cuando` pide subjuntivo: `Cuando llegues, llámame.` Concesión: `aunque`, `a pesar de que`. Consecuencia: `por eso`, `así que`.",
+    "tags": [
+      "conjunciones",
+      "porque como",
+      "para que",
+      "cuando + subjuntivo",
+      "conectores"
+    ]
+  },
+  {
+    "id": "b1-adverbios",
+    "skill": "grammar",
+    "unit": "Descripción",
+    "title": "Los adverbios: modo, tiempo y frecuencia",
+    "goal": "Usar los adverbios en -mente y los de tiempo y frecuencia.",
+    "theory": "Los adverbios en `-mente` se forman con la forma femenina del adjetivo: `rápida → rápidamente`, `fácil → fácilmente`. Si hay dos seguidos, solo el último lleva `-mente`: `rápida y claramente`. Tiempo y frecuencia: `ya`, `todavía`, `aún`, `siempre`, `nunca`, `a veces`, `de vez en cuando`. Cantidad: `muy`, `mucho`, `bastante`, `demasiado`. `Muy` va delante de un adjetivo y de un adverbio: `muy bien`; `mucho` va después de un verbo: `trabajo mucho`. Delante de `mejor` y `peor` se usa `mucho`: `mucho mejor`.",
+    "tags": [
+      "adverbios",
+      "-mente",
+      "muy mucho",
+      "adverbios",
+      "frecuencia"
+    ]
+  },
+  {
+    "id": "b1-vocab-salud",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "La salud y cómo nos sentimos",
+    "goal": "Decir al médico qué te duele y entender consejos sencillos.",
+    "theory": "Para hablar del dolor se usa `doler`: `Me duele la cabeza.` `Me duelen los pies.` El médico puede preguntar: `¿Qué le pasa?` `¿Desde cuándo?` Consejos: `Debe descansar.` `Tiene que tomar este medicamento.` Palabras útiles: `la fiebre`, `la receta`, `el dolor`, `el resfriado`.",
+    "tags": [
+      "salud",
+      "médico",
+      "dolor"
+    ]
+  },
+  {
+    "id": "b1-vocab-viajes",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "Viajes y hoteles",
+    "goal": "Reservar una habitación, comprar un billete y resolver un problema en un viaje.",
+    "theory": "En un viaje son útiles las fórmulas de petición: `Quería reservar una habitación.` `¿Tiene alguna habitación libre?` `¿Cuánto cuesta la noche?` Billetes: `un billete de ida y vuelta`. Problemas: `He perdido…`, `Se ha estropeado…`. Palabras: `la reserva`, `el equipaje`, `el vuelo`, `la llegada`, `la salida`.",
+    "tags": [
+      "viajes",
+      "hotel",
+      "billetes"
+    ]
+  },
+  {
+    "id": "b1-vocab-opinion",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "Opiniones y sentimientos",
+    "goal": "Dar una opinión, estar de acuerdo o discrepar.",
+    "theory": "Para dar una opinión: `Creo que…`, `Me parece que…`, `En mi opinión…`. Después de `creo que` va indicativo: `Creo que es bueno`; después de `no creo que`, subjuntivo: `No creo que sea bueno.` Acuerdo: `Estoy de acuerdo`, `Tienes razón`. Desacuerdo: `No estoy de acuerdo`, `Eso no es verdad`.",
+    "tags": [
+      "opinión",
+      "sentimientos",
+      "acuerdo"
+    ]
+  },
+  {
+    "id": "b1-reading-articulo",
+    "skill": "reading",
+    "unit": "Lectura y escritura",
+    "title": "Leemos un artículo breve",
+    "goal": "Entender el tema de un artículo, las ideas principales y la actitud del autor.",
+    "theory": "Al leer un artículo, primero lee el titular y el primer párrafo y después busca las palabras clave. No intentes traducir cada palabra. Fíjate en los conectores: `sin embargo`, `por eso`, `además`, `en cambio`. Muestran cómo se relacionan las ideas.",
+    "tags": [
+      "lectura",
+      "artículo",
+      "conectores"
+    ]
+  },
+  {
+    "id": "b1-reading-instrucciones",
+    "skill": "reading",
+    "unit": "Lectura y escritura",
+    "title": "Leemos instrucciones y normas",
+    "goal": "Entender instrucciones y normas y encontrar prohibiciones y obligaciones.",
+    "theory": "En las instrucciones busca los verbos de orden y de prohibición: `Pulse`, `No abra`, `Debe`. Son frecuentes las formas impersonales: `Se prohíbe fumar`, `Se ruega silencio`. Los números y el orden marcan los pasos: `1.º`, `2.º`, `primero`, `después`, `por último`. Lee hasta el final: la prohibición suele estar al final.",
+    "tags": [
+      "lectura",
+      "instrucciones",
+      "normas"
+    ]
+  },
+  {
+    "id": "b1-writing-correo",
+    "skill": "writing",
+    "unit": "Lectura y escritura",
+    "title": "Escribimos una carta: petición y queja",
+    "goal": "Escribir una carta con una petición o una queja y exponer el asunto con cortesía.",
+    "theory": "Una carta formal tiene saludo, objetivo, detalles, petición y despedida. Un modelo: `Estimados señores: Les escribo para… Les agradecería que… Atentamente, Ana García.` Para pedir usa `¿Podría…?`, `Le agradecería que` + subjuntivo. Escribe frases cortas y evita las palabras coloquiales.",
+    "tags": [
+      "escritura",
+      "queja",
+      "estilo formal"
+    ]
+  },
+  {
+    "id": "b1-listening-radio",
+    "skill": "listening",
+    "unit": "Comprensión oral",
+    "title": "Escuchamos la radio y las noticias",
+    "goal": "Entender el tema principal de una noticia corta y los datos principales.",
+    "theory": "Las noticias se dicen más deprisa. Primero entiende el tema y después los detalles: quién, qué, dónde, cuándo. Escucha las cifras y los nombres de lugares. No te detengas en las palabras desconocidas: el sentido suele estar claro por el contexto. Palabras clave: `según`, `fuentes`, `ayer`, `hoy`.",
+    "tags": [
+      "comprensión oral",
+      "radio",
+      "noticias"
+    ]
+  },
+  {
+    "id": "b1-listening-conversacion",
+    "skill": "listening",
+    "unit": "Comprensión oral",
+    "title": "Escuchamos una conversación sobre hechos pasados",
+    "goal": "Entender qué pasó y en qué orden en un relato de la vida diaria.",
+    "theory": "En los relatos del pasado escucha los verbos: `fui`, `llegué` son hechos; `era`, `estaba` son el fondo. Sigue las palabras de orden: `primero`, `luego`, `después`, `al final`. Anota la sucesión de hechos en notas breves y después cuéntala.",
+    "tags": [
+      "comprensión oral",
+      "relato",
+      "pasado"
+    ]
+  },
+  {
+    "id": "b1-speaking-opinion",
+    "skill": "speaking",
+    "unit": "Expresión oral",
+    "title": "Hablamos: dar una opinión",
+    "goal": "Dar una opinión y defenderla con argumentos.",
+    "theory": "Una opinión se construye así: postura, razón, ejemplo. `Creo que es una buena idea porque ahorramos tiempo. Por ejemplo, ...` Para discrepar: `Entiendo, pero…`. No tengas miedo de las pausas: usa palabras de apoyo como `bueno`, `pues`, `a ver`.",
+    "tags": [
+      "expresión oral",
+      "opinión",
+      "argumento"
+    ]
+  },
+  {
+    "id": "b1-speaking-experiencia",
+    "skill": "speaking",
+    "unit": "Expresión oral",
+    "title": "Hablamos: contar un viaje",
+    "goal": "Contar un viaje o un suceso del pasado de forma ordenada.",
+    "theory": "Un relato de un viaje: adónde, con quién, qué hicisteis, qué os gustó. `El año pasado fui a Italia con mi hermana. Visitamos Roma y Florencia. Lo que más me gustó fue…` Usa el indefinido para los hechos y el imperfecto para describir: `Hacía sol y la ciudad era preciosa.` Habla en voz alta siguiendo un plan.",
+    "tags": [
+      "expresión oral",
+      "relato",
+      "viaje"
+    ]
+  }
+]

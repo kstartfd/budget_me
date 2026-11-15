@@ -1,0 +1,319 @@
+[
+  {
+    "id": "a1-genero",
+    "skill": "grammar",
+    "unit": "Nombres y artículos",
+    "title": "El género de los nombres: el y la",
+    "goal": "Saber si un nombre es masculino o femenino y usar el o la.",
+    "theory": "Todos los nombres tienen género. Casi siempre las palabras en `-o` son masculinas: `el libro`, `el niño`, y las palabras en `-a` son femeninas: `la mesa`, `la niña`. En personas y profesiones cambia la terminación: `el hijo / la hija`, `el profesor / la profesora`; las palabras en `-ista` y `-nte` son iguales: `el turista / la turista`, `el estudiante / la estudiante`. Las palabras en `-ción`, `-sión`, `-dad`, `-tad` son femeninas: `la canción`, `la ciudad`. Aprende las excepciones con su artículo: `el día`, `el mapa`, `la mano`.",
+    "tags": [
+      "género",
+      "el la",
+      "nombre",
+      "masculino y femenino"
+    ]
+  },
+  {
+    "id": "a1-plural",
+    "skill": "grammar",
+    "unit": "Nombres y artículos",
+    "title": "El plural de los nombres",
+    "goal": "Formar el plural y poner bien el artículo.",
+    "theory": "Después de una vocal se añade `-s`: `libro → libros`, `casa → casas`. Después de una consonante se añade `-es`: `ciudad → ciudades`, `profesor → profesores`. La `z` final cambia a `c`: `lápiz → lápices`. Las palabras en `-s` que no tienen el acento en la última sílaba no cambian: `el lunes → los lunes`. El acento escrito puede desaparecer o aparecer: `canción → canciones`, `joven → jóvenes`. El artículo también cambia: `el → los`, `la → las`.",
+    "tags": [
+      "plural",
+      "plural",
+      "terminaciones -s -es"
+    ]
+  },
+  {
+    "id": "a1-articulo-indeterminado",
+    "skill": "grammar",
+    "unit": "Nombres y artículos",
+    "title": "El artículo indeterminado: un, una, unos, unas",
+    "goal": "Usar un y una cuando hablamos de algo por primera vez y saber cuándo no hay artículo.",
+    "theory": "Usamos el artículo indeterminado cuando hablamos de algo por primera vez o de uno cualquiera: `Tengo un perro y una gata.` Formas: `un`, `una` en singular y `unos`, `unas` en plural (algunos). No usamos artículo con una profesión, una nacionalidad o una religión sin adjetivo: `Soy profesora.` `Es ruso.` Con adjetivo, sí: `Es un profesor muy bueno.` Tampoco lo usamos con `tener`, `buscar`, `necesitar` en sentido general: `Busco trabajo.`",
+    "tags": [
+      "artículo",
+      "un una",
+      "artículo indeterminado",
+      "profesión"
+    ]
+  },
+  {
+    "id": "a1-articulo-determinado",
+    "skill": "grammar",
+    "unit": "Nombres y artículos",
+    "title": "El artículo determinado: el, la, los, las",
+    "goal": "Usar el artículo determinado con cosas conocidas, con horas y con días de la semana.",
+    "theory": "Usamos el artículo determinado cuando la persona que escucha sabe de qué cosa hablamos o cuando solo hay una: `La casa de Ana es grande.` Formas: `el`, `la`, `los`, `las`. Con las preposiciones `a` y `de`, `el` se une: `a + el = al`, `de + el = del`: `Voy al cine.` `Vengo del banco.` Necesitamos el artículo con los días y las horas: `el lunes`, `Son las tres.`, `A la una.` También se usa con nombres con título: `el señor Alonso`, `la calle Mayor`.",
+    "tags": [
+      "artículo",
+      "el la los las",
+      "al del",
+      "días de la semana",
+      "hora"
+    ]
+  },
+  {
+    "id": "a1-demostrativos",
+    "skill": "grammar",
+    "unit": "Nombres y artículos",
+    "title": "Los demostrativos: este, ese, aquel",
+    "goal": "Señalar cosas cercanas, un poco lejos y lejos, y usar el género y el número correctos.",
+    "theory": "Hay tres distancias. Cerca de quien habla: `este`, `esta`, `estos`, `estas`: `Esta casa es mía.` Cerca de quien escucha o no muy lejos: `ese`, `esa`, `esos`, `esas`. Lejos de los dos: `aquel`, `aquella`, `aquellos`, `aquellas`. La palabra concuerda con el nombre: `este libro`, `estas flores`. Sin nombre usamos `esto`, `eso`, `aquello`: `¿Qué es esto?` Hoy no se escribe el acento en `éste`.",
+    "tags": [
+      "demostrativos",
+      "este ese aquel",
+      "demostrativos",
+      "esto eso"
+    ]
+  },
+  {
+    "id": "a1-posesivos",
+    "skill": "grammar",
+    "unit": "Nombres y artículos",
+    "title": "Los posesivos: mi, tu, su",
+    "goal": "Decir de quién es algo y concordar con la cosa, no con el dueño.",
+    "theory": "Las formas cortas van delante del nombre: `mi`, `tu`, `su`, `nuestro`, `vuestro`, `su`. Concuerdan con la cosa, no con el dueño: `mi libro`, `mis libros`, `nuestra casa`, `nuestros amigos`. `Mi`, `tu` y `su` solo cambian en número; `nuestro` y `vuestro` cambian también en género. `Su` significa de él, de ella, de usted o de ellos; a veces hay que aclarar: `la casa de él`. No se usa artículo: `mi madre`, no `la mi madre`.",
+    "tags": [
+      "posesivos",
+      "mi tu su",
+      "posesivos",
+      "nuestro vuestro"
+    ]
+  },
+  {
+    "id": "a1-ser",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "El verbo ser: quién y cómo es",
+    "goal": "Decir quién eres, tu profesión y tu nacionalidad, y cómo es una persona o una cosa.",
+    "theory": "`Ser` describe lo permanente: `soy`, `eres`, `es`, `somos`, `sois`, `son`. Sirve para decir quién eres y cómo eres: `Soy Anna.` `Es profesora.` `Somos rusos.` `El libro es interesante.` También da el origen, el material, la hora y el precio: `Soy de Rusia.` `Son las tres.` `Es de madera.` Normalmente no decimos yo, tú, él, porque la terminación ya indica la persona: `Soy estudiante.`",
+    "tags": [
+      "ser",
+      "soy eres es",
+      "ser",
+      "nacionalidad",
+      "profesión"
+    ]
+  },
+  {
+    "id": "a1-estar",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "El verbo estar: dónde y cómo",
+    "goal": "Decir dónde está una persona o una cosa y cómo se siente alguien.",
+    "theory": "`Estar` también significa ser, pero se usa para el lugar y el estado: `estoy`, `estás`, `está`, `estamos`, `estáis`, `están`. Lugar: `Madrid está en España.` `¿Dónde están las llaves?` Estado temporal: `Estoy cansado.` `La sopa está caliente.` Para preguntar cómo está alguien: `¿Cómo estás?` El adjetivo después de `estar` concuerda con el sujeto: `Ella está contenta.`",
+    "tags": [
+      "estar",
+      "estoy estás está",
+      "lugar",
+      "estado"
+    ]
+  },
+  {
+    "id": "a1-tener-hay",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "Tener y hay: yo tengo, hay algo",
+    "goal": "Decir lo que tienes y que algo existe en un lugar.",
+    "theory": "`Tener` significa poseer: `tengo`, `tienes`, `tiene`, `tenemos`, `tenéis`, `tienen`. Se usa para la edad: `Tengo veinte años.` y para estados: `tengo hambre`, `tengo frío`. La palabra `hay` significa que algo existe y no cambia: `Hay un banco cerca.` `Hay dos camas.` Después de `hay` usamos un artículo indeterminado, un número o `mucho`: `Hay un museo`, no `Hay el museo`. Si la cosa ya es conocida, decimos `Está`: `El museo está allí.`",
+    "tags": [
+      "tener",
+      "hay",
+      "edad",
+      "tengo",
+      "existencia"
+    ]
+  },
+  {
+    "id": "a1-presente-regular",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "El presente: verbos regulares",
+    "goal": "Conjugar los verbos en -ar, -er e -ir en presente.",
+    "theory": "Hay tres tipos de verbos por su terminación: `-ar`, `-er`, `-ir`. Quita la terminación y añade la correcta. `Hablar`: `hablo`, `hablas`, `habla`, `hablamos`, `habláis`, `hablan`. `Comer`: `como`, `comes`, `come`, `comemos`, `coméis`, `comen`. `Vivir`: `vivo`, `vives`, `vive`, `vivimos`, `vivís`, `viven`. El presente sirve para costumbres y para lo que pasa ahora: `Trabajo en un banco.` Normalmente no decimos el pronombre: `Vivo en Madrid.` Para negar, `no` va delante del verbo.",
+    "tags": [
+      "presente",
+      "presente",
+      "-ar -er -ir",
+      "conjugación"
+    ]
+  },
+  {
+    "id": "a1-presente-irregular",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "El presente: verbos irregulares",
+    "goal": "Conocer los verbos irregulares más frecuentes y conjugarlos bien.",
+    "theory": "Muchos verbos frecuentes cambian la raíz, menos en `nosotros` y `vosotros`. `e → ie`: `quiero`, `quieres`, `quiere`, `queremos`, `queréis`, `quieren`. `o → ue`: `puedo`, `puedes`, `puede`, `podemos`, `podéis`, `pueden`. `e → i`: `pido`, `pides`, `pide`. La forma `yo` es especial en `hacer` (`hago`), `salir` (`salgo`), `decir` (`digo`), `conocer` (`conozco`). El más frecuente es `ir`: `voy`, `vas`, `va`, `vamos`, `vais`, `van`.",
+    "tags": [
+      "verbos irregulares",
+      "e-ie o-ue",
+      "ir",
+      "hago salgo digo"
+    ]
+  },
+  {
+    "id": "a1-gustar",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "El verbo gustar: me gusta",
+    "goal": "Decir lo que te gusta y lo que no, con el verbo en el número correcto.",
+    "theory": "`Gustar` funciona al revés: la cosa gusta a la persona. Delante del verbo van `me`, `te`, `le`, `nos`, `os`, `les`. El verbo concuerda con la cosa: `Me gusta el café.` `Me gustan los libros.` Delante de un infinitivo siempre decimos `gusta`: `Me gusta bailar.` Para dar más fuerza: `A mí me gusta`, `A ti te gusta`. Para estar de acuerdo: `A mí también`, `A mí tampoco`. `Encantar`, `interesar` y `doler` funcionan como `gustar`.",
+    "tags": [
+      "gustar",
+      "me gusta",
+      "gustar",
+      "encantar"
+    ]
+  },
+  {
+    "id": "a1-interrogativos",
+    "skill": "grammar",
+    "unit": "Preguntas",
+    "title": "Palabras interrogativas: qué, dónde, cuándo",
+    "goal": "Hacer una pregunta sencilla sobre el lugar, el tiempo, la causa, la cantidad y la persona.",
+    "theory": "Al escribir, la pregunta empieza con `¿` y termina con `?`. Las palabras interrogativas llevan acento: `qué`, `quién`, `dónde`, `cuándo`, `cómo`, `cuánto`, `por qué`. `Quién` y `cuánto` cambian en número y género: `¿Quiénes son?` `¿Cuántas personas hay?` La respuesta con `porque` se escribe junta y sin acento: `¿Por qué estudias? — Porque me gusta.` El sujeto suele ir después del verbo: `¿Dónde vive tu hermana?`",
+    "tags": [
+      "preguntas",
+      "qué quién dónde",
+      "interrogativos",
+      "por qué porque"
+    ]
+  },
+  {
+    "id": "a1-vocab-familia",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "La familia y las personas",
+    "goal": "Nombrar a los miembros de la familia y decir quién es quién.",
+    "theory": "Las palabras de la familia se necesitan en las primeras conversaciones. Aprende con el artículo y por parejas: `el padre / la madre`, `el hermano / la hermana`. En plural, la forma masculina nombra a todo el grupo: `los padres`, `los hermanos`. Para presentar: `Esta es mi familia.` `Tengo dos hermanos.`",
+    "tags": [
+      "familia",
+      "personas",
+      "familia"
+    ]
+  },
+  {
+    "id": "a1-vocab-comida",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "La comida y las bebidas",
+    "goal": "Nombrar los alimentos principales y pedir algo para comer.",
+    "theory": "Las palabras de la comida se necesitan en un café y en una tienda. Para pedir, sirve `Quiero…` o `Quisiera…`: `Quiero un café con leche.` Conviene aprender las palabras con su artículo: `el pan`, `la leche`, `el agua` (femenino, pero con el). No confundas `el desayuno`, `la comida` (almuerzo o comida en general) y `la cena`.",
+    "tags": [
+      "comida",
+      "bebidas",
+      "café",
+      "comida"
+    ]
+  },
+  {
+    "id": "a1-vocab-numeros-dias",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "Los números, los días y los meses",
+    "goal": "Contar hasta cien y decir el día de la semana y el mes.",
+    "theory": "Los números del 0 al 15 hay que aprenderlos de memoria: `cero, uno, dos, tres… quince`. Después se forman: `dieciséis`, `veinte`, `veintiuno`, `treinta y uno`, `cuarenta`, `cien`. Los días y los meses se escriben con minúscula: `lunes`, `martes`, `enero`, `febrero`. Con el día se usa el artículo: `el lunes`. La fecha se dice así: `Es el seis de enero.`",
+    "tags": [
+      "números",
+      "días de la semana",
+      "meses",
+      "números"
+    ]
+  },
+  {
+    "id": "a1-reading-carteles",
+    "skill": "reading",
+    "unit": "Lectura y escritura",
+    "title": "Leemos carteles y anuncios",
+    "goal": "Entender un cartel, un anuncio o un horario corto y encontrar lo que necesitas.",
+    "theory": "En los textos cortos busca las palabras clave: números (precio, hora), nombres de lugares, días de la semana. No hace falta entender todas las palabras. Palabras frecuentes: `abierto`, `cerrado`, `entrada`, `salida`, `se vende`, `gratis`. El horario se lee así: `de lunes a viernes, de 9 a 14 h`.",
+    "tags": [
+      "lectura",
+      "carteles",
+      "anuncios"
+    ]
+  },
+  {
+    "id": "a1-reading-menu",
+    "skill": "reading",
+    "unit": "Lectura y escritura",
+    "title": "Leemos menús y precios",
+    "goal": "Entender un menú sencillo y elegir un plato.",
+    "theory": "En un menú español los platos están en grupos: `entrantes`, `primer plato`, `segundo plato`, `postre`, `bebidas`. Los precios llevan coma: `3,50 €`. El `menú del día` suele incluir primer plato, segundo plato, postre y bebida. Se pide así: `De primero, sopa. De segundo, pollo.`",
+    "tags": [
+      "lectura",
+      "menú",
+      "precios"
+    ]
+  },
+  {
+    "id": "a1-writing-presentacion",
+    "skill": "writing",
+    "unit": "Lectura y escritura",
+    "title": "Escribimos sobre nosotros",
+    "goal": "Escribir de cinco a seis frases sencillas sobre ti: nombre, edad, país, trabajo, aficiones.",
+    "theory": "Un texto corto sobre ti sigue un plan: nombre, edad, de dónde eres, a qué te dedicas, qué te gusta. Cada frase empieza con mayúscula y termina con punto. Un modelo: `Me llamo Anna.` `Tengo 25 años.` `Soy de Rusia.` `Trabajo en una tienda.` `Me gusta la música.` Usa `ser`, `tener`, el presente y `me gusta`.",
+    "tags": [
+      "escritura",
+      "sobre mí",
+      "presentación"
+    ]
+  },
+  {
+    "id": "a1-listening-numeros",
+    "skill": "listening",
+    "unit": "Comprensión oral",
+    "title": "Escuchamos números, horas y precios",
+    "goal": "Entender números, horas y precios en una tienda o en una estación.",
+    "theory": "Los números se confunden con facilidad al oírlos: `quince` y `cincuenta`, `sesenta` y `setenta`. Escucha y escribe cifras, no palabras. La hora: `Son las tres y media` es 3:30; `Son las seis menos cuarto` es 5:45. El precio: `Son cinco euros con cincuenta` es 5,50 €. Escucha cada frase varias veces y compara con lo que has oído.",
+    "tags": [
+      "comprensión oral",
+      "números",
+      "hora",
+      "precios"
+    ]
+  },
+  {
+    "id": "a1-listening-dialogos",
+    "skill": "listening",
+    "unit": "Comprensión oral",
+    "title": "Escuchamos diálogos cortos",
+    "goal": "Entender quién habla, dónde y de qué en un diálogo corto de la vida diaria.",
+    "theory": "Antes de escuchar, piensa dónde ocurre la conversación y qué se pregunta. Mientras escuchas, busca las palabras interrogativas: `¿dónde?`, `¿cuándo?`, `¿cuánto?`. En la lengua hablada las frases se unen: `¿Cómo te llamas?` suena casi como una sola palabra. Escucha el diálogo dos veces: primero el sentido general y después los detalles (un nombre, un número, un lugar).",
+    "tags": [
+      "comprensión oral",
+      "diálogos",
+      "comprensión"
+    ]
+  },
+  {
+    "id": "a1-speaking-saludos",
+    "skill": "speaking",
+    "unit": "Expresión oral",
+    "title": "Hablamos: saludar y presentarse",
+    "goal": "Saludar, presentarte y hacer un par de preguntas a la otra persona.",
+    "theory": "Una presentación se hace con frases cortas: `Hola, me llamo Anna.` `Mucho gusto.` `¿De dónde eres?` Di frases completas en voz alta, no palabras sueltas. En `Mucho gusto` la palabra importante es `gusto`. Es mejor decir algo sencillo sin pausas que construir despacio una frase larga. Con personas desconocidas usa `usted`: `¿Cómo está usted?`",
+    "tags": [
+      "expresión oral",
+      "presentación",
+      "saludos"
+    ]
+  },
+  {
+    "id": "a1-speaking-cafe",
+    "skill": "speaking",
+    "unit": "Expresión oral",
+    "title": "Hablamos: pedir en un café",
+    "goal": "Pedir comida y una bebida y pedir la cuenta.",
+    "theory": "En un café usa las formas corteses: `Quisiera un café, por favor.` `¿Me trae la cuenta?` Para elegir: `Para mí, una tortilla.` `¿Qué recomienda?` Responde con frases cortas: `Sí, por favor.` `No, gracias.` Di la frase completa en voz alta varias veces para que suene natural.",
+    "tags": [
+      "expresión oral",
+      "café",
+      "pedir"
+    ]
+  }
+]

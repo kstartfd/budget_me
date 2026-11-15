@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"unicode"
 	"unicode/utf8"
 
 	"learning_app/backend/internal/learningpath/placement"
@@ -113,7 +114,35 @@ func validOrder(e exercise) error {
 		return fmt.Errorf("the words in options are already in the right order: shuffle them")
 	}
 
+	// The ready sentence must not be handed over in the task itself: not in the
+	// clue, not in the instruction. The clue is a translation, never the answer.
+	for _, o := range orders {
+		if spellsOut(e.Text, o) || spellsOut(e.Prompt, o) {
+			return fmt.Errorf("text and prompt must not contain the sentence %q: the learner puts it together", o)
+		}
+	}
+
 	return nil
+}
+
+// bareWords lowers a text to its bare words: no punctuation, no capitals.
+func bareWords(text string) string {
+	cleaned := strings.Map(func(r rune) rune {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) {
+			return unicode.ToLower(r)
+		}
+
+		return ' '
+	}, text)
+
+	return strings.Join(strings.Fields(cleaned), " ")
+}
+
+// spellsOut tells whether text holds the sentence, whatever its punctuation.
+func spellsOut(text, sentence string) bool {
+	want := bareWords(sentence)
+
+	return want != "" && strings.Contains(" "+bareWords(text)+" ", " "+want+" ")
 }
 
 func validCloze(e exercise) error {

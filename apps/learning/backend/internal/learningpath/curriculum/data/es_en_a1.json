@@ -1,0 +1,593 @@
+[
+  {
+    "id": "a1-genero",
+    "skill": "grammar",
+    "unit": "Nouns and articles",
+    "title": "Gender of nouns: el and la",
+    "goal": "Tell the gender of most nouns and put el or la before them.",
+    "theory": "Every Spanish noun has a gender. Most words ending in `-o` are masculine: `el libro`, `el niño`, and most words ending in `-a` are feminine: `la mesa`, `la niña`. For people and jobs the ending changes: `el hijo / la hija`, `el profesor / la profesora`; words in `-ista` and `-nte` are the same for both genders: `el turista / la turista`, `el estudiante / la estudiante`. Words in `-ción`, `-sión`, `-dad`, `-tad` are feminine: `la canción`, `la ciudad`. Learn the exceptions with their article: `el día`, `el mapa`, `la mano`.",
+    "tags": [
+      "gender",
+      "el la",
+      "noun",
+      "masculine and feminine"
+    ]
+  },
+  {
+    "id": "a1-plural",
+    "skill": "grammar",
+    "unit": "Nouns and articles",
+    "title": "Plural of nouns",
+    "goal": "Make the plural and match the article to it.",
+    "theory": "After a vowel add `-s`: `libro → libros`, `casa → casas`. After a consonant add `-es`: `ciudad → ciudades`, `profesor → profesores`. A final `z` becomes `c`: `lápiz → lápices`. Words ending in `-s` that are not stressed on the last syllable do not change: `el lunes → los lunes`. The written accent can disappear or appear: `canción → canciones`, `joven → jóvenes`. The article changes too: `el → los`, `la → las`.",
+    "tags": [
+      "plural",
+      "plural",
+      "endings -s -es"
+    ]
+  },
+  {
+    "id": "a1-articulo-indeterminado",
+    "skill": "grammar",
+    "unit": "Nouns and articles",
+    "title": "Indefinite article: un, una, unos, unas",
+    "goal": "Use un and una when something is mentioned for the first time, and leave the article out where it is not needed.",
+    "theory": "The indefinite article is used when you mention something for the first time or any one of many: `Tengo un perro y una gata.` Forms: `un`, `una` in the singular and `unos`, `unas` in the plural (some). No article is used before a job, nationality or religion without an adjective: `Soy profesora.` `Es ruso.` With an adjective the article comes back: `Es un profesor muy bueno.` You also drop it after `tener`, `buscar`, `necesitar` in a general sense: `Busco trabajo.`",
+    "tags": [
+      "article",
+      "un una",
+      "indefinite article",
+      "job"
+    ]
+  },
+  {
+    "id": "a1-articulo-determinado",
+    "skill": "grammar",
+    "unit": "Nouns and articles",
+    "title": "Definite article: el, la, los, las",
+    "goal": "Use the definite article for things already known, for times and for days of the week.",
+    "theory": "The definite article is used when the listener knows which thing you mean, or there is only one: `La casa de Ana es grande.` Forms: `el`, `la`, `los`, `las`. After the prepositions `a` and `de`, `el` merges: `a + el = al`, `de + el = del`: `Voy al cine.` `Vengo del banco.` The article is needed for days and times: `el lunes`, `Son las tres.`, `A la una.` It is also used before a name with a title: `el señor Alonso`, `la calle Mayor`.",
+    "tags": [
+      "article",
+      "el la los las",
+      "al del",
+      "days of the week",
+      "time"
+    ]
+  },
+  {
+    "id": "a1-demostrativos",
+    "skill": "grammar",
+    "unit": "Nouns and articles",
+    "title": "Demonstratives: este, ese, aquel",
+    "goal": "Point to things that are near, a bit further and far, and match the word to gender and number.",
+    "theory": "There are three degrees of distance. Near the speaker: `este`, `esta`, `estos`, `estas`: `Esta casa es mía.` Near the listener or not far: `ese`, `esa`, `esos`, `esas`. Far from both: `aquel`, `aquella`, `aquellos`, `aquellas`. The word agrees with the noun: `este libro`, `estas flores`. Without a noun use `esto`, `eso`, `aquello`: `¿Qué es esto?` The accent on `éste` is no longer written.",
+    "tags": [
+      "demonstratives",
+      "este ese aquel",
+      "demostrativos",
+      "esto eso"
+    ]
+  },
+  {
+    "id": "a1-posesivos",
+    "skill": "grammar",
+    "unit": "Nouns and articles",
+    "title": "Possessives: mi, tu, su",
+    "goal": "Say whose something is, matching the word to the thing and not to the owner.",
+    "theory": "The short forms come before the noun: `mi`, `tu`, `su`, `nuestro`, `vuestro`, `su`. They agree with the thing owned, not with the owner: `mi libro`, `mis libros`, `nuestra casa`, `nuestros amigos`. `Mi`, `tu`, `su` change only for number, while `nuestro` and `vuestro` also change for gender. `Su` means his, her, your or their, so you sometimes have to add a clarification: `la casa de él`. No article goes with them: `mi madre`, not `la mi madre`.",
+    "tags": [
+      "possessives",
+      "mi tu su",
+      "posesivos",
+      "nuestro vuestro"
+    ]
+  },
+  {
+    "id": "a1-ser",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "The verb ser: who and what like",
+    "goal": "Say who you are, your job and nationality, and what a person or thing is like.",
+    "theory": "`Ser` means \"to be\" and describes what is permanent: `soy`, `eres`, `es`, `somos`, `sois`, `son`. Use it to say who you are and what you are like: `Soy Anna.` `Es profesora.` `Somos rusos.` `El libro es interesante.` It also gives origin, material, time and price: `Soy de Rusia.` `Son las tres.` `Es de madera.` The pronouns yo, tú, él are usually left out, because the ending already shows the person: `Soy estudiante.`",
+    "tags": [
+      "ser",
+      "soy eres es",
+      "to be",
+      "nationality",
+      "job"
+    ]
+  },
+  {
+    "id": "a1-estar",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "The verb estar: where and how",
+    "goal": "Say where a person or thing is and how someone feels.",
+    "theory": "`Estar` also means \"to be\", but it is used for place and state: `estoy`, `estás`, `está`, `estamos`, `estáis`, `están`. Place: `Madrid está en España.` `¿Dónde están las llaves?` Health and temporary state: `Estoy cansado.` `La sopa está caliente.` To ask how someone is: `¿Cómo estás?` An adjective after `estar` agrees with the subject: `Ella está contenta.`",
+    "tags": [
+      "estar",
+      "estoy estás está",
+      "place",
+      "state"
+    ]
+  },
+  {
+    "id": "a1-tener-hay",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "Tener and hay: I have, there is",
+    "goal": "Say what you have and that something exists somewhere.",
+    "theory": "`Tener` means \"to have\": `tengo`, `tienes`, `tiene`, `tenemos`, `tenéis`, `tienen`. It is used for age: `Tengo veinte años.` and for states: `tengo hambre`, `tengo frío`. The word `hay` means \"there is, there are\" and never changes: `Hay un banco cerca.` `Hay dos camas.` After `hay` put an indefinite article, a number or `mucho`: `Hay un museo`, not `Hay el museo`. When the thing is already known, say `Está`: `El museo está allí.`",
+    "tags": [
+      "tener",
+      "hay",
+      "age",
+      "tengo",
+      "there is"
+    ]
+  },
+  {
+    "id": "a1-presente-regular",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "Present tense: regular verbs",
+    "goal": "Conjugate verbs in -ar, -er and -ir in the present tense.",
+    "theory": "Verbs come in three types by their ending: `-ar`, `-er`, `-ir`. Drop the ending and add the right one. `Hablar`: `hablo`, `hablas`, `habla`, `hablamos`, `habláis`, `hablan`. `Comer`: `como`, `comes`, `come`, `comemos`, `coméis`, `comen`. `Vivir`: `vivo`, `vives`, `vive`, `vivimos`, `vivís`, `viven`. The present is used for habits and for what is happening now: `Trabajo en un banco.` Pronouns are usually left out: `Vivo en Madrid.` For a negative put `no` before the verb.",
+    "tags": [
+      "present tense",
+      "presente",
+      "-ar -er -ir",
+      "conjugation"
+    ]
+  },
+  {
+    "id": "a1-presente-irregular",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "Present tense: irregular verbs",
+    "goal": "Recognise the most frequent irregular verbs and conjugate them correctly.",
+    "theory": "Many common verbs change their stem, except in the `nosotros` and `vosotros` forms. `e → ie`: `quiero`, `quieres`, `quiere`, `queremos`, `queréis`, `quieren`. `o → ue`: `puedo`, `puedes`, `puede`, `podemos`, `podéis`, `pueden`. `e → i`: `pido`, `pides`, `pide`. The `yo` form is special in `hacer` (`hago`), `salir` (`salgo`), `decir` (`digo`), `conocer` (`conozco`). The most frequent one is `ir`: `voy`, `vas`, `va`, `vamos`, `vais`, `van`.",
+    "tags": [
+      "irregular verbs",
+      "e-ie o-ue",
+      "ir",
+      "hago salgo digo"
+    ]
+  },
+  {
+    "id": "a1-gustar",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "The verb gustar: I like",
+    "goal": "Say what you like and dislike, with the verb in the right number.",
+    "theory": "`Gustar` works the other way round: it is the thing that pleases you, not you who like it. Put `me`, `te`, `le`, `nos`, `os`, `les` before the verb. The verb agrees with the thing: `Me gusta el café.` `Me gustan los libros.` Before an infinitive always use `gusta`: `Me gusta bailar.` To emphasise: `A mí me gusta`, `A ti te gusta`. To agree: `A mí también`, `A mí tampoco`. `Encantar`, `interesar`, `doler` work like `gustar`.",
+    "tags": [
+      "gustar",
+      "me gusta",
+      "to like",
+      "encantar"
+    ]
+  },
+  {
+    "id": "a1-interrogativos",
+    "skill": "grammar",
+    "unit": "Questions",
+    "title": "Question words: qué, dónde, cuándo",
+    "goal": "Ask a simple question about place, time, reason, quantity and person.",
+    "theory": "In writing, a question opens with `¿` and closes with `?`. Question words are written with an accent: `qué`, `quién`, `dónde`, `cuándo`, `cómo`, `cuánto`, `por qué`. `Quién` and `cuánto` change for number and gender: `¿Quiénes son?` `¿Cuántas personas hay?` The answer with `porque` is written as one word with no accent: `¿Por qué estudias? — Porque me gusta.` The subject often comes after the verb: `¿Dónde vive tu hermana?`",
+    "tags": [
+      "questions",
+      "qué quién dónde",
+      "interrogativos",
+      "por qué porque"
+    ]
+  },
+  {
+    "id": "a1-vocab-familia",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Family and people",
+    "goal": "Name family members and say who is who.",
+    "theory": "Words about family are needed in your first conversations. Learn them with the article and in pairs: `el padre / la madre`, `el hermano / la hermana`. In the plural the masculine word means the whole group: `los padres` — parents, `los hermanos` — brothers and sisters. To introduce someone: `Esta es mi familia.` `Tengo dos hermanos.`",
+    "vocabulary": [
+      {
+        "word": "la madre",
+        "translation": "mother"
+      },
+      {
+        "word": "el padre",
+        "translation": "father"
+      },
+      {
+        "word": "la hermana",
+        "translation": "sister"
+      },
+      {
+        "word": "el hermano",
+        "translation": "brother"
+      },
+      {
+        "word": "los padres",
+        "translation": "parents"
+      },
+      {
+        "word": "el amigo / la amiga",
+        "translation": "friend"
+      },
+      {
+        "word": "el abuelo / la abuela",
+        "translation": "grandfather, grandmother"
+      },
+      {
+        "word": "el hijo / la hija",
+        "translation": "son, daughter"
+      }
+    ],
+    "tags": [
+      "family",
+      "people",
+      "familia"
+    ]
+  },
+  {
+    "id": "a1-vocab-comida",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Food and drink",
+    "goal": "Name the main foods and order something to eat.",
+    "theory": "Food words are needed in a café and a shop. To order, `Quiero…` or `Quisiera…` is handy: `Quiero un café con leche.` Most words are best learned with the article: `el pan`, `la leche`, `el agua` (feminine, but with el). Do not mix up `el desayuno` (breakfast), `la comida` (lunch or food) and `la cena` (dinner).",
+    "vocabulary": [
+      {
+        "word": "el pan",
+        "translation": "bread"
+      },
+      {
+        "word": "la leche",
+        "translation": "milk"
+      },
+      {
+        "word": "el agua",
+        "translation": "water"
+      },
+      {
+        "word": "el café",
+        "translation": "coffee"
+      },
+      {
+        "word": "la carne",
+        "translation": "meat"
+      },
+      {
+        "word": "el pescado",
+        "translation": "fish"
+      },
+      {
+        "word": "la fruta",
+        "translation": "fruit"
+      },
+      {
+        "word": "el queso",
+        "translation": "cheese"
+      }
+    ],
+    "tags": [
+      "food",
+      "drinks",
+      "cafe",
+      "comida"
+    ]
+  },
+  {
+    "id": "a1-vocab-numeros-dias",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Numbers, days of the week and months",
+    "goal": "Count to a hundred and name the day of the week and the month.",
+    "theory": "Learn the numbers from 0 to 15 by heart: `cero, uno, dos, tres… quince`. After that they are built up: `dieciséis`, `veinte`, `veintiuno`, `treinta y uno`, `cuarenta`, `cien`. Days of the week and months are written with a small letter: `lunes`, `martes`, `enero`, `febrero`. A day needs the article: `el lunes`. Say a date like this: `Es el seis de enero.`",
+    "vocabulary": [
+      {
+        "word": "uno, dos, tres",
+        "translation": "one, two, three"
+      },
+      {
+        "word": "veinte",
+        "translation": "twenty"
+      },
+      {
+        "word": "treinta y uno",
+        "translation": "thirty-one"
+      },
+      {
+        "word": "cien",
+        "translation": "a hundred"
+      },
+      {
+        "word": "lunes",
+        "translation": "Monday"
+      },
+      {
+        "word": "sábado",
+        "translation": "Saturday"
+      },
+      {
+        "word": "enero",
+        "translation": "January"
+      },
+      {
+        "word": "la semana",
+        "translation": "week"
+      }
+    ],
+    "tags": [
+      "numbers",
+      "days of the week",
+      "months",
+      "números"
+    ]
+  },
+  {
+    "id": "a1-reading-carteles",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading signs and notices",
+    "goal": "Understand a short sign, notice or timetable and find what you need.",
+    "theory": "In short texts look for key words: numbers (price, time), names of places, days of the week. You do not have to understand every word. Common words: `abierto` (open), `cerrado` (closed), `entrada` (entrance), `salida` (exit), `se vende` (for sale), `gratis` (free). Opening hours read like this: `de lunes a viernes, de 9 a 14 h`.",
+    "vocabulary": [
+      {
+        "word": "abierto",
+        "translation": "open"
+      },
+      {
+        "word": "cerrado",
+        "translation": "closed"
+      },
+      {
+        "word": "la entrada",
+        "translation": "entrance"
+      },
+      {
+        "word": "la salida",
+        "translation": "exit"
+      },
+      {
+        "word": "gratis",
+        "translation": "free"
+      },
+      {
+        "word": "se vende",
+        "translation": "for sale"
+      },
+      {
+        "word": "el horario",
+        "translation": "timetable"
+      },
+      {
+        "word": "el precio",
+        "translation": "price"
+      }
+    ],
+    "tags": [
+      "reading",
+      "signs",
+      "notices"
+    ]
+  },
+  {
+    "id": "a1-reading-menu",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading menus and price tags",
+    "goal": "Make sense of a simple menu and choose a dish.",
+    "theory": "A Spanish menu divides dishes into groups: `entrantes` (starters), `primer plato`, `segundo plato`, `postre` (dessert), `bebidas` (drinks). Prices are written with a comma: `3,50 €`. The set menu (`menú del día`) often includes a first course, a second course, dessert and a drink. You order like this: `De primero, sopa. De segundo, pollo.`",
+    "vocabulary": [
+      {
+        "word": "el menú del día",
+        "translation": "set menu"
+      },
+      {
+        "word": "el primer plato",
+        "translation": "first course"
+      },
+      {
+        "word": "el segundo plato",
+        "translation": "second course"
+      },
+      {
+        "word": "el postre",
+        "translation": "dessert"
+      },
+      {
+        "word": "las bebidas",
+        "translation": "drinks"
+      },
+      {
+        "word": "la sopa",
+        "translation": "soup"
+      },
+      {
+        "word": "el pollo",
+        "translation": "chicken"
+      },
+      {
+        "word": "la cuenta",
+        "translation": "the bill"
+      }
+    ],
+    "tags": [
+      "reading",
+      "menu",
+      "prices"
+    ]
+  },
+  {
+    "id": "a1-writing-presentacion",
+    "skill": "writing",
+    "unit": "Reading and writing",
+    "title": "Writing about yourself",
+    "goal": "Write 5–6 simple sentences about yourself: name, age, country, job, hobbies.",
+    "theory": "A short text about yourself follows a plan: name, age, where you are from, what you do, what you like. Start each sentence with a capital letter and end it with a full stop. A model: `Me llamo Anna.` `Tengo 25 años.` `Soy de Rusia.` `Trabajo en una tienda.` `Me gusta la música.` Use `ser`, `tener`, the present tense and `me gusta`.",
+    "tags": [
+      "writing",
+      "about yourself",
+      "introduction"
+    ]
+  },
+  {
+    "id": "a1-listening-numeros",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to numbers, times and prices",
+    "goal": "Understand numbers, times and prices in a shop or at a station.",
+    "theory": "Numbers are easy to mix up when you hear them: `quince` and `cincuenta`, `sesenta` and `setenta`. Listen and write down digits, not words. Time: `Son las tres y media` — 3:30; `Son las seis menos cuarto` — a quarter to six. Price: `Son cinco euros con cincuenta` — €5.50. Listen to each sentence several times and compare with what you heard.",
+    "vocabulary": [
+      {
+        "word": "quince y cincuenta",
+        "translation": "15 and 50"
+      },
+      {
+        "word": "sesenta y setenta",
+        "translation": "60 and 70"
+      },
+      {
+        "word": "las tres y media",
+        "translation": "half past three"
+      },
+      {
+        "word": "las seis menos cuarto",
+        "translation": "a quarter to six"
+      },
+      {
+        "word": "cinco euros con cincuenta",
+        "translation": "five euros fifty"
+      },
+      {
+        "word": "veinticinco",
+        "translation": "twenty-five"
+      }
+    ],
+    "tags": [
+      "listening",
+      "numbers",
+      "time",
+      "prices"
+    ]
+  },
+  {
+    "id": "a1-listening-dialogos",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to short dialogues",
+    "goal": "Work out who is speaking, where and about what in a short everyday dialogue.",
+    "theory": "Before listening, think where the conversation takes place and what is being asked. While listening catch the question words: `¿dónde?`, `¿cuándo?`, `¿cuánto?`. In speech phrases run together: `¿Cómo te llamas?` sounds almost like one word. Listen to a dialogue twice: first for the general meaning, then for details (a name, a number, a place).",
+    "vocabulary": [
+      {
+        "word": "¿Cómo te llamas?",
+        "translation": "What is your name?"
+      },
+      {
+        "word": "¿De dónde eres?",
+        "translation": "Where are you from?"
+      },
+      {
+        "word": "¿Cuánto cuesta?",
+        "translation": "How much is it?"
+      },
+      {
+        "word": "Perdona, ¿dónde está…?",
+        "translation": "Excuse me, where is…?"
+      },
+      {
+        "word": "Un momento, por favor",
+        "translation": "Just a moment, please"
+      },
+      {
+        "word": "¿Puede repetir?",
+        "translation": "Can you repeat that?"
+      }
+    ],
+    "tags": [
+      "listening",
+      "dialogues",
+      "comprehension"
+    ]
+  },
+  {
+    "id": "a1-speaking-saludos",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: greetings and introductions",
+    "goal": "Say hello, introduce yourself and ask a couple of questions about the other person.",
+    "theory": "Introductions are made of short phrases: `Hola, me llamo Anna.` `Mucho gusto.` `¿De dónde eres?` Say whole phrases aloud, not single words. In `Mucho gusto` the key word is `gusto`. It is better to say something simple without pauses than to build a long sentence slowly. With people you do not know use `usted`: `¿Cómo está usted?`",
+    "vocabulary": [
+      {
+        "word": "Hola, me llamo Anna",
+        "translation": "Hello, my name is Anna"
+      },
+      {
+        "word": "Mucho gusto",
+        "translation": "Nice to meet you"
+      },
+      {
+        "word": "¿De dónde eres?",
+        "translation": "Where are you from?"
+      },
+      {
+        "word": "Soy de Rusia",
+        "translation": "I'm from Russia"
+      },
+      {
+        "word": "¿Cómo estás?",
+        "translation": "How are you?"
+      },
+      {
+        "word": "Muy bien, gracias",
+        "translation": "Very well, thank you"
+      }
+    ],
+    "tags": [
+      "speaking",
+      "introductions",
+      "greetings"
+    ]
+  },
+  {
+    "id": "a1-speaking-cafe",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: ordering in a café",
+    "goal": "Order food and a drink and ask for the bill.",
+    "theory": "In a café use polite forms: `Quisiera un café, por favor.` `¿Me trae la cuenta?` To choose: `Para mí, una tortilla.` `¿Qué recomienda?` Answer briefly: `Sí, por favor.` `No, gracias.` Say the phrase aloud several times as a whole so that it sounds smooth.",
+    "vocabulary": [
+      {
+        "word": "Quisiera un café, por favor",
+        "translation": "I would like a coffee, please"
+      },
+      {
+        "word": "Para mí, una tortilla",
+        "translation": "For me, a tortilla, please"
+      },
+      {
+        "word": "¿Qué recomienda?",
+        "translation": "What do you recommend?"
+      },
+      {
+        "word": "¿Me trae la cuenta?",
+        "translation": "Could you bring me the bill?"
+      },
+      {
+        "word": "Sí, por favor",
+        "translation": "Yes, please"
+      },
+      {
+        "word": "No, gracias",
+        "translation": "No, thank you"
+      }
+    ],
+    "tags": [
+      "speaking",
+      "cafe",
+      "ordering"
+    ]
+  }
+]

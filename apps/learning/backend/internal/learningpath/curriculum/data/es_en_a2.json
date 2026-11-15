@@ -1,0 +1,571 @@
+[
+  {
+    "id": "a2-adjetivos",
+    "skill": "grammar",
+    "unit": "Nouns and description",
+    "title": "Adjectives: agreement and nationality",
+    "goal": "Make an adjective agree with its noun and name a nationality.",
+    "theory": "An adjective agrees with its noun in gender and number and usually comes after it: `un coche pequeño`, `una casa pequeña`, `unos coches pequeños`. Adjectives ending in `-e` or a consonant do not change for gender: `un chico inteligente`, `una chica inteligente`. Nationalities ending in a consonant add `-a` for the feminine: `español → española`, `alemán → alemana`. Before a masculine singular noun `bueno` and `malo` are shortened: `un buen amigo`, `un mal día`.",
+    "tags": [
+      "adjectives",
+      "agreement",
+      "nationality",
+      "adjetivos"
+    ]
+  },
+  {
+    "id": "a2-comparativos",
+    "skill": "grammar",
+    "unit": "Nouns and description",
+    "title": "Comparison and the superlative",
+    "goal": "Compare two things and pick the best of many.",
+    "theory": "To compare use `más… que`, `menos… que`, `tan… como`: `Madrid es más grande que Valencia.` `Ana es tan alta como Luis.` With nouns: `tanto/a/os/as… como`: `Tengo tantos libros como tú.` Special forms: `bueno → mejor`, `malo → peor`, `grande → mayor` (older), `pequeño → menor` (younger). The superlative is the article + `más/menos`: `la más alta`, `el menos caro`; after it comes `de`: `la más alta de la clase.`",
+    "tags": [
+      "comparison",
+      "más que",
+      "mejor peor",
+      "superlative"
+    ]
+  },
+  {
+    "id": "a2-indefinidos",
+    "skill": "grammar",
+    "unit": "Nouns and description",
+    "title": "Indefinite words: algo, nada, mucho, poco",
+    "goal": "Say \"someone\", \"nothing\", \"a lot\", \"little\" and build the negative correctly.",
+    "theory": "`Alguien` is someone, `nadie` is no one, `algo` is something, `nada` is nothing: `¿Hay alguien en casa? — No, no hay nadie.` If the negative word comes after the verb, `no` must come before it: `No veo a nadie.` Quantity: `mucho`, `poco`, `bastante`, `demasiado` agree with the noun: `mucha gente`, `pocos amigos`. Without a noun these words do not change: `Trabajo mucho.` `Alguno` and `ninguno` agree, and before a masculine noun they are shortened: `algún día`, `ningún problema`.",
+    "tags": [
+      "indefinite words",
+      "algo nada",
+      "alguien nadie",
+      "mucho poco",
+      "indefinidos"
+    ]
+  },
+  {
+    "id": "a2-pronombres-complemento",
+    "skill": "grammar",
+    "unit": "Pronouns",
+    "title": "Object pronouns: lo, la, le",
+    "goal": "Replace the direct and indirect object with a pronoun.",
+    "theory": "The direct object (whom, what) is replaced by `me`, `te`, `lo/la`, `nos`, `os`, `los/las`: `Veo a Ana → La veo.` `Compro el libro → Lo compro.` The indirect object (to whom) is `me`, `te`, `le`, `nos`, `os`, `les`: `Doy el libro a Ana → Le doy el libro.` The pronoun goes before the conjugated verb: `Lo tengo.` `No lo tengo.` With an infinitive or gerund it can be attached to the end: `Quiero verla.`",
+    "tags": [
+      "pronouns",
+      "lo la los las",
+      "le les",
+      "pronombres"
+    ]
+  },
+  {
+    "id": "a2-reflexivos",
+    "skill": "grammar",
+    "unit": "Pronouns",
+    "title": "Reflexive verbs: me levanto, se llama",
+    "goal": "Conjugate reflexive verbs and talk about a daily routine.",
+    "theory": "Reflexive verbs act on the speaker and are conjugated with a pronoun: `me`, `te`, `se`, `nos`, `os`, `se`. `Levantarse`: `me levanto`, `te levantas`, `se levanta`, `nos levantamos`, `os levantáis`, `se levantan`. The pronoun goes before the verb: `Me ducho por la mañana.` Compare: `Lavo el coche` (I wash the car) and `Me lavo` (I wash myself). Many verbs change meaning: `ir` and `irse`, `dormir` and `dormirse`. With an infinitive the pronoun joins it: `Voy a ducharme.`",
+    "tags": [
+      "reflexive verbs",
+      "me levanto",
+      "reflexivos",
+      "daily routine"
+    ]
+  },
+  {
+    "id": "a2-ser-vs-estar",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "Ser and estar: how they differ",
+    "goal": "Choose between ser and estar in typical situations.",
+    "theory": "`Ser` is what something is, `estar` is a state and a place. `Ser` gives qualities, job, origin, time: `Ana es simpática.` `Soy de Madrid.` `Son las tres.` `Estar` gives place and a temporary state: `Ana está cansada.` `Estamos en Madrid.` The same adjective can change meaning: `Es aburrido` — he is a boring person, `Está aburrido` — he is bored now; `Es listo` — clever, `Está listo` — ready. For an event use `ser`: `La fiesta es en mi casa.`",
+    "tags": [
+      "ser estar",
+      "contrast",
+      "es está"
+    ]
+  },
+  {
+    "id": "a2-futuro-ir-a",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "Near future: voy a + infinitive",
+    "goal": "Talk about plans and intentions with ir a.",
+    "theory": "To talk about plans use `ir a` + infinitive: `Voy a estudiar español.` `Vamos a salir.` Only `ir` is conjugated: `voy a`, `vas a`, `va a`, `vamos a`, `vais a`, `van a`. You can say when with `mañana`, `esta noche`, `el sábado`, `la semana que viene`. For the near future you can also use the present: `Mañana voy al médico.` For a question: `¿Qué vas a hacer?`",
+    "tags": [
+      "ir a",
+      "future",
+      "plans",
+      "voy a"
+    ]
+  },
+  {
+    "id": "a2-presente-estar-gerundio",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "Estar + gerund: what I am doing now",
+    "goal": "Say what is happening right now and tell it from a habit.",
+    "theory": "An action happening at the moment of speaking is expressed with `estar` + gerund: `Estoy estudiando.` `Están comiendo.` Form the gerund like this: `-ar → -ando`, `-er/-ir → -iendo`: `hablar → hablando`, `comer → comiendo`, `vivir → viviendo`. Special forms: `leer → leyendo`, `dormir → durmiendo`, `pedir → pidiendo`. The simple present speaks about a habit: `Estudio por las tardes.` Compare: `Hago deporte` (usually) and `Estoy haciendo deporte` (right now).",
+    "tags": [
+      "estar + gerund",
+      "gerund",
+      "now",
+      "estoy haciendo"
+    ]
+  },
+  {
+    "id": "a2-preterito-indefinido",
+    "skill": "grammar",
+    "unit": "Past tenses",
+    "title": "Pretérito indefinido: what happened",
+    "goal": "Tell about a completed event in the past.",
+    "theory": "`Pretérito indefinido` describes a completed action in the past: `Ayer trabajé mucho.` Endings for `-ar`: `-é, -aste, -ó, -amos, -asteis, -aron`; for `-er/-ir`: `-í, -iste, -ió, -imos, -isteis, -ieron`: `hablé`, `comí`, `viví`. Common irregular forms: `ser/ir`: `fui, fuiste, fue, fuimos, fuisteis, fueron`; `hacer`: `hice`, `hizo`; `tener`: `tuve`; `estar`: `estuve`. Time markers: `ayer`, `anoche`, `el año pasado`, `hace dos días`.",
+    "tags": [
+      "pretérito indefinido",
+      "past",
+      "ayer",
+      "fui hice"
+    ]
+  },
+  {
+    "id": "a2-preterito-perfecto",
+    "skill": "grammar",
+    "unit": "Past tenses",
+    "title": "Pretérito perfecto: I have already done it",
+    "goal": "Talk about an event connected with the present and about life experience.",
+    "theory": "This is a compound tense: `haber` + past participle. `He`, `has`, `ha`, `hemos`, `habéis`, `han` + `-ado` (`-ar`) or `-ido` (`-er/-ir`): `he trabajado`, `has comido`. Irregular participles: `hecho`, `dicho`, `visto`, `escrito`, `puesto`, `vuelto`, `abierto`. It is used when the period is not over yet: `hoy`, `esta semana`, `este año`, and for experience: `¿Has estado en España?` Markers: `ya`, `todavía no`, `alguna vez`, `nunca`. Nothing goes between `haber` and the participle: `No he comido`.",
+    "tags": [
+      "pretérito perfecto",
+      "he hecho",
+      "experience",
+      "participle"
+    ]
+  },
+  {
+    "id": "a2-preterito-imperfecto",
+    "skill": "grammar",
+    "unit": "Past tenses",
+    "title": "Pretérito imperfecto: how it used to be",
+    "goal": "Describe habits and the setting in the past.",
+    "theory": "`Pretérito imperfecto` tells how things used to be and describes the setting. Endings for `-ar`: `-aba, -abas, -aba, -ábamos, -abais, -aban`; for `-er/-ir`: `-ía, -ías, -ía, -íamos, -íais, -ían`: `trabajaba`, `comía`, `vivía`. Only three verbs are irregular: `ser` (`era`), `ir` (`iba`), `ver` (`veía`). Habit markers: `siempre`, `a menudo`, `todos los días`, `cuando era niño`: `Cuando era niña, vivía en un pueblo.`",
+    "tags": [
+      "pretérito imperfecto",
+      "habit in the past",
+      "era iba veía"
+    ]
+  },
+  {
+    "id": "a2-imperativo",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "The imperative",
+    "goal": "Give advice, make requests and prohibit with the imperative.",
+    "theory": "The affirmative form for `tú` is the third person singular: `habla`, `come`, `escribe`. For `usted`: `hable`, `coma`, `escriba`. The negative for `tú` comes from the subjunctive: `no hables`, `no comas`. Irregular forms for `tú`: `di`, `haz`, `ve`, `pon`, `sal`, `sé`, `ten`, `ven`. Reflexive verbs attach the pronoun to the end: `lávate`, and in the negative it goes before the verb: `no te laves`.",
+    "tags": [
+      "imperative",
+      "imperativo",
+      "ven haz di",
+      "command"
+    ]
+  },
+  {
+    "id": "a2-preposiciones",
+    "skill": "grammar",
+    "unit": "Prepositions",
+    "title": "Prepositions of place and time: a, en, de, desde",
+    "goal": "Choose a preposition for direction, place and time.",
+    "theory": "`A` shows direction and time: `Voy a Madrid.` `Llego a las cinco.` `En` is place and means of transport: `Vivo en Madrid.` `Voy en autobús.` `De` is origin, possession, material: `Soy de Rusia.` `El libro de Ana.` For periods use `desde` (from when) and `hasta` (until when): `Trabajo desde las nueve hasta las cinco.` `Por la mañana` is in the morning. Places: `encima de`, `debajo de`, `al lado de`, `delante de`, `detrás de`, `dentro de`.",
+    "tags": [
+      "prepositions",
+      "a en de",
+      "desde hasta",
+      "preposiciones"
+    ]
+  },
+  {
+    "id": "a2-vocab-ciudad",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "City and transport",
+    "goal": "Ask for directions and name a place in town and a means of transport.",
+    "theory": "City words are needed to ask the way: `¿Dónde está el banco?` Answers: `Todo recto`, `a la derecha`, `a la izquierda`. Transport: `el autobús`, `el metro`, `el tren`, `el taxi`. With transport use the preposition `en`: `Voy en metro`, but `a pie`. Places: `la plaza`, `el banco`, `la farmacia`, `la estación`.",
+    "vocabulary": [
+      {
+        "word": "la plaza",
+        "translation": "square"
+      },
+      {
+        "word": "la farmacia",
+        "translation": "pharmacy"
+      },
+      {
+        "word": "la estación",
+        "translation": "station"
+      },
+      {
+        "word": "a la derecha",
+        "translation": "to the right"
+      },
+      {
+        "word": "a la izquierda",
+        "translation": "to the left"
+      },
+      {
+        "word": "todo recto",
+        "translation": "straight ahead"
+      },
+      {
+        "word": "el metro",
+        "translation": "metro"
+      },
+      {
+        "word": "a pie",
+        "translation": "on foot"
+      }
+    ],
+    "tags": [
+      "city",
+      "transport",
+      "directions"
+    ]
+  },
+  {
+    "id": "a2-vocab-casa",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Home and everyday things",
+    "goal": "Describe your flat and name things in a home.",
+    "theory": "When describing a home name the rooms and furniture: `la cocina`, `el salón`, `el dormitorio`, `el baño`. For where things are: `En mi dormitorio hay una cama y un armario.` Do not confuse `casa` (house) and `piso` (a flat in Spain). Common words: `la mesa`, `la silla`, `el sofá`, `la ventana`.",
+    "vocabulary": [
+      {
+        "word": "la cocina",
+        "translation": "kitchen"
+      },
+      {
+        "word": "el salón",
+        "translation": "living room"
+      },
+      {
+        "word": "el dormitorio",
+        "translation": "bedroom"
+      },
+      {
+        "word": "el baño",
+        "translation": "bathroom"
+      },
+      {
+        "word": "el piso",
+        "translation": "flat"
+      },
+      {
+        "word": "la cama",
+        "translation": "bed"
+      },
+      {
+        "word": "el armario",
+        "translation": "wardrobe"
+      },
+      {
+        "word": "la ventana",
+        "translation": "window"
+      }
+    ],
+    "tags": [
+      "home",
+      "furniture",
+      "housing"
+    ]
+  },
+  {
+    "id": "a2-vocab-trabajo",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Work and study",
+    "goal": "Say where you work or study and what you do.",
+    "theory": "To talk about work you need names of jobs and places. Jobs often have a feminine form: `el camarero / la camarera`, `el médico / la médica`. To ask: `¿A qué te dedicas?` To answer: `Soy ingeniero.` `Trabajo en una oficina.` `Estudio en la universidad.`",
+    "vocabulary": [
+      {
+        "word": "el trabajo",
+        "translation": "work"
+      },
+      {
+        "word": "la oficina",
+        "translation": "office"
+      },
+      {
+        "word": "el jefe / la jefa",
+        "translation": "boss"
+      },
+      {
+        "word": "el compañero",
+        "translation": "colleague"
+      },
+      {
+        "word": "el médico",
+        "translation": "doctor"
+      },
+      {
+        "word": "el camarero",
+        "translation": "waiter"
+      },
+      {
+        "word": "la universidad",
+        "translation": "university"
+      },
+      {
+        "word": "el horario",
+        "translation": "schedule"
+      }
+    ],
+    "tags": [
+      "work",
+      "jobs",
+      "study"
+    ]
+  },
+  {
+    "id": "a2-reading-correo",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading messages and short letters",
+    "goal": "Understand a short letter or message and find the main points: who, what, when.",
+    "theory": "In informal letters the greeting is `Hola, Ana:`; the closing is `Un abrazo`, `Besos`, `Hasta pronto`. In formal ones: `Estimado señor:`, `Atentamente`. In the text look for who is writing, what they ask for and for which day. Verbs of invitation and request: `¿Puedes…?`, `¿Quieres venir…?`, `Te escribo para…`.",
+    "vocabulary": [
+      {
+        "word": "Estimado señor",
+        "translation": "Dear Sir"
+      },
+      {
+        "word": "Te escribo para…",
+        "translation": "I am writing to you to…"
+      },
+      {
+        "word": "Un abrazo",
+        "translation": "A hug"
+      },
+      {
+        "word": "Hasta pronto",
+        "translation": "See you soon"
+      },
+      {
+        "word": "adjunto",
+        "translation": "attached"
+      },
+      {
+        "word": "quedar",
+        "translation": "to arrange to meet"
+      }
+    ],
+    "tags": [
+      "reading",
+      "letters",
+      "messages"
+    ]
+  },
+  {
+    "id": "a2-reading-noticias",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading short news and posters",
+    "goal": "Understand a headline and the main idea of a short article or poster.",
+    "theory": "In a short article the headline and the first sentence matter. Find who, what, where and when. You will understand some words from context. On posters look for the date and place: `el 12 de mayo, a las 20:00, en el Teatro Real`. Useful words: `entradas` (tickets), `concierto`, `exposición`, `estreno` (premiere).",
+    "vocabulary": [
+      {
+        "word": "las entradas",
+        "translation": "tickets"
+      },
+      {
+        "word": "el concierto",
+        "translation": "concert"
+      },
+      {
+        "word": "la exposición",
+        "translation": "exhibition"
+      },
+      {
+        "word": "el estreno",
+        "translation": "premiere"
+      },
+      {
+        "word": "el titular",
+        "translation": "headline"
+      },
+      {
+        "word": "la fecha",
+        "translation": "date"
+      }
+    ],
+    "tags": [
+      "reading",
+      "news",
+      "posters"
+    ]
+  },
+  {
+    "id": "a2-writing-mensaje",
+    "skill": "writing",
+    "unit": "Reading and writing",
+    "title": "Writing a message and an invitation",
+    "goal": "Write a short message to a friend: invite them and agree on a place and time.",
+    "theory": "An invitation has a greeting, a question and details. A model: `Hola, Pablo: ¿Quieres venir al cine el sábado? La película empieza a las 8. Quedamos en la plaza a las 7. Un abrazo.` Use `¿Quieres…?`, `Podemos…`, `Quedamos…`. Do not forget `¿` and `¡` at the start of a question and an exclamation.",
+    "tags": [
+      "writing",
+      "invitation",
+      "message"
+    ]
+  },
+  {
+    "id": "a2-listening-anuncios",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to station announcements",
+    "goal": "Pick out the platform number, time and destination in an announcement.",
+    "theory": "In announcements catch numbers and places: `El tren con destino a Sevilla sale a las 18:15 de la vía 3.` Besides numbers listen for key words: `sale`, `llega`, `vía`, `retraso`. Do not try to understand everything. Write down the time, the number and the city, then check yourself.",
+    "vocabulary": [
+      {
+        "word": "la vía",
+        "translation": "platform"
+      },
+      {
+        "word": "sale",
+        "translation": "departs"
+      },
+      {
+        "word": "llega",
+        "translation": "arrives"
+      },
+      {
+        "word": "el retraso",
+        "translation": "delay"
+      },
+      {
+        "word": "el destino",
+        "translation": "destination"
+      },
+      {
+        "word": "el andén",
+        "translation": "railway platform"
+      }
+    ],
+    "tags": [
+      "listening",
+      "announcements",
+      "station"
+    ]
+  },
+  {
+    "id": "a2-listening-conversacion",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to a conversation about plans",
+    "goal": "Understand what plans two people are talking about and when they will meet.",
+    "theory": "A conversation about plans is built from questions and answers: `¿Qué vas a hacer?`, `Voy a…`, `¿Quedamos?`. Listen for the time (`mañana`, `el sábado`), the place and agreement or refusal. In lively speech words get shortened: `pa` for `para`, `¿qué tal?` for `¿cómo estás?`. Listen twice.",
+    "vocabulary": [
+      {
+        "word": "¿Qué vas a hacer?",
+        "translation": "What are you going to do?"
+      },
+      {
+        "word": "¿Quedamos?",
+        "translation": "Shall we meet?"
+      },
+      {
+        "word": "Vale",
+        "translation": "OK"
+      },
+      {
+        "word": "Me parece bien",
+        "translation": "That suits me"
+      },
+      {
+        "word": "No puedo",
+        "translation": "I can't"
+      },
+      {
+        "word": "¿A qué hora?",
+        "translation": "At what time?"
+      }
+    ],
+    "tags": [
+      "listening",
+      "plans",
+      "conversation"
+    ]
+  },
+  {
+    "id": "a2-speaking-direcciones",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: how to get there",
+    "goal": "Ask the way and explain how to get somewhere.",
+    "theory": "To ask the way start politely: `Perdone, ¿dónde está la farmacia?` When you explain, use short phrases: `Siga todo recto.` `Gire a la derecha.` `Está al lado del banco.` Repeat the key words to check you understood: `¿Todo recto y a la izquierda?`",
+    "vocabulary": [
+      {
+        "word": "Perdone, ¿dónde está…?",
+        "translation": "Excuse me, where is…?"
+      },
+      {
+        "word": "Siga todo recto",
+        "translation": "Go straight ahead"
+      },
+      {
+        "word": "Gire a la derecha",
+        "translation": "Turn right"
+      },
+      {
+        "word": "Está al lado de…",
+        "translation": "It is next to…"
+      },
+      {
+        "word": "Está lejos / cerca",
+        "translation": "It is far / near"
+      },
+      {
+        "word": "Gracias, muy amable",
+        "translation": "Thank you, you are very kind"
+      }
+    ],
+    "tags": [
+      "speaking",
+      "directions",
+      "way"
+    ]
+  },
+  {
+    "id": "a2-speaking-planes",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: weekend plans",
+    "goal": "Tell about your plans and suggest meeting.",
+    "theory": "You talk about plans with `voy a` + infinitive: `Este fin de semana voy a visitar a mis padres.` To suggest: `¿Quieres venir?` `Podemos ir al cine.` To agree: `Vale`, `Me parece bien`. A polite refusal: `Lo siento, no puedo.` Say whole phrases aloud.",
+    "vocabulary": [
+      {
+        "word": "Voy a visitar a…",
+        "translation": "I am going to visit…"
+      },
+      {
+        "word": "¿Quieres venir?",
+        "translation": "Do you want to come?"
+      },
+      {
+        "word": "Podemos ir al cine",
+        "translation": "We could go to the cinema"
+      },
+      {
+        "word": "Me parece bien",
+        "translation": "That suits me"
+      },
+      {
+        "word": "Lo siento, no puedo",
+        "translation": "Sorry, I can't"
+      },
+      {
+        "word": "¿Y tú?",
+        "translation": "And you?"
+      }
+    ],
+    "tags": [
+      "speaking",
+      "plans",
+      "weekend"
+    ]
+  }
+]

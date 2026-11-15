@@ -1,0 +1,558 @@
+[
+  {
+    "id": "b2-subjuntivo-imperfecto",
+    "skill": "grammar",
+    "unit": "Subjunctive",
+    "title": "Imperfect subjunctive: trabajara, comiera",
+    "goal": "Form and use the imperfect subjunctive in the past and in polite formulas.",
+    "theory": "The stem comes from the `ellos` form of the indefinido: drop `-ron` and add `-ra, -ras, -ra, -ramos, -rais, -ran`: `trabajaron → trabajara`, `comieron → comiera`, `fueron → fuera`, `tuvieron → tuviera`. There is also a form in `-se`: `trabajase`. It is used where the present subjunctive would be used in the present: after a main verb in the past (`Quería que vinieras`), in unreal conditions (`Si tuviera tiempo, viajaría`) and in a polite request: `Quisiera pedir una mesa.`",
+    "tags": [
+      "imperfect subjunctive",
+      "trabajara",
+      "if I were",
+      "quisiera"
+    ]
+  },
+  {
+    "id": "b2-subjuntivo-perfecto",
+    "skill": "grammar",
+    "unit": "Subjunctive",
+    "title": "Perfect subjunctive: haya hecho",
+    "goal": "Express feelings and doubt about an event that has already happened.",
+    "theory": "The form is `haya, hayas, haya, hayamos, hayáis, hayan` + participle: `haya llegado`, `hayas terminado`. It is needed where the subjunctive is required and the action is already completed at the moment of speaking: `Espero que hayas llegado bien.` `Me alegro de que hayáis venido.` `No creo que haya hecho eso.` Compare: `Espero que vengas` (in the future) and `Espero que hayas venido` (it has happened). After `cuando` for a completed future: `Cuando hayas terminado, avísame.`",
+    "tags": [
+      "perfect subjunctive",
+      "haya llegado",
+      "espero que hayas"
+    ]
+  },
+  {
+    "id": "b2-indicativo-vs-subjuntivo",
+    "skill": "grammar",
+    "unit": "Subjunctive",
+    "title": "Indicative or subjunctive: certainty and doubt",
+    "goal": "Choose the indicative or the subjunctive depending on how sure the speaker is.",
+    "theory": "The indicative is for when the speaker is sure and states a fact, the subjunctive is for doubt, denial and judgement. `Creo que viene` (sure) and `No creo que venga` (doubt). `Es verdad que…` + indicative, `No es verdad que…` + subjunctive. `Pienso que` — indicative, `No pienso que` — subjunctive. If `creer` is in a question, both are possible: `¿Crees que viene?` or `¿Crees que venga?` — the second shows doubt. After `aunque`: a fact takes the indicative, a supposition the subjunctive.",
+    "tags": [
+      "indicative subjunctive",
+      "creo que",
+      "no creo que",
+      "certainty and doubt"
+    ]
+  },
+  {
+    "id": "b2-estilo-indirecto",
+    "skill": "grammar",
+    "unit": "Reported speech",
+    "title": "Reported speech: dijo que, preguntó si",
+    "goal": "Report what someone said, asked or requested, matching the tenses.",
+    "theory": "If the introducing verb is in the present, tenses do not change: `Dice que vive aquí.` If it is in the past, tenses shift: `presente → imperfecto` (`vivo → vivía`), `perfecto → pluscuamperfecto`, `futuro → condicional` (`vendré → vendría`), `imperativo → imperfecto de subjuntivo` (`ven → viniera`). Time words change: `aquí → allí`, `hoy → ese día`, `mañana → al día siguiente`. Questions are introduced by `si` or a question word: `Preguntó si venía.` `Preguntó dónde vivía.`",
+    "tags": [
+      "reported speech",
+      "dijo que",
+      "preguntó si",
+      "sequence of tenses"
+    ]
+  },
+  {
+    "id": "b2-condicionales-si",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Conditionals with si: real and unreal",
+    "goal": "Build a real, an unreal and an impossible condition.",
+    "theory": "There are three types of condition. Real: `si` + present and `present / future / imperative`: `Si llueve, me quedo.` Unreal in the present or future: `si` + imperfect subjunctive and `condicional`: `Si tuviera dinero, viajaría.` Impossible in the past: `si` + pluperfect subjunctive and `condicional perfecto`: `Si hubiera estudiado, habría aprobado.` After `si` in a condition you never put the future or the condicional: `Si tengo tiempo, voy`, not `Si tendré`.",
+    "tags": [
+      "si",
+      "conditionals",
+      "if I had",
+      "hubiera"
+    ]
+  },
+  {
+    "id": "b2-tiempos-compuestos",
+    "skill": "grammar",
+    "unit": "Past tenses",
+    "title": "Future perfect and conditional perfect",
+    "goal": "Say that something will be finished by a future moment and guess about the past.",
+    "theory": "`Futuro perfecto` = `habré, habrás, habrá, habremos, habréis, habrán` + participle: `Mañana a las diez habré terminado.` It also expresses a guess about the past: `Habrá llegado ya.` — he has probably arrived. `Condicional perfecto` = `habría, habrías, habría, habríamos, habríais, habrían` + participle: `Habría ido, pero estaba enfermo.` It is needed for an impossible condition and for the future in the past: `Dijo que habría terminado.`",
+    "tags": [
+      "futuro perfecto",
+      "condicional perfecto",
+      "habré hecho",
+      "habría ido"
+    ]
+  },
+  {
+    "id": "b2-concesivas-consecutivas",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Concession and result: aunque, a pesar de que, así que",
+    "goal": "Express concession and result and choose the right mood.",
+    "theory": "`Aunque` + indicative speaks about a fact: `Aunque llueve, salgo.` (it is raining). `Aunque` + subjunctive is about a supposition or unimportant information: `Aunque llueva, saldré.` (it may rain). `A pesar de que` works the same way, and `a pesar de` goes with a noun and an infinitive. Result: `así que`, `por eso`, `de modo que` + indicative: `Llovía, así que me quedé.` Intensifying: `tan… que`, `tanto… que`: `Estaba tan cansado que se durmió.`",
+    "tags": [
+      "aunque",
+      "a pesar de que",
+      "así que",
+      "tan que",
+      "concession"
+    ]
+  },
+  {
+    "id": "b2-temporales-subjuntivo",
+    "skill": "grammar",
+    "unit": "Complex sentences",
+    "title": "Time and purpose: cuando, antes de que, hasta que",
+    "goal": "Use the subjunctive in clauses of time and purpose when speaking about the future.",
+    "theory": "If the action has not happened yet, after `cuando`, `hasta que`, `en cuanto`, `después de que`, `mientras` you need the subjunctive: `Cuando llegues, llámame.` If the action is habitual or past, use the indicative: `Cuando llego, siempre te llamo.` After `antes de que` and `para que` the subjunctive is always needed: `Antes de que salgas, cierra la ventana.` If the subject is the same, use `antes de` and `para` with the infinitive: `Antes de salir, cierra.`",
+    "tags": [
+      "cuando + subjunctive",
+      "antes de que",
+      "hasta que",
+      "en cuanto"
+    ]
+  },
+  {
+    "id": "b2-pasiva",
+    "skill": "grammar",
+    "unit": "Passive voice",
+    "title": "The passive: ser + participle, passive se",
+    "goal": "Choose between the passive with ser, the reflexive passive and the impersonal form.",
+    "theory": "The passive with `ser` = `ser` + a participle that agrees with the subject: `La casa fue construida en 1900.` The agent is introduced by `por`: `fue escrita por Cervantes.` It is typical of written language. In speech the passive `se` is used more often: `Se venden pisos.` `Se habla español.` If the subject is a thing, the verb agrees with it: `se vende una casa`, `se venden casas`. With `estar` + participle you speak about a result: `La puerta está cerrada.`",
+    "tags": [
+      "passive",
+      "ser + participle",
+      "passive se",
+      "por"
+    ]
+  },
+  {
+    "id": "b2-se-impersonal",
+    "skill": "grammar",
+    "unit": "Passive voice",
+    "title": "Impersonal sentences with se",
+    "goal": "Speak in general terms, without naming the doer, using se.",
+    "theory": "The impersonal `se` + a verb in the third person singular speaks about people in general: `Aquí se trabaja mucho.` `En España se come tarde.` The difference from the passive `se`: after an impersonal verb there is no thing as a subject. With a person as a direct object you need the preposition `a`, and the verb stays singular: `Se busca a los culpables.` Other ways to generalise: `uno`, `la gente`, the `ellos` form: `Dicen que va a llover.`",
+    "tags": [
+      "impersonal se",
+      "impersonal",
+      "se come tarde",
+      "generalising"
+    ]
+  },
+  {
+    "id": "b2-ser-estar-matices",
+    "skill": "grammar",
+    "unit": "Verbs",
+    "title": "Ser and estar: finer differences",
+    "goal": "Convey shades of meaning in pairs of ser and estar.",
+    "theory": "The same adjective with `ser` describes a quality, and with `estar` a state or an impression: `Es guapa` (pretty in general), `Está guapa` (looks nice today). `Es verde` — it is green, `Está verde` — it is unripe. `Es bueno` — good by nature, `Está bueno` — tasty. With `estar` you often speak about a result: `Está terminado`, `Está roto`. To judge an action: `Es difícil` and `Está difícil`. There is no general rule for all words: such pairs are best memorised.",
+    "tags": [
+      "ser estar",
+      "es está",
+      "shades of meaning",
+      "ser aburrido estar aburrido"
+    ]
+  },
+  {
+    "id": "b2-lo-neutro",
+    "skill": "grammar",
+    "unit": "Description",
+    "title": "The neutral lo: lo bueno, lo que, lo de",
+    "goal": "Turn an adjective, an adverb or a whole idea into a noun with lo.",
+    "theory": "`Lo` + adjective gives a general idea: `lo bueno`, `lo importante` — \"the good thing\", \"the important thing\". `Lo que` means \"what\": `Lo que dices es verdad.` `Lo` + adjective + `que` is intensifying: `No sabes lo difícil que es.` `Lo de` introduces a subject: `Lo de ayer fue un error.` — \"what happened yesterday\". Do not confuse it with the article: `el bueno` (the good one) and `lo bueno` (the good thing). `Lo` can also be a pronoun: `Lo vi.`",
+    "tags": [
+      "lo",
+      "lo que",
+      "lo bueno",
+      "lo de"
+    ]
+  },
+  {
+    "id": "b2-vocab-trabajo",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Work, career and the job interview",
+    "goal": "Talk about experience, duties and goals at an interview.",
+    "theory": "At an interview you need verbs of activity and polite formulas: `Me encargo de…`, `Tengo experiencia en…`, `Me gustaría trabajar en…`. Useful words: `el currículum`, `la entrevista`, `el puesto`, `el sueldo`, `el contrato`. To describe skills: `tener capacidad para…`, `trabajar en equipo`.",
+    "vocabulary": [
+      {
+        "word": "el currículum",
+        "translation": "CV"
+      },
+      {
+        "word": "la entrevista",
+        "translation": "interview"
+      },
+      {
+        "word": "el puesto",
+        "translation": "position"
+      },
+      {
+        "word": "el sueldo",
+        "translation": "salary"
+      },
+      {
+        "word": "el contrato",
+        "translation": "contract"
+      },
+      {
+        "word": "la experiencia",
+        "translation": "experience"
+      },
+      {
+        "word": "trabajar en equipo",
+        "translation": "to work in a team"
+      },
+      {
+        "word": "encargarse de",
+        "translation": "to be in charge of"
+      }
+    ],
+    "tags": [
+      "work",
+      "interview",
+      "career"
+    ]
+  },
+  {
+    "id": "b2-vocab-medio",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Society and the environment",
+    "goal": "Discuss general topics: ecology, technology, society.",
+    "theory": "For discussion you need abstract words and set phrases: `el medio ambiente`, `el cambio climático`, `la contaminación`. Ways to give an opinion: `Es necesario que…`, `Hay que` + infinitive. For an argument: `Por un lado… por otro lado…`. These words are common in news and articles.",
+    "vocabulary": [
+      {
+        "word": "el medio ambiente",
+        "translation": "environment"
+      },
+      {
+        "word": "el cambio climático",
+        "translation": "climate change"
+      },
+      {
+        "word": "la contaminación",
+        "translation": "pollution"
+      },
+      {
+        "word": "la energía renovable",
+        "translation": "renewable energy"
+      },
+      {
+        "word": "el reciclaje",
+        "translation": "recycling"
+      },
+      {
+        "word": "la sociedad",
+        "translation": "society"
+      },
+      {
+        "word": "el desarrollo",
+        "translation": "development"
+      },
+      {
+        "word": "la tecnología",
+        "translation": "technology"
+      }
+    ],
+    "tags": [
+      "society",
+      "ecology",
+      "technology"
+    ]
+  },
+  {
+    "id": "b2-vocab-conectores",
+    "skill": "vocabulary",
+    "unit": "Words",
+    "title": "Linking and introductory words",
+    "goal": "Build a connected argument using linking words.",
+    "theory": "For a connected argument you need linking words: adding (`además`, `incluso`), contrast (`sin embargo`, `no obstante`, `en cambio`), reason and result (`por lo tanto`, `por consiguiente`), conclusion (`en conclusión`, `en definitiva`). After some of them a comma is needed: `Sin embargo, no vino.`",
+    "vocabulary": [
+      {
+        "word": "además",
+        "translation": "besides"
+      },
+      {
+        "word": "sin embargo",
+        "translation": "however"
+      },
+      {
+        "word": "no obstante",
+        "translation": "nevertheless"
+      },
+      {
+        "word": "por lo tanto",
+        "translation": "therefore"
+      },
+      {
+        "word": "en definitiva",
+        "translation": "in short"
+      },
+      {
+        "word": "en conclusión",
+        "translation": "in conclusion"
+      },
+      {
+        "word": "por un lado",
+        "translation": "on the one hand"
+      },
+      {
+        "word": "en cambio",
+        "translation": "on the other hand"
+      }
+    ],
+    "tags": [
+      "linking words",
+      "argument",
+      "introductory words"
+    ]
+  },
+  {
+    "id": "b2-reading-opinion",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading an opinion article",
+    "goal": "Understand the author's position, arguments and attitude to the topic.",
+    "theory": "In an opinion article find the thesis (the main idea), the arguments and the conclusion. Notice evaluative words and linking words: `desde mi punto de vista`, `es evidente que`, `sin embargo`. Tell facts from opinions: facts are in the indicative, opinions and doubts in the subjunctive. After reading, retell the thesis in your own words.",
+    "vocabulary": [
+      {
+        "word": "desde mi punto de vista",
+        "translation": "from my point of view"
+      },
+      {
+        "word": "es evidente que",
+        "translation": "it is evident that"
+      },
+      {
+        "word": "el argumento",
+        "translation": "argument"
+      },
+      {
+        "word": "la conclusión",
+        "translation": "conclusion"
+      },
+      {
+        "word": "a favor",
+        "translation": "in favour"
+      },
+      {
+        "word": "en contra",
+        "translation": "against"
+      }
+    ],
+    "tags": [
+      "reading",
+      "article",
+      "opinion"
+    ]
+  },
+  {
+    "id": "b2-reading-literario",
+    "skill": "reading",
+    "unit": "Reading and writing",
+    "title": "Reading an extract from a story",
+    "goal": "Understand the plot, characters and mood in an extract of fiction.",
+    "theory": "In a story pay attention to the tenses: indefinido drives the plot, imperfecto creates the background and describes characters. Dialogue in Spanish is marked with dashes: `—¿Dónde vas? —preguntó ella.` After reading answer: who is the hero, what happened, how did it end. Do not be afraid of unknown words: the meaning is clear from context.",
+    "vocabulary": [
+      {
+        "word": "el personaje",
+        "translation": "character"
+      },
+      {
+        "word": "el narrador",
+        "translation": "narrator"
+      },
+      {
+        "word": "el argumento",
+        "translation": "plot"
+      },
+      {
+        "word": "el final",
+        "translation": "ending"
+      },
+      {
+        "word": "describir",
+        "translation": "to describe"
+      },
+      {
+        "word": "el diálogo",
+        "translation": "dialogue"
+      }
+    ],
+    "tags": [
+      "reading",
+      "story",
+      "plot"
+    ]
+  },
+  {
+    "id": "b2-writing-ensayo",
+    "skill": "writing",
+    "unit": "Reading and writing",
+    "title": "Writing an argumentative essay",
+    "goal": "Write a connected text of 150–200 words with a thesis, arguments and a conclusion.",
+    "theory": "An essay consists of an introduction, two or three arguments and a conclusion. Start with the thesis: `En mi opinión, …`. Then the arguments with linking words: `En primer lugar…`, `Además…`, `Sin embargo…`. Finish with a conclusion: `En conclusión, …`. Use the subjunctive where you express doubt or judgement: `Es necesario que se tomen medidas.`",
+    "tags": [
+      "writing",
+      "essay",
+      "argumentation"
+    ]
+  },
+  {
+    "id": "b2-listening-debate",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to discussions and debates",
+    "goal": "Understand the positions of several speakers and each one's arguments.",
+    "theory": "In a discussion it is important to tell who says what. Listen for formulas of agreement and objection: `Estoy de acuerdo`, `No estoy de acuerdo`, `Eso es cierto, pero…`. Write down each person's points, not separate words. Speakers often interrupt each other and run words together, so listen to the extract two or three times.",
+    "vocabulary": [
+      {
+        "word": "Estoy de acuerdo",
+        "translation": "I agree"
+      },
+      {
+        "word": "No estoy de acuerdo",
+        "translation": "I disagree"
+      },
+      {
+        "word": "Eso es cierto, pero…",
+        "translation": "That is true, but…"
+      },
+      {
+        "word": "Perdona, pero…",
+        "translation": "Sorry, but…"
+      },
+      {
+        "word": "A mi juicio…",
+        "translation": "In my view…"
+      },
+      {
+        "word": "Permíteme terminar",
+        "translation": "Let me finish"
+      }
+    ],
+    "tags": [
+      "listening",
+      "debate",
+      "discussion"
+    ]
+  },
+  {
+    "id": "b2-listening-conferencia",
+    "skill": "listening",
+    "unit": "Listening",
+    "title": "Listening to a lecture and a talk",
+    "goal": "Understand the structure of a talk and note down the main ideas.",
+    "theory": "In a talk catch the structure: the introduction (`Hoy voy a hablar de…`), the points (`en primer lugar`, `en segundo lugar`) and the conclusion (`para terminar`). Write down key words and numbers. If you lose the thread, wait for the next linking word: it will take you back to the structure. Retelling in your own words tests understanding.",
+    "vocabulary": [
+      {
+        "word": "Hoy voy a hablar de…",
+        "translation": "Today I am going to talk about…"
+      },
+      {
+        "word": "en primer lugar",
+        "translation": "firstly"
+      },
+      {
+        "word": "en segundo lugar",
+        "translation": "secondly"
+      },
+      {
+        "word": "para terminar",
+        "translation": "to finish"
+      },
+      {
+        "word": "como he dicho",
+        "translation": "as I said"
+      },
+      {
+        "word": "en resumen",
+        "translation": "in short"
+      }
+    ],
+    "tags": [
+      "listening",
+      "lecture",
+      "talk"
+    ]
+  },
+  {
+    "id": "b2-speaking-debate",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: debate and argumentation",
+    "goal": "Defend a position, give an argument and politely object.",
+    "theory": "The structure of an answer: position, reason, example. `Creo que… porque… Por ejemplo…` For a polite objection: `Entiendo tu punto de vista, pero…`, `No estoy del todo de acuerdo`. Do not raise your voice and do not interrupt: a pause and a clarifying question sound confident. Use the subjunctive for judgements: `Es importante que se escuchen todas las opiniones.`",
+    "vocabulary": [
+      {
+        "word": "Entiendo tu punto de vista, pero…",
+        "translation": "I understand your point of view, but…"
+      },
+      {
+        "word": "No estoy del todo de acuerdo",
+        "translation": "I don't entirely agree"
+      },
+      {
+        "word": "Por ejemplo…",
+        "translation": "For example…"
+      },
+      {
+        "word": "Lo que quiero decir es…",
+        "translation": "What I want to say is…"
+      },
+      {
+        "word": "Eso depende de…",
+        "translation": "That depends on…"
+      },
+      {
+        "word": "En definitiva…",
+        "translation": "In short…"
+      }
+    ],
+    "tags": [
+      "speaking",
+      "debate",
+      "argumentation"
+    ]
+  },
+  {
+    "id": "b2-speaking-presentacion",
+    "skill": "speaking",
+    "unit": "Speaking",
+    "title": "Speaking: a short presentation",
+    "goal": "Give a 2–3 minute presentation following a plan.",
+    "theory": "The structure of a presentation: greeting, topic, three points, conclusion. `Buenos días, hoy voy a hablar de… Primero… Después… Por último…` Speak aloud following the plan, do not read. Look at the audience and pause after each point. At the end: `¿Tienen alguna pregunta?`",
+    "vocabulary": [
+      {
+        "word": "Hoy voy a hablar de…",
+        "translation": "Today I am going to talk about…"
+      },
+      {
+        "word": "Primero, quisiera…",
+        "translation": "First, I would like…"
+      },
+      {
+        "word": "Pasemos a…",
+        "translation": "Let us move on to…"
+      },
+      {
+        "word": "Para terminar…",
+        "translation": "To finish…"
+      },
+      {
+        "word": "¿Tienen alguna pregunta?",
+        "translation": "Do you have any questions?"
+      },
+      {
+        "word": "Gracias por su atención",
+        "translation": "Thank you for your attention"
+      }
+    ],
+    "tags": [
+      "speaking",
+      "presentation",
+      "talk"
+    ]
+  }
+]

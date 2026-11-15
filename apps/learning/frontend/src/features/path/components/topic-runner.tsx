@@ -21,7 +21,7 @@ import type { EntryInput, Topic } from "@/features/learning/schemas"
 import { useLesson, useTopicDetail, useTopicExerciseAttempt } from "../hooks"
 import { topicSetComing, writerHasHeadStart } from "../progress"
 import { rememberReturnPoint, seeAlsoAnchor } from "../return-point"
-import { CompoundInput, displayAnswer, isCompound } from "./exercise-kinds"
+import { CompoundInput, displayAnswer, givesAway, isCompound } from "./exercise-kinds"
 import { PlayButton } from "./play-button"
 import { withExamples } from "@/components/example"
 import { englishClass, Mixed, Prose, RuleCard } from "./rule-card"
@@ -183,6 +183,12 @@ export function TopicRunner({ topicId }: { topicId: string }) {
       {generate.isError && (
         <p role="alert" className="text-destructive text-sm">
           {generate.error.message}
+        </p>
+      )}
+
+      {!lessonRunning && exercises.length > 0 && (
+        <p role="status" className="text-muted-foreground bg-muted rounded-lg px-3.5 py-3 text-[13px]">
+          {t("startLessonHint")}
         </p>
       )}
 
@@ -386,7 +392,10 @@ function ExerciseCard({
 
   return (
     <section className="border-border space-y-3 border-t-2 pt-5 first-of-type:border-t-0 first-of-type:pt-0">
-      {exercise.text && exercise.kind !== "cloze" && !(exercise.kind === "listen" && !result) && (
+      {exercise.text &&
+        exercise.kind !== "cloze" &&
+        !(exercise.kind === "listen" && !result) &&
+        !(exercise.kind === "order" && givesAway(exercise.text, exercise.answer)) && (
         <p className="text-muted-foreground text-sm leading-relaxed italic">
           {exercise.text}
         </p>

@@ -1,0 +1,300 @@
+[
+  {
+    "id": "b2-subjuntivo-imperfecto",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Imperfecto de subjuntivo: trabajara, comiera",
+    "goal": "Formar y usar el imperfecto de subjuntivo en el pasado y en fórmulas corteses.",
+    "theory": "La raíz sale de la forma `ellos` del indefinido: se quita `-ron` y se añade `-ra, -ras, -ra, -ramos, -rais, -ran`: `trabajaron → trabajara`, `comieron → comiera`, `fueron → fuera`, `tuvieron → tuviera`. También existe la forma en `-se`: `trabajase`. Se usa donde en presente iría el presente de subjuntivo: después de un verbo principal en pasado (`Quería que vinieras`), en condiciones irreales (`Si tuviera tiempo, viajaría`) y en una petición cortés: `Quisiera pedir una mesa.`",
+    "tags": [
+      "imperfecto de subjuntivo",
+      "trabajara",
+      "si yo",
+      "quisiera"
+    ]
+  },
+  {
+    "id": "b2-subjuntivo-perfecto",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Pretérito perfecto de subjuntivo: haya hecho",
+    "goal": "Expresar sentimientos y dudas sobre un hecho ya terminado.",
+    "theory": "La forma es `haya, hayas, haya, hayamos, hayáis, hayan` + participio: `haya llegado`, `hayas terminado`. Se necesita donde hace falta subjuntivo y la acción ya está terminada en el momento de hablar: `Espero que hayas llegado bien.` `Me alegro de que hayáis venido.` `No creo que haya hecho eso.` Compara: `Espero que vengas` (en el futuro) y `Espero que hayas venido` (ya ha pasado). Después de `cuando`, para un futuro terminado: `Cuando hayas terminado, avísame.`",
+    "tags": [
+      "perfecto de subjuntivo",
+      "haya llegado",
+      "espero que hayas"
+    ]
+  },
+  {
+    "id": "b2-indicativo-vs-subjuntivo",
+    "skill": "grammar",
+    "unit": "Subjuntivo",
+    "title": "Indicativo o subjuntivo: seguridad y duda",
+    "goal": "Elegir el indicativo o el subjuntivo según la seguridad de quien habla.",
+    "theory": "El indicativo se usa cuando quien habla está seguro y comunica un hecho; el subjuntivo, cuando duda, niega o valora. `Creo que viene` (seguro) y `No creo que venga` (duda). `Es verdad que…` + indicativo, `No es verdad que…` + subjuntivo. `Pienso que` pide indicativo y `No pienso que`, subjuntivo. Si `creer` está en una pregunta, caben los dos: `¿Crees que viene?` o `¿Crees que venga?`; el segundo expresa duda. Con `aunque`: un hecho va con indicativo y una suposición, con subjuntivo.",
+    "tags": [
+      "indicativo subjuntivo",
+      "creo que",
+      "no creo que",
+      "seguridad y duda"
+    ]
+  },
+  {
+    "id": "b2-estilo-indirecto",
+    "skill": "grammar",
+    "unit": "Estilo indirecto",
+    "title": "Estilo indirecto: dijo que, preguntó si",
+    "goal": "Contar lo que otro dijo, preguntó o pidió, adaptando los tiempos.",
+    "theory": "Si el verbo que introduce está en presente, los tiempos no cambian: `Dice que vive aquí.` Si está en pasado, los tiempos se desplazan: `presente → imperfecto` (`vivo → vivía`), `perfecto → pluscuamperfecto`, `futuro → condicional` (`vendré → vendría`), `imperativo → imperfecto de subjuntivo` (`ven → viniera`). Cambian los indicadores de tiempo y lugar: `aquí → allí`, `hoy → ese día`, `mañana → al día siguiente`. Las preguntas se introducen con `si` o con una palabra interrogativa: `Preguntó si venía.` `Preguntó dónde vivía.`",
+    "tags": [
+      "estilo indirecto",
+      "dijo que",
+      "preguntó si",
+      "concordancia de tiempos"
+    ]
+  },
+  {
+    "id": "b2-condicionales-si",
+    "skill": "grammar",
+    "unit": "La oración compuesta",
+    "title": "Condicionales con si: reales e irreales",
+    "goal": "Construir una condición real, una irreal y una imposible.",
+    "theory": "Hay tres tipos de condición. Real: `si` + presente y `presente / futuro / imperativo`: `Si llueve, me quedo.` Irreal en presente o futuro: `si` + imperfecto de subjuntivo y `condicional`: `Si tuviera dinero, viajaría.` Imposible en el pasado: `si` + pluscuamperfecto de subjuntivo y `condicional perfecto`: `Si hubiera estudiado, habría aprobado.` Después de `si` en una condición nunca se usan el futuro ni el condicional: `Si tengo tiempo, voy`, no `Si tendré`.",
+    "tags": [
+      "si",
+      "condicionales",
+      "si hubiera",
+      "hubiera"
+    ]
+  },
+  {
+    "id": "b2-tiempos-compuestos",
+    "skill": "grammar",
+    "unit": "El pasado",
+    "title": "Futuro perfecto y condicional perfecto",
+    "goal": "Decir que algo estará terminado en un momento futuro y suponer sobre el pasado.",
+    "theory": "El `futuro perfecto` es `habré, habrás, habrá, habremos, habréis, habrán` + participio: `Mañana a las diez habré terminado.` También expresa una suposición sobre el pasado: `Habrá llegado ya.` El `condicional perfecto` es `habría, habrías, habría, habríamos, habríais, habrían` + participio: `Habría ido, pero estaba enfermo.` Se necesita para la condición imposible y para el futuro en el pasado: `Dijo que habría terminado.`",
+    "tags": [
+      "futuro perfecto",
+      "condicional perfecto",
+      "habré hecho",
+      "habría ido"
+    ]
+  },
+  {
+    "id": "b2-concesivas-consecutivas",
+    "skill": "grammar",
+    "unit": "La oración compuesta",
+    "title": "Concesión y consecuencia: aunque, a pesar de que, así que",
+    "goal": "Expresar concesión y consecuencia y elegir bien el modo.",
+    "theory": "`Aunque` + indicativo habla de un hecho: `Aunque llueve, salgo.` (está lloviendo). `Aunque` + subjuntivo habla de una suposición o de algo poco importante: `Aunque llueva, saldré.` (quizá llueva). `A pesar de que` funciona igual, y `a pesar de` va con un nombre o con un infinitivo. Consecuencia: `así que`, `por eso`, `de modo que` + indicativo: `Llovía, así que me quedé.` Intensidad: `tan… que`, `tanto… que`: `Estaba tan cansado que se durmió.`",
+    "tags": [
+      "aunque",
+      "a pesar de que",
+      "así que",
+      "tan que",
+      "concesión"
+    ]
+  },
+  {
+    "id": "b2-temporales-subjuntivo",
+    "skill": "grammar",
+    "unit": "La oración compuesta",
+    "title": "Tiempo y finalidad: cuando, antes de que, hasta que",
+    "goal": "Usar el subjuntivo en oraciones de tiempo y finalidad al hablar del futuro.",
+    "theory": "Si la acción todavía no ha ocurrido, después de `cuando`, `hasta que`, `en cuanto`, `después de que`, `mientras` hace falta el subjuntivo: `Cuando llegues, llámame.` Si la acción es habitual o pasada, se usa el indicativo: `Cuando llego, siempre te llamo.` Después de `antes de que` y `para que` siempre se usa el subjuntivo: `Antes de que salgas, cierra la ventana.` Si el sujeto es el mismo, se usan `antes de` y `para` con infinitivo: `Antes de salir, cierra.`",
+    "tags": [
+      "cuando + subjuntivo",
+      "antes de que",
+      "hasta que",
+      "en cuanto"
+    ]
+  },
+  {
+    "id": "b2-pasiva",
+    "skill": "grammar",
+    "unit": "La voz pasiva",
+    "title": "La pasiva: ser + participio, se pasiva",
+    "goal": "Elegir entre la pasiva con ser, la pasiva refleja y la forma impersonal.",
+    "theory": "La pasiva con `ser` es `ser` + participio, que concuerda con el sujeto: `La casa fue construida en 1900.` El agente se introduce con `por`: `fue escrita por Cervantes.` Es propia de la lengua escrita. En la lengua hablada se usa más el `se` pasivo: `Se venden pisos.` `Se habla español.` Si el sujeto es una cosa, el verbo concuerda con ella: `se vende una casa`, `se venden casas`. Con `estar` + participio hablamos de un resultado: `La puerta está cerrada.`",
+    "tags": [
+      "pasiva",
+      "ser + participio",
+      "se pasivo",
+      "por"
+    ]
+  },
+  {
+    "id": "b2-se-impersonal",
+    "skill": "grammar",
+    "unit": "La voz pasiva",
+    "title": "Oraciones impersonales con se",
+    "goal": "Hablar en general, sin nombrar a quien actúa, con se.",
+    "theory": "El `se` impersonal + un verbo en tercera persona del singular habla de la gente en general: `Aquí se trabaja mucho.` `En España se come tarde.` La diferencia con el `se` pasivo: después de un verbo impersonal no hay una cosa como sujeto. Con un complemento directo de persona hace falta la preposición `a` y el verbo sigue en singular: `Se busca a los culpables.` Otras formas de generalizar: `uno`, `la gente`, la forma `ellos`: `Dicen que va a llover.`",
+    "tags": [
+      "se impersonal",
+      "impersonal",
+      "se come tarde",
+      "generalizar"
+    ]
+  },
+  {
+    "id": "b2-ser-estar-matices",
+    "skill": "grammar",
+    "unit": "El verbo",
+    "title": "Ser y estar: diferencias de matiz",
+    "goal": "Expresar matices en pares de ser y estar.",
+    "theory": "El mismo adjetivo con `ser` describe una cualidad y con `estar`, un estado o una impresión: `Es guapa` (en general) y `Está guapa` (hoy se ve guapa). `Es verde` es de color verde; `Está verde` no está maduro. `Es bueno` es bueno por naturaleza; `Está bueno` es sabroso. Con `estar` se suele hablar de un resultado: `Está terminado`, `Está roto`. Para valorar una acción: `Es difícil` y `Está difícil`. No hay una regla general para todas las palabras: conviene memorizar estos pares.",
+    "tags": [
+      "ser estar",
+      "es está",
+      "matices",
+      "ser aburrido estar aburrido"
+    ]
+  },
+  {
+    "id": "b2-lo-neutro",
+    "skill": "grammar",
+    "unit": "Descripción",
+    "title": "El lo neutro: lo bueno, lo que, lo de",
+    "goal": "Convertir un adjetivo, un adverbio o una idea entera en un nombre con lo.",
+    "theory": "`Lo` + adjetivo da una idea general: `lo bueno`, `lo importante`. `Lo que` significa «aquello que»: `Lo que dices es verdad.` `Lo` + adjetivo + `que` da énfasis: `No sabes lo difícil que es.` `Lo de` introduce un tema: `Lo de ayer fue un error.` No lo confundas con el artículo: `el bueno` (la persona buena) y `lo bueno` (lo que es bueno). `Lo` también puede ser un pronombre: `Lo vi.`",
+    "tags": [
+      "lo",
+      "lo que",
+      "lo bueno",
+      "lo de"
+    ]
+  },
+  {
+    "id": "b2-vocab-trabajo",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "Trabajo, carrera y entrevista",
+    "goal": "Hablar de la experiencia, las tareas y los objetivos en una entrevista.",
+    "theory": "En una entrevista se necesitan verbos de actividad y fórmulas de cortesía: `Me encargo de…`, `Tengo experiencia en…`, `Me gustaría trabajar en…`. Palabras útiles: `el currículum`, `la entrevista`, `el puesto`, `el sueldo`, `el contrato`. Para describir habilidades: `tener capacidad para…`, `trabajar en equipo`.",
+    "tags": [
+      "trabajo",
+      "entrevista",
+      "carrera"
+    ]
+  },
+  {
+    "id": "b2-vocab-medio",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "Sociedad y medio ambiente",
+    "goal": "Hablar de temas generales: ecología, tecnología, sociedad.",
+    "theory": "Para debatir hacen falta palabras abstractas y expresiones fijas: `el medio ambiente`, `el cambio climático`, `la contaminación`. Expresiones de opinión: `Es necesario que…`, `Hay que` + infinitivo. Para un argumento: `Por un lado… por otro lado…`. Estas palabras aparecen mucho en las noticias y en los artículos.",
+    "tags": [
+      "sociedad",
+      "ecología",
+      "tecnología"
+    ]
+  },
+  {
+    "id": "b2-vocab-conectores",
+    "skill": "vocabulary",
+    "unit": "Palabras",
+    "title": "Conectores y marcadores del discurso",
+    "goal": "Construir un razonamiento coherente con conectores.",
+    "theory": "Para un razonamiento coherente hacen falta conectores: adición (`además`, `incluso`), oposición (`sin embargo`, `no obstante`, `en cambio`), causa y consecuencia (`por lo tanto`, `por consiguiente`), conclusión (`en conclusión`, `en definitiva`). Después de algunos va una coma: `Sin embargo, no vino.`",
+    "tags": [
+      "conectores",
+      "razonamiento",
+      "marcadores del discurso"
+    ]
+  },
+  {
+    "id": "b2-reading-opinion",
+    "skill": "reading",
+    "unit": "Lectura y escritura",
+    "title": "Leemos un artículo de opinión",
+    "goal": "Entender la postura del autor, sus argumentos y su actitud ante el tema.",
+    "theory": "En un artículo de opinión busca la tesis (la idea principal), los argumentos y la conclusión. Fíjate en las palabras valorativas y en los conectores: `desde mi punto de vista`, `es evidente que`, `sin embargo`. Distingue los hechos de las opiniones: los hechos van en indicativo; las opiniones y las dudas, en subjuntivo. Al terminar, cuenta la tesis con tus palabras.",
+    "tags": [
+      "lectura",
+      "artículo",
+      "opinión"
+    ]
+  },
+  {
+    "id": "b2-reading-literario",
+    "skill": "reading",
+    "unit": "Lectura y escritura",
+    "title": "Leemos un fragmento de un cuento",
+    "goal": "Entender el argumento, los personajes y el ambiente en un fragmento literario.",
+    "theory": "En un cuento fíjate en los tiempos: el indefinido hace avanzar la acción y el imperfecto crea el fondo y describe a los personajes. Los diálogos en español se marcan con rayas: `—¿Dónde vas? —preguntó ella.` Después de leer, responde: quién es el protagonista, qué pasó y cómo termina. No tengas miedo de las palabras desconocidas: el sentido se entiende por el contexto.",
+    "tags": [
+      "lectura",
+      "cuento",
+      "argumento"
+    ]
+  },
+  {
+    "id": "b2-writing-ensayo",
+    "skill": "writing",
+    "unit": "Lectura y escritura",
+    "title": "Escribimos un ensayo argumentativo",
+    "goal": "Escribir un texto coherente de 150 a 200 palabras con tesis, argumentos y conclusión.",
+    "theory": "Un ensayo tiene una introducción, dos o tres argumentos y una conclusión. Empieza con la tesis: `En mi opinión, …`. Después, los argumentos con conectores: `En primer lugar…`, `Además…`, `Sin embargo…`. Termina con una conclusión: `En conclusión, …`. Usa el subjuntivo donde expresas duda o valoración: `Es necesario que se tomen medidas.`",
+    "tags": [
+      "escritura",
+      "ensayo",
+      "argumentación"
+    ]
+  },
+  {
+    "id": "b2-listening-debate",
+    "skill": "listening",
+    "unit": "Comprensión oral",
+    "title": "Escuchamos un debate",
+    "goal": "Entender las posturas de varios hablantes y los argumentos de cada uno.",
+    "theory": "En un debate es importante distinguir quién dice qué. Escucha las fórmulas de acuerdo y desacuerdo: `Estoy de acuerdo`, `No estoy de acuerdo`, `Eso es cierto, pero…`. Anota las ideas de cada persona, no palabras sueltas. Los hablantes se interrumpen y unen las palabras, así que escucha el fragmento dos o tres veces.",
+    "tags": [
+      "comprensión oral",
+      "debate",
+      "discusión"
+    ]
+  },
+  {
+    "id": "b2-listening-conferencia",
+    "skill": "listening",
+    "unit": "Comprensión oral",
+    "title": "Escuchamos una conferencia",
+    "goal": "Entender la estructura de una exposición y anotar las ideas principales.",
+    "theory": "En una exposición busca la estructura: la introducción (`Hoy voy a hablar de…`), los puntos (`en primer lugar`, `en segundo lugar`) y la conclusión (`para terminar`). Anota palabras clave y números. Si pierdes el hilo, espera el siguiente conector: te devolverá a la estructura. Contar lo oído con tus palabras comprueba que lo has entendido.",
+    "tags": [
+      "comprensión oral",
+      "conferencia",
+      "exposición"
+    ]
+  },
+  {
+    "id": "b2-speaking-debate",
+    "skill": "speaking",
+    "unit": "Expresión oral",
+    "title": "Hablamos: debate y argumentación",
+    "goal": "Defender una postura, dar un argumento y discrepar con cortesía.",
+    "theory": "La estructura de una respuesta: postura, razón, ejemplo. `Creo que… porque… Por ejemplo…` Para discrepar con cortesía: `Entiendo tu punto de vista, pero…`, `No estoy del todo de acuerdo`. No levantes la voz ni interrumpas: una pausa y una pregunta de aclaración dan seguridad. Usa el subjuntivo en las valoraciones: `Es importante que se escuchen todas las opiniones.`",
+    "tags": [
+      "expresión oral",
+      "debate",
+      "argumentación"
+    ]
+  },
+  {
+    "id": "b2-speaking-presentacion",
+    "skill": "speaking",
+    "unit": "Expresión oral",
+    "title": "Hablamos: una presentación breve",
+    "goal": "Hacer una presentación de dos o tres minutos siguiendo un plan.",
+    "theory": "La estructura de una presentación: saludo, tema, tres puntos, conclusión. `Buenos días, hoy voy a hablar de… Primero… Después… Por último…` Habla en voz alta siguiendo el plan, sin leer. Mira al público y haz una pausa después de cada punto. Al final: `¿Tienen alguna pregunta?`",
+    "tags": [
+      "expresión oral",
+      "presentación",
+      "exposición"
+    ]
+  }
+]

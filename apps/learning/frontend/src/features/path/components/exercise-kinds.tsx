@@ -37,6 +37,20 @@ export function displayAnswer(exercise: PathExercise): string {
   return exercise.answer
 }
 
+const bare = (text: string) =>
+  text
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}]+/gu, " ")
+    .trim()
+
+/** Whether a clue already holds the sentence of an "order" exercise: the
+ * learner puts it together, nothing may show it before they ask. */
+export function givesAway(text: string, answer: string): boolean {
+  const haystack = ` ${bare(text)} `
+
+  return split(answer).some((order) => bare(order) !== "" && haystack.includes(` ${bare(order)} `))
+}
+
 /** Whether one gap of a cloze holds what the key allows. */
 function gapRight(key: string, given: string): boolean {
   return key.split("/").some((variant) => norm(variant) === norm(given))

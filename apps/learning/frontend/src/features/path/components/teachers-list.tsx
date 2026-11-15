@@ -30,7 +30,11 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
   const [adding, setAdding] = useState(false)
   const [confirming, setConfirming] = useState<string | null>(null)
   const [language, setLanguage] = useState("")
-  const [native, setNative] = useState(locale.split("-")[0] === "en" ? "en" : "ru")
+  // The learner's own language is the one their teachers already translate into;
+  // the language of the interface is only the guess for someone with no teacher.
+  const [chosenNative, setNative] = useState<string | null>(null)
+  const known = teachers.data?.[0]?.translationLanguage
+  const native = chosenNative ?? known ?? (locale.split("-")[0] === "en" ? "en" : "ru")
 
   const have = new Set(teachers.data?.map((teacher) => teacher.language))
   const choices = languages.filter((code) => !have.has(code) && code !== native)

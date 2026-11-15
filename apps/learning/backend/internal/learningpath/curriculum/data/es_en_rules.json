@@ -1,0 +1,1940 @@
+{
+  "a1-genero": {
+    "forms": [
+      "-o → el (masculine): el libro, el niño",
+      "-a → la (feminine): la mesa, la niña",
+      "-ción, -sión, -dad, -tad → la: la canción, la ciudad",
+      "Exceptions: el día, el mapa, el problema, la mano"
+    ],
+    "examples": [
+      {
+        "text": "El padre trabaja en un banco.",
+        "translation": "The father works in a bank."
+      },
+      {
+        "text": "La profesora es muy simpática.",
+        "translation": "The teacher is very nice."
+      },
+      {
+        "text": "La ciudad tiene un mapa nuevo.",
+        "translation": "The city has a new map."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "la problema",
+        "right": "el problema",
+        "note": "Problema ends in -a, but it is masculine."
+      },
+      {
+        "wrong": "el mano",
+        "right": "la mano",
+        "note": "Mano ends in -o, but it is feminine."
+      }
+    ],
+    "related": [
+      "a1-plural",
+      "a1-articulo-determinado"
+    ]
+  },
+  "a1-plural": {
+    "forms": [
+      "Vowel + s: libro → libros, casa → casas",
+      "Consonant + es: ciudad → ciudades, profesor → profesores",
+      "z → ces: lápiz → lápices",
+      "Article: el → los, la → las, un → unos, una → unas"
+    ],
+    "examples": [
+      {
+        "text": "Los libros están en la mesa.",
+        "translation": "The books are on the table."
+      },
+      {
+        "text": "Las ciudades son grandes.",
+        "translation": "The cities are big."
+      },
+      {
+        "text": "Tengo dos lápices rojos.",
+        "translation": "I have two red pencils."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "los lápizes",
+        "right": "los lápices",
+        "note": "Before -es the letter z becomes c."
+      },
+      {
+        "wrong": "las canciónes",
+        "right": "las canciones",
+        "note": "In the plural the accent of canción disappears."
+      }
+    ],
+    "related": [
+      "a1-genero",
+      "a1-articulo-indeterminado"
+    ]
+  },
+  "a1-articulo-indeterminado": {
+    "forms": [
+      "Masculine: un libro, unos libros",
+      "Feminine: una casa, unas casas",
+      "Job without article: Soy médico.",
+      "Job with an adjective: Es un médico excelente."
+    ],
+    "examples": [
+      {
+        "text": "Tengo un hermano y una hermana.",
+        "translation": "I have a brother and a sister."
+      },
+      {
+        "text": "Mi padre es médico.",
+        "translation": "My father is a doctor."
+      },
+      {
+        "text": "Busco unos zapatos negros.",
+        "translation": "I am looking for some black shoes."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mi padre es un médico.",
+        "right": "Mi padre es médico.",
+        "note": "A job with no adjective is said without an article."
+      },
+      {
+        "wrong": "Tengo una coche.",
+        "right": "Tengo un coche.",
+        "note": "Coche is masculine, so un."
+      }
+    ],
+    "related": [
+      "a1-articulo-determinado",
+      "a1-genero"
+    ]
+  },
+  "a1-articulo-determinado": {
+    "forms": [
+      "Forms: el, la, los, las",
+      "a + el = al; de + el = del",
+      "Days: el lunes, los sábados",
+      "Time: Es la una. Son las tres."
+    ],
+    "examples": [
+      {
+        "text": "El café está caliente.",
+        "translation": "The coffee is hot."
+      },
+      {
+        "text": "Voy al mercado con la abuela.",
+        "translation": "I am going to the market with my grandmother."
+      },
+      {
+        "text": "Es la una y media.",
+        "translation": "It is half past one."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy a el cine.",
+        "right": "Voy al cine.",
+        "note": "A + el always merges into al."
+      },
+      {
+        "wrong": "Trabajo lunes.",
+        "right": "Trabajo el lunes.",
+        "note": "A day of the week needs the article el."
+      }
+    ],
+    "related": [
+      "a1-articulo-indeterminado",
+      "a1-demostrativos"
+    ]
+  },
+  "a1-demostrativos": {
+    "forms": [
+      "Here: este, esta, estos, estas",
+      "Not far: ese, esa, esos, esas",
+      "Far: aquel, aquella, aquellos, aquellas",
+      "Without a noun: esto, eso, aquello"
+    ],
+    "examples": [
+      {
+        "text": "Esta casa es muy grande.",
+        "translation": "This house is very big."
+      },
+      {
+        "text": "Ese chico es mi primo.",
+        "translation": "That boy is my cousin."
+      },
+      {
+        "text": "Aquellas montañas son muy altas.",
+        "translation": "Those mountains are very high."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Este casa es bonita.",
+        "right": "Esta casa es bonita.",
+        "note": "Casa is feminine, so esta."
+      },
+      {
+        "wrong": "Estos mesa está limpia.",
+        "right": "Esta mesa está limpia.",
+        "note": "Mesa is singular, so esta."
+      }
+    ],
+    "related": [
+      "a1-genero",
+      "a1-posesivos"
+    ]
+  },
+  "a1-posesivos": {
+    "forms": [
+      "mi, tu, su + singular: mi casa",
+      "mis, tus, sus + plural: mis casas",
+      "nuestro/a/os/as, vuestro/a/os/as",
+      "su = his, her, your, their"
+    ],
+    "examples": [
+      {
+        "text": "Mi madre se llama Ana.",
+        "translation": "My mother is called Ana."
+      },
+      {
+        "text": "Nuestros padres viven en Madrid.",
+        "translation": "Our parents live in Madrid."
+      },
+      {
+        "text": "¿Dónde está tu casa?",
+        "translation": "Where is your house?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mis casa es grande.",
+        "right": "Mi casa es grande.",
+        "note": "Casa is singular, so mi."
+      },
+      {
+        "wrong": "La mi madre es profesora.",
+        "right": "Mi madre es profesora.",
+        "note": "No article is needed before mi."
+      }
+    ],
+    "related": [
+      "a1-demostrativos",
+      "a1-ser"
+    ]
+  },
+  "a1-ser": {
+    "forms": [
+      "soy, eres, es, somos, sois, son",
+      "Who and what like: Es alto. Soy médico.",
+      "Where from: Soy de Rusia.",
+      "Time: Son las tres."
+    ],
+    "examples": [
+      {
+        "text": "Soy de Rusia, pero vivo en Madrid.",
+        "translation": "I am from Russia, but I live in Madrid."
+      },
+      {
+        "text": "Ellos son estudiantes.",
+        "translation": "They are students."
+      },
+      {
+        "text": "¿De dónde eres?",
+        "translation": "Where are you from?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy ruso.",
+        "right": "Soy ruso.",
+        "note": "Nationality is given with the verb ser."
+      },
+      {
+        "wrong": "Soy de veinte años.",
+        "right": "Tengo veinte años.",
+        "note": "Age is expressed with the verb tener."
+      }
+    ],
+    "related": [
+      "a1-estar",
+      "a1-tener-hay"
+    ]
+  },
+  "a1-estar": {
+    "forms": [
+      "estoy, estás, está, estamos, estáis, están",
+      "Place: Está en casa.",
+      "State: Estoy cansado, Estamos contentos.",
+      "Question: ¿Cómo está usted?"
+    ],
+    "examples": [
+      {
+        "text": "Madrid está en España.",
+        "translation": "Madrid is in Spain."
+      },
+      {
+        "text": "Hoy estoy muy cansada.",
+        "translation": "Today I am very tired."
+      },
+      {
+        "text": "¿Dónde están mis llaves?",
+        "translation": "Where are my keys?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Madrid es en España.",
+        "right": "Madrid está en España.",
+        "note": "Location is expressed with the verb estar."
+      },
+      {
+        "wrong": "Estoy en casa cansado y contenta.",
+        "right": "Estoy en casa, cansada y contenta.",
+        "note": "Adjectives agree with the subject in gender."
+      }
+    ],
+    "related": [
+      "a1-ser",
+      "a1-tener-hay"
+    ]
+  },
+  "a1-tener-hay": {
+    "forms": [
+      "tengo, tienes, tiene, tenemos, tenéis, tienen",
+      "Age: Tengo 20 años.",
+      "States: tengo hambre, frío, sueño",
+      "hay + something new: Hay un museo. Known thing: El museo está allí."
+    ],
+    "examples": [
+      {
+        "text": "Tengo dos hermanas.",
+        "translation": "I have two sisters."
+      },
+      {
+        "text": "Mi hijo tiene cinco años.",
+        "translation": "My son is five years old."
+      },
+      {
+        "text": "En la ciudad hay un museo muy bonito.",
+        "translation": "There is a very nice museum in the city."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Soy veinte años.",
+        "right": "Tengo veinte años.",
+        "note": "Age is expressed with the verb tener."
+      },
+      {
+        "wrong": "Hay el libro en la mesa.",
+        "right": "El libro está en la mesa.",
+        "note": "A known thing is used with estar, not hay."
+      }
+    ],
+    "related": [
+      "a1-estar",
+      "a1-articulo-indeterminado"
+    ]
+  },
+  "a1-presente-regular": {
+    "forms": [
+      "-ar: hablo, hablas, habla, hablamos, habláis, hablan",
+      "-er: como, comes, come, comemos, coméis, comen",
+      "-ir: vivo, vives, vive, vivimos, vivís, viven",
+      "Negative: No trabajo hoy."
+    ],
+    "examples": [
+      {
+        "text": "Trabajo en una escuela.",
+        "translation": "I work in a school."
+      },
+      {
+        "text": "Comemos a las dos.",
+        "translation": "We have lunch at two."
+      },
+      {
+        "text": "¿Vives en Madrid?",
+        "translation": "Do you live in Madrid?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Ella hablan español.",
+        "right": "Ella habla español.",
+        "note": "With ella you need the third person singular form."
+      },
+      {
+        "wrong": "Yo no trabajo no hoy.",
+        "right": "Yo no trabajo hoy.",
+        "note": "One no before the verb is enough."
+      }
+    ],
+    "related": [
+      "a1-presente-irregular",
+      "a1-ser"
+    ]
+  },
+  "a1-presente-irregular": {
+    "forms": [
+      "e → ie: querer → quiero; o → ue: poder → puedo",
+      "e → i: pedir → pido",
+      "yo-go: hago, salgo, tengo, digo; conozco",
+      "ir: voy, vas, va, vamos, vais, van"
+    ],
+    "examples": [
+      {
+        "text": "Quiero un café, por favor.",
+        "translation": "I would like a coffee, please."
+      },
+      {
+        "text": "¿Puedes ayudarme?",
+        "translation": "Can you help me?"
+      },
+      {
+        "text": "Voy a la universidad en autobús.",
+        "translation": "I go to university by bus."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo quero agua.",
+        "right": "Yo quiero agua.",
+        "note": "The vowel e in the stem becomes ie."
+      },
+      {
+        "wrong": "Nosotros puedemos.",
+        "right": "Nosotros podemos.",
+        "note": "In the nosotros form the stem does not change."
+      }
+    ],
+    "related": [
+      "a1-presente-regular",
+      "a1-gustar"
+    ]
+  },
+  "a1-gustar": {
+    "forms": [
+      "me / te / le / nos / os / les + gusta (singular and infinitive)",
+      "me / te / le / nos / os / les + gustan (plural)",
+      "A mí me gusta… / A ti te gusta…",
+      "Agreeing: A mí también / A mí tampoco"
+    ],
+    "examples": [
+      {
+        "text": "Me gusta el café con leche.",
+        "translation": "I like coffee with milk."
+      },
+      {
+        "text": "Nos gustan los libros de historia.",
+        "translation": "We like history books."
+      },
+      {
+        "text": "¿Te gusta bailar?",
+        "translation": "Do you like dancing?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo gusto el café.",
+        "right": "Me gusta el café.",
+        "note": "The thing is what pleases, so me, te, le go before the verb."
+      },
+      {
+        "wrong": "Me gusta las manzanas.",
+        "right": "Me gustan las manzanas.",
+        "note": "The verb agrees with what is liked: manzanas is plural."
+      }
+    ],
+    "related": [
+      "a1-presente-regular",
+      "a1-interrogativos"
+    ]
+  },
+  "a1-interrogativos": {
+    "forms": [
+      "¿Qué? ¿Quién? ¿Dónde? ¿Cuándo? ¿Cómo?",
+      "¿Cuánto/a/os/as? agrees with the noun",
+      "¿Por qué…? — Porque…",
+      "The marks ¿ ? and the accent in question words"
+    ],
+    "examples": [
+      {
+        "text": "¿Dónde vives?",
+        "translation": "Where do you live?"
+      },
+      {
+        "text": "¿Cuántos años tienes?",
+        "translation": "How old are you?"
+      },
+      {
+        "text": "¿Por qué estudias español?",
+        "translation": "Why are you studying Spanish?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Como te llamas?",
+        "right": "¿Cómo te llamas?",
+        "note": "In a question write ¿ and cómo with an accent."
+      },
+      {
+        "wrong": "¿Por que llegas tarde?",
+        "right": "¿Por qué llegas tarde?",
+        "note": "In a question write por qué as two words with an accent."
+      }
+    ],
+    "related": [
+      "a1-ser",
+      "a1-tener-hay"
+    ]
+  },
+  "a2-adjetivos": {
+    "forms": [
+      "-o → -a, -os, -as: pequeño, pequeña, pequeños",
+      "-e / consonant: inteligente, joven, fácil",
+      "-or, -ón, -án, nationalities: español → española",
+      "bueno → buen, malo → mal (before a masculine singular noun)"
+    ],
+    "examples": [
+      {
+        "text": "Tengo una amiga chilena muy simpática.",
+        "translation": "I have a very nice Chilean friend."
+      },
+      {
+        "text": "Es un buen profesor.",
+        "translation": "He is a good teacher."
+      },
+      {
+        "text": "Mis vecinos son españoles.",
+        "translation": "My neighbours are Spanish."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "una casa grande y bonito",
+        "right": "una casa grande y bonita",
+        "note": "An adjective agrees with its noun in gender."
+      },
+      {
+        "wrong": "un bueno amigo",
+        "right": "un buen amigo",
+        "note": "Before a masculine noun bueno is shortened to buen."
+      }
+    ],
+    "related": [
+      "a2-comparativos",
+      "a2-ser-vs-estar"
+    ]
+  },
+  "a2-comparativos": {
+    "forms": [
+      "más / menos + adjective + que",
+      "tan + adjective + como; tanto/a/os/as + noun + como",
+      "mejor, peor, mayor, menor",
+      "el / la / los / las + más / menos + adjective + de"
+    ],
+    "examples": [
+      {
+        "text": "Mi hermano es más alto que yo.",
+        "translation": "My brother is taller than me."
+      },
+      {
+        "text": "Esta casa es tan cara como aquella.",
+        "translation": "This house is as expensive as that one."
+      },
+      {
+        "text": "Es la ciudad más bonita del país.",
+        "translation": "It is the prettiest city in the country."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "más grande de Valencia",
+        "right": "más grande que Valencia",
+        "note": "The second part of the comparison needs que, not de."
+      },
+      {
+        "wrong": "más bueno",
+        "right": "mejor",
+        "note": "Bueno has its own comparative form: mejor."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-indefinidos"
+    ]
+  },
+  "a2-indefinidos": {
+    "forms": [
+      "alguien / nadie; algo / nada",
+      "No + verb + nada / nadie / nunca",
+      "mucho/a/os/as, poco/a/os/as, bastante, demasiado",
+      "algún, ningún before a masculine singular noun"
+    ],
+    "examples": [
+      {
+        "text": "No hay nadie en la oficina.",
+        "translation": "There is nobody in the office."
+      },
+      {
+        "text": "Tengo muchos amigos, pero poco tiempo libre.",
+        "translation": "I have many friends, but little free time."
+      },
+      {
+        "text": "¿Quieres algo de beber?",
+        "translation": "Would you like something to drink?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No veo nadie.",
+        "right": "No veo a nadie.",
+        "note": "A person as a direct object takes the preposition a."
+      },
+      {
+        "wrong": "Tengo mucho amigas.",
+        "right": "Tengo muchas amigas.",
+        "note": "Mucho agrees with the noun in gender and number."
+      }
+    ],
+    "related": [
+      "a2-comparativos",
+      "a2-adjetivos"
+    ]
+  },
+  "a2-pronombres-complemento": {
+    "forms": [
+      "Direct: me, te, lo/la, nos, os, los/las",
+      "Indirect: me, te, le, nos, os, les",
+      "Before the verb: Lo veo. No lo veo.",
+      "With an infinitive: Quiero verlo. / Lo quiero ver."
+    ],
+    "examples": [
+      {
+        "text": "¿El libro? Lo tengo yo.",
+        "translation": "The book? I have it."
+      },
+      {
+        "text": "Le escribo una carta a mi madre.",
+        "translation": "I write a letter to my mother."
+      },
+      {
+        "text": "Te quiero mucho.",
+        "translation": "I love you very much."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Veo la.",
+        "right": "La veo.",
+        "note": "The pronoun goes before the conjugated verb."
+      },
+      {
+        "wrong": "Les doy un libro a Ana.",
+        "right": "Le doy un libro a Ana.",
+        "note": "One person is le, several people are les."
+      }
+    ],
+    "related": [
+      "a2-reflexivos",
+      "a2-imperativo"
+    ]
+  },
+  "a2-reflexivos": {
+    "forms": [
+      "me, te, se, nos, os, se + verb",
+      "levantarse, ducharse, acostarse, llamarse",
+      "With an infinitive: Voy a ducharme. / Me voy a duchar.",
+      "Contrast: lavar (something) and lavarse (oneself)"
+    ],
+    "examples": [
+      {
+        "text": "Me levanto a las siete.",
+        "translation": "I get up at seven."
+      },
+      {
+        "text": "Mi hermana se llama Laura.",
+        "translation": "My sister is called Laura."
+      },
+      {
+        "text": "Lavo el coche y luego me ducho.",
+        "translation": "I wash the car and then I take a shower."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo levanto a las siete.",
+        "right": "Yo me levanto a las siete.",
+        "note": "To get up is a reflexive verb, so me is needed."
+      },
+      {
+        "wrong": "Se llamo Ana.",
+        "right": "Me llamo Ana.",
+        "note": "The pronoun must match the subject: yo → me."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "a2-ser-vs-estar": {
+    "forms": [
+      "ser: who, what like, where from, time, material",
+      "estar: where, how someone feels, result",
+      "Meaning changes: ser aburrido / estar aburrido",
+      "Event: ser en + place"
+    ],
+    "examples": [
+      {
+        "text": "María es muy simpática, pero hoy está triste.",
+        "translation": "María is very nice, but today she is sad."
+      },
+      {
+        "text": "La reunión es en la sala 3.",
+        "translation": "The meeting is in room 3."
+      },
+      {
+        "text": "La sopa está fría.",
+        "translation": "The soup is cold."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Soy en casa.",
+        "right": "Estoy en casa.",
+        "note": "Location is expressed with estar."
+      },
+      {
+        "wrong": "Estoy médico.",
+        "right": "Soy médico.",
+        "note": "A job is named with the verb ser."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "a2-futuro-ir-a": {
+    "forms": [
+      "voy, vas, va, vamos, vais, van + a + infinitive",
+      "Time words: mañana, esta noche, el sábado",
+      "Question: ¿Qué vas a hacer?",
+      "Present for the future: Mañana voy al médico."
+    ],
+    "examples": [
+      {
+        "text": "Voy a estudiar español este año.",
+        "translation": "I am going to study Spanish this year."
+      },
+      {
+        "text": "Mañana vamos a visitar a mis abuelos.",
+        "translation": "Tomorrow we are going to visit my grandparents."
+      },
+      {
+        "text": "¿Qué vas a hacer el sábado?",
+        "translation": "What are you going to do on Saturday?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy estudiar.",
+        "right": "Voy a estudiar.",
+        "note": "Between ir and the infinitive the preposition a is needed."
+      },
+      {
+        "wrong": "Va a come.",
+        "right": "Va a comer.",
+        "note": "After ir a the verb is in the infinitive."
+      }
+    ],
+    "related": [
+      "a2-presente-estar-gerundio",
+      "a2-preterito-indefinido"
+    ]
+  },
+  "a2-presente-estar-gerundio": {
+    "forms": [
+      "estoy, estás, está, estamos, estáis, están + gerund",
+      "-ar → -ando; -er/-ir → -iendo",
+      "leyendo, durmiendo, pidiendo",
+      "Habit: Trabajo aquí. Now: Estoy trabajando."
+    ],
+    "examples": [
+      {
+        "text": "Estoy viendo las noticias.",
+        "translation": "I am watching the news."
+      },
+      {
+        "text": "Los niños están durmiendo.",
+        "translation": "The children are sleeping."
+      },
+      {
+        "text": "Hoy estoy trabajando en casa.",
+        "translation": "Today I am working at home."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy trabajo.",
+        "right": "Estoy trabajando.",
+        "note": "After estar you need a gerund, not a conjugated form."
+      },
+      {
+        "wrong": "Estamos leendo.",
+        "right": "Estamos leyendo.",
+        "note": "The gerund of leer is leyendo."
+      }
+    ],
+    "related": [
+      "a2-futuro-ir-a",
+      "a2-ser-vs-estar"
+    ]
+  },
+  "a2-preterito-indefinido": {
+    "forms": [
+      "-ar: -é, -aste, -ó, -amos, -asteis, -aron",
+      "-er/-ir: -í, -iste, -ió, -imos, -isteis, -ieron",
+      "ser/ir: fui, fuiste, fue…; hacer: hice, hizo",
+      "Markers: ayer, anoche, el año pasado, hace + time"
+    ],
+    "examples": [
+      {
+        "text": "Ayer trabajé hasta las ocho.",
+        "translation": "Yesterday I worked until eight."
+      },
+      {
+        "text": "El año pasado fuimos a México.",
+        "translation": "Last year we went to Mexico."
+      },
+      {
+        "text": "¿Qué hiciste el sábado?",
+        "translation": "What did you do on Saturday?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo comió pizza.",
+        "right": "Yo comí pizza.",
+        "note": "For yo in -er/-ir verbs the ending is -í."
+      },
+      {
+        "wrong": "Ayer hací la cena.",
+        "right": "Ayer hice la cena.",
+        "note": "Hacer has the special form hice."
+      }
+    ],
+    "related": [
+      "a2-preterito-perfecto",
+      "a2-preterito-imperfecto"
+    ]
+  },
+  "a2-preterito-perfecto": {
+    "forms": [
+      "he, has, ha, hemos, habéis, han + -ado / -ido",
+      "Irregular: hecho, dicho, visto, escrito, puesto, vuelto",
+      "Markers: hoy, esta semana, ya, todavía no, alguna vez",
+      "Negative: No he terminado."
+    ],
+    "examples": [
+      {
+        "text": "Hoy he trabajado mucho.",
+        "translation": "Today I have worked a lot."
+      },
+      {
+        "text": "¿Has estado alguna vez en España?",
+        "translation": "Have you ever been to Spain?"
+      },
+      {
+        "text": "Todavía no he comido.",
+        "translation": "I haven't had lunch yet."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "He hacido la tarea.",
+        "right": "He hecho la tarea.",
+        "note": "The participle of hacer is hecho."
+      },
+      {
+        "wrong": "Ayer he trabajado.",
+        "right": "Ayer trabajé.",
+        "note": "With ayer, a finished time, the indefinido is used."
+      }
+    ],
+    "related": [
+      "a2-preterito-indefinido",
+      "a2-preterito-imperfecto"
+    ]
+  },
+  "a2-preterito-imperfecto": {
+    "forms": [
+      "-ar: -aba, -abas, -aba, -ábamos, -abais, -aban",
+      "-er/-ir: -ía, -ías, -ía, -íamos, -íais, -ían",
+      "Irregular: ser → era, ir → iba, ver → veía",
+      "Markers: siempre, todos los días, cuando era niño"
+    ],
+    "examples": [
+      {
+        "text": "Cuando era niño, vivía en un pueblo.",
+        "translation": "When I was a child, I lived in a village."
+      },
+      {
+        "text": "Todos los domingos comíamos en casa de mi abuela.",
+        "translation": "On Sundays we used to have lunch at my grandmother's."
+      },
+      {
+        "text": "Iba al colegio en bicicleta.",
+        "translation": "I used to go to school by bicycle."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo eraba alto.",
+        "right": "Yo era alto.",
+        "note": "The verb ser has the special form era."
+      },
+      {
+        "wrong": "Cuando era niña, jugué en la calle todos los días.",
+        "right": "Cuando era niña, jugaba en la calle todos los días.",
+        "note": "A habitual past action is expressed with the imperfecto."
+      }
+    ],
+    "related": [
+      "a2-preterito-indefinido",
+      "a2-preterito-perfecto"
+    ]
+  },
+  "a2-imperativo": {
+    "forms": [
+      "tú: habla, come, escribe",
+      "usted: hable, coma, escriba",
+      "Irregular: di, haz, ve, pon, sal, sé, ten, ven",
+      "Prohibition: no hables, no comas"
+    ],
+    "examples": [
+      {
+        "text": "Abre la ventana, por favor.",
+        "translation": "Open the window, please."
+      },
+      {
+        "text": "No fumes aquí.",
+        "translation": "Don't smoke here."
+      },
+      {
+        "text": "Ven a mi casa mañana.",
+        "translation": "Come to my house tomorrow."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No habla tan rápido.",
+        "right": "No hables tan rápido.",
+        "note": "A prohibition for tú needs the -es form."
+      },
+      {
+        "wrong": "Hace la tarea.",
+        "right": "Haz la tarea.",
+        "note": "The imperative of hacer for tú is haz."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "a2-reflexivos"
+    ]
+  },
+  "a2-preposiciones": {
+    "forms": [
+      "a: direction, time; en: place, transport",
+      "de: where from, whose; desde / hasta",
+      "por la mañana / tarde / noche",
+      "encima de, debajo de, al lado de, delante de"
+    ],
+    "examples": [
+      {
+        "text": "Voy a Barcelona en tren.",
+        "translation": "I am going to Barcelona by train."
+      },
+      {
+        "text": "El libro está encima de la mesa.",
+        "translation": "The book is on the table."
+      },
+      {
+        "text": "Trabajo desde las nueve hasta las cinco.",
+        "translation": "I work from nine until five."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Voy en Madrid.",
+        "right": "Voy a Madrid.",
+        "note": "Direction is expressed with the preposition a."
+      },
+      {
+        "wrong": "Vivo a Madrid.",
+        "right": "Vivo en Madrid.",
+        "note": "The place where you live takes en."
+      }
+    ],
+    "related": [
+      "a2-adjetivos",
+      "a2-futuro-ir-a"
+    ]
+  },
+  "b1-indefinido-vs-imperfecto": {
+    "forms": [
+      "Imperfecto: background, habit, age, weather",
+      "Indefinido: completed event, sequence",
+      "estaba + gerund + cuando + indefinido",
+      "Meaning changes: conocí / conocía, supe / sabía"
+    ],
+    "examples": [
+      {
+        "text": "Llovía y hacía frío cuando salí de casa.",
+        "translation": "It was raining and it was cold when I left the house."
+      },
+      {
+        "text": "Estaba leyendo cuando sonó el teléfono.",
+        "translation": "I was reading when the phone rang."
+      },
+      {
+        "text": "Cuando era niña, un día me perdí en el bosque.",
+        "translation": "When I was a girl, one day I got lost in the forest."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegué, todos cenaron.",
+        "right": "Cuando llegué, todos cenaban.",
+        "note": "An action in progress at the same time as an event is expressed with the imperfecto."
+      },
+      {
+        "wrong": "Estuve cenando cuando llamaste.",
+        "right": "Estaba cenando cuando llamaste.",
+        "note": "A background action that was interrupted is expressed with the imperfecto."
+      }
+    ],
+    "related": [
+      "b1-pluscuamperfecto",
+      "b1-futuro-simple"
+    ]
+  },
+  "b1-pluscuamperfecto": {
+    "forms": [
+      "había, habías, había, habíamos, habíais, habían + participle",
+      "ya, todavía no, nunca + pluscuamperfecto",
+      "Order: pluscuamperfecto = earlier, indefinido = later",
+      "Irregular participles: hecho, dicho, visto, escrito"
+    ],
+    "examples": [
+      {
+        "text": "Cuando llegué, ya se había ido.",
+        "translation": "When I arrived, he had already left."
+      },
+      {
+        "text": "Nunca había visto el mar.",
+        "translation": "I had never seen the sea."
+      },
+      {
+        "text": "Me dijo que había terminado el trabajo.",
+        "translation": "He told me he had finished the work."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegué, ya se fue.",
+        "right": "Cuando llegué, ya se había ido.",
+        "note": "An action earlier than another in the past needs the pluscuamperfecto."
+      },
+      {
+        "wrong": "Nunca he visto el mar hasta ayer.",
+        "right": "Nunca había visto el mar hasta ayer.",
+        "note": "Experience up to a moment in the past is expressed with the pluscuamperfecto, not the perfecto."
+      }
+    ],
+    "related": [
+      "b1-indefinido-vs-imperfecto",
+      "b2-estilo-indirecto"
+    ]
+  },
+  "b1-futuro-simple": {
+    "forms": [
+      "Infinitive + é, ás, á, emos, éis, án",
+      "Special stems: tendr-, har-, podr-, saldr-, dir-, vendr-",
+      "Guess: Estará en casa. = He is probably at home",
+      "Promise, forecast: Te llamaré. Mañana lloverá."
+    ],
+    "examples": [
+      {
+        "text": "El año que viene viajaré a Italia.",
+        "translation": "Next year I will travel to Italy."
+      },
+      {
+        "text": "Estará en casa, porque su luz está encendida.",
+        "translation": "He is probably at home, because his light is on."
+      },
+      {
+        "text": "¿Cuándo vendrás a verme?",
+        "translation": "When will you come to see me?"
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo tenderé tiempo.",
+        "right": "Yo tendré tiempo.",
+        "note": "Tener has the special stem tendr-."
+      },
+      {
+        "wrong": "Mañana yo salirá.",
+        "right": "Mañana saldré.",
+        "note": "Salir has the special stem saldr-."
+      }
+    ],
+    "related": [
+      "b1-condicional",
+      "b1-indefinido-vs-imperfecto"
+    ]
+  },
+  "b1-condicional": {
+    "forms": [
+      "Infinitive + ía, ías, ía, íamos, íais, ían",
+      "Special stems: tendr-, har-, podr-, saldr-, dir-",
+      "Politeness: ¿Podría…? Me gustaría…",
+      "Advice: Deberías…; reported: Dijo que vendría"
+    ],
+    "examples": [
+      {
+        "text": "¿Podría abrir la ventana, por favor?",
+        "translation": "Could you open the window, please?"
+      },
+      {
+        "text": "Deberías descansar un poco.",
+        "translation": "You should rest a little."
+      },
+      {
+        "text": "Me gustaría vivir cerca del mar.",
+        "translation": "I would like to live near the sea."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Yo podería ir.",
+        "right": "Yo podría ir.",
+        "note": "Poder has the stem podr-, not poder-."
+      },
+      {
+        "wrong": "Dijo que vendrá.",
+        "right": "Dijo que vendría.",
+        "note": "In reported speech after a past tense the future is replaced by the condicional."
+      }
+    ],
+    "related": [
+      "b1-futuro-simple",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-pronombres-combinados": {
+    "forms": [
+      "Indirect + direct: me lo, te la, nos los",
+      "le/les + lo/la → se lo / se la",
+      "With an infinitive: dárselo; with an imperative: dámelo",
+      "Do not swap the order: me lo, not lo me"
+    ],
+    "examples": [
+      {
+        "text": "Mi madre me lo ha regalado.",
+        "translation": "My mother gave it to me."
+      },
+      {
+        "text": "¿El libro? Se lo di ayer a Pablo.",
+        "translation": "The book? I gave it to Pablo yesterday."
+      },
+      {
+        "text": "Voy a enviártelo mañana.",
+        "translation": "I will send it to you tomorrow."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Le lo doy.",
+        "right": "Se lo doy.",
+        "note": "Le before lo is replaced with se."
+      },
+      {
+        "wrong": "Lo me dijo.",
+        "right": "Me lo dijo.",
+        "note": "The indirect object goes before the direct one."
+      }
+    ],
+    "related": [
+      "a2-pronombres-complemento",
+      "b1-imperativo-pronombres"
+    ]
+  },
+  "b1-imperativo-pronombres": {
+    "forms": [
+      "usted/ustedes: hable(n), coma(n), escriba(n)",
+      "vosotros: hablad; prohibition: no habléis",
+      "Affirmative: cómpralo, dímelo, siéntese",
+      "Prohibition: no lo compres, no me lo digas"
+    ],
+    "examples": [
+      {
+        "text": "Siéntese, por favor.",
+        "translation": "Please sit down."
+      },
+      {
+        "text": "Dímelo ahora.",
+        "translation": "Tell me now."
+      },
+      {
+        "text": "No me lo digas.",
+        "translation": "Don't tell me."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No lo compra.",
+        "right": "No lo compres.",
+        "note": "A prohibition for tú needs the -es form."
+      },
+      {
+        "wrong": "Compralo.",
+        "right": "Cómpralo.",
+        "note": "An accent is needed to keep the stress."
+      }
+    ],
+    "related": [
+      "a2-imperativo",
+      "b1-pronombres-combinados"
+    ]
+  },
+  "b1-subjuntivo-presente": {
+    "forms": [
+      "-ar: -e, -es, -e, -emos, -éis, -en",
+      "-er/-ir: -a, -as, -a, -amos, -áis, -an",
+      "Special: sea, vaya, esté, sepa, haya",
+      "Wish, request, emotion + que + subjunctive"
+    ],
+    "examples": [
+      {
+        "text": "Quiero que vengas a mi fiesta.",
+        "translation": "I want you to come to my party."
+      },
+      {
+        "text": "Me alegro de que estés aquí.",
+        "translation": "I am glad you are here."
+      },
+      {
+        "text": "Te pido que hables más despacio.",
+        "translation": "I ask you to speak more slowly."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quiero que vienes.",
+        "right": "Quiero que vengas.",
+        "note": "After quiero que you need the subjunctive."
+      },
+      {
+        "wrong": "Quiero que yo vaya.",
+        "right": "Quiero ir.",
+        "note": "If the subject is the same, use the infinitive."
+      }
+    ],
+    "related": [
+      "b1-condicional",
+      "b1-subjuntivo-sentimientos"
+    ]
+  },
+  "b1-subjuntivo-sentimientos": {
+    "forms": [
+      "Wish: quiero / espero / prefiero que + subj.",
+      "Probability: quizás / tal vez + subj.",
+      "Judgement: es importante / es una pena / me gusta que + subj.",
+      "Without a change of subject — infinitive"
+    ],
+    "examples": [
+      {
+        "text": "Espero que no llueva mañana.",
+        "translation": "I hope it doesn't rain tomorrow."
+      },
+      {
+        "text": "Quizás vaya al cine esta noche.",
+        "translation": "Maybe I will go to the cinema tonight."
+      },
+      {
+        "text": "Es importante que duermas bien.",
+        "translation": "It is important that you sleep well."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quizás voy.",
+        "right": "Quizás vaya.",
+        "note": "Quizás for doubt takes the subjunctive."
+      },
+      {
+        "wrong": "Me gusta que vienes.",
+        "right": "Me gusta que vengas.",
+        "note": "After me gusta que you need the subjunctive."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-presente",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  },
+  "b1-relativos": {
+    "forms": [
+      "que: El libro que leo",
+      "preposition + el / la / los / las + que: la casa en la que vivo",
+      "quien (people), donde (place), cuyo (whose)",
+      "Unspecified: Busco algo que sea barato."
+    ],
+    "examples": [
+      {
+        "text": "El libro que estoy leyendo es muy bueno.",
+        "translation": "The book I am reading is very good."
+      },
+      {
+        "text": "La casa en la que vivo es pequeña.",
+        "translation": "The house I live in is small."
+      },
+      {
+        "text": "Busco un piso que tenga balcón.",
+        "translation": "I am looking for a flat with a balcony."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "El chico que hablo es mi amigo.",
+        "right": "El chico con el que hablo es mi amigo.",
+        "note": "After a preposition que needs an article."
+      },
+      {
+        "wrong": "Busco una casa que tiene jardín.",
+        "right": "Busco una casa que tenga jardín.",
+        "note": "If the thing sought is unknown, the subjunctive is needed."
+      }
+    ],
+    "related": [
+      "b1-conectores",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-perifrasis": {
+    "forms": [
+      "Obligation: tener que, hay que, deber + infinitive",
+      "Habit: soler + infinitive",
+      "Beginning and end: empezar a, acabar de, dejar de",
+      "Continuing and repeating: seguir + gerund, volver a + infinitive"
+    ],
+    "examples": [
+      {
+        "text": "Tengo que terminar el informe hoy.",
+        "translation": "I have to finish the report today."
+      },
+      {
+        "text": "Acabo de llegar a casa.",
+        "translation": "I have just got home."
+      },
+      {
+        "text": "Sigo viviendo en el mismo barrio.",
+        "translation": "I still live in the same neighbourhood."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Tengo estudiar.",
+        "right": "Tengo que estudiar.",
+        "note": "Tener que needs que."
+      },
+      {
+        "wrong": "Suelo comiendo en casa.",
+        "right": "Suelo comer en casa.",
+        "note": "After soler comes an infinitive."
+      }
+    ],
+    "related": [
+      "b1-gerundio-participio",
+      "a2-futuro-ir-a"
+    ]
+  },
+  "b1-gerundio-participio": {
+    "forms": [
+      "Gerund: manner — leyendo, cantando",
+      "After a preposition — infinitive: antes de salir",
+      "With haber the participle does not change: he comido",
+      "A participle as an adjective agrees: puertas cerradas"
+    ],
+    "examples": [
+      {
+        "text": "Aprendo español escuchando música.",
+        "translation": "I learn Spanish by listening to music."
+      },
+      {
+        "text": "La tienda está cerrada los domingos.",
+        "translation": "The shop is closed on Sundays."
+      },
+      {
+        "text": "Antes de salir, cierra la ventana.",
+        "translation": "Before leaving, close the window."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Antes de saliendo.",
+        "right": "Antes de salir.",
+        "note": "After a preposition you need the infinitive."
+      },
+      {
+        "wrong": "Las puertas están cerrado.",
+        "right": "Las puertas están cerradas.",
+        "note": "A participle used as an adjective agrees with its noun."
+      }
+    ],
+    "related": [
+      "b1-perifrasis",
+      "a2-presente-estar-gerundio"
+    ]
+  },
+  "b1-conectores": {
+    "forms": [
+      "Reason: porque, como, puesto que",
+      "Purpose: para + inf. / para que + subjunctive",
+      "Time: cuando, antes de que + subjunctive",
+      "Result: por eso, así que"
+    ],
+    "examples": [
+      {
+        "text": "Como llueve, me quedo en casa.",
+        "translation": "As it is raining, I am staying at home."
+      },
+      {
+        "text": "Te llamo para que sepas dónde estoy.",
+        "translation": "I am calling you so that you know where I am."
+      },
+      {
+        "text": "Cuando llegues, llámame.",
+        "translation": "When you arrive, call me."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estudio para que apruebo.",
+        "right": "Estudio para aprobar.",
+        "note": "If the subject is the same, you need the infinitive."
+      },
+      {
+        "wrong": "Cuando llegas mañana, llámame.",
+        "right": "Cuando llegues mañana, llámame.",
+        "note": "After cuando about the future you need the subjunctive."
+      }
+    ],
+    "related": [
+      "b1-relativos",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b1-adverbios": {
+    "forms": [
+      "Feminine form + -mente: rápida → rápidamente",
+      "Time: ya, todavía, aún; frequency: siempre, a veces, nunca",
+      "muy + adjective / adverb; verb + mucho",
+      "mucho + mejor / peor / más / menos"
+    ],
+    "examples": [
+      {
+        "text": "Habla muy bien español.",
+        "translation": "He speaks Spanish very well."
+      },
+      {
+        "text": "Siempre llega tarde, pero hoy llegó rápidamente.",
+        "translation": "He is always late, but today he came quickly."
+      },
+      {
+        "text": "Todavía no he terminado.",
+        "translation": "I haven't finished yet."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Hablo muy.",
+        "right": "Hablo mucho.",
+        "note": "After a verb you need mucho, not muy."
+      },
+      {
+        "wrong": "Es mucho bueno.",
+        "right": "Es muy bueno.",
+        "note": "Before an adjective you need muy."
+      }
+    ],
+    "related": [
+      "b1-perifrasis",
+      "b1-conectores"
+    ]
+  },
+  "b2-subjuntivo-imperfecto": {
+    "forms": [
+      "Stem: ellos indefinido − ron + ra, ras, ra, ramos, rais, ran",
+      "Form in -se: trabajase, comiese",
+      "Past: Quería que vinieras. Unreal: Si tuviera…",
+      "Politeness: Quisiera… ¿Pudiera ayudarme?"
+    ],
+    "examples": [
+      {
+        "text": "Quería que me ayudaras con la tarea.",
+        "translation": "I wanted you to help me with the homework."
+      },
+      {
+        "text": "Si tuviera más tiempo, viajaría más.",
+        "translation": "If I had more time, I would travel more."
+      },
+      {
+        "text": "Quisiera reservar una mesa para dos.",
+        "translation": "I would like to book a table for two."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Quería que vienes.",
+        "right": "Quería que vinieras.",
+        "note": "After a main verb in the past you need the imperfect subjunctive."
+      },
+      {
+        "wrong": "Si tendría tiempo, iría.",
+        "right": "Si tuviera tiempo, iría.",
+        "note": "After si in an unreal condition use the imperfect subjunctive, not the condicional."
+      }
+    ],
+    "related": [
+      "b2-condicionales-si",
+      "b1-subjuntivo-presente"
+    ]
+  },
+  "b2-subjuntivo-perfecto": {
+    "forms": [
+      "haya, hayas, haya, hayamos, hayáis, hayan + participle",
+      "Completed + emotion / doubt: Me alegro de que hayas venido",
+      "Cuando + perfect subjunctive: Cuando hayas terminado…",
+      "Do not confuse: vengas (future) and hayas venido (already)"
+    ],
+    "examples": [
+      {
+        "text": "Espero que hayas llegado bien a casa.",
+        "translation": "I hope you got home safely."
+      },
+      {
+        "text": "No creo que haya dicho eso.",
+        "translation": "I don't think he said that."
+      },
+      {
+        "text": "Cuando hayas terminado, avísame.",
+        "translation": "When you have finished, let me know."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Espero que has llegado bien.",
+        "right": "Espero que hayas llegado bien.",
+        "note": "After espero que you need the subjunctive, and for a completed action the perfect subjunctive."
+      },
+      {
+        "wrong": "No creo que ha venido.",
+        "right": "No creo que haya venido.",
+        "note": "After no creo que you need the subjunctive."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-sentimientos",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  },
+  "b2-indicativo-vs-subjuntivo": {
+    "forms": [
+      "Certainty: creo que, es verdad que, está claro que + indicative",
+      "Doubt, denial: no creo que, no es verdad que + subjunctive",
+      "aunque + indicative (fact) / subjunctive (supposition)",
+      "Judgement: es normal / es lógico que + subjunctive"
+    ],
+    "examples": [
+      {
+        "text": "Creo que Pedro viene mañana.",
+        "translation": "I think Pedro is coming tomorrow."
+      },
+      {
+        "text": "No creo que Pedro venga mañana.",
+        "translation": "I don't think Pedro is coming tomorrow."
+      },
+      {
+        "text": "Es verdad que hace mucho calor.",
+        "translation": "It is true that it is very hot."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "No creo que viene.",
+        "right": "No creo que venga.",
+        "note": "After no creo que you need the subjunctive."
+      },
+      {
+        "wrong": "Está claro que venga.",
+        "right": "Está claro que viene.",
+        "note": "After está claro que you need the indicative."
+      }
+    ],
+    "related": [
+      "b1-subjuntivo-sentimientos",
+      "b2-subjuntivo-perfecto"
+    ]
+  },
+  "b2-estilo-indirecto": {
+    "forms": [
+      "Present introducing verb: tenses do not change",
+      "Shift: presente → imperfecto, futuro → condicional, perfecto → pluscuamperfecto",
+      "Request: Pidió que + imperfect subjunctive",
+      "Question: preguntó si / dónde / cuándo…"
+    ],
+    "examples": [
+      {
+        "text": "Dijo que vivía en Madrid.",
+        "translation": "He said he lived in Madrid."
+      },
+      {
+        "text": "Me preguntó si quería café.",
+        "translation": "He asked me if I wanted coffee."
+      },
+      {
+        "text": "Me pidió que le ayudara.",
+        "translation": "He asked me to help him."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Dijo que vendrá al día siguiente.",
+        "right": "Dijo que vendría al día siguiente.",
+        "note": "After a past introducing verb the future is replaced by the condicional."
+      },
+      {
+        "wrong": "Preguntó que si venía.",
+        "right": "Preguntó si venía.",
+        "note": "A question is introduced with si, without an extra que."
+      }
+    ],
+    "related": [
+      "b1-pluscuamperfecto",
+      "b2-subjuntivo-imperfecto"
+    ]
+  },
+  "b2-condicionales-si": {
+    "forms": [
+      "Real: si + presente → presente / futuro / imperativo",
+      "Unreal: si + imperfect subjunctive → condicional",
+      "Impossible: si + hubiera + participle → habría + participle",
+      "Not allowed: si + future / condicional"
+    ],
+    "examples": [
+      {
+        "text": "Si llueve, nos quedamos en casa.",
+        "translation": "If it rains, we stay at home."
+      },
+      {
+        "text": "Si fuera rico, compraría una casa en la playa.",
+        "translation": "If I were rich, I would buy a house on the beach."
+      },
+      {
+        "text": "Si hubiera estudiado más, habría aprobado.",
+        "translation": "If I had studied more, I would have passed."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Si tendré tiempo, iré.",
+        "right": "Si tengo tiempo, iré.",
+        "note": "After si in a condition you do not use the future."
+      },
+      {
+        "wrong": "Si tendría dinero, viajaría.",
+        "right": "Si tuviera dinero, viajaría.",
+        "note": "After si in an unreal condition you need the imperfect subjunctive."
+      }
+    ],
+    "related": [
+      "b2-subjuntivo-imperfecto",
+      "b2-tiempos-compuestos"
+    ]
+  },
+  "b2-tiempos-compuestos": {
+    "forms": [
+      "habré, habrás, habrá, habremos, habréis, habrán + participle",
+      "habría, habrías, habría, habríamos, habríais, habrían + participle",
+      "Guess about the past: Habrá llegado",
+      "Impossible: Si hubiera… habría…"
+    ],
+    "examples": [
+      {
+        "text": "Para el viernes habré terminado el informe.",
+        "translation": "By Friday I will have finished the report."
+      },
+      {
+        "text": "Habrá llegado ya a casa.",
+        "translation": "He has probably got home by now."
+      },
+      {
+        "text": "Yo habría aceptado esa oferta.",
+        "translation": "I would have accepted that offer."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Mañana habré terminar.",
+        "right": "Mañana habré terminado.",
+        "note": "After habré you need a participle."
+      },
+      {
+        "wrong": "Habría ido, pero estoy enfermo.",
+        "right": "Habría ido, pero estaba enfermo.",
+        "note": "A reason in the past is expressed with the imperfecto."
+      }
+    ],
+    "related": [
+      "b2-condicionales-si",
+      "b1-pluscuamperfecto"
+    ]
+  },
+  "b2-concesivas-consecutivas": {
+    "forms": [
+      "aunque + indicative (fact) / subjunctive (supposition)",
+      "a pesar de que + indicative; a pesar de + noun / inf.",
+      "así que, por eso, de modo que + indicative",
+      "tan + adjective + que; tanto + noun + que"
+    ],
+    "examples": [
+      {
+        "text": "Aunque hace frío, salgo a correr.",
+        "translation": "Although it is cold, I go out running."
+      },
+      {
+        "text": "Aunque llueva, iremos a la playa.",
+        "translation": "Even if it rains, we will go to the beach."
+      },
+      {
+        "text": "Estaba tan cansado que se durmió en el sofá.",
+        "translation": "He was so tired that he fell asleep on the sofa."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Aunque llueve mañana, voy.",
+        "right": "Aunque llueva mañana, voy.",
+        "note": "A supposition about the future needs the subjunctive."
+      },
+      {
+        "wrong": "A pesar de que estar cansado.",
+        "right": "A pesar de estar cansado.",
+        "note": "With an infinitive use a pesar de without que."
+      }
+    ],
+    "related": [
+      "b2-temporales-subjuntivo",
+      "b1-conectores"
+    ]
+  },
+  "b2-temporales-subjuntivo": {
+    "forms": [
+      "Future: cuando, hasta que, en cuanto + subjunctive",
+      "Habitual, past: cuando + indicative",
+      "antes de que, para que + always subjunctive",
+      "Same subject: antes de / para + infinitive"
+    ],
+    "examples": [
+      {
+        "text": "En cuanto termines, avísame.",
+        "translation": "As soon as you finish, let me know."
+      },
+      {
+        "text": "Cuando llego a casa, me ducho.",
+        "translation": "When I get home, I take a shower."
+      },
+      {
+        "text": "Espera hasta que vuelva.",
+        "translation": "Wait until I come back."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Cuando llegas, llámame.",
+        "right": "Cuando llegues, llámame.",
+        "note": "For a future action after cuando you need the subjunctive."
+      },
+      {
+        "wrong": "Antes de que salgo, cierro.",
+        "right": "Antes de salir, cierro.",
+        "note": "With one and the same subject use an infinitive."
+      }
+    ],
+    "related": [
+      "b2-concesivas-consecutivas",
+      "b1-conectores"
+    ]
+  },
+  "b2-pasiva": {
+    "forms": [
+      "ser + participle (agrees): fue construida",
+      "Agent: por + agent",
+      "se + verb in the 3rd person: Se venden pisos.",
+      "estar + participle = result"
+    ],
+    "examples": [
+      {
+        "text": "El Quijote fue escrito por Cervantes.",
+        "translation": "Don Quixote was written by Cervantes."
+      },
+      {
+        "text": "En esta tienda se venden libros usados.",
+        "translation": "In this shop second-hand books are sold."
+      },
+      {
+        "text": "La puerta está cerrada.",
+        "translation": "The door is closed."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Se vende pisos.",
+        "right": "Se venden pisos.",
+        "note": "The verb agrees with the thing: pisos is plural."
+      },
+      {
+        "wrong": "La casa fue construido.",
+        "right": "La casa fue construida.",
+        "note": "The participle agrees with the subject in gender."
+      }
+    ],
+    "related": [
+      "b2-se-impersonal",
+      "b1-gerundio-participio"
+    ]
+  },
+  "b2-se-impersonal": {
+    "forms": [
+      "se + 3rd person singular: Se trabaja mucho.",
+      "A thing — se + agreement: Se venden pisos.",
+      "A person as object: Se busca a los culpables.",
+      "Other ways: uno, la gente, ellos"
+    ],
+    "examples": [
+      {
+        "text": "En España se cena tarde.",
+        "translation": "In Spain people have dinner late."
+      },
+      {
+        "text": "Aquí no se puede fumar.",
+        "translation": "You can't smoke here."
+      },
+      {
+        "text": "Dicen que mañana va a llover.",
+        "translation": "They say it is going to rain tomorrow."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Se trabajan mucho aquí.",
+        "right": "Se trabaja mucho aquí.",
+        "note": "The impersonal se takes a verb in the singular."
+      },
+      {
+        "wrong": "Se busca los culpables.",
+        "right": "Se busca a los culpables.",
+        "note": "Before a direct object that is a person the preposition a is needed."
+      }
+    ],
+    "related": [
+      "b2-pasiva",
+      "b1-perifrasis"
+    ]
+  },
+  "b2-ser-estar-matices": {
+    "forms": [
+      "ser = quality; estar = state, impression, result",
+      "guapo, listo, aburrido, verde, bueno change meaning",
+      "Result: está roto, está terminado",
+      "estar de + state: estar de vacaciones, de mal humor"
+    ],
+    "examples": [
+      {
+        "text": "Mi vecino es muy aburrido.",
+        "translation": "My neighbour is very boring."
+      },
+      {
+        "text": "Hoy estoy aburrido en el trabajo.",
+        "translation": "Today I am bored at work."
+      },
+      {
+        "text": "Esta sopa está buenísima.",
+        "translation": "This soup is delicious."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "Estoy aburrido siempre.",
+        "right": "Soy aburrido siempre.",
+        "note": "A permanent trait of character needs ser, not estar."
+      },
+      {
+        "wrong": "La manzana es verde.",
+        "right": "La manzana está verde.",
+        "note": "An unripe apple is estar verde, not ser verde."
+      }
+    ],
+    "related": [
+      "a2-ser-vs-estar",
+      "b2-pasiva"
+    ]
+  },
+  "b2-lo-neutro": {
+    "forms": [
+      "lo + adjective: lo bueno, lo importante",
+      "lo que: What… Lo que dices",
+      "lo + adj. + que: lo difícil que es",
+      "lo de + noun / inf.: lo de ayer"
+    ],
+    "examples": [
+      {
+        "text": "Lo importante es no rendirse.",
+        "translation": "The important thing is not to give up."
+      },
+      {
+        "text": "Lo que dices no tiene sentido.",
+        "translation": "What you say makes no sense."
+      },
+      {
+        "text": "No te imaginas lo cansado que estoy.",
+        "translation": "You can't imagine how tired I am."
+      }
+    ],
+    "mistakes": [
+      {
+        "wrong": "El importante es descansar.",
+        "right": "Lo importante es descansar.",
+        "note": "For a general idea you need lo, not el."
+      },
+      {
+        "wrong": "Lo que dices es lo mismos.",
+        "right": "Lo que dices es lo mismo.",
+        "note": "Lo does not change for number."
+      }
+    ],
+    "related": [
+      "b1-relativos",
+      "b2-indicativo-vs-subjuntivo"
+    ]
+  }
+}

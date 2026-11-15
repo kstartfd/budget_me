@@ -24,6 +24,28 @@ func TestOrderExercise(t *testing.T) {
 	}
 }
 
+func TestOrderNeverHandsOverTheSentence(t *testing.T) {
+	base := exercise{Kind: "order", Prompt: "Put the words in order", Options: []string{"al", "Voy", "mañana", "cine"}, Answer: "Voy al cine mañana", Rule: "r"}
+
+	withText := base
+	withText.Text = "Voy al cine mañana."
+
+	withPrompt := base
+	withPrompt.Prompt = "Ordena: «Voy al cine, mañana»"
+
+	for name, bad := range map[string]exercise{"in the clue": withText, "in the instruction": withPrompt} {
+		if err := validExercise(bad); err == nil {
+			t.Errorf("%s: the sentence was handed over", name)
+		}
+	}
+
+	clue := base
+	clue.Text = "Ich gehe morgen ins Kino."
+	if err := validExercise(clue); err != nil {
+		t.Errorf("a translation as the clue: %v", err)
+	}
+}
+
 func TestOrderIsGradedByAnyOfTheOrdersTheKeyAllows(t *testing.T) {
 	key := "Voy al cine mañana | Mañana voy al cine"
 	for _, good := range []string{"Voy al cine mañana", "mañana voy al cine", "  Mañana  voy al cine "} {
