@@ -173,7 +173,6 @@
       "drafts": "Suggestions",
       "done": "Done"
     },
-    "colTotal": "Total for {from} – {to}",
     "colAmount": "Amount",
     "newPlan": "New plan",
     "empty": "No plans yet — add the first one.",
@@ -240,7 +239,8 @@
     "colDate": "Date",
     "colTitle": "Title",
     "colCategory": "Category",
-    "colAmount": "Amount",
+        "colTotal": "Total for {from} – {to}",
+"colAmount": "Amount",
     "uncounted": "not in calculation",
     "uncountedDetail": "Not in the calculation — shown in statistics, but not deducted from Balance or Free."
   },
