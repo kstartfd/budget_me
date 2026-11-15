@@ -196,6 +196,14 @@ export function TopicRunner({ topicId }: { topicId: string }) {
         <p className="text-muted-foreground bg-muted rounded-lg px-3.5 py-3 text-[13px]">
           {t("away")}
         </p>
+      ) : generate.isPending ? (
+        <p
+          role="status"
+          className="text-muted-foreground bg-muted flex items-center gap-2 rounded-lg px-3.5 py-3 text-[13px]"
+        >
+          <IconRefresh aria-hidden className="size-4 animate-spin motion-reduce:animate-none" />
+          {t("generating")}
+        </p>
       ) : exercises.length === 0 ? null : (
         <>
           {exercises.map((exercise, index) => (
@@ -244,7 +252,7 @@ export function TopicRunner({ topicId }: { topicId: string }) {
           </div>
         </>
       )}
-      {!away && exercises.length === 0 && (
+      {!away && !generate.isPending && exercises.length === 0 && (
         <p
           role="status"
           className="text-muted-foreground bg-muted rounded-lg px-3.5 py-3 text-[13px]"

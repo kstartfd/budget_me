@@ -156,7 +156,22 @@ export function useTopicDetail(topicId: string | null) {
   const generate = useMutation({
     mutationFn: (regenerate: boolean) =>
       api.generateExercises(topicId!, regenerate),
+    // A refreshed set replaces the old one: the old exercises leave the screen
+    // and the topic goes back to in progress while the new ones are written.
+    onMutate: (regenerate) => {
+      if (!regenerate) return
+      client.setQueryData(key, (data: typeof detail.data) =>
+        data
+          ? {
+              ...data,
+              exercises: [],
+              topic: { ...data.topic, status: "in_progress" as const },
+            }
+          : data,
+      )
+    },
     onSuccess: refresh,
+    onError: refresh,
   })
 
   const complete = useMutation({
