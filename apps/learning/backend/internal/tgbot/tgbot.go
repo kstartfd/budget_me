@@ -7,6 +7,8 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"net/http"
@@ -184,4 +186,45 @@ func (w *Worker) call(ctx context.Context, method string, q url.Values, body, ou
 	_, _ = io.Copy(io.Discard, resp.Body)
 
 	return nil
+}
+
+// ErrBlocked means the user stopped the bot or never started it: Telegram will
+// not deliver to them, so asking again changes nothing.
+var ErrBlocked = errors.New("tgbot: the user cannot be messaged")
+
+// Notify sends a message with one button that opens the Mini App. It reports
+// ErrBlocked when Telegram refuses the chat for good (403, or chat not found).
+func (w *Worker) Notify(ctx context.Context, chatID int64, text, button string) error {
+	if w == nil {
+		return errors.New("tgbot: no bot token")
+	}
+
+	body := map[string]any{
+		"chat_id": chatID,
+		"text":    text,
+		"reply_markup": map[string]any{
+			"inline_keyboard": [][]map[string]any{{
+				{"text": button, "web_app": map[string]string{"url": w.miniAppURL}},
+			}},
+		},
+	}
+
+	var out struct {
+		OK        bool   `json:"ok"`
+		ErrorCode int    `json:"error_code"`
+		Desc      string `json:"description"`
+	}
+
+	if err := w.call(ctx, "sendMessage", nil, body, &out); err != nil {
+		return err
+	}
+
+	switch {
+	case out.OK:
+		return nil
+	case out.ErrorCode == 403 || (out.ErrorCode == 400 && strings.Contains(out.Desc, "chat not found")):
+		return ErrBlocked
+	default:
+		return fmt.Errorf("tgbot: sendMessage: %d %s", out.ErrorCode, out.Desc)
+	}
 }

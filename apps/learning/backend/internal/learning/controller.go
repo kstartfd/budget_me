@@ -29,13 +29,14 @@ type Controller struct {
 	fills    commands.FillHandler
 	packs    commands.PackHandler
 	reviews  commands.ReviewHandler
+	reminder commands.ReminderHandler
 	clock    clock.Clock
 	read     queries.ReadHandler
 	audio    learningaudio.Service
 }
 
 func NewController(q *db.Queries, clk clock.Clock, audio learningaudio.Service, vault secretbox.Box, agent commands.Completer) *Controller {
-	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), packs: commands.NewPackHandler(q, clk, vault, agent), reviews: commands.NewReviewHandler(q, clk), clock: clk, read: queries.NewReadHandler(q), audio: audio}
+	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), packs: commands.NewPackHandler(q, clk, vault, agent), reviews: commands.NewReviewHandler(q, clk), reminder: commands.NewReminderHandler(q, clk), clock: clk, read: queries.NewReadHandler(q), audio: audio}
 }
 
 // fillEntry has the learner's agent write the fields the entry still lacks. It
@@ -142,6 +143,36 @@ func (c *Controller) reviewEntry(ctx echo.Context) error {
 	}
 
 	return httpx.OK(ctx, entryDTO(row))
+}
+
+// getReminder returns whether the daily review reminder is on.
+func (c *Controller) getReminder(ctx echo.Context) error {
+	row, err := c.reminder.Get(ctx.Request().Context(), httpx.UserIDFromContext(ctx.Request().Context()))
+	if err != nil {
+		return err
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	if row == nil {
+		return httpx.OK(ctx, reminderResponse{})
+	}
+
+	return httpx.OK(ctx, reminderResponse{Enabled: row.Enabled, Timezone: row.Timezone})
+}
+
+func (c *Controller) setReminder(ctx echo.Context) error {
+	var req reminderRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	row, err := c.reminder.Set(ctx.Request().Context(), commands.SetReminder{UserID: httpx.UserIDFromContext(ctx.Request().Context()), Enabled: req.Enabled, Timezone: req.Timezone})
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, reminderResponse{Enabled: row.Enabled, Timezone: row.Timezone})
 }
 
 func (c *Controller) listTopics(ctx echo.Context) error {

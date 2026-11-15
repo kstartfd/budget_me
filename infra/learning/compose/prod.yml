@@ -87,6 +87,19 @@ services:
       DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
       ACCOUNT_DATABASE_URL: postgres://account_app:${ACCOUNT_POSTGRES_PASSWORD}@postgres:5432/account_app?sslmode=disable
 
+  # The hourly review reminder through the learning bot (cmd/remind): run by cron
+  # (infra/learning/cron/install-crons.sh), once and gone. It needs only the
+  # database and the bot.
+  learning-remind:
+    image: ${BACKEND_IMAGE}
+    profiles: ["tools"]
+    restart: "no"
+    entrypoint: ["/remind"]
+    environment:
+      DATABASE_URL: postgres://learning_app:${POSTGRES_PASSWORD}@postgres:5432/learning_app?sslmode=disable
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      TELEGRAM_MINIAPP_URL: https://${DOMAIN}
+
 volumes:
   learning_audio_cache:
 

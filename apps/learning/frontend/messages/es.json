@@ -85,6 +85,7 @@
     "entriesEmpty": "Aún no hay entradas",
     "entriesEmptyHint": "Guarda tu primera palabra o frase. Para añadir entradas desde una extensión, crea un token en los ajustes.",
     "noMatchesHint": "Cambia la búsqueda o los filtros.",
+    "reminder": {"kicker": "Recordatorio", "title": "Recordatorio diario de repaso", "hint": "El bot te escribe por la mañana cuando hay tarjetas esperando. Como máximo una vez al día y solo si hay algo que repasar.", "failed": "No se pudo actualizar el recordatorio. Inténtalo de nuevo."},
     "review": {
       "open": "Repasar ({count})",
       "title": "Repaso",

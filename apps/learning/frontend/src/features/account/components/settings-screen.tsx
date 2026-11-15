@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { IconArrowLeft } from "@tabler/icons-react";
 
 import { AiSection } from "@/features/ai";
+import { ReminderSection } from "@/features/learning/components/reminder-section";
 import { TriggersSection } from "@/features/chat/components/triggers-section";
 
 import { AccountSection } from "./account-section";
@@ -31,6 +32,7 @@ export function SettingsScreen() {
 
       <AccountSection />
       <AiSection />
+      <ReminderSection />
       <TriggersSection />
       <ExtensionSection />
       <DeleteAccountSection />

@@ -3,6 +3,7 @@ import {
   entryInputSchema,
   entrySchema,
   issuedTokenSchema,
+  reminderSchema,
   reviewSchema,
   tokenInputSchema,
   tokenSchema,
@@ -81,6 +82,10 @@ export const fetchReview = (topicId: string) =>
 /** Records how a review of one entry went; the server moves it along its schedule. */
 export const reviewEntry = (id: string, grade: Grade) =>
   call(`/entries/${id}/review`, "POST", (d) => entrySchema.parse(d), { grade })
+export const fetchReminder = () =>
+  call("/reminder", "GET", (d) => reminderSchema.parse(d))
+export const saveReminder = (input: { enabled: boolean; timezone: string }) =>
+  call("/reminder", "PUT", (d) => reminderSchema.parse(d), input)
 export const fetchEntry = (id: string) =>
   call(`/entries/${id}`, "GET", (d) => entrySchema.parse(d))
 export async function fetchEntryAudio(id: string): Promise<Blob> {

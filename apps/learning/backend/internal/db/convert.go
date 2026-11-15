@@ -48,6 +48,11 @@ func Int8Ptr(v pgtype.Int8) *int64 {
 }
 
 // Time wraps a time as a non-null pg timestamptz.
+// Date wraps a calendar day for a date column.
+func Date(t time.Time) pgtype.Date {
+	return pgtype.Date{Time: t, Valid: true}
+}
+
 func Time(t time.Time) pgtype.Timestamptz {
 	return pgtype.Timestamptz{Time: t, Valid: true}
 }

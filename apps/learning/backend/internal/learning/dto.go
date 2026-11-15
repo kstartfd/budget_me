@@ -42,6 +42,18 @@ type reviewResponse struct {
 	Entries []entryResponse `json:"entries"`
 }
 
+// reminderRequest switches the daily review reminder; timezone is the learner's
+// IANA zone, so "morning" is theirs.
+type reminderRequest struct {
+	Enabled  bool   `json:"enabled"`
+	Timezone string `json:"timezone"`
+}
+
+type reminderResponse struct {
+	Enabled  bool   `json:"enabled"`
+	Timezone string `json:"timezone"`
+}
+
 type entryResponse struct {
 	ID string `json:"id"`
 	commands.EntryFields

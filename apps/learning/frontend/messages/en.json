@@ -85,6 +85,7 @@
     "entriesEmpty": "No entries yet",
     "entriesEmptyHint": "Save your first word or phrase. To add entries from an extension, create a token in settings.",
     "noMatchesHint": "Change the search or filters.",
+    "reminder": {"kicker": "Reminder", "title": "Daily review reminder", "hint": "The bot messages you in the morning when cards are waiting. At most once a day, and only if there is something to review.", "failed": "Couldn't update the reminder. Try again."},
     "review": {
       "open": "Review ({count})",
       "title": "Review",

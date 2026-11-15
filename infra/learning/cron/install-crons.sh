@@ -4,6 +4,7 @@
 # as infra/budget/cron/install-crons.sh (it edits the SAME crontab, so the two
 # deploys share one resource_group and never write it at once).
 #
+#   remind   hourly :05 — the review reminder through the bot (cmd/remind)
 #   backup   03:45 daily — pg_dump → gpg (→ Telegram, unless BACKUP_LOCAL_ONLY is set)
 #            It is infra/budget/scripts/backup.sh run against the learning DB.
 #
@@ -33,6 +34,10 @@ ensure() {
 ensure 'learning && APP_NAME=learning' \
   '# learning: ночной бэкап БД' \
   '45 3 * * * cd ~/learning && APP_NAME=learning DB_USER=learning_app DB_NAME=learning_app ./scripts/backup.sh >> ~/learning/backup.log 2>&1'
+
+# The review reminder: hourly, because "morning" is each learner's own. cmd/remind
+# sends at most one message a day per person and only when cards are due.
+ensure 'learning-remind'   '# learning: напоминание о повторении через бота (раз в час, у каждого своё утро)'   '5 * * * * cd ~/budget_me && /usr/bin/docker compose --env-file .env.learning -f learning.yml --profile tools run --rm -T learning-remind </dev/null >> ~/budget_me/remind.log 2>&1'
 
 # One write, at the end — a partial crontab is never installed.
 printf '%s\n' "$current" | crontab -

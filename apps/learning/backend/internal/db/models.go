@@ -872,6 +872,15 @@ type LearningPathTopic struct {
 	SourceID    string
 }
 
+type LearningReminder struct {
+	UserID     pgtype.UUID
+	Enabled    bool
+	Timezone   string
+	LastSentOn pgtype.Date
+	CreatedAt  pgtype.Timestamptz
+	UpdatedAt  pgtype.Timestamptz
+}
+
 type LearningRulePractice struct {
 	ID                  pgtype.UUID
 	UserID              pgtype.UUID

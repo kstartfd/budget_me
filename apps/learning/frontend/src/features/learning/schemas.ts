@@ -37,6 +37,13 @@ export const reviewSchema = z.object({
 })
 export type Review = z.infer<typeof reviewSchema>
 export type Grade = "again" | "good" | "easy"
+
+/** The daily review reminder the bot sends; `timezone` is the learner's own. */
+export const reminderSchema = z.object({
+  enabled: z.boolean(),
+  timezone: z.string(),
+})
+export type Reminder = z.infer<typeof reminderSchema>
 export type EntryInput = z.infer<typeof entryInputSchema>
 
 export const tokenInputSchema = z.object({

@@ -8,7 +8,7 @@ RUN go mod download
 COPY libs/account /src/libs/account
 COPY apps/learning/backend/ ./
 RUN CGO_ENABLED=0 go build -trimpath -o /out/server ./cmd/http_server \
- && CGO_ENABLED=0 go build -trimpath -o /out/migrate ./cmd/migrate
+ && CGO_ENABLED=0 go build -trimpath -o /out/migrate ./cmd/migrate \n && CGO_ENABLED=0 go build -trimpath -o /out/remind ./cmd/remind
 
 # Pictures are read on this machine by tesseract, never sent to an AI agent.
 # OCR_LANGS is the language data installed (each is ~20 MB); internal/ocr lists
@@ -21,6 +21,7 @@ RUN apk add --no-cache tesseract-ocr $(for lang in $OCR_LANGS; do printf 'tesser
  && chown -R 65532:65532 /data
 COPY --from=build /out/server /server
 COPY --from=build /out/migrate /migrate
+COPY --from=build /out/remind /remind
 USER 65532:65532
 EXPOSE 8080
 ENTRYPOINT ["/server"]

@@ -77,6 +77,28 @@ export function useReviewEntry() {
   })
 }
 
+/** Whether the bot's daily review reminder is on. */
+export function useReminder() {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: ["learning", user?.id, "reminder"],
+    queryFn: api.fetchReminder,
+    enabled: !!user,
+  })
+}
+
+export function useSaveReminder() {
+  const { user } = useAuth()
+  const client = useQueryClient()
+
+  return useMutation({
+    mutationFn: api.saveReminder,
+    onSuccess: (data) =>
+      client.setQueryData(["learning", user?.id, "reminder"], data),
+  })
+}
+
 export function useEntries(
   topicId: string,
   filters: { kind: string; status: string; search: string },

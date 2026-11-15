@@ -21,6 +21,8 @@ type Querier interface {
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
 	CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error)
 	CountDueLearningEntries(ctx context.Context, arg CountDueLearningEntriesParams) (CountDueLearningEntriesRow, error)
+	// What is waiting for a user across all topics: seen before and due again, and never reviewed.
+	CountLearningDueForUser(ctx context.Context, arg CountLearningDueForUserParams) (CountLearningDueForUserRow, error)
 	// What each topic's current exercise set holds, and how many of its exercises the
 	// learner has answered right. Only the current set counts: a regenerated topic
 	// starts from nothing again, whatever was answered in the sets before.
@@ -50,6 +52,8 @@ type Querier interface {
 	// in it stays, so what was done is never lost.
 	DeleteUntouchedLearningPathExercises(ctx context.Context, arg DeleteUntouchedLearningPathExercisesParams) error
 	DeleteUsersByAccount(ctx context.Context, accountIds []pgtype.UUID) error
+	// A user who blocked the bot is switched off, so it is not tried again every hour.
+	DisableLearningReminder(ctx context.Context, arg DisableLearningReminderParams) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
 	EnsureLearningChatForExample(ctx context.Context, arg EnsureLearningChatForExampleParams) (LearningChat, error)
@@ -81,6 +85,7 @@ type Querier interface {
 	GetLearningPathLesson(ctx context.Context, arg GetLearningPathLessonParams) (LearningPathLesson, error)
 	GetLearningPathTest(ctx context.Context, arg GetLearningPathTestParams) (LearningPathTest, error)
 	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
+	GetLearningReminder(ctx context.Context, userID pgtype.UUID) (LearningReminder, error)
 	GetLearningRulePractice(ctx context.Context, arg GetLearningRulePracticeParams) (LearningRulePractice, error)
 	GetLearningRulePracticeByID(ctx context.Context, arg GetLearningRulePracticeByIDParams) (LearningRulePractice, error)
 	GetLearningTeacher(ctx context.Context, arg GetLearningTeacherParams) (LearningTeacher, error)
@@ -117,6 +122,8 @@ type Querier interface {
 	ListArchivedTopicChats(ctx context.Context, arg ListArchivedTopicChatsParams) ([]ListArchivedTopicChatsRow, error)
 	// Entries to review now: overdue ones first, then the ones never reviewed.
 	ListDueLearningEntries(ctx context.Context, arg ListDueLearningEntriesParams) ([]LearningEntry, error)
+	// Everyone the bot may write to: switched on, and signed in through Telegram.
+	ListEnabledLearningReminders(ctx context.Context) ([]ListEnabledLearningRemindersRow, error)
 	ListLearningChatMessages(ctx context.Context, chatID pgtype.UUID) ([]LearningChatMessage, error)
 	ListLearningChatMessagesAfter(ctx context.Context, arg ListLearningChatMessagesAfterParams) ([]LearningChatMessage, error)
 	ListLearningChatUsage(ctx context.Context, arg ListLearningChatUsageParams) ([]ListLearningChatUsageRow, error)
@@ -140,6 +147,7 @@ type Querier interface {
 	LockLearningChat(ctx context.Context, arg LockLearningChatParams) (LearningChat, error)
 	LockLearningPathTopic(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
 	LockLearningRulePractice(ctx context.Context, arg LockLearningRulePracticeParams) (LearningRulePractice, error)
+	MarkLearningReminderSent(ctx context.Context, arg MarkLearningReminderSentParams) error
 	// The account is the source of truth for identity; this row keeps a copy.
 	MirrorAccountToUser(ctx context.Context, arg MirrorAccountToUserParams) (User, error)
 	// The next dialog carries over what the closed one spent in its budget window,
@@ -184,6 +192,7 @@ type Querier interface {
 	UpdateLearningTopic(ctx context.Context, arg UpdateLearningTopicParams) (LearningTopic, error)
 	UpsertLearningAISettings(ctx context.Context, arg UpsertLearningAISettingsParams) (LearningAiSetting, error)
 	UpsertLearningChatMarks(ctx context.Context, arg UpsertLearningChatMarksParams) (LearningChatMark, error)
+	UpsertLearningReminder(ctx context.Context, arg UpsertLearningReminderParams) (LearningReminder, error)
 }
 
 var _ Querier = (*Queries)(nil)
