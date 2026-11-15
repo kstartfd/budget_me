@@ -19,11 +19,14 @@ import type { PathTest, Preferences } from "../schemas"
  */
 export function TestRunner({
   id,
+  language,
   chosen = false,
   onClose,
   onNextLevel,
 }: {
   id: string
+  /** The language being learned: the survey suggests its own varieties. */
+  language: string
   /** The level was picked from the ones already reached: no test was taken. */
   chosen?: boolean
   onClose: (analyzed: boolean) => void
@@ -74,6 +77,7 @@ export function TestRunner({
     return (
       <Done
         test={current}
+        language={language}
         chosen={chosen}
         onClose={onClose}
         onNextLevel={onNextLevel}
@@ -230,12 +234,14 @@ function QuestionCard({
 /** Done is the verdict screen: analyze a placement, hear a final's result. */
 function Done({
   test,
+  language,
   chosen,
   onClose,
   onNextLevel,
   onAnalyzed,
 }: {
   test: PathTest
+  language: string
   chosen: boolean
   onClose: (analyzed: boolean) => void
   onNextLevel?: (level: string) => void
@@ -291,7 +297,7 @@ function Done({
       </p>
       {test.kind === "placement" && <LevelScale mode="determined" level={test.levelReached} />}
       {test.kind === "placement" && (
-        <Survey value={prefs} onChange={setPrefs} disabled={analyze.isPending} />
+        <Survey language={language} value={prefs} onChange={setPrefs} disabled={analyze.isPending} />
       )}
       {(analyze.isError || failure || job.isError) && (
         <p role="alert" className="text-destructive text-sm">
@@ -332,10 +338,12 @@ function Done({
 
 /** Survey is the short questionnaire the program is built around. */
 function Survey({
+  language,
   value,
   onChange,
   disabled,
 }: {
+  language: string
   value: Preferences
   onChange: (value: Preferences) => void
   disabled: boolean
@@ -382,7 +390,11 @@ function Survey({
             value={value[name] ?? ""}
             maxLength={name === "variant" ? 60 : 200}
             disabled={disabled}
-            placeholder={t(`${name}Placeholder`)}
+            placeholder={
+              name === "variant" && language.toLowerCase().startsWith("es")
+                ? t("variantPlaceholderEs")
+                : t(`${name}Placeholder`)
+            }
             onChange={(e) => set({ [name]: e.target.value })}
             className="bg-background h-10 text-sm md:text-sm"
           />

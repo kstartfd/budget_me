@@ -669,6 +669,7 @@
       "goalPlaceholder": "mudarme al extranjero, trabajo, un examen, conversar…",
       "variant": "Variante del idioma",
       "variantPlaceholder": "británico, americano o cualquiera",
+      "variantPlaceholderEs": "España, Latinoamérica, México o cualquiera",
       "hours": "Horas por semana",
       "hoursValue": "{n} h",
       "hoursHint": "Cuánto estás dispuesto a estudiar. El programa muestra una escala de la semana frente a ello."

@@ -108,6 +108,7 @@ function Program({
     return (
       <TestRunner
         id={testId}
+        language={language}
         chosen={chosen}
         onNextLevel={(level) => {
           // The finished test is dropped first so the new one mounts fresh.
