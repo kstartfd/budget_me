@@ -98,6 +98,7 @@
     },
     "review": {
       "open": "Repasar ({count})",
+      "tapToFlip": "Toca la tarjeta para darle la vuelta",
       "title": "Repaso",
       "loading": "Cargando tarjetas…",
       "loadFailed": "No se pudieron cargar las tarjetas. Inténtalo de nuevo.",

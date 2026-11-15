@@ -98,6 +98,7 @@
     },
     "review": {
       "open": "Review ({count})",
+      "tapToFlip": "Tap the card to flip it",
       "title": "Review",
       "loading": "Loading cards…",
       "loadFailed": "Couldn't load the cards. Try again.",

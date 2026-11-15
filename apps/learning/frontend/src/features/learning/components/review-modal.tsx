@@ -1,14 +1,15 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useQueryClient } from "@tanstack/react-query"
-import { useTranslations } from "next-intl"
-import { Button } from "@/components/ui/button"
-import { useAuth } from "@/features/auth"
-import { useReview, useReviewEntry } from "../hooks"
-import type { Entry, Grade } from "../schemas"
-import { EntryAudioButton } from "./audio-button"
-import { LearningModal } from "./learning-modal"
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+import { useAuth } from "@/features/auth";
+import { useReview, useReviewEntry } from "../hooks";
+import type { Entry, Grade } from "../schemas";
+import { EntryAudioButton } from "./audio-button";
+import { LearningModal } from "./learning-modal";
 
 /**
  * One sitting of spaced repetition: the cards due now, one at a time. The front
@@ -20,25 +21,31 @@ export function ReviewModal({
   topicId,
   onClose,
 }: {
-  topicId: string
-  onClose: () => void
+  topicId: string;
+  onClose: () => void;
 }) {
-  const t = useTranslations("learning.review")
-  const review = useReview(topicId)
+  const t = useTranslations("learning.review");
+  const review = useReview(topicId);
 
   return (
     <LearningModal title={t("title")} onClose={onClose}>
       {review.isPending ? (
-        <p className="text-muted-foreground animate-pulse text-sm">{t("loading")}</p>
+        <p className="text-muted-foreground animate-pulse text-sm">
+          {t("loading")}
+        </p>
       ) : review.isError ? (
         <p role="alert" className="text-destructive text-sm">
           {t("loadFailed")}
         </p>
       ) : (
-        <Sitting topicId={topicId} cards={review.data.entries} onClose={onClose} />
+        <Sitting
+          topicId={topicId}
+          cards={review.data.entries}
+          onClose={onClose}
+        />
       )}
     </LearningModal>
-  )
+  );
 }
 
 function Sitting({
@@ -46,26 +53,30 @@ function Sitting({
   cards,
   onClose,
 }: {
-  topicId: string
-  cards: Entry[]
-  onClose: () => void
+  topicId: string;
+  cards: Entry[];
+  onClose: () => void;
 }) {
-  const t = useTranslations("learning.review")
-  const { user } = useAuth()
-  const client = useQueryClient()
-  const grade = useReviewEntry()
-  const [queue, setQueue] = useState(cards)
-  const [shown, setShown] = useState(false)
-  const [done, setDone] = useState(0)
-  const [again, setAgain] = useState(0)
+  const t = useTranslations("learning.review");
+  const { user } = useAuth();
+  const client = useQueryClient();
+  const grade = useReviewEntry();
+  const [queue, setQueue] = useState(cards);
+  const [shown, setShown] = useState(false);
+  const [done, setDone] = useState(0);
+  const [again, setAgain] = useState(0);
 
   const finish = async () => {
-    await client.invalidateQueries({ queryKey: ["learning", user?.id, "review", topicId] })
-    await client.invalidateQueries({ queryKey: ["learning", user?.id, "entries", topicId] })
-    onClose()
-  }
+    await client.invalidateQueries({
+      queryKey: ["learning", user?.id, "review", topicId],
+    });
+    await client.invalidateQueries({
+      queryKey: ["learning", user?.id, "entries", topicId],
+    });
+    onClose();
+  };
 
-  const card = queue[0]
+  const card = queue[0];
 
   if (!card) {
     return (
@@ -74,31 +85,37 @@ function Sitting({
           {done === 0 ? t("nothing") : t("finished", { count: done })}
         </p>
         {again > 0 && (
-          <p className="text-muted-foreground text-[13px]">{t("againCount", { count: again })}</p>
+          <p className="text-muted-foreground text-[13px]">
+            {t("againCount", { count: again })}
+          </p>
         )}
-        <Button size="lg" onClick={() => void finish()} className="px-6 text-[13px]">
+        <Button
+          size="lg"
+          onClick={() => void finish()}
+          className="px-6 text-[13px]"
+        >
           {t("close")}
         </Button>
       </div>
-    )
+    );
   }
 
   const answer = (g: Grade) => {
-    if (grade.isPending) return
+    if (grade.isPending) return;
 
     grade.mutate(
       { id: card.id, grade: g },
       {
         onSuccess: () => {
-          setShown(false)
-          setQueue((q) => (g === "again" ? [...q.slice(1), card] : q.slice(1)))
+          setShown(false);
+          setQueue((q) => (g === "again" ? [...q.slice(1), card] : q.slice(1)));
 
-          if (g === "again") setAgain((n) => n + 1)
-          else setDone((n) => n + 1)
+          if (g === "again") setAgain((n) => n + 1);
+          else setDone((n) => n + 1);
         },
       },
-    )
-  }
+    );
+  };
 
   return (
     <div className="space-y-4">
@@ -106,26 +123,51 @@ function Sitting({
         {t("left", { count: queue.length })}
       </p>
 
-      <div className="border-border bg-background space-y-3 rounded-lg border p-5 text-center">
-        <p className="text-xl font-semibold break-words">{card.text}</p>
-        {card.transcription && (
-          <p className="text-muted-foreground font-mono text-sm">{card.transcription}</p>
-        )}
-        <div className="flex justify-center">
-          <EntryAudioButton entryId={card.id} />
-        </div>
+      {/* key: the next card appears face up at once, never turning from the old answer */}
+      <div
+        key={card.id}
+        onClick={() => setShown((v) => !v)}
+        className="cursor-pointer [perspective:1200px]"
+      >
+        <div
+          className={cn(
+            "grid [transform-style:preserve-3d] transition-transform duration-500 ease-out motion-reduce:transition-none",
+            shown && "[transform:rotateY(180deg)]",
+          )}
+        >
+          <div
+            aria-hidden={shown}
+            className="border-border bg-background col-start-1 row-start-1 flex min-h-48 flex-col items-center justify-center gap-3 rounded-lg border p-5 text-center [backface-visibility:hidden]"
+          >
+            <p className="text-2xl font-semibold break-words">{card.text}</p>
+            {card.transcription && (
+              <p className="text-muted-foreground font-mono text-sm">
+                {card.transcription}
+              </p>
+            )}
+            <div onClick={(e) => e.stopPropagation()}>
+              <EntryAudioButton entryId={card.id} />
+            </div>
+            <p className="text-faint text-xs">{t("tapToFlip")}</p>
+          </div>
 
-        {shown && (
-          <div className="border-border space-y-2 border-t pt-3 text-left text-sm">
-            {card.translation && <p className="font-semibold">{card.translation}</p>}
+          <div
+            aria-hidden={!shown}
+            className="border-border bg-muted/40 col-start-1 row-start-1 flex min-h-48 flex-col justify-center gap-3 rounded-lg border p-5 text-left text-sm [backface-visibility:hidden] [transform:rotateY(180deg)]"
+          >
+            <p className="text-center text-xl font-semibold break-words">
+              {card.translation || card.text}
+            </p>
             {card.explanation && (
-              <p className="text-muted-foreground leading-relaxed">{card.explanation}</p>
+              <p className="text-muted-foreground leading-relaxed">
+                {card.explanation}
+              </p>
             )}
             {card.example && (
               <p className="leading-relaxed italic">{card.example}</p>
             )}
           </div>
-        )}
+        </div>
       </div>
 
       {grade.isError && (
@@ -135,7 +177,11 @@ function Sitting({
       )}
 
       {!shown ? (
-        <Button size="lg" onClick={() => setShown(true)} className="w-full text-sm">
+        <Button
+          size="lg"
+          onClick={() => setShown(true)}
+          className="w-full text-sm"
+        >
           {t("show")}
         </Button>
       ) : (
@@ -169,5 +215,5 @@ function Sitting({
         </div>
       )}
     </div>
-  )
+  );
 }
