@@ -29,6 +29,19 @@ type packRequest struct {
 	Kind string `json:"kind"`
 }
 
+// reviewRequest is how a review went: again, good or easy.
+type reviewRequest struct {
+	Grade string `json:"grade"`
+}
+
+// reviewResponse is what is due in a topic: Overdue entries that were seen
+// before and are due again, Fresh ones never reviewed, and the next cards.
+type reviewResponse struct {
+	Overdue int64           `json:"overdue"`
+	Fresh   int64           `json:"fresh"`
+	Entries []entryResponse `json:"entries"`
+}
+
 type entryResponse struct {
 	ID string `json:"id"`
 	commands.EntryFields

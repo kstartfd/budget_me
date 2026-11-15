@@ -20,6 +20,7 @@ type Querier interface {
 	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
 	CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error)
+	CountDueLearningEntries(ctx context.Context, arg CountDueLearningEntriesParams) (CountDueLearningEntriesRow, error)
 	// What each topic's current exercise set holds, and how many of its exercises the
 	// learner has answered right. Only the current set counts: a regenerated topic
 	// starts from nothing again, whatever was answered in the sets before.
@@ -114,6 +115,8 @@ type Querier interface {
 	LeaveLearningRulePractice(ctx context.Context, arg LeaveLearningRulePracticeParams) error
 	ListActiveLearningPaths(ctx context.Context, userID pgtype.UUID) ([]LearningPath, error)
 	ListArchivedTopicChats(ctx context.Context, arg ListArchivedTopicChatsParams) ([]ListArchivedTopicChatsRow, error)
+	// Entries to review now: overdue ones first, then the ones never reviewed.
+	ListDueLearningEntries(ctx context.Context, arg ListDueLearningEntriesParams) ([]LearningEntry, error)
 	ListLearningChatMessages(ctx context.Context, chatID pgtype.UUID) ([]LearningChatMessage, error)
 	ListLearningChatMessagesAfter(ctx context.Context, arg ListLearningChatMessagesAfterParams) ([]LearningChatMessage, error)
 	ListLearningChatUsage(ctx context.Context, arg ListLearningChatUsageParams) ([]ListLearningChatUsageRow, error)
@@ -151,6 +154,7 @@ type Querier interface {
 	ResetLearningChat(ctx context.Context, arg ResetLearningChatParams) error
 	ResumeLearningPathLesson(ctx context.Context, arg ResumeLearningPathLessonParams) (LearningPathLesson, error)
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
+	ReviewLearningEntry(ctx context.Context, arg ReviewLearningEntryParams) (LearningEntry, error)
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
 	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error
 	SaveLearningRulePracticeExamples(ctx context.Context, arg SaveLearningRulePracticeExamplesParams) (LearningRulePractice, error)

@@ -74,6 +74,32 @@ func (q *Queries) CompleteLearningCapture(ctx context.Context, arg CompleteLearn
 	return err
 }
 
+const countDueLearningEntries = `-- name: CountDueLearningEntries :one
+SELECT count(*) FILTER (WHERE next_review_at IS NOT NULL)::bigint AS overdue,
+       count(*) FILTER (WHERE next_review_at IS NULL)::bigint AS fresh
+FROM learning_entries
+WHERE user_id = $1 AND topic_id = $2 AND status <> 'known'
+  AND (next_review_at IS NULL OR next_review_at <= $3)
+`
+
+type CountDueLearningEntriesParams struct {
+	UserID       pgtype.UUID
+	TopicID      pgtype.UUID
+	NextReviewAt pgtype.Timestamptz
+}
+
+type CountDueLearningEntriesRow struct {
+	Overdue int64
+	Fresh   int64
+}
+
+func (q *Queries) CountDueLearningEntries(ctx context.Context, arg CountDueLearningEntriesParams) (CountDueLearningEntriesRow, error) {
+	row := q.db.QueryRow(ctx, countDueLearningEntries, arg.UserID, arg.TopicID, arg.NextReviewAt)
+	var i CountDueLearningEntriesRow
+	err := row.Scan(&i.Overdue, &i.Fresh)
+	return i, err
+}
+
 const deleteLearningEntry = `-- name: DeleteLearningEntry :execrows
 DELETE FROM learning_entries WHERE id = $1 AND user_id = $2
 `
@@ -239,7 +265,7 @@ func (q *Queries) GetLearningCaptureByKey(ctx context.Context, arg GetLearningCa
 }
 
 const getLearningEntry = `-- name: GetLearningEntry :one
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash FROM learning_entries WHERE id = $1 AND user_id = $2
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at FROM learning_entries WHERE id = $1 AND user_id = $2
 `
 
 type GetLearningEntryParams struct {
@@ -267,6 +293,9 @@ func (q *Queries) GetLearningEntry(ctx context.Context, arg GetLearningEntryPara
 		&i.Explanation,
 		&i.Source,
 		&i.TextHash,
+		&i.ReviewStage,
+		&i.NextReviewAt,
+		&i.LastReviewedAt,
 	)
 	return i, err
 }
@@ -353,7 +382,7 @@ kind = EXCLUDED.kind, text = EXCLUDED.text, transcription = EXCLUDED.transcripti
 translation = EXCLUDED.translation, explanation = EXCLUDED.explanation, native_usage = EXCLUDED.native_usage,
 example = EXCLUDED.example, rule = EXCLUDED.rule, source = EXCLUDED.source, status = EXCLUDED.status,
 updated_at = EXCLUDED.updated_at
-RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash
+RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at
 `
 
 type InsertLearningEntryParams struct {
@@ -412,6 +441,9 @@ func (q *Queries) InsertLearningEntry(ctx context.Context, arg InsertLearningEnt
 		&i.Explanation,
 		&i.Source,
 		&i.TextHash,
+		&i.ReviewStage,
+		&i.NextReviewAt,
+		&i.LastReviewedAt,
 	)
 	return i, err
 }
@@ -451,8 +483,69 @@ func (q *Queries) InsertLearningTopic(ctx context.Context, arg InsertLearningTop
 	return i, err
 }
 
+const listDueLearningEntries = `-- name: ListDueLearningEntries :many
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at FROM learning_entries
+WHERE user_id = $1 AND topic_id = $2 AND status <> 'known'
+  AND (next_review_at IS NULL OR next_review_at <= $3)
+ORDER BY next_review_at NULLS LAST, created_at, id
+LIMIT $4
+`
+
+type ListDueLearningEntriesParams struct {
+	UserID       pgtype.UUID
+	TopicID      pgtype.UUID
+	NextReviewAt pgtype.Timestamptz
+	Limit        int32
+}
+
+// Entries to review now: overdue ones first, then the ones never reviewed.
+func (q *Queries) ListDueLearningEntries(ctx context.Context, arg ListDueLearningEntriesParams) ([]LearningEntry, error) {
+	rows, err := q.db.Query(ctx, listDueLearningEntries,
+		arg.UserID,
+		arg.TopicID,
+		arg.NextReviewAt,
+		arg.Limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	items := []LearningEntry{}
+	for rows.Next() {
+		var i LearningEntry
+		if err := rows.Scan(
+			&i.ID,
+			&i.UserID,
+			&i.TopicID,
+			&i.Kind,
+			&i.Text,
+			&i.Transcription,
+			&i.Translation,
+			&i.NativeUsage,
+			&i.Example,
+			&i.Rule,
+			&i.Status,
+			&i.CreatedAt,
+			&i.UpdatedAt,
+			&i.Explanation,
+			&i.Source,
+			&i.TextHash,
+			&i.ReviewStage,
+			&i.NextReviewAt,
+			&i.LastReviewedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listLearningEntries = `-- name: ListLearningEntries :many
-SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash FROM learning_entries WHERE user_id = $1 AND topic_id = $2
+SELECT id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at FROM learning_entries WHERE user_id = $1 AND topic_id = $2
 AND ($3::text = '' OR kind::text = $3)
 AND ($4::text = '' OR status::text = $4)
 AND ($5::text = '' OR strpos(lower(text || ' ' || translation || ' ' || explanation || ' ' || rule || ' ' || source), lower($5)) > 0)
@@ -503,6 +596,9 @@ func (q *Queries) ListLearningEntries(ctx context.Context, arg ListLearningEntri
 			&i.Explanation,
 			&i.Source,
 			&i.TextHash,
+			&i.ReviewStage,
+			&i.NextReviewAt,
+			&i.LastReviewedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -639,10 +735,60 @@ func (q *Queries) RetryLearningCapture(ctx context.Context, arg RetryLearningCap
 	return err
 }
 
+const reviewLearningEntry = `-- name: ReviewLearningEntry :one
+UPDATE learning_entries
+SET review_stage = $3, next_review_at = $4, last_reviewed_at = $5, status = $6, updated_at = $5
+WHERE id = $1 AND user_id = $2
+RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at
+`
+
+type ReviewLearningEntryParams struct {
+	ID             pgtype.UUID
+	UserID         pgtype.UUID
+	ReviewStage    int16
+	NextReviewAt   pgtype.Timestamptz
+	LastReviewedAt pgtype.Timestamptz
+	Status         LearningEntryStatus
+}
+
+func (q *Queries) ReviewLearningEntry(ctx context.Context, arg ReviewLearningEntryParams) (LearningEntry, error) {
+	row := q.db.QueryRow(ctx, reviewLearningEntry,
+		arg.ID,
+		arg.UserID,
+		arg.ReviewStage,
+		arg.NextReviewAt,
+		arg.LastReviewedAt,
+		arg.Status,
+	)
+	var i LearningEntry
+	err := row.Scan(
+		&i.ID,
+		&i.UserID,
+		&i.TopicID,
+		&i.Kind,
+		&i.Text,
+		&i.Transcription,
+		&i.Translation,
+		&i.NativeUsage,
+		&i.Example,
+		&i.Rule,
+		&i.Status,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Explanation,
+		&i.Source,
+		&i.TextHash,
+		&i.ReviewStage,
+		&i.NextReviewAt,
+		&i.LastReviewedAt,
+	)
+	return i, err
+}
+
 const updateLearningEntry = `-- name: UpdateLearningEntry :one
 UPDATE learning_entries SET topic_id = $3, kind = $4, text = $5, text_hash = $6, transcription = $7,
 translation = $8, explanation = $9, native_usage = $10, example = $11, rule = $12, source = $13, status = $14, updated_at = $15
-WHERE id = $1 AND user_id = $2 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash
+WHERE id = $1 AND user_id = $2 RETURNING id, user_id, topic_id, kind, text, transcription, translation, native_usage, example, rule, status, created_at, updated_at, explanation, source, text_hash, review_stage, next_review_at, last_reviewed_at
 `
 
 type UpdateLearningEntryParams struct {
@@ -699,6 +845,9 @@ func (q *Queries) UpdateLearningEntry(ctx context.Context, arg UpdateLearningEnt
 		&i.Explanation,
 		&i.Source,
 		&i.TextHash,
+		&i.ReviewStage,
+		&i.NextReviewAt,
+		&i.LastReviewedAt,
 	)
 	return i, err
 }

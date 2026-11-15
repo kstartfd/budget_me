@@ -22,4 +22,6 @@ func (c *Controller) Routes(group *echo.Group) {
 func (c *Controller) AgentRoutes(protected *echo.Group) {
 	protected.POST("/learning/entries/:id/fill", c.fillEntry)
 	protected.POST("/learning/topics/:id/pack", c.generatePack)
+	protected.GET("/learning/topics/:id/review", c.getReview)
+	protected.POST("/learning/entries/:id/review", c.reviewEntry)
 }

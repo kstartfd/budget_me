@@ -95,3 +95,24 @@ RETURNING *;
 SELECT text, text_hash FROM learning_entries
 WHERE user_id = $1 AND topic_id = $2
 ORDER BY created_at DESC, id;
+
+-- Entries to review now: overdue ones first, then the ones never reviewed.
+-- name: ListDueLearningEntries :many
+SELECT * FROM learning_entries
+WHERE user_id = $1 AND topic_id = $2 AND status <> 'known'
+  AND (next_review_at IS NULL OR next_review_at <= $3)
+ORDER BY next_review_at NULLS LAST, created_at, id
+LIMIT $4;
+
+-- name: CountDueLearningEntries :one
+SELECT count(*) FILTER (WHERE next_review_at IS NOT NULL)::bigint AS overdue,
+       count(*) FILTER (WHERE next_review_at IS NULL)::bigint AS fresh
+FROM learning_entries
+WHERE user_id = $1 AND topic_id = $2 AND status <> 'known'
+  AND (next_review_at IS NULL OR next_review_at <= $3);
+
+-- name: ReviewLearningEntry :one
+UPDATE learning_entries
+SET review_stage = $3, next_review_at = $4, last_reviewed_at = $5, status = $6, updated_at = $5
+WHERE id = $1 AND user_id = $2
+RETURNING *;

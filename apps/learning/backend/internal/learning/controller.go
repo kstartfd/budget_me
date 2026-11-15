@@ -28,12 +28,14 @@ type Controller struct {
 	captures commands.CaptureHandler
 	fills    commands.FillHandler
 	packs    commands.PackHandler
+	reviews  commands.ReviewHandler
+	clock    clock.Clock
 	read     queries.ReadHandler
 	audio    learningaudio.Service
 }
 
 func NewController(q *db.Queries, clk clock.Clock, audio learningaudio.Service, vault secretbox.Box, agent commands.Completer) *Controller {
-	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), packs: commands.NewPackHandler(q, clk, vault, agent), read: queries.NewReadHandler(q), audio: audio}
+	return &Controller{topics: commands.NewTopicHandler(q, clk), entries: commands.NewEntryHandler(q, clk), captures: commands.NewCaptureHandler(q, clk), fills: commands.NewFillHandler(q, clk, vault, agent), packs: commands.NewPackHandler(q, clk, vault, agent), reviews: commands.NewReviewHandler(q, clk), clock: clk, read: queries.NewReadHandler(q), audio: audio}
 }
 
 // fillEntry has the learner's agent write the fields the entry still lacks. It
@@ -94,6 +96,52 @@ func (c *Controller) generatePack(ctx echo.Context) error {
 	ctx.Response().Header().Set("Cache-Control", "no-store")
 
 	return httpx.OK(ctx, out)
+}
+
+// reviewSession is how many cards one sitting holds at most.
+const reviewSession = 20
+
+// getReview returns what is due in a topic: the next cards to go through and
+// how many are waiting in all.
+func (c *Controller) getReview(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid topic id")
+	}
+
+	due, err := c.read.Due(ctx.Request().Context(), httpx.UserIDFromContext(ctx.Request().Context()), id, c.clock.Now(), reviewSession)
+	if err != nil {
+		return err
+	}
+
+	out := reviewResponse{Overdue: due.Overdue, Fresh: due.Fresh, Entries: make([]entryResponse, len(due.Entries))}
+	for i, row := range due.Entries {
+		out.Entries[i] = entryDTO(row)
+	}
+
+	ctx.Response().Header().Set("Cache-Control", "no-store")
+
+	return httpx.OK(ctx, out)
+}
+
+// reviewEntry records how a review of one entry went.
+func (c *Controller) reviewEntry(ctx echo.Context) error {
+	id, err := uuid.Parse(ctx.Param("id"))
+	if err != nil {
+		return apperr.NewInvalid("invalid entry id")
+	}
+
+	var req reviewRequest
+	if err := ctx.Bind(&req); err != nil {
+		return apperr.NewInvalid("invalid body")
+	}
+
+	row, err := c.reviews.Handle(ctx.Request().Context(), commands.ReviewEntry{UserID: httpx.UserIDFromContext(ctx.Request().Context()), EntryID: id, Grade: req.Grade})
+	if err != nil {
+		return err
+	}
+
+	return httpx.OK(ctx, entryDTO(row))
 }
 
 func (c *Controller) listTopics(ctx echo.Context) error {
