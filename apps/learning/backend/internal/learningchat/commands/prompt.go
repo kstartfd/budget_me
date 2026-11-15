@@ -77,6 +77,7 @@ func correctionRules(learned, native string) string {
 		"and if the correct version is still not how a native speaker would put it, say how a native speaker would. "+
 		"Quoted and corrected sentences stay in %[1]s, everything that explains them is in %[2]s. "+
 		"A sentence that is correct but sounds stiff or foreign gets the same treatment: say so and give the natural way. "+
+		"Finish the section with one more line in %[2]s: a short invitation to try, then ONE new sentence in %[1]s in backticks that is built like the corrected one but about something else, so the learner can use the same rule at once (if there were several mistakes, pick the main one). "+
 		"Never invent mistakes: when the message is fine, say so in one short line in %[2]s and add no section.\n\n"+
 		"When the learner writes in %[2]s, they are stuck or asking something: answer in %[2]s, give the %[1]s wording, and ask them to try it in %[1]s.\n\n", learned, native)
 }
