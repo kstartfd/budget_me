@@ -29,9 +29,17 @@ SELECT * FROM learning_entries WHERE id = $1 AND user_id = $2;
 INSERT INTO learning_entries (id, user_id, topic_id, kind, text, text_hash, transcription, translation, explanation, native_usage, example, rule, source, status, created_at, updated_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
 ON CONFLICT (user_id, topic_id, text_hash) DO UPDATE SET
-kind = EXCLUDED.kind, text = EXCLUDED.text, transcription = EXCLUDED.transcription,
-translation = EXCLUDED.translation, explanation = EXCLUDED.explanation, native_usage = EXCLUDED.native_usage,
-example = EXCLUDED.example, rule = EXCLUDED.rule, source = EXCLUDED.source, status = EXCLUDED.status,
+kind = EXCLUDED.kind, text = EXCLUDED.text,
+-- Saving the same text again fills what was empty and never blanks what the
+-- learner (or an earlier fill) already wrote.
+transcription = COALESCE(NULLIF(EXCLUDED.transcription, ''), learning_entries.transcription),
+translation = COALESCE(NULLIF(EXCLUDED.translation, ''), learning_entries.translation),
+explanation = COALESCE(NULLIF(EXCLUDED.explanation, ''), learning_entries.explanation),
+native_usage = COALESCE(NULLIF(EXCLUDED.native_usage, ''), learning_entries.native_usage),
+example = COALESCE(NULLIF(EXCLUDED.example, ''), learning_entries.example),
+rule = COALESCE(NULLIF(EXCLUDED.rule, ''), learning_entries.rule),
+source = COALESCE(NULLIF(EXCLUDED.source, ''), learning_entries.source),
+status = EXCLUDED.status,
 updated_at = EXCLUDED.updated_at
 RETURNING *;
 

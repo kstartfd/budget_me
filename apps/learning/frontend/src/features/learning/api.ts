@@ -82,6 +82,21 @@ export const fetchReview = (topicId: string) =>
 /** Records how a review of one entry went; the server moves it along its schedule. */
 export const reviewEntry = (id: string, grade: Grade) =>
   call(`/entries/${id}/review`, "POST", (d) => entrySchema.parse(d), { grade })
+/**
+ * Saves a typed word or phrase the way the browser extension and the photo scan
+ * do: as a capture, which the backend turns into an entry and, with an agent,
+ * fills in the background.
+ */
+export const enqueueCapture = (input: {
+  topicId: string
+  kind: "word" | "phrase"
+  text: string
+}) =>
+  call("/captures", "POST", () => undefined, {
+    ...input,
+    source: "",
+    status: "inbox",
+  })
 export const fetchReminder = () =>
   call("/reminder", "GET", (d) => reminderSchema.parse(d))
 export const saveReminder = (input: { enabled: boolean; timezone: string }) =>

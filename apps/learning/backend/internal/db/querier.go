@@ -100,6 +100,8 @@ type Querier interface {
 	GetUserByTelegramID(ctx context.Context, telegramID pgtype.Int8) (User, error)
 	InsertLearningAudioCache(ctx context.Context, arg InsertLearningAudioCacheParams) (LearningAudioCache, error)
 	InsertLearningChatMessage(ctx context.Context, arg InsertLearningChatMessageParams) (LearningChatMessage, error)
+	// Saving the same text again fills what was empty and never blanks what the
+	// learner (or an earlier fill) already wrote.
 	InsertLearningEntry(ctx context.Context, arg InsertLearningEntryParams) (LearningEntry, error)
 	InsertLearningPath(ctx context.Context, arg InsertLearningPathParams) (LearningPath, error)
 	InsertLearningPathAttempt(ctx context.Context, arg InsertLearningPathAttemptParams) (LearningPathAttempt, error)

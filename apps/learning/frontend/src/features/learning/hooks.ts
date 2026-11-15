@@ -77,6 +77,27 @@ export function useReviewEntry() {
   })
 }
 
+/**
+ * Adds typed words and phrases, one capture each. They become entries in a
+ * moment and, with an agent connected, are filled in the background, so the list
+ * is refetched now and again as the fills land.
+ */
+export function useAddEntries() {
+  const client = useQueryClient()
+  const { user } = useAuth()
+  const refresh = () =>
+    client.invalidateQueries({ queryKey: ["learning", user?.id, "entries"] })
+
+  return useMutation({
+    mutationFn: (inputs: Parameters<typeof api.enqueueCapture>[0][]) =>
+      Promise.all(inputs.map(api.enqueueCapture)),
+    onSuccess: () => {
+      void refresh()
+      for (const delay of [4000, 12000, 30000]) setTimeout(() => void refresh(), delay)
+    },
+  })
+}
+
 /** Whether the bot's daily review reminder is on. */
 export function useReminder() {
   const { user } = useAuth()

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { Controller, useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useTranslations } from "next-intl"
@@ -7,11 +8,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
-import { useLearning } from "../hooks"
+import { useAddEntries, useLearning } from "../hooks"
+import { useAiSettings } from "@/features/ai"
 import { entryInputSchema, type Entry, type EntryInput } from "../schemas"
 import { LearningModal } from "./learning-modal"
 
-export function EntryForm({
+function EditEntryForm({
   entry,
   topicId,
   kind,
@@ -175,6 +177,130 @@ export function EntryForm({
           className="h-10 w-full text-sm"
         >
           {t(saveEntry.isPending ? "saving" : "save")}
+        </Button>
+      </form>
+    </LearningModal>
+  )
+}
+
+/**
+ * A new entry is just the words: one per line. They are saved at once and, when
+ * an AI agent is connected, it writes the transcription, translation, breakdown,
+ * rule, usage and example for each in the background. The full card is for
+ * editing an entry afterwards.
+ */
+export function EntryForm(props: {
+  entry?: Entry
+  topicId: string
+  kind: EntryInput["kind"]
+  onClose: () => void
+}) {
+  return props.entry ? (
+    <EditEntryForm {...props} entry={props.entry} />
+  ) : (
+    <QuickAdd topicId={props.topicId} kind={props.kind} onClose={props.onClose} />
+  )
+}
+
+const maxLines = 30
+
+function QuickAdd({
+  topicId,
+  kind: initialKind,
+  onClose,
+}: {
+  topicId: string
+  kind: EntryInput["kind"]
+  onClose: () => void
+}) {
+  const t = useTranslations("learning")
+  const q = useTranslations("learning.quick")
+  const ai = useAiSettings()
+  const add = useAddEntries()
+  const [kind, setKind] = useState<EntryInput["kind"]>(initialKind)
+  const [text, setText] = useState("")
+
+  const lines = [
+    ...new Set(
+      text
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean),
+    ),
+  ]
+  const tooMany = lines.length > maxLines
+  const tooLong = lines.some((line) => line.length > 1000)
+
+  return (
+    <LearningModal title={t("newEntry")} description={q("hint")} onClose={onClose}>
+      <form
+        className="space-y-4"
+        onSubmit={(e) => {
+          e.preventDefault()
+          if (lines.length === 0 || tooMany || tooLong) return
+
+          add.mutate(
+            lines.map((line) => ({ topicId, kind, text: line })),
+            { onSuccess: onClose },
+          )
+        }}
+      >
+        <div
+          className="bg-muted flex h-9 gap-0.5 rounded-md p-1"
+          role="group"
+          aria-label={t("kind")}
+        >
+          {(["word", "phrase"] as const).map((k) => (
+            <Button
+              key={k}
+              type="button"
+              variant="ghost"
+              aria-pressed={kind === k}
+              onClick={() => setKind(k)}
+              className={cn(
+                "h-full flex-1 rounded-sm text-[13px] font-medium",
+                kind === k
+                  ? "bg-background text-foreground hover:bg-background"
+                  : "text-muted-foreground",
+              )}
+            >
+              {t(k)}
+            </Button>
+          ))}
+        </div>
+
+        <label className="block space-y-2 text-sm font-medium">
+          <span>{q("label")}</span>
+          <Textarea
+            autoFocus
+            className="bg-background min-h-32 text-sm md:text-sm"
+            placeholder={q("placeholder")}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+          />
+        </label>
+
+        <p className="text-muted-foreground text-[13px] leading-relaxed">
+          {ai.data ? q("withAgent") : q("withoutAgent")}
+        </p>
+
+        {(tooMany || tooLong) && (
+          <p role="alert" className="text-destructive text-sm">
+            {tooMany ? q("tooMany", { max: maxLines }) : q("tooLong")}
+          </p>
+        )}
+        {add.isError && (
+          <p role="alert" className="text-destructive text-sm">
+            {t("saveError")}
+          </p>
+        )}
+
+        <Button
+          type="submit"
+          disabled={add.isPending || lines.length === 0 || tooMany || tooLong}
+          className="h-10 w-full text-sm"
+        >
+          {add.isPending ? t("saving") : q("add", { count: lines.length })}
         </Button>
       </form>
     </LearningModal>

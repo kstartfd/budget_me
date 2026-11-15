@@ -86,6 +86,16 @@
     "entriesEmptyHint": "Save your first word or phrase. To add entries from an extension, create a token in settings.",
     "noMatchesHint": "Change the search or filters.",
     "reminder": {"kicker": "Reminder", "title": "Daily review reminder", "hint": "The bot messages you in the morning when cards are waiting. At most once a day, and only if there is something to review.", "failed": "Couldn't update the reminder. Try again."},
+    "quick": {
+      "hint": "Type the words or phrases. The AI agent fills in the rest.",
+      "label": "Words or phrases, one per line",
+      "placeholder": "hit the road\nbreak the ice\nsooner or later",
+      "withAgent": "The AI agent will add the transcription, translation, breakdown, rule, usage and example in the background. This takes a few seconds per entry.",
+      "withoutAgent": "No AI agent is connected, so only the text is saved. Connect one in settings to have the cards filled in, or edit an entry to add details yourself.",
+      "add": "{count, plural, =0 {Add} one {Add # entry} other {Add # entries}}",
+      "tooMany": "At most {max} entries at a time.",
+      "tooLong": "Each entry must be under 1000 characters."
+    },
     "review": {
       "open": "Review ({count})",
       "title": "Review",
