@@ -1,4 +1,4 @@
-export const locales = ["ru", "en"] as const
+export const locales = ["ru", "en", "es"] as const
 
 export type Locale = (typeof locales)[number]
 
@@ -12,4 +12,5 @@ export const localeCookie = "NEXT_LOCALE"
 export const localeNames: Record<Locale, string> = {
   ru: "Русский",
   en: "English",
+  es: "Español",
 }

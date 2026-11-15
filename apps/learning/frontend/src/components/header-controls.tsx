@@ -15,7 +15,7 @@ import { cn } from "@/lib/utils"
 const iconButton =
   "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground flex size-9 shrink-0 items-center justify-center rounded-md border transition-colors"
 
-/** RU/EN segmented control: a muted track with the active language raised. */
+/** RU/EN/ES segmented control: a muted track with the active language raised. */
 export function LocaleSwitch({ className }: { className?: string }) {
   const locale = useLocale()
   const router = useRouter()
@@ -36,7 +36,7 @@ export function LocaleSwitch({ className }: { className?: string }) {
         className,
       )}
     >
-      {(["ru", "en"] as const).map((l) => (
+      {(["ru", "en", "es"] as const).map((l) => (
         <button
           key={l}
           type="button"

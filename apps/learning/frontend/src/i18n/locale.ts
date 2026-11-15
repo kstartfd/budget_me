@@ -41,7 +41,7 @@ function isSupported(v: string | undefined): v is Locale {
   return !!v && (locales as readonly string[]).includes(v)
 }
 
-/** Returns the first supported language tag (`ru`/`en`) from a standard
+/** Returns the first supported language tag (`ru`/`en`/`es`) from a standard
  * Accept-Language header. Strips region/script subtags so `ru-RU` → `ru`. */
 function pickFromAcceptLanguage(header: string): Locale | null {
   for (const raw of header.split(",")) {

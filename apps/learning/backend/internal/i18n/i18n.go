@@ -15,10 +15,11 @@ type Locale string
 const (
 	EN Locale = "en"
 	RU Locale = "ru"
+	ES Locale = "es"
 )
 
 // supported is the source-of-truth set; everything else falls back to EN.
-var supported = map[Locale]bool{EN: true, RU: true}
+var supported = map[Locale]bool{EN: true, RU: true, ES: true}
 
 // ParseAcceptLanguage picks the highest-priority supported locale from an
 // `Accept-Language` header, falling back to EN. We don't do full RFC 4647
@@ -101,5 +102,40 @@ var catalogs = map[Locale]map[string]string{
 		"not found":      "не найдено",
 		"conflict":       "конфликт",
 		"internal error": "внутренняя ошибка",
+	},
+	ES: {
+		"invalid body":                                      "cuerpo de la solicitud no válido",
+		"invalid params":                                    "parámetros no válidos",
+		"invalid email":                                     "correo no válido",
+		"password must be at least 8 characters":            "la contraseña debe tener al menos 8 caracteres",
+		"first name is required":                            "indica tu nombre",
+		"init_data is required":                             "se requiere init_data",
+		"unknown agent or level":                            "agente o nivel desconocido",
+		"API key is required":                               "indica la clave de API",
+		"API key must be 8 to 500 characters":               "la clave de API debe tener de 8 a 500 caracteres",
+		"the provider rejected this API key":                "el proveedor rechazó esta clave de API",
+		"prompt is required":                                "indica la consulta",
+		"prompt is too long":                                "la consulta es demasiado larga",
+		"no AI agent chosen":                                "no se ha elegido ningún agente",
+		"the stored API key cannot be read; enter it again": "la clave de API guardada no se puede leer; introdúcela de nuevo",
+		"the provider rejected the AI agent's API key":      "el proveedor rechazó la clave de API del agente",
+		"the AI agent is temporarily unavailable":           "el agente no está disponible temporalmente",
+		"the AI agent did not return an answer":             "el agente no devolvió respuesta",
+		"a picture is required":                             "se necesita una imagen",
+		"the picture must be a JPEG, PNG or GIF up to 6 MB": "la imagen debe ser JPEG, PNG o GIF de hasta 6 MB",
+		"the picture is too large: send a smaller one":      "la imagen es demasiado grande: envía una más pequeña",
+		"the picture could not be read: try another one":    "no se pudo leer la imagen: prueba con otra",
+		"reading a picture is not available for the language of this topic yet": "la lectura de fotos aún no está disponible para el idioma de este tema",
+		"reading a picture is not available on this server":                     "la lectura de fotos no está disponible en este servidor",
+		"invalid topic id":         "id de tema no válido",
+		"topic not found":          "tema no encontrado",
+		"dialog not found":         "diálogo no encontrado",
+		"invalid credentials":      "correo o contraseña incorrectos",
+		"invalid init data":        "no se pudo confirmar el inicio de sesión con Telegram",
+		"email already registered": "el correo ya está registrado",
+		"unauthorized":             "no autorizado",
+		"not found":                "no encontrado",
+		"conflict":                 "conflicto",
+		"internal error":           "error interno",
 	},
 }
