@@ -17,22 +17,13 @@ import {
   IconSeedling,
   IconSettings,
   IconToolsKitchen2,
-  IconWorld,
 } from "@tabler/icons-react";
 
 import { useClaimFullScreen } from "@/components/full-screen";
 import { ScreenBar } from "@/components/screen-bar";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLearning } from "@/features/learning/hooks";
-import { useLanguageName } from "@/features/learning/language";
 import { cn } from "@/lib/utils";
 
 import { useArchiveTopicChat, useTopicChat, useTopicChatTurn } from "../hooks";
@@ -61,24 +52,6 @@ const scenarios = [
 
 const quickReplies = ["explain", "hint"] as const;
 
-const lastTopicKey = "learning:chat-topic";
-
-function rememberedTopic(): string | null {
-  try {
-    return window.localStorage.getItem(lastTopicKey);
-  } catch {
-    return null;
-  }
-}
-
-function remember(id: string) {
-  try {
-    window.localStorage.setItem(lastTopicKey, id);
-  } catch {
-    // Private mode and the like: the choice just is not kept.
-  }
-}
-
 const iconButton =
   "border-border bg-background text-muted-foreground hover:bg-muted hover:text-foreground size-9 shrink-0 rounded-md border";
 
@@ -89,17 +62,13 @@ const iconButton =
 export function TeacherChatScreen() {
   const t = useTranslations("chat");
   const learning = useTranslations("learning");
-  const languageName = useLanguageName();
   const { topics } = useLearning();
   // A guided exercise links here with the notebook and the question to ask.
   // window.location is still the previous page while a client-side navigation
   // renders, so these come from the router, not from the address bar.
   const params = useSearchParams();
-  // Read once. Nothing that depends on it is drawn before the topics have
-  // loaded, so the server and the first client render still agree.
-  const [picked, setPicked] = useState<string | null>(
-    () => params.get("topic") ?? rememberedTopic(),
-  );
+  // Read once; without it the first topic is the one to talk about.
+  const [picked] = useState<string | null>(() => params.get("topic"));
   const [draftQuestion, setDraftQuestion] = useState(
     () => params.get("question") ?? "",
   );
@@ -160,41 +129,6 @@ export function TeacherChatScreen() {
           heading={heading}
           initialQuestion={draftQuestion}
           onInitialQuestionUsed={() => setDraftQuestion("")}
-          picker={
-            <Select
-              value={topic.id}
-              onValueChange={(id) => {
-                setPicked(id);
-                remember(id);
-              }}
-            >
-              <SelectTrigger
-                aria-label={t("topic")}
-                className="border-border bg-background h-9 min-w-0 flex-1 justify-start gap-2 rounded-md px-3 text-sm font-medium lg:w-60 lg:flex-none *:data-[slot=select-value]:flex-1 *:data-[slot=select-value]:text-left"
-              >
-                <IconWorld
-                  size={14}
-                  className="text-muted-foreground shrink-0"
-                />
-                <SelectValue>
-                  <span className="truncate">
-                    {topic.name}
-                    <span className="text-faint font-normal">
-                      {" · "}
-                      {languageName(topic.language)}
-                    </span>
-                  </span>
-                </SelectValue>
-              </SelectTrigger>
-              <SelectContent>
-                {topics.data.map((item) => (
-                  <SelectItem key={item.id} value={item.id}>
-                    {item.name} · {languageName(item.language)}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          }
         />
       )}
     </div>
@@ -206,13 +140,11 @@ function Conversation({
   heading,
   initialQuestion,
   onInitialQuestionUsed,
-  picker,
 }: {
   topicId: string;
   heading: React.ReactNode;
   initialQuestion: string;
   onInitialQuestionUsed: () => void;
-  picker: React.ReactNode;
 }) {
   const t = useTranslations("chat");
   const failure = useChatFailure();
@@ -254,7 +186,6 @@ function Conversation({
 
   const toolbar = (
     <div className="flex shrink-0 items-center gap-2">
-      {picker}
       <Button
         variant="outline"
         size="icon-lg"

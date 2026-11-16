@@ -278,7 +278,6 @@
     "budgetLow": "{percent}% of this chat's limit is used.",
     "teacherTitle": "AI teacher",
     "teacherSubtitle": "Free conversation in the language you learn: the teacher leads the lesson and corrects your mistakes.",
-    "topic": "Topic",
     "noTopics": "Create a topic first",
     "noTopicsHint": "The teacher speaks the language of a topic, so pick which language you study.",
     "needAgent": "An AI agent is needed",

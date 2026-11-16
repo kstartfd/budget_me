@@ -278,7 +278,6 @@
     "budgetLow": "Se ha usado el {percent}% del límite de este chat.",
     "teacherTitle": "Profesor de IA",
     "teacherSubtitle": "Conversación libre en el idioma que aprendes: el profesor dirige la lección y corrige tus errores.",
-    "topic": "Tema",
     "noTopics": "Crea primero un tema",
     "noTopicsHint": "El profesor habla el idioma de un tema, así que elige qué idioma estudias.",
     "needAgent": "Se necesita un agente de IA",
