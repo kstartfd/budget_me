@@ -8,6 +8,7 @@ import {
   IconPlus,
   IconSearch,
   IconSettings,
+  IconTrash,
 } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,16 +16,18 @@ import { languageBadge, useLanguageName } from "../language"
 import type { Topic } from "../schemas"
 
 const columns =
-  "grid grid-cols-[minmax(0,1fr)_28px_16px] items-center gap-3 px-4 lg:grid-cols-[minmax(0,1fr)_220px_28px_16px]"
+  "grid grid-cols-[minmax(0,1fr)_28px_28px_16px] items-center gap-3 px-4 lg:grid-cols-[minmax(0,1fr)_220px_28px_28px_16px]"
 
 export function TopicsList({
   topics,
   onNewTopic,
   onEditTopic,
+  onDeleteTopic,
 }: {
   topics: Topic[]
   onNewTopic: () => void
   onEditTopic: (topic: Topic) => void
+  onDeleteTopic: (topic: Topic) => void
 }) {
   const t = useTranslations("learning")
   const languageName = useLanguageName()
@@ -82,6 +85,7 @@ export function TopicsList({
             <span>{t("colLanguages")}</span>
             <span />
             <span />
+            <span />
           </div>
           {shown.map((item) => (
             <div
@@ -119,6 +123,15 @@ export function TopicsList({
                 className="text-muted-foreground relative z-10"
               >
                 <IconSettings size={15} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon-sm"
+                aria-label={t("deleteTopic")}
+                onClick={() => onDeleteTopic(item)}
+                className="text-muted-foreground hover:text-destructive relative z-10"
+              >
+                <IconTrash size={15} />
               </Button>
               <IconChevronRight size={14} className="text-faint" />
             </div>

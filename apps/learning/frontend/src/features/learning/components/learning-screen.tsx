@@ -18,7 +18,8 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
   const router = useRouter()
   const { topics, deleteTopic } = useLearning()
   const [topicForm, setTopicForm] = useState<Topic | "new" | null>(null)
-  const [confirmDelete, setConfirmDelete] = useState(false)
+  // The topic being deleted: asked from its own screen or from the list.
+  const [confirmDelete, setConfirmDelete] = useState<Topic | null>(null)
   const topic = topics.data?.find((item) => item.id === topicId)
 
   if (topics.isPending)
@@ -53,13 +54,14 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
         <TopicScreen
           topic={topic}
           onEditTopic={() => setTopicForm(topic)}
-          onDeleteTopic={() => setConfirmDelete(true)}
+          onDeleteTopic={() => setConfirmDelete(topic)}
         />
       ) : (
         <TopicsList
           topics={topics.data ?? []}
           onNewTopic={() => setTopicForm("new")}
           onEditTopic={setTopicForm}
+          onDeleteTopic={setConfirmDelete}
         />
       )}
       {topicForm && (
@@ -68,18 +70,18 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
           onClose={() => setTopicForm(null)}
         />
       )}
-      {confirmDelete && topic && (
+      {confirmDelete && (
         <LearningModal
           title={t("deleteTopic")}
           description={t("deleteTopicWarning")}
-          onClose={() => setConfirmDelete(false)}
+          onClose={() => setConfirmDelete(null)}
         >
           <div className="flex gap-3">
             <Button
               variant="secondary"
               className="flex-1"
               disabled={deleteTopic.isPending}
-              onClick={() => setConfirmDelete(false)}
+              onClick={() => setConfirmDelete(null)}
             >
               {t("cancel")}
             </Button>
@@ -88,8 +90,11 @@ export function LearningScreen({ topicId = "" }: { topicId?: string }) {
               className="flex-1"
               disabled={deleteTopic.isPending}
               onClick={() =>
-                deleteTopic.mutate(topic.id, {
-                  onSuccess: () => router.push("/learning"),
+                deleteTopic.mutate(confirmDelete.id, {
+                  onSuccess: () => {
+                    setConfirmDelete(null)
+                    router.push("/learning")
+                  },
                 })
               }
             >
