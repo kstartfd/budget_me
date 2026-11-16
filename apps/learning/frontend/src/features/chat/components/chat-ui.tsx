@@ -1,5 +1,6 @@
 "use client";
 
+import { useRef } from "react";
 import { useFormatter, useTranslations } from "next-intl";
 import { IconArrowUp, IconSchool } from "@tabler/icons-react";
 
@@ -126,22 +127,32 @@ export function Composer({
   placeholder: string;
 }) {
   const t = useTranslations("chat");
+  const field = useRef<HTMLTextAreaElement>(null);
+
+  // A disabled field drops the cursor and never gets it back, so while a turn
+  // is on its way the field is only read-only and the send is ignored.
+  const submit = () => {
+    if (sending) return;
+    onSubmit();
+    field.current?.focus();
+  };
 
   return (
     <div className="border-input bg-background focus-within:border-ring flex items-end gap-2 rounded-lg border py-2 pr-2 pl-4 transition-colors">
       <Textarea
+        ref={field}
         value={value}
         maxLength={maxQuestionLength}
         rows={1}
-        disabled={sending}
+        readOnly={sending}
         placeholder={placeholder}
         aria-label={placeholder}
-        className="max-h-40 min-h-9 flex-1 resize-none border-0 bg-transparent px-0 py-2 text-sm shadow-none focus-visible:ring-0 disabled:bg-transparent md:text-sm dark:bg-transparent dark:disabled:bg-transparent"
+        className="max-h-40 min-h-9 flex-1 resize-none border-0 bg-transparent px-0 py-2 text-sm shadow-none focus-visible:ring-0 read-only:opacity-60 disabled:bg-transparent md:text-sm dark:bg-transparent dark:disabled:bg-transparent"
         onChange={(e) => onChange(e.target.value)}
         onKeyDown={(e) => {
           if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
             e.preventDefault();
-            onSubmit();
+            submit();
           }
         }}
       />
@@ -150,7 +161,7 @@ export function Composer({
         aria-label={t("send")}
         disabled={sending || value.trim() === ""}
         className="shrink-0"
-        onClick={onSubmit}
+        onClick={submit}
       >
         <IconArrowUp size={16} />
       </Button>
