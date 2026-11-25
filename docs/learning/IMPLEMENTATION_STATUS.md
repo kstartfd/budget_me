@@ -5,13 +5,14 @@ Statuses: `NOT_STARTED` · `IN_PROGRESS` · `BLOCKED` · `IMPLEMENTED` · `VERIF
 `VERIFIED` requires a row in section 3 (date, commit, command, result) — see
 `TESTING_STRATEGY.md` section 7. Plan and acceptance criteria: `IMPLEMENTATION_PLAN.md`.
 
-Last updated: **2026-11-25** · baseline commit `4662ad7` · active phase: **P0**
+Last updated: **2026-11-25** · baseline commit `4662ad7` · active: **V1 (first vertical slice)**; P0 hygiene paused
 
 ## 1. Phase overview
 
 | Phase | Name | Status | Blocked by | Notes |
 | --- | --- | --- | --- | --- |
-| P0 | Repository audit and baseline | **IN_PROGRESS** | D-001..D-005, D-020 answers | docs written; baseline verified; hygiene tasks open |
+| V1 | First vertical slice (D-024) | **IN_PROGRESS** | — | decisions accepted 2026-11-25; plan in `VERTICAL_SLICE_V1.md` |
+| P0 | Repository audit and baseline | **IMPLEMENTED** (docs), hygiene open | D-004, D-005, D-020 | docs written; baseline verified (V-001); P0-05..P0-11 not started |
 | P1 | Knowledge Base | NOT_STARTED | D-002, D-003, D-008, D-009, D-010, D-014, D-018, D-020 | |
 | P2 | Learner Profile | NOT_STARTED | P1, D-007, D-011 | |
 | P3 | Assessment Engine | NOT_STARTED | P1, P2, D-017, D-022; pure engine (P3-01/02) can start earlier | |
@@ -24,6 +25,21 @@ Last updated: **2026-11-25** · baseline commit `4662ad7` · active phase: **P0*
 | P10 | Advanced Learning | NOT_STARTED | P1-P9, D-021 | outline only |
 
 ## 2. Task board
+
+### V1 — First vertical slice
+
+| Task | Description | Status | Evidence / note |
+| --- | --- | --- | --- |
+| V1-01 | Decisions, plan and status in the repo | IMPLEMENTED | `DECISIONS.md` D-002/D-024/D-025/D-026/D-030..D-033, `VERTICAL_SLICE_V1.md` |
+| V1-02 | Migration 0036 + up/down/up test | NOT_STARTED | |
+| V1-03 | sqlc queries, pinned regeneration | NOT_STARTED | |
+| V1-04 | `learningprofile` pure rules + tests | NOT_STARTED | |
+| V1-05 | Evidence, state, schedule in the attempt transaction | NOT_STARTED | |
+| V1-06 | Review attempts via `activityId` | NOT_STARTED | |
+| V1-07 | Activities (practice, review) | NOT_STARTED | |
+| V1-08 | Minimal dashboard | NOT_STARTED | |
+| V1-09 | HTTP loop, rollback and security tests | NOT_STARTED | |
+| V1-10 | Docs, full gates, push, CI watched | NOT_STARTED | |
 
 ### P0 — Audit and baseline
 

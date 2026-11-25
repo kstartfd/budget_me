@@ -66,6 +66,61 @@ Migration requirements identified in the audit: (1) library import + backfill of
 
 ## 4. Phases
 
+### V1 — First vertical slice (runs before P1-P10; D-024)
+
+**Objective.** One complete loop on production data: a library grammar rule -> exercise ->
+answer -> check -> attempt -> evidence -> knowledge state -> scheduled review -> minimal
+dashboard, with typed `practice` and `review` activities (D-026). Details: `VERTICAL_SLICE_V1.md`.
+
+**Current implementation.** Program topics from the library, nine exercise kinds, attempts with a
+boolean `correct`; no evidence, knowledge state, schedule for items, activities or dashboard.
+
+**Required changes.** One expand-only migration; a pure rules package; evidence + state +
+schedule written in the attempt transaction; activities (practice, review); a review attempt
+mode of the existing attempt endpoint; a minimal dashboard. No existing response changes shape.
+
+**Dependencies.** D-002, D-024, D-025, D-026 (accepted). Uses D-007, D-009, D-027, D-028, D-029
+as written; D-030..D-033 are the decisions made for V1.
+
+**Database changes.** `0036_learning_loop.sql`: `UNIQUE (id, user_id)` on `learning_teachers`;
+new `kb_items`, `learning_evidence`, `learner_item_state`, `learning_activities`.
+
+**API changes.** New `GET /learning/path/activities`, `GET /learning/path/dashboard`; optional
+`activityId` on `POST /learning/path/exercises/:id/attempt`.
+
+**Implementation tasks.**
+- V1-01 Decisions, plan, status in the repo (S)
+- V1-02 Migration 0036 + migration test up/down/up with seeded rows (M)
+- V1-03 sqlc queries and regeneration with the pinned sqlc (S)
+- V1-04 `learningprofile`: mode/weight table, state machine, ladder, with table and invariant tests (M)
+- V1-05 Evidence, state and schedule inside the attempt transaction; item created from the library on first use; no-library topics skipped (M)
+- V1-06 Review attempts through `activityId`; review exercise without the key; activity completed in the transaction (M)
+- V1-07 Activities: planning read, practice reconciliation (M)
+- V1-08 Minimal dashboard (S)
+- V1-09 HTTP loop tests, rollback test, security tests (M)
+- V1-10 Docs: `DATA_MODEL`, `API_CONTRACTS`, `LEARNING_METHODOLOGY`, `CURRENT_STATE`; status; full gates; push; watch CI (S)
+
+**Acceptance criteria.** After one attempt on a library topic: exactly one evidence row, one
+state row (`learning`), `due_at` = next day. A wrong answer does not advance the stage. Six
+correct answers in one day advance the stage once. A due item is offered as a review with an
+exercise that carries no key; answering it on a completed topic works, completes the activity,
+reschedules; an item reaches `mastered` only through an independent review >= 7 days after the
+previous success. Failure after the attempt insert leaves neither attempt nor evidence. A topic
+with no library key produces no evidence. Other users' ids give 404. The existing suite is still
+green (262+ pass) and the migration runs up/down/up.
+
+**Testing requirements.** `VERTICAL_SLICE_V1.md` section 7.
+
+**Migration strategy.** Expand-only: the new tables and one unique constraint; no existing column
+or row changes; deploy-compatible with the previous release (the old code ignores the new
+tables). No backfill. Rollback = the Down migration or the Rollback workflow.
+
+**Current status.** `IN_PROGRESS` (see `IMPLEMENTATION_STATUS.md`).
+
+**Known limitations.** `VERTICAL_SLICE_V1.md` section 9.
+
+---
+
 ### P0 — Repository audit and baseline
 
 **Objective.** Know exactly what exists, record it where the next agent will find it, establish a verified baseline, and surface the decisions that gate the work.
@@ -481,10 +536,13 @@ Order = value first, risk second; items marked `||` can run in parallel with the
 
 **Quick wins independent of the plan:** P0-05, P0-11, retiring/rewriting `CODING_STYLE.md` (D-004), adding `AGENTS.md` (D-005).
 
-> **Pending owner decision D-024.** `BACKEND_BRIEF_FIT.md` section 5 proposes cutting the first
-> steps into a thin end-to-end loop (S0-S4) before the layered order above, and section 4 lists
-> eleven small additions (A-1..A-11) to the tasks of P1-P8 and a new cross-cutting task X-1 (AI
-> gateway hardening). Until the owner answers, this plan is unchanged.
+> **Order decided (D-024, accepted 2026-11-25).** The thin loop **V1** (`VERTICAL_SLICE_V1.md`)
+> is built first; the rest of the table above follows in its order. V1 reuses these tasks, reduced:
+> P1-02/03 (items from the library, created on first use, no read switch), P2-01/02/03/04 (evidence
+> and item state written in the attempt transaction, no replay), P6-01/02/04 (ladder, state machine,
+> due list), P7 only as the activity model (D-026), P8 only as the minimal dashboard, plus the
+> activity table. Additions A-1..A-11 of `BACKEND_BRIEF_FIT.md` are scheduled with their phase,
+> except the ones V1 needs (none). Task X-1 (AI gateway hardening) precedes the first new AI contract (P3/P5).
 
 ## 6. Risks (also see `CURRENT_STATE.md` section 11)
 

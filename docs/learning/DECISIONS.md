@@ -41,20 +41,24 @@ comes. Items are ordered by when they block.
 
 ### Before Phase 1 starts
 
-**D-002 · Who writes the code for each phase · AWAITING.**
-Standing preference: for the learning app's backend the owner reviews and writes it
-(examples in chat) except where explicitly delegated; the plan instructs an agent to
-implement. *Options:* (a) agent implements phases end-to-end and the owner reviews diffs;
-(b) agent writes tests + docs + migrations, the owner writes handlers; (c) per-phase choice.
-*Recommendation:* (c), asked at the start of each phase. *Blocks:* every implementation phase.
-*Default:* none — no implementation begins without an explicit "go" for that phase.
+**D-002 · Who writes the code for each phase · ACCEPTED (2026-11-25), updated responsibilities.**
+The owner delegates the implementation of the agreed backend phases to the agent. The earlier
+standing preference "the learning backend is written by the owner" no longer blocks agreed work.
+The agent may, on its own: analyse existing code, implement agreed functions, refactor locally,
+write backward-compatible migrations, add tests, update documentation, fix bugs it finds,
+implement API contracts. A **separate approval** is required before: destructive migrations,
+deleting user data, removing existing functionality, replacing the technology stack, a
+substantial architecture change, changing previously agreed product requirements. Work is done
+in stages. *Replaces:* the owner-writes-the-backend preference (for agreed phases only) and this
+log's earlier default "no implementation without an explicit go per phase".
 
-**D-003 · Commit and push policy for phase work · AWAITING.**
-Pushing `main` deploys. *Recommendation:* each phase lands as a series of small pushes, each
-backward-compatible and green (migration step, backfill step, read-switch step, contract
-step), never one large push; docs-only pushes are safe. Confirm that the standing "commit and
-push without asking" applies to phase work, or require a per-phase confirmation.
-*Blocks:* Phase 1.
+**D-003 · Commit and push policy for phase work · DECIDED-REVERSIBLE (2026-11-25, interpretation of D-002).**
+Pushing `main` deploys. D-002's delegation plus the standing rule "commit and push without
+asking" are read as covering additive work. Kept conservative: one phase step per push, only
+after the full local gate (migrate up, vet, tests on fresh databases, eslint/tsc if the
+frontend changed); CI and the deploy are watched afterwards and the result is reported;
+migrations are additive with a working Down; a destructive step still needs D-002's separate
+approval. The owner can tighten this at any time.
 
 **D-020 · Production data access for migration rehearsal (R-01) · AWAITING.**
 The audit could not see production row counts or content shapes. *Options:* (a) owner runs a
@@ -159,26 +163,38 @@ No flag service. *Blocks:* Phase 1 read-switch.
 
 ### From the backend brief (2026-11-25, see `BACKEND_BRIEF_FIT.md`)
 
-**D-024 · Order of delivery: by layer or a thin loop first · AWAITING (recommend: loop first).**
-The brief (§18) wants one complete learning loop before advanced features. The plan builds by
-domain, so the loop closes only after P6. *Options:* (a) keep the plan's order; (b) re-cut the
-first steps into S0-S4 (`BACKEND_BRIEF_FIT.md` section 5): grammar items from the existing
-library, evidence dual-write, review queue, reduced dashboard; (c) both, loop first then layers.
-*Recommendation:* (b) then the rest of the plan unchanged. *Blocks:* the order of P1-P8, not the
-content of any phase.
+**D-024 · Order of delivery · ACCEPTED (2026-11-25).**
+A thin end-to-end learning loop comes before the horizontal phases are finished. First vertical
+slice (V1): (1) a grammar rule from the existing library, (2) get or generate its exercise, (3)
+the learner's answer, (4) the check, (5) the attempt saved, (6) evidence formed, (7) knowledge
+state updated, (8) a review scheduled, (9) the minimal dashboard updated. All phases stay; only
+the order of the tasks needed for V1 changes. No complex algorithms and no advanced analytics
+before the loop is proven. Concrete plan: `VERTICAL_SLICE_V1.md`. *Replaces:* the layered order of
+`IMPLEMENTATION_PLAN.md` section 5 (kept as the order of the *rest* of the work).
 
-**D-025 · Rule practice and the evidence ledger · AWAITING (recommend: stays outside).**
-D-107 says rule practice keeps no history. *Options:* (a) it stays outside evidence entirely
-(recommended: program exercises already persist and feed the loop); (b) it writes evidence rows
-with no learner-visible history; (c) revisit D-107. *Blocks:* nothing now; decide after the first
-loop runs on real data.
+**D-025 · Rule Book practice and learning evidence · PARTIALLY ACCEPTED, my proposal revised (2026-11-25).**
+Rule-book practice is **not** excluded from evidence by nature. The *source* of an exercise and
+the *mode* of practice are separate. Modes: `FREE_PRACTICE` (keeps D-107 exactly: no permanent
+answer history, no mastery change, no official evidence, no effect on the path or the review
+schedule), `TRACKED_PRACTICE` (stores attempts, forms evidence, may update mastery, may write
+mistakes, may affect the schedule, accounts for hints and retries), `ASSESSMENT` (formal check:
+stores attempts and evidence by documented criteria, separates independent from assisted
+answers, may update knowledge estimates and recommendations). Sources: `RULEBOOK`,
+`LEARNING_PATH`, `STUDY_SESSION`, `REVIEW`, `AI_TUTOR`, `ASSESSMENT`. Existing free practice is
+unchanged. Tracked practice is added later as a separate mode; V1 implements neither rule-book
+tracking nor assessment mode. *Replaces:* my option (a) "rule practice stays outside evidence";
+*extends* D-107 (it now defines `FREE_PRACTICE`).
 
-**D-026 · Typed path activities vs topics · AWAITING (recommend: topics stay).**
-The brief's path lists LEARN/PRACTICE/REVIEW/ASSESS/APPLY activities. *Options:* (a) the path stays
-an ordered list of topics with `reason`/`priority`/revisions; typed activities exist in the session
-plan (P7) and the "recommended activities" endpoint; (b) a persisted `learning_path_activities`
-table. *Recommendation:* (a); (b) only if the owner's frontend design needs activities as stored
-rows. *Blocks:* P4 data model.
+**D-026 · Typed learning activities · PARTIALLY ACCEPTED, my proposal revised (2026-11-25).**
+The topic-based Learning Path stays. Typed activities do **not** live only inside a Study Session.
+Seven concepts are kept apart: Knowledge Item, Learning Path Topic, Learning Activity, Exercise,
+Study Session, Attempt, Evidence. A Topic may contain or reference typed Activities (`LEARN`,
+`PRACTICE`, `REVIEW`, `APPLY`, `ASSESS`). A Study Session selects existing activities of the path
+and may add review activities. Exercises need not be generated ahead for future activities. An
+Activity may store a learning objective, type, linked knowledge, status and generation
+parameters; its exercises can be created when it starts. **Completion is stored independently of
+any session.** No duplicate entities where the architecture already supports the need. V1: a
+minimal `PRACTICE` and `REVIEW`. *Replaces:* my recommendation (a) "types only in the session plan".
 
 **D-027 · Wire naming of enums · DECIDED-REVERSIBLE.** The brief writes UPPER_CASE; the existing
 API and database use lowercase snake (`active`, `choice`). Follows "use existing API conventions":
@@ -190,13 +206,49 @@ follow the brief: no row = `unknown`; row without evidence = `not_started`; `lea
 The review state (`not_scheduled/scheduled/due/overdue`) is derived at read from `due_at`, never
 stored. All as `text` + `CHECK` (D-009).
 
-**D-029 · Review ladder defaults · AWAITING.** The brief suggests 1/3/7/14/30 days; the notebook
+**D-029 · Review ladder defaults · APPLIED IN V1 (awaiting the owner's confirmation).** The brief suggests 1/3/7/14/30 days; the notebook
 uses 1/2/4/7/15/30/60. *Recommendation:* the ladder is a configuration table; KB items default to
 the brief's values, the notebook is untouched; re-tune only on measured data. Refines D-016.
 
-**D-002 restated.** The brief is addressed to an implementing agent and a separate frontend design
-is coming. This still needs the owner's explicit answer (a/b/c per phase); nothing is started
-until then.
+(D-002 is answered above: accepted, 2026-11-25.)
+
+### Decisions made while preparing V1 (reversible; implement D-024..D-026)
+
+**D-030 · Evidence vocabulary · DECIDED-REVERSIBLE.** Implements D-025. A `learning_evidence` row
+carries `source` (`rulebook|learning_path|study_session|review|ai_tutor|assessment`),
+`practice_mode` (`tracked|assessment`; `free` never writes a row), a reference to what produced
+it (`ref_type`, `ref_id`; unique, so one attempt gives at most one row), `mode`
+(`recognition|recall|production`), `outcome`, `weight`, and `assisted`. All `text` + `CHECK`
+(D-009). V1 writes `learning_path` and `review` rows with `tracked`.
+
+**D-031 · Learning Activity model · DECIDED-REVERSIBLE.** Implements D-026. One table
+`learning_activities` (type, status `open|completed|skipped`, reason, goal, item, topic, params),
+closed type list, partial unique indexes (one open review per item, one open practice per topic).
+Rows are materialised lazily by the read that lists them; a finished practice activity is closed
+there from the topic's own `completed_at`; a review activity is completed in the attempt's
+transaction. No session is involved.
+
+**D-032 · Mastery needs independent evidence · DECIDED-REVERSIBLE.** Program exercises show their
+key before the first answer (G-07), so their evidence is `assisted`. It can take an item to
+`practiced` but **only an independent answer** (a review, whose exercise never carries its key,
+later a hint-free tutor or assessment answer) can make it `mastered`.
+
+**D-033 · V1 scope and deferrals · DECIDED-REVERSIBLE.** The list of what V1 leaves out is in
+`VERTICAL_SLICE_V1.md` section 8. Notably no frontend change (the design arrives separately), no
+replay of past attempts, no new response shapes for existing endpoints.
+
+### Replaced or extended by the 2026-11-25 answers
+
+| Earlier decision | Now |
+| --- | --- |
+| Owner writes the learning backend (standing preference) | **Replaced** for agreed phases by D-002 |
+| D-002 default "no implementation without a per-phase go" | **Replaced** by D-002 (staged, separate approval only for destructive / stack / scope changes) |
+| Layered order of `IMPLEMENTATION_PLAN.md` section 5 | **Extended** by D-024: V1 first, then the rest in the old order |
+| D-107 "rule practice keeps no history" | **Kept and renamed** `FREE_PRACTICE`; **extended** by D-025 with tracked and assessment modes |
+| My D-025 proposal (outside evidence) | **Replaced** by the three modes |
+| My D-026 proposal (types in the session plan only) | **Replaced** by persisted activities |
+| D-016 (review ladder shape) | **Refined** by D-029 (default 1, 3, 7, 14, 30 days) |
+| D-007, D-008, D-009, D-014 | unchanged; V1 follows them (teacher is the profile root, JSON stays authoritative, `text`+`CHECK`) |
 
 ### Housekeeping
 
@@ -226,3 +278,4 @@ tests first, e2e later. *Blocks:* P0-06.
 | --- | --- |
 | 2026-11-25 | Audit executed; D-001 made; section C compiled; no code changed |
 | 2026-11-25 | Backend brief compared with code and plan (`BACKEND_BRIEF_FIT.md`); D-024..D-029 added, D-002 restated; no code changed |
+| 2026-11-25 | Owner accepted D-024, D-002, revised D-025 and D-026; D-003 interpreted; D-030..D-033 added; `VERTICAL_SLICE_V1.md` written; implementation of V1 started |

@@ -18,6 +18,7 @@ coding agent (or a person) can continue the work **without the original conversa
 | 3 | [`IMPLEMENTATION_PLAN.md`](IMPLEMENTATION_PLAN.md) | Phases 0-10, gap analysis, prioritized backlog |
 | 4 | [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md) | Live status of every phase and task, session log — **update after every phase** |
 | 4a | [`BACKEND_BRIEF_FIT.md`](BACKEND_BRIEF_FIT.md) | How the owner's second ("Backend Implementation") brief fits the code and this plan; additions A-1..A-11 and the proposed loop-first order |
+| 4b | [`VERTICAL_SLICE_V1.md`](VERTICAL_SLICE_V1.md) | The first end-to-end learning loop (D-024): design, rules, API, tests, limits |
 | 5 | [`DECISIONS.md`](DECISIONS.md) | Decision log; section "Awaiting approval" lists what blocks which phase |
 | 6 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Real code conventions today + target domain boundaries |
 | 7 | [`DATA_MODEL.md`](DATA_MODEL.md) | Current schema (migrations 0001-0035) and the proposed target schema |
