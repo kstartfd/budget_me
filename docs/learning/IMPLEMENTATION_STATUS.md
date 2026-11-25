@@ -11,7 +11,7 @@ Last updated: **2026-11-25** · baseline commit `4662ad7` · active: **V1 (first
 
 | Phase | Name | Status | Blocked by | Notes |
 | --- | --- | --- | --- | --- |
-| V1 | First vertical slice (D-024) | **IN_PROGRESS** | — | decisions accepted 2026-11-25; plan in `VERTICAL_SLICE_V1.md` |
+| V1 | First vertical slice (D-024) | **IMPLEMENTED, VERIFIED locally; deploy pending** | — | tasks V1-02..V1-09 verified (V-002); V1-10 (push, CI) open |
 | P0 | Repository audit and baseline | **IMPLEMENTED** (docs), hygiene open | D-004, D-005, D-020 | docs written; baseline verified (V-001); P0-05..P0-11 not started |
 | P1 | Knowledge Base | NOT_STARTED | D-002, D-003, D-008, D-009, D-010, D-014, D-018, D-020 | |
 | P2 | Learner Profile | NOT_STARTED | P1, D-007, D-011 | |
@@ -31,15 +31,15 @@ Last updated: **2026-11-25** · baseline commit `4662ad7` · active: **V1 (first
 | Task | Description | Status | Evidence / note |
 | --- | --- | --- | --- |
 | V1-01 | Decisions, plan and status in the repo | IMPLEMENTED | `DECISIONS.md` D-002/D-024/D-025/D-026/D-030..D-033, `VERTICAL_SLICE_V1.md` |
-| V1-02 | Migration 0036 + up/down/up test | NOT_STARTED | |
-| V1-03 | sqlc queries, pinned regeneration | NOT_STARTED | |
-| V1-04 | `learningprofile` pure rules + tests | NOT_STARTED | |
-| V1-05 | Evidence, state, schedule in the attempt transaction | NOT_STARTED | |
-| V1-06 | Review attempts via `activityId` | NOT_STARTED | |
-| V1-07 | Activities (practice, review) | NOT_STARTED | |
-| V1-08 | Minimal dashboard | NOT_STARTED | |
-| V1-09 | HTTP loop, rollback and security tests | NOT_STARTED | |
-| V1-10 | Docs, full gates, push, CI watched | NOT_STARTED | |
+| V1-02 | Migration 0036 + up/down/up test | VERIFIED | V-002; `migrations/loop_migration_test.go` up(35)->36->down->up with legacy rows |
+| V1-03 | sqlc queries, pinned regeneration | VERIFIED | V-002; sqlc 1.31.1, `queries/learning_loop.sql` |
+| V1-04 | `learningprofile` pure rules + tests | VERIFIED | V-002; `internal/learningprofile` (table + invariant tests) |
+| V1-05 | Evidence, state, schedule in the attempt transaction | VERIFIED | V-002; `commands/loop.go`, `attempt.go`; rollback test |
+| V1-06 | Review attempts via `activityId` | VERIFIED | V-002; `activityId` on the attempt endpoint |
+| V1-07 | Activities (practice, review) | VERIFIED | V-002; `commands/activity.go` |
+| V1-08 | Minimal dashboard | VERIFIED | V-002; `GET /learning/path/dashboard` |
+| V1-09 | HTTP loop, rollback and security tests | VERIFIED | V-002; `internal/learningpath/loop_test.go` (15 tests) |
+| V1-10 | Docs, full gates, push, CI watched | IN_PROGRESS | docs done in the same change; push and CI watch pending |
 
 ### P0 — Audit and baseline
 
@@ -205,6 +205,7 @@ Every `VERIFIED` status points here. Add rows; never edit old ones.
 | ID | Date | Commit | Scope | Command(s) | Result |
 | --- | --- | --- | --- | --- | --- |
 | V-001 | 2026-11-25 | `4662ad7` (clean tree) | P0-04 baseline | two fresh `postgres:16-alpine`; `go run ./cmd/migrate up`; `go vet ./...`; `go test -count=1 -v ./...`; frontend `./node_modules/.bin/eslint`, `./node_modules/.bin/tsc --noEmit` | migrate OK (v35); vet clean; **262 PASS / 0 FAIL / 2 SKIP** (+13 subtests; skips = tesseract tests, binary absent locally); eslint rc 0; tsc rc 0. Same suite re-run on the *same* DB fails 8 `internal/learning` chat tests (429/42903) until `TRUNCATE learning_chat_usage` — TD-03, reproduced and cleared |
+| V-002 | 2026-11-25 | `34ebfb1` + the V1 change set (committed next) | V1-02..V1-09 | two fresh `postgres:16-alpine`; `go run ./cmd/migrate up`; `go vet ./...`; `go test -count=1 -v ./...` (backend only; the frontend is unchanged) | migrate OK (v36); vet clean; **295 PASS / 0 FAIL / 2 SKIP** (+13 subtests; baseline 262 / 0 / 2), 19 packages ok; new: 15 loop tests, 17 rule tests, 1 migration test. Migration up(35)->36->down->up on seeded legacy rows leaves every row untouched. Not run: Playwright, production |
 
 ## 4. Open issues and known limitations (running list)
 
@@ -216,6 +217,14 @@ Every `VERIFIED` status points here. Add rows; never edit old ones.
 | R-07 | Closed frontend enums block new enum values | 2026-11-25 |
 
 ## 5. Session log (newest first)
+
+### 2026-11-25 — session 2: first vertical slice V1
+
+- **Did:** recorded the owner's decisions (D-024, D-002, D-025, D-026; D-003 interpreted; D-030..D-033), wrote `VERTICAL_SLICE_V1.md`, implemented V1: migration `0036_learning_loop.sql`, pure rules package `learningprofile`, evidence + knowledge state + review schedule in the attempt transaction, typed `practice`/`review` activities, review attempts via `activityId`, minimal dashboard, tests, docs.
+- **Changed in the repo:** backend of the learning app (migration, queries, `learningprofile`, `learningpath` commands/queries/controller, tests) and `docs/learning/*`, `apps/learning/backend/docs/learning-api.md`. Frontend untouched. No existing response changed shape.
+- **Behaviour change visible to production:** every answer to a library topic now also writes evidence and moves an item's state (data only; nothing the learner sees changes yet); two new session-only endpoints exist.
+- **Limitations carried:** `VERTICAL_SLICE_V1.md` section 9.
+- **Next:** watch CI and the deploy; then, in the agreed order, P0-05 (re-runnable tests), P0-11 (frontend enum tolerance) and the frontend design for the dashboard; then P1/P2 rest per D-024.
 
 ### 2026-11-25 — session 1b: fit analysis of the backend brief
 

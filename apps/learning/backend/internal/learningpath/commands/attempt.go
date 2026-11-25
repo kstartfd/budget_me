@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"learning_app/backend/internal/apperr"
 	"learning_app/backend/internal/clock"
@@ -16,6 +17,7 @@ import (
 	"learning_app/backend/internal/ids"
 	learningcommands "learning_app/backend/internal/learning/commands"
 	"learning_app/backend/internal/learningpath/placement"
+	"learning_app/backend/internal/learningprofile"
 	"learning_app/backend/internal/llm"
 	"learning_app/backend/internal/ratelimit"
 )
@@ -36,21 +38,28 @@ var ErrThrottled = errors.New("learning path: the agent is being asked too fast"
 // graded by the learner's agent. Either way, when the answer is wrong the
 // agent explains the mistake in the learner's own language, and that
 // explanation is what the attempt keeps.
+//
+// With an ActivityID the answer is to a due review: it is allowed on a topic
+// that is long completed, it is independent evidence (the review exercise never
+// carried its key), and it completes the activity in the same transaction.
 type SubmitAttempt struct {
 	UserID     uuid.UUID
 	ExerciseID uuid.UUID
 	Answer     string
+	ActivityID uuid.UUID
 }
 
 type AttemptHandler struct {
+	pool  *pgxpool.Pool
 	q     *db.Queries
 	clock clock.Clock
 	agent Agent
 	limit *ratelimit.Limiter
+	rules learningprofile.Config
 }
 
-func NewAttemptHandler(q *db.Queries, clk clock.Clock, agent Agent, limit *ratelimit.Limiter) AttemptHandler {
-	return AttemptHandler{q: q, clock: clk, agent: agent, limit: limit}
+func NewAttemptHandler(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, agent Agent, limit *ratelimit.Limiter) AttemptHandler {
+	return AttemptHandler{pool: pool, q: q, clock: clk, agent: agent, limit: limit, rules: learningprofile.Default()}
 }
 
 type AttemptResult struct {
@@ -69,12 +78,19 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 		return AttemptResult{}, err
 	}
 
-	if path.Status != db.LearningPathStatusActive {
-		return AttemptResult{}, apperr.NewConflict("this program is not active")
-	}
+	review := cmd.ActivityID != uuid.Nil
+	if review {
+		if err := h.checkReview(ctx, cmd, topic, path); err != nil {
+			return AttemptResult{}, err
+		}
+	} else {
+		if path.Status != db.LearningPathStatusActive {
+			return AttemptResult{}, apperr.NewConflict("this program is not active")
+		}
 
-	if topic.Status == db.LearningPathTopicStatusCompleted {
-		return AttemptResult{}, apperr.NewConflict("this topic is already completed")
+		if topic.Status == db.LearningPathTopicStatusCompleted {
+			return AttemptResult{}, apperr.NewConflict("this topic is already completed")
+		}
 	}
 
 	var options []string
@@ -89,39 +105,129 @@ func (h AttemptHandler) Handle(ctx context.Context, cmd SubmitAttempt) (AttemptR
 		return AttemptResult{}, err
 	}
 
-	attempt, err := h.q.InsertLearningPathAttempt(ctx, db.InsertLearningPathAttemptParams{
-		ID:         ids.ToPg(ids.New()),
-		ExerciseID: exercise.ID,
-		UserID:     ids.ToPg(cmd.UserID),
-		Answer:     answer,
-		Correct:    verdict.Correct,
-		Mistakes:   int32(verdict.Mistakes),
-		Feedback:   verdict.Feedback,
-		LessonID:   h.lessonOf(ctx, cmd.UserID),
-		CreatedAt:  db.Time(h.clock.Now()),
-	})
+	attempt, err := h.store(ctx, cmd, exercise, topic, path, verdict, review)
 	if err != nil {
 		return AttemptResult{}, err
 	}
 
-	// Answering is what starts a topic: the lesson no longer belongs to one.
-	if topic.Status == db.LearningPathTopicStatusNotStarted {
-		if _, err := h.q.StartLearningPathTopic(ctx, db.StartLearningPathTopicParams{ID: topic.ID, PathID: topic.PathID}); err != nil {
-			return AttemptResult{}, err
-		}
-	}
-
-	if verdict.Correct {
-		if _, err := h.q.CompleteLearningPathTopicIfExercisesPassed(ctx, db.CompleteLearningPathTopicIfExercisesPassedParams{
-			ID:          topic.ID,
-			UserID:      ids.ToPg(cmd.UserID),
-			CompletedAt: db.Time(h.clock.Now()),
-		}); err != nil {
-			return AttemptResult{}, err
-		}
-	}
-
 	return AttemptResult{Attempt: attempt, Feedback: verdict.Feedback}, nil
+}
+
+// store keeps the attempt and everything that follows from it in one
+// transaction: the topic's progress, the evidence, the item's state and its next
+// review, and, for a review, the completed activity. If any part fails, none stays.
+func (h AttemptHandler) store(ctx context.Context, cmd SubmitAttempt, exercise db.LearningPathExercise, topic db.LearningPathTopic, path db.LearningPath, verdict review, isReview bool) (db.LearningPathAttempt, error) {
+	tx, err := h.pool.Begin(ctx)
+	if err != nil {
+		return db.LearningPathAttempt{}, err
+	}
+
+	defer func() { _ = tx.Rollback(ctx) }()
+
+	tq := h.q.WithTx(tx)
+	now := h.clock.Now()
+
+	attempt, err := tq.InsertLearningPathAttempt(ctx, db.InsertLearningPathAttemptParams{
+		ID:         ids.ToPg(ids.New()),
+		ExerciseID: exercise.ID,
+		UserID:     ids.ToPg(cmd.UserID),
+		Answer:     strings.TrimSpace(cmd.Answer),
+		Correct:    verdict.Correct,
+		Mistakes:   int32(verdict.Mistakes),
+		Feedback:   verdict.Feedback,
+		LessonID:   h.lessonOf(ctx, cmd.UserID),
+		CreatedAt:  db.Time(now),
+	})
+	if err != nil {
+		return db.LearningPathAttempt{}, err
+	}
+
+	if !isReview {
+		// Answering is what starts a topic: the lesson no longer belongs to one.
+		if topic.Status == db.LearningPathTopicStatusNotStarted {
+			if _, err := tq.StartLearningPathTopic(ctx, db.StartLearningPathTopicParams{ID: topic.ID, PathID: topic.PathID}); err != nil {
+				return db.LearningPathAttempt{}, err
+			}
+		}
+
+		if verdict.Correct {
+			if _, err := tq.CompleteLearningPathTopicIfExercisesPassed(ctx, db.CompleteLearningPathTopicIfExercisesPassedParams{
+				ID:          topic.ID,
+				UserID:      ids.ToPg(cmd.UserID),
+				CompletedAt: db.Time(now),
+			}); err != nil {
+				return db.LearningPathAttempt{}, err
+			}
+		}
+	}
+
+	if err := recordEvidence(ctx, tq, h.rules, answerFacts{Path: path, Topic: topic, Exercise: exercise, Attempt: attempt, Review: isReview, At: now}); err != nil {
+		return db.LearningPathAttempt{}, err
+	}
+
+	if isReview {
+		// Another answer to the same review got here first: this one does not stand.
+		done, err := tq.CompleteLearningActivity(ctx, db.CompleteLearningActivityParams{ID: ids.ToPg(cmd.ActivityID), UserID: ids.ToPg(cmd.UserID), CompletedAt: db.Time(now)})
+		if err != nil {
+			return db.LearningPathAttempt{}, err
+		}
+
+		if done == 0 {
+			return db.LearningPathAttempt{}, apperr.NewConflict("this review is already done")
+		}
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return db.LearningPathAttempt{}, err
+	}
+
+	return attempt, nil
+}
+
+// checkReview refuses an answer that is not to an open review of the item the
+// exercise belongs to, or to an item that is not due.
+func (h AttemptHandler) checkReview(ctx context.Context, cmd SubmitAttempt, topic db.LearningPathTopic, path db.LearningPath) error {
+	activity, err := h.q.GetLearningActivity(ctx, db.GetLearningActivityParams{ID: ids.ToPg(cmd.ActivityID), UserID: ids.ToPg(cmd.UserID)})
+	if db.IsNotFound(err) {
+		return apperr.NewNotFound("activity not found")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if activity.Type != "review" {
+		return apperr.NewInvalid("this activity is not a review")
+	}
+
+	if activity.Status != "open" {
+		return apperr.NewConflict("this review is already done")
+	}
+
+	item, err := h.q.GetKBItem(ctx, activity.ItemID)
+	if err != nil {
+		return err
+	}
+
+	// The exercise must be one of the item's own.
+	if item.Language != path.Language || item.Key != topic.SourceID {
+		return apperr.NewNotFound("exercise not found")
+	}
+
+	state, err := h.q.GetLearnerItemState(ctx, db.GetLearnerItemStateParams{TeacherID: activity.TeacherID, ItemID: activity.ItemID, UserID: ids.ToPg(cmd.UserID)})
+	if db.IsNotFound(err) {
+		return apperr.NewConflict("this item is not due for review")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	if !state.DueAt.Valid || state.DueAt.Time.After(h.clock.Now()) {
+		return apperr.NewConflict("this item is not due for review")
+	}
+
+	return nil
 }
 
 // review grades the answer and, when it is wrong or the answer was free,

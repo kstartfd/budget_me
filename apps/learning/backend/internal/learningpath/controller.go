@@ -49,6 +49,8 @@ type Controller struct {
 	builds    commands.BuildHandler
 	exercises commands.ExerciseHandler
 	attempts  commands.AttemptHandler
+	activity  commands.ActivityHandler
+	clock     clock.Clock
 	topics    commands.TopicHandler
 	teachers  commands.TeacherHandler
 	lessons   commands.LessonHandler
@@ -71,7 +73,9 @@ func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault sec
 		analysis:  analysis,
 		builds:    commands.NewBuildHandler(q, clk, analysis, exercises, prefetch),
 		exercises: exercises,
-		attempts:  commands.NewAttemptHandler(q, clk, commands.NewAgent(q, vault, agent), ratelimit.New(aiRate)),
+		attempts:  commands.NewAttemptHandler(pool, q, clk, commands.NewAgent(q, vault, agent), ratelimit.New(aiRate)),
+		activity:  commands.NewActivityHandler(q, clk),
+		clock:     clk,
 		topics:    commands.NewTopicHandler(q, clk),
 		teachers:  commands.NewTeacherHandler(q, clk),
 		lessons:   commands.NewLessonHandler(q, clk),
@@ -748,7 +752,12 @@ func (c *Controller) attempt(ctx echo.Context) error {
 		return apperr.NewInvalid("invalid body")
 	}
 
-	result, err := c.attempts.Handle(ctx.Request().Context(), commands.SubmitAttempt{UserID: userOf(ctx), ExerciseID: id, Answer: req.Answer})
+	activityID, err := activityIDOf(req.ActivityID)
+	if err != nil {
+		return err
+	}
+
+	result, err := c.attempts.Handle(ctx.Request().Context(), commands.SubmitAttempt{UserID: userOf(ctx), ExerciseID: id, Answer: req.Answer, ActivityID: activityID})
 	if errors.Is(err, commands.ErrThrottled) {
 		return httpx.TooManyRequests
 	}

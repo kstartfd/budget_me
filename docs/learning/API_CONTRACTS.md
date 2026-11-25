@@ -78,7 +78,8 @@ New business errors take a new code in the matching range; **codes are never reu
 | Teachers | `GET /teachers`, `POST /teachers`, `PATCH /teachers/:id`, `DELETE /teachers/:id` |
 | Tests | `POST /tests`, `POST /final-tests`, `POST /levels`, `GET /tests/:id`, `POST /tests/:id/answers`, `POST /tests/:id/analyze`, `GET /jobs/:id` |
 | Program | `GET /?language=`, `GET /history`, `DELETE /history?language=`, `POST /reset`, `PUT /goal` |
-| Topics / exercises | `GET /topics/:id`, `POST /topics/:id/exercises` (`?regenerate=1`), `POST /topics/:id/complete`, `POST /exercises/:id/attempt`, `GET /exercises/:id/audio`, `GET /topics/:id/words/:index/audio` |
+| Topics / exercises | `GET /topics/:id`, `POST /topics/:id/exercises` (`?regenerate=1`), `POST /topics/:id/complete`, `POST /exercises/:id/attempt` (optional `activityId` since V1), `GET /exercises/:id/audio`, `GET /topics/:id/words/:index/audio` |
+| Learning loop (V1) | `GET /activities?language=`, `GET /dashboard?language=` (both session-only, under `/learning/path`; shapes in `apps/learning/backend/docs/learning-api.md`) |
 | Lessons | `POST /lessons`, `GET /lessons`, `GET /lessons/active`, `GET /lessons/totals`, `POST /lessons/:id/pause|resume|finish` |
 | Rule book & practice | `GET /rules`, `GET /rules/:id`, `GET /rules/:id/practice`, `POST /rules/:id/practice/{examples,exercises,check,key,leave}` |
 
@@ -133,7 +134,7 @@ Status of each row lives in `IMPLEMENTATION_STATUS.md`.
 | 6 | `GET /learning/mistakes?resolved&limit` | the mistake journal; recurring flagged |
 | 7 Sessions | `POST /path/lessons` | accepts `{language, minutes?}`; response gains `plan[]`; `GET /lessons/active` returns plan + cursor |
 | 7 | `POST /path/lessons/:id/heartbeat`, `POST /path/lessons/:id/items/:itemId/skip` | active time and skipping |
-| 8 Dashboard | `GET /learning/dashboard?language&tz` | `{nextActions[], reviewQueue{count,dueSoon}, week{activeSeconds,sessions,attempts}, skills[], mastery{perLevel}, insights[{text,evidence[]}], states{}}` — every numeric field nullable with `notEnoughData` reason |
+| 8 Dashboard | `GET /learning/dashboard?language&tz` (V1 ships a minimal `GET /learning/path/dashboard?language=`; this row is the full version, it extends rather than replaces it) | `{nextActions[], reviewQueue{count,dueSoon}, week{activeSeconds,sessions,attempts}, skills[], mastery{perLevel}, insights[{text,evidence[]}], states{}}` — every numeric field nullable with `notEnoughData` reason |
 | 8 | `GET /learning/stats/weekly?language&tz&weeks` | per-week series |
 | 9 Tutor | chat `done` event | adds optional `evidence` summary (what was logged) — additive |
 | 10 Advanced | speech/pronunciation upload, audio assessment | designed when started (multipart; size limits; storage decision) |

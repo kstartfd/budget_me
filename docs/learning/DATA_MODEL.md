@@ -90,6 +90,23 @@ Notes the next engineer must know:
 
 ---
 
+### A.6 Learning loop (V1, migration `0036_learning_loop.sql`)
+
+Added by the first vertical slice (`VERTICAL_SLICE_V1.md`); expand-only, one constraint
+`learning_teachers_id_user UNIQUE (id, user_id)` is implied by the primary key.
+
+| Table | Role | Notes |
+| --- | --- | --- |
+| `kb_items` | Identity of a piece of knowledge: `(language, key)` unique, `kind` (`grammar`/`topic`), `skill`, `cefr_level`, `unit` | Made from the embedded library the first time evidence exists; the text stays in the library. Subset of B.1; the CHECKs are widened by P1 |
+| `learning_evidence` | Append-only proof of what the learner showed | `source`, `practice_mode` (`tracked`/`assessment`; free practice writes nothing), `ref_type='attempt'` + `ref_id` (**no FK**, so clearing history keeps it), `mode`, `outcome`, `score`, `weight` (double precision), `assisted`, `attempt_no`, `hints_used`; `UNIQUE (ref_type, ref_id)`; composite FK to the teacher, cascade |
+| `learner_item_state` | Derived state per teacher and item | `state`, recency-weighted sums, counters, `stage`, `lapses`, `last_success_at`, `due_at`; PK `(teacher_id, item_id)`; the review state is **not** stored |
+| `learning_activities` | Typed learning activities | `type` (`learn/practice/review/apply/assess`), `status` (`open/completed/skipped`), `reason` (`path/due`), `goal`, `item_id`, `topic_id`, `params`; partial unique indexes: one open review per item, one open practice per topic |
+
+Differences from the proposal in B.2: `source_type` became `source` + `practice_mode` + `ref_type`
+(D-025/D-030); evidence has `assisted` instead of `created_by`; `mastery`/`confidence` columns are not
+there (nothing in V1 presents a probability); state names follow D-028 on the wire. Deleting a
+teacher cascades to all four tables; deleting program history (`DELETE /history`) does not touch them.
+
 ## B. Proposed target schema (PROPOSED)
 
 Design goals: (1) stable **knowledge item** identity independent of generated programs;

@@ -45,6 +45,17 @@ Evidence reliability `weight` (PROPOSED):
 Recency: weights decay with a half-life of **30 days** inside the "weighted recent score"
 (PROPOSED); old evidence is never deleted, only down-weighted.
 
+### 2a. As implemented in V1 (where it differs from the proposal above)
+
+Source: `internal/learningprofile`, one `Config`, table-tested. Differences: (1) a retry counts
+half its weight with a floor of 0.2 (no hints exist yet, so `hints_used` stays 0); (2) a correct
+answer advances the review ladder **only when the item is due**, so six answers in one sitting
+or practising early advance nothing, and a recognition success never goes past stage 1; (3)
+`mastered` needs an **independent** answer (a review, which never carries its key), the
+program's own exercises being assisted (G-07); (4) the ladder is 1, 3, 7, 14, 30 days (D-029),
+the notebook's 1, 2, 4, 7, 15, 30, 60 is untouched; (5) day boundaries are UTC; (6) `unseen` and
+`introduced` exist in the database vocabulary but V1 creates a row only from evidence.
+
 ## 3. Review scheduling (PROPOSED)
 
 Phase 6 starts from a **transparent stage ladder** generalising what exists

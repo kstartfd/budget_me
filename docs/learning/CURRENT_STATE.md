@@ -333,3 +333,12 @@ Full mapping and the backlog are in `IMPLEMENTATION_PLAN.md`. Condensed:
 | Token & cost accounting | `learning_agent_usage`, chat budgets |
 | Library loading + tests | `curriculum` package and `curriculum_test.go` structural tests |
 | Account / authz primitives | `libs/account`, `httpx.RequireAuth`, SQL ownership scoping |
+
+## 13. Changes since the audit
+
+- **2026-11-25, V1 (migration 0036):** an attempt on a library topic now also writes *evidence*,
+  updates a knowledge state and schedules a review, all in the attempt's transaction; typed
+  activities (`practice`, `review`) and a minimal dashboard exist; the attempt endpoint takes an
+  optional `activityId`. G-07 is reduced (a review exercise never carries its key) but not closed;
+  G-08 is started for library items. Nothing else in sections 1-12 changed. See
+  `VERTICAL_SLICE_V1.md` and `IMPLEMENTATION_STATUS.md`.

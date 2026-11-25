@@ -18,15 +18,23 @@ type Querier interface {
 	ArchiveLearningPath(ctx context.Context, arg ArchiveLearningPathParams) (int64, error)
 	AuthenticateLearningToken(ctx context.Context, arg AuthenticateLearningTokenParams) (LearningToken, error)
 	ClaimLearningCapture(ctx context.Context, arg ClaimLearningCaptureParams) (LearningCapture, error)
+	// A practice activity is done when its topic is; the topic's own time is kept.
+	CloseFinishedPracticeActivities(ctx context.Context, arg CloseFinishedPracticeActivitiesParams) (int64, error)
+	CompleteLearningActivity(ctx context.Context, arg CompleteLearningActivityParams) (int64, error)
 	CompleteLearningCapture(ctx context.Context, arg CompleteLearningCaptureParams) error
 	CompleteLearningPathTopicIfExercisesPassed(ctx context.Context, arg CompleteLearningPathTopicIfExercisesPassedParams) (int64, error)
 	CountDueLearningEntries(ctx context.Context, arg CountDueLearningEntriesParams) (CountDueLearningEntriesRow, error)
 	// Entries not yet in any set that can be shown: with the side the learner sees
 	// first filled in, never the ones already known.
 	CountIntroducibleLearningEntries(ctx context.Context, arg CountIntroducibleLearningEntriesParams) (int64, error)
+	CountLearnerItemStates(ctx context.Context, arg CountLearnerItemStatesParams) ([]CountLearnerItemStatesRow, error)
+	// due: asked for now or earlier; overdue: a day or more late; upcoming: still to come.
+	CountLearnerReviews(ctx context.Context, arg CountLearnerReviewsParams) (CountLearnerReviewsRow, error)
 	// What is waiting for a user across all topics: seen before and due again, and never reviewed.
 	CountLearningDueForUser(ctx context.Context, arg CountLearningDueForUserParams) (CountLearningDueForUserRow, error)
+	CountLearningEvidence(ctx context.Context, arg CountLearningEvidenceParams) (CountLearningEvidenceRow, error)
 	CountLearningMonth(ctx context.Context, arg CountLearningMonthParams) (CountLearningMonthRow, error)
+	CountLearningPathAttemptsOfExercise(ctx context.Context, arg CountLearningPathAttemptsOfExerciseParams) (int32, error)
 	// What each topic's current exercise set holds, and how many of its exercises the
 	// learner has answered right. Only the current set counts: a regenerated topic
 	// starts from nothing again, whatever was answered in the sets before.
@@ -61,6 +69,8 @@ type Querier interface {
 	// A user who blocked the bot is switched off, so it is not tried again every hour.
 	DisableLearningReminder(ctx context.Context, arg DisableLearningReminderParams) error
 	EnqueueLearningCapture(ctx context.Context, arg EnqueueLearningCaptureParams) (LearningCapture, error)
+	// The row is made before it is locked, so two first answers cannot both start from nothing.
+	EnsureLearnerItemState(ctx context.Context, arg EnsureLearnerItemStateParams) error
 	EnsureLearningChat(ctx context.Context, arg EnsureLearningChatParams) (LearningChat, error)
 	EnsureLearningChatForExample(ctx context.Context, arg EnsureLearningChatForExampleParams) (LearningChat, error)
 	EnsureLearningChatForPathTopic(ctx context.Context, arg EnsureLearningChatForPathTopicParams) (LearningChat, error)
@@ -76,8 +86,14 @@ type Querier interface {
 	GetActiveLearningPath(ctx context.Context, arg GetActiveLearningPathParams) (LearningPath, error)
 	GetActiveLearningPathLesson(ctx context.Context, userID pgtype.UUID) (LearningPathLesson, error)
 	GetArchivedTopicChat(ctx context.Context, arg GetArchivedTopicChatParams) (LearningChat, error)
+	// The topic the learner works on next in the running program of a language.
+	GetCurrentPracticeTopic(ctx context.Context, arg GetCurrentPracticeTopicParams) (LearningPathTopic, error)
+	GetKBItem(ctx context.Context, id pgtype.UUID) (KbItem, error)
+	GetKBItemByKey(ctx context.Context, arg GetKBItemByKeyParams) (KbItem, error)
 	GetLatestLearningPathJobByTest(ctx context.Context, arg GetLatestLearningPathJobByTestParams) (LearningPathJob, error)
+	GetLearnerItemState(ctx context.Context, arg GetLearnerItemStateParams) (LearnerItemState, error)
 	GetLearningAISettings(ctx context.Context, userID pgtype.UUID) (LearningAiSetting, error)
+	GetLearningActivity(ctx context.Context, arg GetLearningActivityParams) (LearningActivity, error)
 	GetLearningAudioCache(ctx context.Context, arg GetLearningAudioCacheParams) (LearningAudioCache, error)
 	GetLearningCapture(ctx context.Context, arg GetLearningCaptureParams) (LearningCapture, error)
 	GetLearningCaptureByKey(ctx context.Context, arg GetLearningCaptureByKeyParams) (LearningCapture, error)
@@ -92,6 +108,7 @@ type Querier interface {
 	GetLearningPathLesson(ctx context.Context, arg GetLearningPathLessonParams) (LearningPathLesson, error)
 	GetLearningPathTest(ctx context.Context, arg GetLearningPathTestParams) (LearningPathTest, error)
 	GetLearningPathTopic(ctx context.Context, arg GetLearningPathTopicParams) (LearningPathTopic, error)
+	GetLearningPathTopicByExercise(ctx context.Context, arg GetLearningPathTopicByExerciseParams) (LearningPathTopic, error)
 	GetLearningReminder(ctx context.Context, userID pgtype.UUID) (LearningReminder, error)
 	GetLearningRulePractice(ctx context.Context, arg GetLearningRulePracticeParams) (LearningRulePractice, error)
 	GetLearningRulePracticeByID(ctx context.Context, arg GetLearningRulePracticeByIDParams) (LearningRulePractice, error)
@@ -109,11 +126,16 @@ type Querier interface {
 	// How a card went in a set: known or not, and the date it was last reviewed in the
 	// week / month, when the review was one of those.
 	GradeLearningSetEntry(ctx context.Context, arg GradeLearningSetEntryParams) (LearningEntry, error)
+	// A second open activity for the same item or topic is refused by the partial
+	// unique indexes, which makes planning safe to repeat.
+	InsertLearningActivity(ctx context.Context, arg InsertLearningActivityParams) (int64, error)
 	InsertLearningAudioCache(ctx context.Context, arg InsertLearningAudioCacheParams) (LearningAudioCache, error)
 	InsertLearningChatMessage(ctx context.Context, arg InsertLearningChatMessageParams) (LearningChatMessage, error)
 	// Saving the same text again fills what was empty and never blanks what the
 	// learner (or an earlier fill) already wrote.
 	InsertLearningEntry(ctx context.Context, arg InsertLearningEntryParams) (LearningEntry, error)
+	// One attempt gives at most one row, so a repeated write changes nothing.
+	InsertLearningEvidence(ctx context.Context, arg InsertLearningEvidenceParams) (int64, error)
 	InsertLearningPath(ctx context.Context, arg InsertLearningPathParams) (LearningPath, error)
 	InsertLearningPathAttempt(ctx context.Context, arg InsertLearningPathAttemptParams) (LearningPathAttempt, error)
 	InsertLearningPathExercise(ctx context.Context, arg InsertLearningPathExerciseParams) (LearningPathExercise, error)
@@ -136,6 +158,9 @@ type Querier interface {
 	ListArchivedTopicChats(ctx context.Context, arg ListArchivedTopicChatsParams) ([]ListArchivedTopicChatsRow, error)
 	// Entries to review now: overdue ones first, then the ones never reviewed.
 	ListDueLearningEntries(ctx context.Context, arg ListDueLearningEntriesParams) ([]LearningEntry, error)
+	// Items asked for now or earlier, most overdue first, that still have an
+	// exercise to be answered: a history that was cleared leaves nothing to ask.
+	ListDueReviewItems(ctx context.Context, arg ListDueReviewItemsParams) ([]ListDueReviewItemsRow, error)
 	// Everyone the bot may write to: switched on, and signed in through Telegram.
 	ListEnabledLearningReminders(ctx context.Context) ([]ListEnabledLearningRemindersRow, error)
 	ListLearningChatMessages(ctx context.Context, chatID pgtype.UUID) ([]LearningChatMessage, error)
@@ -163,7 +188,9 @@ type Querier interface {
 	// Cards of a calendar week still to go through: introduced inside it and not yet
 	// reviewed in it. Cards the learner did not know come first, the rest shuffled.
 	ListLearningWeekPending(ctx context.Context, arg ListLearningWeekPendingParams) ([]LearningEntry, error)
+	ListOpenLearningActivities(ctx context.Context, arg ListOpenLearningActivitiesParams) ([]LearningActivity, error)
 	ListUsersWithoutAccount(ctx context.Context) ([]User, error)
+	LockLearnerItemState(ctx context.Context, arg LockLearnerItemStateParams) (LearnerItemState, error)
 	LockLearningCaptureLease(ctx context.Context, arg LockLearningCaptureLeaseParams) (LearningCapture, error)
 	LockLearningChat(ctx context.Context, arg LockLearningChatParams) (LearningChat, error)
 	LockLearningPathTopic(ctx context.Context, id pgtype.UUID) (pgtype.UUID, error)
@@ -175,6 +202,9 @@ type Querier interface {
 	// so clearing a chat never gives its budget back.
 	OpenNextTopicChat(ctx context.Context, arg OpenNextTopicChatParams) error
 	PauseLearningPathLesson(ctx context.Context, arg PauseLearningPathLessonParams) (LearningPathLesson, error)
+	// The exercise to ask for a due item: a produced answer rather than a pick,
+	// and the one answered longest ago (never answered first).
+	PickReviewExercise(ctx context.Context, arg PickReviewExerciseParams) (LearningPathExercise, error)
 	// Records a finished turn: the size the next one starts from, and what it cost.
 	// A budget window that has run out starts over with this turn (every SET
 	// expression reads the row as it was, so both CASEs see the same spent_since).
@@ -185,6 +215,7 @@ type Querier interface {
 	RetryLearningCapture(ctx context.Context, arg RetryLearningCaptureParams) error
 	ReviewLearningEntry(ctx context.Context, arg ReviewLearningEntryParams) (LearningEntry, error)
 	RevokeLearningToken(ctx context.Context, arg RevokeLearningTokenParams) (int64, error)
+	SaveLearnerItemState(ctx context.Context, arg SaveLearnerItemStateParams) error
 	SaveLearningChatSummary(ctx context.Context, arg SaveLearningChatSummaryParams) error
 	SaveLearningRulePracticeExamples(ctx context.Context, arg SaveLearningRulePracticeExamplesParams) (LearningRulePractice, error)
 	SaveLearningRulePracticeExercises(ctx context.Context, arg SaveLearningRulePracticeExercisesParams) (LearningRulePractice, error)
@@ -199,6 +230,10 @@ type Querier interface {
 	SetLearningTopicPlanCredit(ctx context.Context, arg SetLearningTopicPlanCreditParams) error
 	SetLearningTopicPlanSettings(ctx context.Context, arg SetLearningTopicPlanSettingsParams) (LearningTopicPlan, error)
 	SetUserAccount(ctx context.Context, arg SetUserAccountParams) (User, error)
+	// The program was closed with the topic unfinished: the activity is no longer to be done.
+	SkipStalePracticeActivities(ctx context.Context, arg SkipStalePracticeActivitiesParams) (int64, error)
+	// The item was answered on another way and is not due any more.
+	SkipStaleReviewActivities(ctx context.Context, arg SkipStaleReviewActivitiesParams) (int64, error)
 	StartLearningPathTopic(ctx context.Context, arg StartLearningPathTopicParams) (int64, error)
 	// Time studied in lessons, in three windows that end now. A lesson counts for
 	// the window its start falls in; what counts is the time at the desk: from the
@@ -213,6 +248,12 @@ type Querier interface {
 	UpdateLearningEntry(ctx context.Context, arg UpdateLearningEntryParams) (LearningEntry, error)
 	UpdateLearningPathTopicStatus(ctx context.Context, arg UpdateLearningPathTopicStatusParams) (int64, error)
 	UpdateLearningTopic(ctx context.Context, arg UpdateLearningTopicParams) (LearningTopic, error)
+	// The first learning loop: knowledge items, evidence, item state, activities.
+	// See docs/learning/VERTICAL_SLICE_V1.md. Every query that reads a learner's
+	// rows is scoped by user_id; an id of another learner is simply not found.
+	// An item is made from the library the first time the learner shows something
+	// about it; the no-op update makes the row come back on a repeat.
+	UpsertKBItem(ctx context.Context, arg UpsertKBItemParams) (KbItem, error)
 	UpsertLearningAISettings(ctx context.Context, arg UpsertLearningAISettingsParams) (LearningAiSetting, error)
 	UpsertLearningChatMarks(ctx context.Context, arg UpsertLearningChatMarksParams) (LearningChatMark, error)
 	UpsertLearningReminder(ctx context.Context, arg UpsertLearningReminderParams) (LearningReminder, error)

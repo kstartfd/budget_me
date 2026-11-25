@@ -620,6 +620,53 @@ func (ns NullLearningTokenScope) Value() (driver.Value, error) {
 	return string(ns.LearningTokenScope), nil
 }
 
+type KbItem struct {
+	ID        pgtype.UUID
+	Language  string
+	Key       string
+	Kind      string
+	Skill     string
+	CefrLevel string
+	Unit      string
+	CreatedAt pgtype.Timestamptz
+}
+
+type LearnerItemState struct {
+	TeacherID       pgtype.UUID
+	UserID          pgtype.UUID
+	ItemID          pgtype.UUID
+	State           string
+	Score           float64
+	WeightedSum     float64
+	WeightSum       float64
+	EvidenceCount   int32
+	Days            int32
+	RecallSuccesses int32
+	Streak          int32
+	StreakDay       pgtype.Date
+	Stage           int16
+	Lapses          int32
+	LastEvidenceAt  pgtype.Timestamptz
+	LastSuccessAt   pgtype.Timestamptz
+	DueAt           pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+}
+
+type LearningActivity struct {
+	ID          pgtype.UUID
+	UserID      pgtype.UUID
+	TeacherID   pgtype.UUID
+	Type        string
+	Status      string
+	Reason      string
+	Goal        string
+	ItemID      pgtype.UUID
+	TopicID     pgtype.UUID
+	Params      []byte
+	CreatedAt   pgtype.Timestamptz
+	CompletedAt pgtype.Timestamptz
+}
+
 type LearningAgentUsage struct {
 	UserID       pgtype.UUID
 	Provider     string
@@ -753,6 +800,26 @@ type LearningEntryMerge struct {
 	ID     pgtype.UUID
 	KeepID interface{}
 	Rank   int64
+}
+
+type LearningEvidence struct {
+	ID           pgtype.UUID
+	UserID       pgtype.UUID
+	TeacherID    pgtype.UUID
+	ItemID       pgtype.UUID
+	Skill        string
+	Source       string
+	PracticeMode string
+	RefType      string
+	RefID        pgtype.UUID
+	Mode         string
+	Outcome      string
+	Score        float64
+	Weight       float64
+	Assisted     bool
+	AttemptNo    int16
+	HintsUsed    int16
+	OccurredAt   pgtype.Timestamptz
 }
 
 type LearningPath struct {

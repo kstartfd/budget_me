@@ -21,6 +21,8 @@ type answersRequest struct {
 // attemptRequest carries one exercise answer.
 type attemptRequest struct {
 	Answer string `json:"answer"`
+	// ActivityID, when set, makes the answer one to a due review.
+	ActivityID string `json:"activityId"`
 }
 
 // analyzeRequest carries the survey answers the program is built around.
