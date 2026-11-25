@@ -201,6 +201,13 @@ Every `VERIFIED` status points here. Add rows; never edit old ones.
 
 ## 5. Session log (newest first)
 
+### 2026-11-25 — session 1b: fit analysis of the backend brief
+
+- **Did:** compared the second brief ("Backend Implementation") with the code and the plan; wrote `BACKEND_BRIEF_FIT.md`; added D-024..D-029 and restated D-002.
+- **Changed in the repo:** `docs/learning/*` only.
+- **Result:** 6 rows covered, 11 need small additions, 2 real conflicts (order of work, who writes code). New cross-cutting task X-1 (AI gateway hardening) is proposed, not scheduled.
+- **Next:** owner answers D-024 and D-002.
+
 ### 2026-11-25 — session 1: audit and documentation (Phase 0)
 
 - **Did:** read the repository (backend, migrations, SQL, prompts, curriculum, chats, CI, frontend structure); ran baseline gates; wrote the 16 documents in `docs/learning/`.

@@ -157,6 +157,47 @@ Per-feature flags as config values (env), default off, flipped per deploy — e.
 `LEARNING_KB_READ=db`, `LEARNING_ASSESS_ENGINE=backend|shadow|ai`, `LEARNING_PATH_ENGINE=…`.
 No flag service. *Blocks:* Phase 1 read-switch.
 
+### From the backend brief (2026-11-25, see `BACKEND_BRIEF_FIT.md`)
+
+**D-024 · Order of delivery: by layer or a thin loop first · AWAITING (recommend: loop first).**
+The brief (§18) wants one complete learning loop before advanced features. The plan builds by
+domain, so the loop closes only after P6. *Options:* (a) keep the plan's order; (b) re-cut the
+first steps into S0-S4 (`BACKEND_BRIEF_FIT.md` section 5): grammar items from the existing
+library, evidence dual-write, review queue, reduced dashboard; (c) both, loop first then layers.
+*Recommendation:* (b) then the rest of the plan unchanged. *Blocks:* the order of P1-P8, not the
+content of any phase.
+
+**D-025 · Rule practice and the evidence ledger · AWAITING (recommend: stays outside).**
+D-107 says rule practice keeps no history. *Options:* (a) it stays outside evidence entirely
+(recommended: program exercises already persist and feed the loop); (b) it writes evidence rows
+with no learner-visible history; (c) revisit D-107. *Blocks:* nothing now; decide after the first
+loop runs on real data.
+
+**D-026 · Typed path activities vs topics · AWAITING (recommend: topics stay).**
+The brief's path lists LEARN/PRACTICE/REVIEW/ASSESS/APPLY activities. *Options:* (a) the path stays
+an ordered list of topics with `reason`/`priority`/revisions; typed activities exist in the session
+plan (P7) and the "recommended activities" endpoint; (b) a persisted `learning_path_activities`
+table. *Recommendation:* (a); (b) only if the owner's frontend design needs activities as stored
+rows. *Blocks:* P4 data model.
+
+**D-027 · Wire naming of enums · DECIDED-REVERSIBLE.** The brief writes UPPER_CASE; the existing
+API and database use lowercase snake (`active`, `choice`). Follows "use existing API conventions":
+lowercase on the wire, UPPER_CASE only in prose.
+
+**D-028 · Mastery vocabulary and review state · DECIDED-REVERSIBLE (recommend accept).** API names
+follow the brief: no row = `unknown`; row without evidence = `not_started`; `learning`;
+`practiced`; `mastered`. The internal `relearning` is shown as `learning` with `lapsed: true`.
+The review state (`not_scheduled/scheduled/due/overdue`) is derived at read from `due_at`, never
+stored. All as `text` + `CHECK` (D-009).
+
+**D-029 · Review ladder defaults · AWAITING.** The brief suggests 1/3/7/14/30 days; the notebook
+uses 1/2/4/7/15/30/60. *Recommendation:* the ladder is a configuration table; KB items default to
+the brief's values, the notebook is untouched; re-tune only on measured data. Refines D-016.
+
+**D-002 restated.** The brief is addressed to an implementing agent and a separate frontend design
+is coming. This still needs the owner's explicit answer (a/b/c per phase); nothing is started
+until then.
+
 ### Housekeeping
 
 **D-004 · The stale `apps/learning/backend/CODING_STYLE.md` · AWAITING.**
@@ -184,3 +225,4 @@ tests first, e2e later. *Blocks:* P0-06.
 | Date | Entry |
 | --- | --- |
 | 2026-11-25 | Audit executed; D-001 made; section C compiled; no code changed |
+| 2026-11-25 | Backend brief compared with code and plan (`BACKEND_BRIEF_FIT.md`); D-024..D-029 added, D-002 restated; no code changed |

@@ -481,6 +481,11 @@ Order = value first, risk second; items marked `||` can run in parallel with the
 
 **Quick wins independent of the plan:** P0-05, P0-11, retiring/rewriting `CODING_STYLE.md` (D-004), adding `AGENTS.md` (D-005).
 
+> **Pending owner decision D-024.** `BACKEND_BRIEF_FIT.md` section 5 proposes cutting the first
+> steps into a thin end-to-end loop (S0-S4) before the layered order above, and section 4 lists
+> eleven small additions (A-1..A-11) to the tasks of P1-P8 and a new cross-cutting task X-1 (AI
+> gateway hardening). Until the owner answers, this plan is unchanged.
+
 ## 6. Risks (also see `CURRENT_STATE.md` section 11)
 
 | ID | Risk | Mitigation in this plan |
