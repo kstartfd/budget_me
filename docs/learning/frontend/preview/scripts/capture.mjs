@@ -40,6 +40,15 @@ const shots = [
   { name: "21-learning-path-no-program-desktop", viewport: desktop, section: "Learning Path", state: "new" },
   { name: "22-learning-path-completed-desktop", viewport: desktop, section: "Learning Path", state: "done" },
   { name: "23-learning-path-no-program-telegram", viewport: telegram, section: "Learning Path", state: "new" },
+  { name: "24-learning-path-current-desktop", viewport: desktop, section: "Learning Path", state: "current" },
+  { name: "25-learning-path-unfinished-assessment-desktop", viewport: desktop, section: "Learning Path", state: "unfinished" },
+  { name: "26-learning-path-due-review-desktop", viewport: desktop, section: "Learning Path", state: "due" },
+  { name: "27-learning-path-insufficient-data-desktop", viewport: desktop, section: "Learning Path", state: "insufficient" },
+  { name: "28-learning-path-missing-ai-key-desktop", viewport: desktop, section: "Learning Path", state: "missing-ai" },
+  { name: "29-learning-path-unavailable-service-desktop", viewport: desktop, section: "Learning Path", state: "unavailable" },
+  { name: "30-learning-path-unfinished-assessment-telegram", viewport: telegram, section: "Learning Path", state: "unfinished" },
+  { name: "31-learning-path-no-language-desktop", viewport: desktop, section: "Learning Path", noLanguage: true },
+  { name: "32-learning-path-no-language-telegram", viewport: telegram, section: "Learning Path", noLanguage: true },
 ];
 
 await mkdir(output, { recursive: true });
@@ -53,6 +62,9 @@ try {
     await page.getByRole("heading", { name: "Your learning overview" }).waitFor();
 
     if (shot.noLanguage) {
+      if (shot.viewport.width < 768) {
+        await page.getByRole("button", { name: "Open menu" }).click();
+      }
       await page.locator("#language-select").selectOption("");
       await page.getByRole("heading", { name: "Add your first language" }).waitFor();
     } else if (shot.state) {

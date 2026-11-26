@@ -5,7 +5,7 @@ These four TSX files originated as the MagicPath **learning — Product Design**
 - [LearningOverviewAssessmentCenter.tsx](LearningOverviewAssessmentCenter.tsx): shell, eight-section navigation, language selector, Overview states.
 - [WorkspacePages.tsx](WorkspacePages.tsx): Learning Path, Knowledge Base, Practice, Progress, AI Tutor, Settings.
 
-Overview exposes all design preview conditions. Learning Path exposes the three program conditions through its own `Preview state` control: no program, active program, and completed program. Both controls use the same local preview state, so navigation preserves the selected condition.
+Overview and Learning Path expose the same nine design preview conditions through `Preview state`. The Path page renders no current program, unfinished assessment, active/completed program, current app snapshot, due review, insufficient data, missing AI key, and unavailable service. Both controls use the same local preview state, so navigation preserves the selected condition. No language is selected with the separate language switcher.
 - [OnboardingPrototype.tsx](OnboardingPrototype.tsx): language setup and starting methods.
 - [AssessmentPrototype.tsx](AssessmentPrototype.tsx): sample Quick grammar journey and disabled Full/Skill choices.
 

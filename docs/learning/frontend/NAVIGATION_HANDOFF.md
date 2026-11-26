@@ -19,6 +19,8 @@ The [local design handoff](README.md) is authoritative for visual intent. This m
 
 The prototype's language selector drives the visible language shell and several page labels, but some sample content on Practice, Progress and AI Tutor remains English regardless of selection. Treat that as a prototype data limitation; the application must continue to use its language-keyed data rather than copying the samples.
 
+The local prototype now exposes the same nine `Preview state` choices on Overview and Learning Path. Path has distinct no-program, unfinished-assessment, active/current, completed, due-review, insufficient-data, missing-key and service-failure presentations. No language is a global onboarding gate selected through the language switcher. These states and their numbers are design examples, not evidence that the application persists every illustrated field.
+
 ## Starting, returning, and restarting
 
 - **No language:** onboarding creates a language profile with explanation language, goals, priorities and routine, then offers Quick grammar if supported, a claimed starting level, or A1 from scratch. Goals/routine in the current UI are stored in browser localStorage; this is not yet a server-owned learner profile.
