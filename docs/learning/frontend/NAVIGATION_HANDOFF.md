@@ -1,0 +1,49 @@
+# Learning screen and interaction map
+
+The [local design handoff](README.md) is authoritative for visual intent. This map links its controls to the existing application. For actual implementation status, read [Implementation Status](../IMPLEMENTATION_STATUS.md) and the cited code; the prototype itself uses sample data.
+
+## Eight connected sections
+
+| Section | Application destination | What it connects |
+| --- | --- | --- |
+| **Overview** | `/learning/overview` | Selected language's setup or plan state. **Continue learning** opens its current program topic; due review opens the tracked exercise; starting choices lead to assessment, claimed level, or A1. See [Overview UI](../../../apps/learning/frontend/src/features/home/components/overview-screen.tsx). |
+| **Learning Path** | `/learning/path?language=…` | Active program → topics → exercises, plus plan history. **Start a new plan** archives the active program and returns to starting-method selection while keeping previous learning results. See [Path page](../../../apps/learning/frontend/src/app/learning/path/page.tsx). |
+| **Knowledge Base** | `/learning/knowledge?language=…` | Published Rule Book → rule detail → free practice. The **personal notebook** is a separate collection at `/learning`; Rule Book reading does not establish mastery. See [Knowledge page](../../../apps/learning/frontend/src/app/learning/knowledge/page.tsx). |
+| **Practice** | `/learning/practice?language=…` | Entry to due reviews, program activities, and free Rule Book/notebook practice. Only tracked answers feed saved progress. See [Practice page](../../../apps/learning/frontend/src/app/learning/practice/page.tsx). |
+| **Assessments** | `/learning/assessment` | English/Spanish Quick **grammar** screening → preliminary result → program start; an unfinished Quick attempt can resume. Manual claimed level and A1 starts are alternatives. Full and Skill modes are unavailable. See [assessment screen](../../../apps/learning/frontend/src/features/assessment/screen.tsx). |
+| **Progress** | `/learning/progress?language=…` | Stored topic, evidence, item and review totals for the selected language, with honest unknown/insufficient states. No fabricated all-skill CEFR estimates. See [Progress page](../../../apps/learning/frontend/src/app/learning/progress/page.tsx). |
+| **AI Tutor** | `/learning/chat` | Existing topic chat for the selected language; a missing AI key leads to Settings. **Return to current activity** opens the program when one exists. Chat messages do not currently update mastery. |
+| **Settings** | `/learning/settings` | Existing account and AI-provider controls; language management is at `/learning/languages`. |
+
+[App shell](../../../apps/learning/frontend/src/components/app-shell.tsx) owns the sidebar and mobile menu. The language selector stores the active teacher/language and keys Path, Knowledge Base, Practice and Progress requests to it. Switching a language on those pages updates the route and data; no stale cross-language program or progress should remain. The interface locale is a separate Settings choice.
+
+The prototype's language selector drives the visible language shell and several page labels, but some sample content on Practice, Progress and AI Tutor remains English regardless of selection. Treat that as a prototype data limitation; the application must continue to use its language-keyed data rather than copying the samples.
+
+## Starting, returning, and restarting
+
+- **No language:** onboarding creates a language profile with explanation language, goals, priorities and routine, then offers Quick grammar if supported, a claimed starting level, or A1 from scratch. Goals/routine in the current UI are stored in browser localStorage; this is not yet a server-owned learner profile.
+- **Language without a program:** Overview repeats the three starting methods. Quick can pause and resume; completing it produces preliminary evidence, not mastery or certification.
+- **Active program:** Overview's continue action and Path return to the current topic. Due reviews open an existing tracked exercise; free practice is visibly separate.
+- **Completed program:** Overview offers review/extra practice. Path retains completed topics and offers **Start a new plan**. The action archives the active program; prior programs and results remain in history. Deleting history/progress is a separate product action, not part of restart.
+
+## State coverage and implementation boundary
+
+| State | Current application | Prototype-only or incomplete design |
+| --- | --- | --- |
+| No language, language without program, active/completed program | Existing Overview/Path flows use application data. | Screenshots display sample names, program content and status. |
+| Unfinished Quick assessment | English/Spanish grammar attempt can persist, pause and resume. | Prototype questions and answers are simulated in-browser. |
+| Due review | Existing dashboard returns due activities; tracked attempts submit an `activityId`. | The example review queue and dates are sample content. |
+| Insufficient progress data | Progress uses empty/unknown states and stored totals. | Seven-skill confidence bars and CEFR labels are design illustrations, not computed learner estimates. |
+| Missing AI key / unavailable service | Existing pages can lead to Settings or show an error/retry state. | Overview's dedicated banners and all fallback copy are design states until matched to real backend errors. |
+| Full/Skill Assessment; vocabulary/reading/listening/writing/speaking/pronunciation assessment | Not implemented end to end. | Display unavailable; do not unlock based on the prototype. |
+| Daily plan, personalized insight, AI Tutor evidence | No complete persisted contracts. | Example metrics, insights, recommendations and chat content are sample only. |
+
+The current app supports English, Russian and Spanish interface text. The prototype is English-language design copy; production copy belongs in the locale message files. See [Visual Specification](VISUAL_SPEC.md) for layout, responsive and accessibility rules.
+
+## Open product decisions
+
+1. Define the exact scope and recovery behavior of a separate **delete history and progress** action. The existing history deletion endpoint does not reset every learner record.
+2. Decide whether **Start a new plan** pre-fills or clears saved goals and routine, and when those preferences move from browser storage to a server-owned profile.
+3. Decide whether a learner can repeat Quick screening while an active program exists; the current backend rejects a new placement with an active program.
+4. Define if and when Rule Book items and personal notebook entries are linked. Their storage and review flows are separate today.
+5. Define backend contracts and evidence thresholds before implementing skill estimates, daily sessions, learning insights, AI Tutor evidence or audio-based assessment.
