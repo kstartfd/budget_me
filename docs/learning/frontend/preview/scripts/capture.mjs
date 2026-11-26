@@ -37,6 +37,9 @@ const shots = [
   { name: "18-navigation-telegram", viewport: telegram, menu: true },
   { name: "19-assessments-telegram", viewport: telegram, section: "Assessments" },
   { name: "20-knowledge-base-telegram", viewport: telegram, section: "Knowledge Base" },
+  { name: "21-learning-path-no-program-desktop", viewport: desktop, section: "Learning Path", state: "new" },
+  { name: "22-learning-path-completed-desktop", viewport: desktop, section: "Learning Path", state: "done" },
+  { name: "23-learning-path-no-program-telegram", viewport: telegram, section: "Learning Path", state: "new" },
 ];
 
 await mkdir(output, { recursive: true });

@@ -15,7 +15,9 @@ Desktop captures use **1440 × 900 CSS pixels**, device scale 1. Telegram-width 
 | Overview: missing AI key | [07](07-overview-missing-ai-key-desktop.png) | — |
 | Overview: unavailable service | [08](08-overview-unavailable-service-desktop.png) | — |
 | No language / onboarding | [09](09-onboarding-no-language-desktop.png) | — |
-| Learning Path, including Start a new plan | [10](10-learning-path-desktop.png) | — |
+| Learning Path: active program, including Start a new plan | [10](10-learning-path-desktop.png) | — |
+| Learning Path: no program | [21](21-learning-path-no-program-desktop.png) | [23](23-learning-path-no-program-telegram.png) |
+| Learning Path: completed program | [22](22-learning-path-completed-desktop.png) | — |
 | Knowledge Base taxonomy | [11](11-knowledge-base-desktop.png) | [20](20-knowledge-base-telegram.png) |
 | Practice | [12](12-practice-desktop.png) | — |
 | Assessments: Quick grammar available; Full/Skill unavailable | [13](13-assessments-desktop.png) | [19](19-assessments-telegram.png) |
@@ -24,4 +26,4 @@ Desktop captures use **1440 × 900 CSS pixels**, device scale 1. Telegram-width 
 | Settings | [16](16-settings-desktop.png) | — |
 | Eight-section mobile navigation | — | [18](18-navigation-telegram.png) |
 
-The capture script creates a fresh browser context for every image, selects the named sample state, waits for the UI transition, and records the local preview. Regenerate after editing the source, then inspect desktop and mobile screenshots before committing them. In particular, inspect the Knowledge Base category tree and the Assessment availability labels, because those were stale in the former hosted preview.
+The capture script creates a fresh browser context for every image, selects the named sample state, waits for the UI transition, and records the local preview. The Learning Path page has its own `Preview state` selector for no program, active program, and completed program. Regenerate after editing the source, then inspect desktop and mobile screenshots before committing them. In particular, inspect the Knowledge Base category tree and the Assessment availability labels, because those were stale in the former hosted preview.
