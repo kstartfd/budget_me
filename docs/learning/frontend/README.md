@@ -10,7 +10,7 @@ This directory is the **canonical, version-controlled design location** for the 
 4. [Local screenshots](screenshots/README.md) are generated evidence of the source at fixed viewports. Regenerate them after a design change; they are not an independent design authority.
 5. The ZIP archives below are **original historical references**. Keep them unchanged. Use them to recover intent when the latest source lacks detail, especially Knowledge Base taxonomy.
 
-The latest intended revision is this repository's **local TSX mirror as of 2026-11-26**. It includes a connected eight-section workspace, new/completed/exception Overview states, a revised Knowledge Base with 24 English grammar, 3 vocabulary and 2 functional-language sample items, and honest Quick grammar availability. The last published [MagicPath preview](https://designs.magicpath.ai/v1/mightily-shore-3385), revision `476638634322313216`, predates these changes. In particular, its Knowledge Base still shows five flat sample items. Do not use that hosted preview for new implementation decisions. The local source and screenshot set are the reviewable revision; use this directory's Git history to identify later changes.
+The latest intended revision is this repository's **local TSX mirror**. It includes a connected eight-section workspace with nine preview conditions across every section, a revised Knowledge Base with 24 English grammar, 3 vocabulary and 2 functional-language sample items, and honest Quick grammar availability. The last published [MagicPath preview](https://designs.magicpath.ai/v1/mightily-shore-3385), revision `476638634322313216`, predates these changes. In particular, its Knowledge Base still shows five flat sample items. Do not use that hosted preview for new implementation decisions. The local source and screenshot set are the reviewable revision; use this directory's Git history to identify later changes.
 
 ## Run without MagicPath
 
@@ -31,6 +31,8 @@ CHROME_PATH=/usr/bin/google-chrome npm run capture
 
 `CHROME_PATH` may point to another installed Chromium/Chrome executable. If Playwright's bundled Chromium is installed, omit it. The capture script uses the running local server and writes `screenshots/*.png`. `npm run build` verifies that the editable source compiles. All direct dependencies are exact versions in [package.json](preview/package.json) and the transitive tree is pinned by [package-lock.json](preview/package-lock.json). No hosted design service or backend is needed. See [preview README](preview/README.md) for isolated checkout verification.
 
+With the preview server running, `CHROME_PATH=/usr/bin/google-chrome npm run verify:states` checks the nine-state, eight-section navigation matrix, language switching and the no-language gate.
+
 ## Existing material inventory
 
 | Material | Role and state |
@@ -48,4 +50,4 @@ The archives contain standalone `.dc.html` pages, `support.js`, and the original
 
 ## Change workflow
 
-Edit the relevant `MagicPath/*.tsx` file, run `npm run build`, inspect the local preview at desktop and Telegram widths, then run `npm run capture`. Update the visual specification only if a reusable design rule changes; update the navigation handoff only if a flow or capability boundary changes. Do not copy sample statistics, answers, CEFR estimates, or simulated AI messages into the production app.
+Edit the relevant `MagicPath/*.tsx` file, run `npm run build`, inspect the local preview at desktop and Telegram widths, then run `npm run verify:states` and `npm run capture`. Update the visual specification only if a reusable design rule changes; update the navigation handoff only if a flow or capability boundary changes. Do not copy sample statistics, answers, CEFR estimates, or simulated AI messages into the production app.

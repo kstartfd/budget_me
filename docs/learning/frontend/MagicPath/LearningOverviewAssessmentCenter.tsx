@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AssessmentPrototype } from "./AssessmentPrototype";
 import { OnboardingPrototype } from "./OnboardingPrototype";
-import { LearningPathPage, KnowledgeBasePage, PracticePage, ProgressPage, TutorPage, SettingsPage } from "./WorkspacePages";
+import { LearningPathPage, KnowledgeBasePage, PracticePage, ProgressPage, TutorPage, SettingsPage, previewStates } from "./WorkspacePages";
 import type { Preview } from "./WorkspacePages";
 import { BookOpen, CalendarDays, Check, ChevronDown, ClipboardCheck, Clock3, LayoutDashboard, Menu, MessageSquare, Play, RefreshCw, Settings, Sparkles, UserRound, X, Route, Zap, ChartNoAxesCombined, Headphones } from "lucide-react";
 type Page = "Overview" | "Learning Path" | "Knowledge Base" | "Practice" | "Assessments" | "Progress" | "AI Tutor" | "Settings";
@@ -68,19 +68,21 @@ function Metric({
 }
 function Overview({
   language,
+  preview,
   go,
   concept,
   done
 }: {
   language: Language;
+  preview: Preview;
   go: (page: Page) => void;
   concept: boolean;
   done: boolean;
 }) {
   const [minutes, setMinutes] = useState(30);
   const [customizing, setCustomizing] = useState(false);
-  const title = concept ? "Talking about past experiences" : language === "Spanish" ? "Ser and estar" : "The verb to be: am, is, are";
-  const goal = concept ? "Practise the difference between Past Simple and Present Perfect, review previous mistakes, and complete a short listening activity." : language === "Spanish" ? "Say who you are and where you are from using ser and estar." : "Say who you are, where you are from and how old you are, and ask other people the same questions.";
+  const title = concept ? "Talking about past experiences" : language === "Spanish" ? "Ser and estar" : language === "German" ? "Verb sein" : "The verb to be: am, is, are";
+  const goal = concept ? "Practise the difference between Past Simple and Present Perfect, review previous mistakes, and complete a short listening activity." : language === "Spanish" ? "Say who you are and where you are from using ser and estar." : language === "German" ? "Introduce yourself and describe simple states using sein." : "Say who you are, where you are from and how old you are, and ask other people the same questions.";
   const plan = concept ? [{
     type: "Review · 5 min",
     title: "Review previous mistakes",
@@ -117,13 +119,13 @@ function Overview({
     <div className="flex min-w-0 flex-col gap-6">
       <section className={card + " p-6"}>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className={"text-[11px] font-semibold tracking-[0.04em] " + muted}>{done ? "PLAN COMPLETED" : concept ? "CONTINUE LEARNING · RESUME FROM LAST SESSION" : "CONTINUE LEARNING"}</span>
+          <span className={"text-[11px] font-semibold tracking-[0.04em] " + muted}>{preview === "unavailable" ? "LAST KNOWN PLAN · SAMPLE" : done ? "PLAN COMPLETED" : concept ? "CONTINUE LEARNING · RESUME FROM LAST SESSION" : "CONTINUE LEARNING"}</span>
           <span className="rounded-full bg-[#eef1ff] px-2.5 py-0.5 text-[11px] font-medium text-[#4e69eb]">{concept ? "Learning · Intermediate path" : "Program · A1"}</span>
         </div>
         <h2 className="mt-5 text-[22px] font-semibold tracking-tight">{title}</h2>
         <p className={"mt-2 text-[13px] leading-[1.5] " + muted}>{goal}</p>
         <div className={"mt-4 flex flex-wrap gap-x-4 gap-y-1 text-[12px] " + muted}>
-          <span><b className="text-[#333]">Next topic</b> · {concept ? "Past Simple vs Present Perfect" : "The passive: Present and Past Simple"}</span>
+          <span><b className="text-[#333]">Next topic</b> · {concept ? "Past Simple vs Present Perfect" : title}</span>
           <span><b className="text-[#333]">{concept ? "4" : "1"}</b> activities</span>
           <span><b className="text-[#333]">{minutes}</b> minutes</span>
         </div>
@@ -132,7 +134,7 @@ function Overview({
           {concept ? "Your last session ended on Present Perfect, and 3 irregular-verb errors from this week are due for review." : "Your next topic is " + title + "."}
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
-          <button className={btn} onClick={() => go("Practice")}><Play size={13} fill="currentColor" />{done ? "Start extra practice" : concept ? "Start learning" : "Continue learning"}</button>
+          <button className={btn} onClick={() => go(preview === "missing-ai" ? "Settings" : preview === "unavailable" ? "Learning Path" : "Practice")}><Play size={13} fill="currentColor" />{preview === "missing-ai" ? "Configure AI" : preview === "unavailable" ? "View last plan" : done ? "Start extra practice" : concept ? "Start learning" : "Continue learning"}</button>
           {concept && <button className={outline} onClick={() => setCustomizing(!customizing)}>Customize session</button>}
           <div className="ml-auto flex rounded-md bg-[#f3f3f3] p-1" role="group" aria-label="Session length">
             {[15, 30, 45, 60].map(value => <button key={value} onClick={() => setMinutes(value)} className={"rounded px-2.5 py-1 text-[11px] " + (minutes === value ? "bg-white font-semibold shadow-sm" : "")}>{value}m</button>)}
@@ -185,11 +187,13 @@ function Overview({
 function NewLearnerOverview({
   language,
   go,
-  begin
+  begin,
+  unfinished = false
 }: {
   language: Language;
   go: (page: Page) => void;
   begin: (mode: Mode) => void;
+  unfinished?: boolean;
 }) {
   const starts = [{
     title: "Start from scratch",
@@ -214,16 +218,16 @@ function NewLearnerOverview({
   return <div className="grid items-start gap-6 lg:grid-cols-2">
     <div className="flex min-w-0 flex-col gap-6">
       <section className={card + " p-6"}>
-        <p className={"text-[11px] font-semibold uppercase tracking-[0.04em] " + muted}>Get started with {language}</p>
-        <h2 className="mt-1.5 text-[20px] font-semibold">Choose where to begin</h2>
-        <p className={"mt-1 max-w-[560px] text-[13px] leading-[1.5] " + muted}>You can start learning right away. Skill estimates appear after enough practice or an assessment.</p>
-        <div className="mt-4 grid gap-3 sm:grid-cols-3">
+        <p className={"text-[11px] font-semibold uppercase tracking-[0.04em] " + muted}>{unfinished ? "Assessment in progress" : `Get started with ${language}`}</p>
+        <h2 className="mt-1.5 text-[20px] font-semibold">{unfinished ? "Resume your Quick grammar screening" : "Choose where to begin"}</h2>
+        <p className={"mt-1 max-w-[560px] text-[13px] leading-[1.5] " + muted}>{unfinished ? "Your sample assessment is unfinished. Continue from the paused question; a result and learning path appear only after completion." : "You can start learning right away. Skill estimates appear after enough practice or an assessment."}</p>
+        {unfinished ? <button className={btn + " mt-5"} onClick={() => go("Assessments")}>Resume assessment</button> : <div className="mt-4 grid gap-3 sm:grid-cols-3">
           {starts.map(start => <button key={start.title} type="button" disabled={!start.available} onClick={() => begin(start.mode)} className={card + " flex min-h-[126px] flex-col items-start gap-1.5 p-4 text-left transition hover:bg-[#f5f5f3] focus-visible:outline-2 focus-visible:outline-offset-2 disabled:cursor-not-allowed disabled:opacity-50"}>
             <start.icon size={18} aria-hidden="true" />
             <b className="text-[13px] leading-[1.3]">{start.title}</b>
             <span className={"text-[12px] leading-[1.35] " + muted}>{start.available ? start.description : "Assessment is not available for this language yet."}</span>
           </button>)}
-        </div>
+        </div>}
       </section>
       <section aria-label="Learning activity summary" className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         <Metric icon={Clock3} label="Weekly study time" value="–" unit="" kind="No data yet" pct={0} />
@@ -315,13 +319,13 @@ export const LearningOverviewAssessmentCenter = () => {
       {menu && <button className="fixed inset-0 z-20 bg-black/20 md:hidden" aria-label="Close navigation" onClick={() => setMenu(false)} />}
       <main className="min-w-0 flex-1"><div className="mx-auto max-w-[1490px] px-4 pb-16 pt-5 sm:px-6 md:pt-6">
         <div className="mb-4 flex items-center gap-2 md:hidden"><button className={outline + " px-2"} aria-label="Open menu" onClick={() => setMenu(true)}><Menu size={17} /></button><b className="text-[13px]">learning</b></div>
-        {page !== "Knowledge Base" && <header className="mb-6 flex flex-wrap items-start justify-between gap-4"><div><p className={"text-[11px] " + muted}>learning / {page}</p><h1 className="mt-0.5 text-[23px] font-semibold tracking-tight">{page === "Overview" ? "Your learning overview" : page}</h1><p className={"mt-1 text-[13px] " + muted}>{page === "Overview" ? "Continue your personalized learning journey." : page === "Assessments" ? "Choose a starting point or assess your knowledge." : "Learning workspace"}</p><p className={"mt-1 text-[11px] " + muted}>Design preview · statistics, levels, answers and insights are sample content</p></div>{language && (page === "Overview" || page === "Learning Path") && <div className="flex flex-wrap items-center gap-2"><label className={"text-[11px] " + muted} htmlFor="preview-state">Preview state</label><select id="preview-state" className="rounded-md border border-[#e7e7e5] bg-white px-2.5 py-1.5 text-[11px]" value={preview} onChange={event => setPreview(event.target.value as Preview)}><option value="concept">Active learning path</option><option value="new">New learner / no program</option><option value="done">Plan completed</option><option value="current">Current app snapshot</option><option value="unfinished">Unfinished assessment</option><option value="due">Due review</option><option value="insufficient">Insufficient progress data</option><option value="missing-ai">Missing AI key</option><option value="unavailable">Unavailable service</option></select><div className="rounded-md border border-[#e7e7e5] bg-white px-2.5 py-1.5 text-[11px]">{language} · explanations in English <button className={"ml-1 underline " + muted} onClick={() => go("Settings")}>Language settings</button></div></div>}</header>}
-        {language && notice && <section role="status" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e6e6e3] bg-white p-4"><div><h2 className="text-[13px] font-semibold">{notice.title}</h2><p className={"mt-1 text-[12px] " + muted}>{notice.detail}</p></div><button className={outline} onClick={() => go(notice.destination)}>{notice.action}</button></section>}
+        {page !== "Knowledge Base" && <header className="mb-6 flex flex-wrap items-start justify-between gap-4"><div><p className={"text-[11px] " + muted}>learning / {page}</p><h1 className="mt-0.5 text-[23px] font-semibold tracking-tight">{page === "Overview" ? "Your learning overview" : page}</h1><p className={"mt-1 text-[13px] " + muted}>{page === "Overview" ? "Continue your personalized learning journey." : page === "Assessments" ? "Choose a starting point or assess your knowledge." : "Learning workspace"}</p><p className={"mt-1 text-[11px] " + muted}>Design preview · statistics, levels, answers and insights are sample content</p></div>{language && page !== "Knowledge Base" && <div className="flex flex-wrap items-center gap-2"><label className={"text-[11px] " + muted} htmlFor="preview-state">Preview state</label><select id="preview-state" className="rounded-md border border-[#e7e7e5] bg-white px-2.5 py-1.5 text-[11px]" value={preview} onChange={event => setPreview(event.target.value as Preview)}>{previewStates.map(state => <option key={state.value} value={state.value}>{state.label}</option>)}</select><div className="rounded-md border border-[#e7e7e5] bg-white px-2.5 py-1.5 text-[11px]">{language} · explanations in English <button className={"ml-1 underline " + muted} onClick={() => go("Settings")}>Language settings</button></div></div>}</header>}
+        {language && notice && <section role="status" className="mb-5 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-[#e6e6e3] bg-white p-4"><div><h2 className="text-[13px] font-semibold">{notice.title}</h2><p className={"mt-1 text-[12px] " + muted}>{notice.detail}</p></div>{page !== notice.destination && <button className={outline} onClick={() => go(notice.destination)}>{notice.action}</button>}</section>}
         {!language ? <OnboardingPrototype complete={(chosen, mode) => {
             setLanguage(chosen);
             setPreview("new");
             begin(mode);
-          }} /> : page === "Overview" ? (preview === "new" || preview === "unfinished") ? <NewLearnerOverview language={language} go={go} begin={begin} /> : <Overview language={language} go={go} concept={concept || preview === "done"} done={preview === "done"} /> : page === "Assessments" ? <AssessmentPrototype key={language + "-" + assessmentLaunch} language={language} initialMode={startMode} go={go} onPathCreated={() => setPreview("concept")} /> : page === "Learning Path" ? <LearningPathPage preview={preview} language={language} go={go} startNewPlan={startNewPlan} /> : page === "Knowledge Base" ? <KnowledgeBasePage preview={preview} language={language} go={go} /> : page === "Practice" ? <PracticePage go={go} /> : page === "Progress" ? <ProgressPage preview={preview} go={go} /> : page === "AI Tutor" ? <TutorPage go={go} /> : <SettingsPage language={language} setLanguage={setLanguage} go={go} onReset={() => { ["English", "Spanish", "German"].forEach(name => localStorage.removeItem(`magicpath.learning.assessment.${name}`)); setLanguage(""); setPreview("new"); go("Overview"); }} />}
+          }} /> : page === "Overview" ? (preview === "new" || preview === "unfinished") ? <NewLearnerOverview language={language} go={go} begin={begin} unfinished={preview === "unfinished"} /> : <Overview language={language} preview={preview} go={go} concept={concept || preview === "done"} done={preview === "done"} /> : page === "Assessments" ? (preview === "missing-ai" || preview === "unavailable") ? <section className={card + " max-w-[760px] p-6"}><h2 className="text-[22px] font-semibold">{preview === "missing-ai" ? "AI key required for assessment" : "Assessment service unavailable"}</h2><p className={"mt-2 text-[13px] " + muted}>{preview === "missing-ai" ? "Quick grammar screening requires a configured provider. Existing learning history remains available." : "The assessment cannot start while the service is unavailable. Existing attempts remain in history."}</p><button className={btn + " mt-5"} onClick={() => go(preview === "missing-ai" ? "Settings" : "Overview")}>{preview === "missing-ai" ? "Open Settings" : "Return to Overview"}</button></section> : <AssessmentPrototype key={language + "-" + preview + "-" + assessmentLaunch} language={language} initialMode={startMode} preview={preview} go={go} onPathCreated={() => setPreview("concept")} /> : page === "Learning Path" ? <LearningPathPage preview={preview} language={language} go={go} startNewPlan={startNewPlan} /> : page === "Knowledge Base" ? <KnowledgeBasePage key={language} preview={preview} setPreview={setPreview} language={language} go={go} /> : page === "Practice" ? <PracticePage key={language + "-" + preview} preview={preview} language={language} go={go} /> : page === "Progress" ? <ProgressPage preview={preview} language={language} go={go} /> : page === "AI Tutor" ? <TutorPage key={language + "-" + preview} preview={preview} language={language} go={go} /> : <SettingsPage language={language} preview={preview} setPreview={setPreview} setLanguage={setLanguage} go={go} onReset={() => { ["English", "Spanish", "German"].forEach(name => localStorage.removeItem(`magicpath.learning.assessment.${name}`)); setLanguage(""); setPreview("new"); go("Overview"); }} />}
       </div></main>
     </div>
   </div>;

@@ -17,9 +17,25 @@ The [local design handoff](README.md) is authoritative for visual intent. This m
 
 [App shell](../../../apps/learning/frontend/src/components/app-shell.tsx) owns the sidebar and mobile menu. The language selector stores the active teacher/language and keys Path, Knowledge Base, Practice and Progress requests to it. Switching a language on those pages updates the route and data; no stale cross-language program or progress should remain. The interface locale is a separate Settings choice.
 
-The prototype's language selector drives the visible language shell and several page labels, but some sample content on Practice, Progress and AI Tutor remains English regardless of selection. Treat that as a prototype data limitation; the application must continue to use its language-keyed data rather than copying the samples.
+The prototype language selector changes the visible language context across all eight sections. Practice prompts and AI Tutor sample copy use the selected language; Progress and Knowledge Base do not carry an English learner estimate into another language. The catalogue itself remains sample reference content. The application must use language-keyed server data rather than copy any prototype values.
 
-The local prototype now exposes the same nine `Preview state` choices on Overview and Learning Path. Path has distinct no-program, unfinished-assessment, active/current, completed, due-review, insufficient-data, missing-key and service-failure presentations. No language is a global onboarding gate selected through the language switcher. These states and their numbers are design examples, not evidence that the application persists every illustrated field.
+## Preview state matrix
+
+The same nine `Preview state` choices are available in every section. Overview, Learning Path, Practice, Assessments, Progress, AI Tutor and Settings use the header selector; Knowledge Base places the same selector in its catalogue toolbar. The selection carries across navigation. **No language** is a separate global onboarding gate selected through the language switcher. The local [state check](preview/scripts/verify-states.mjs) opens all nine states in all eight sections; representative [screenshots](screenshots/README.md) show the layout at desktop and Telegram width.
+
+| State | Connected screen behavior in the local design |
+| --- | --- |
+| Active learning path | Overview and Path show a sample current program; Practice offers program, free and review entry points; Progress and Tutor use clearly labelled sample content. |
+| New learner / no program | Overview offers Quick grammar, claimed level and A1; Path and Practice show no-program actions; Progress has unknown values; Rule Book stays browsable. |
+| Plan completed | Overview and Path keep the completed program visible and offer extra practice or a new plan; history is retained in the design flow. |
+| Current app snapshot | Shows an early sample program with limited metrics; no all-skill proficiency claim. |
+| Unfinished assessment | Overview, Path and Practice route back to Assessments; its paused Quick grammar screen offers resume; no completed assessment result appears in Progress. |
+| Review due | Overview, Path and Practice expose the due review entry; the queue and dates are sample. |
+| Insufficient progress data | Program navigation remains available; Knowledge Base and Progress show unknown learner status and estimates. |
+| Missing AI key | AI-dependent assessment, practice and tutor entry points show a Settings action; existing plan/history and static Rule Book remain visible. |
+| Service unavailable | Live assessment, practice, progress and tutor actions show unavailable states; Path shows only a labelled last-known sample. |
+
+Settings reflects the selected missing-key or unavailable condition. The no-language gate appears over every section until a language is selected. All numbers, levels, questions, answers, review dates, and chat messages in these states are illustrative; selecting a preview state does not simulate a backend response.
 
 ## Starting, returning, and restarting
 
