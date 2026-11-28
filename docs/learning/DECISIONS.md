@@ -237,6 +237,42 @@ later a hint-free tutor or assessment answer) can make it `mastered`.
 `VERTICAL_SLICE_V1.md` section 8. Notably no frontend change (the design arrives separately), no
 replay of past attempts, no new response shapes for existing endpoints.
 
+**D-034 · Quick Screening policy · DECIDED-REVERSIBLE.** After the verified V1 loop
+(D-024), Quick Screening uses versioned, deterministic grammar screening heuristics with
+the existing Rule Book, teacher and evidence models (D-025, D-026). A new explicit placement
+purpose preserves existing clients, manual starts and final tests. The starting label on a
+legacy path is the lower boundary or the foundations band when evidence supplies no range.
+AI writes missing content per assessment and supplies no placement verdict. Thresholds and
+limitations are recorded in [Quick Screening](QUICK_SCREENING.md).
+
+**D-035 · Shared assessment modes · ACCEPTED (2026-11-26).** The owner replaces the
+Quick-only MVP product boundary with three functional target modes:
+`quick_screening` (grammar, vocabulary, reading), `full_assessment` (independent
+grammar, vocabulary, reading, listening, writing, speaking sections, plus
+pronunciation only when audio evaluation is supported), and `skill_assessment`
+(one selected skill, repeatable with history). One Assessment Engine owns lifecycle,
+blueprints, item sources, validation, adaptation, evaluation, evidence and results;
+mode differences are configuration, coverage and stop policy. **D-034 stays valid for
+the currently implemented grammar slice** and is not evidence that the broader mode
+is finished. Contract: [ASSESSMENT_MODES.md](ASSESSMENT_MODES.md).
+
+**D-036 · Skill evidence and capability gates · ACCEPTED (2026-11-26).** A format
+named `vocabulary_in_context` or `reading_comprehension` inside a grammar probe does
+not establish a separate skill result. Each skill needs a fitting blueprint and
+verified evaluator. Unsupported skills remain `unassessed`. Assessment adds to the
+same profile/evidence history without erasing earlier learning or implying mastery or
+certified CEFR. Onboarding keeps all five choices but enables a mode only when its
+complete backend workflow exists. Pronunciation needs audio-based validation;
+speech-to-text alone cannot score it. This refines D-025, D-032 and D-034.
+
+**D-037 · Sectioned full assessment · ACCEPTED (2026-11-26).** Full Assessment
+sections complete and persist independently, with pause/resume across sessions and
+per-section evidence/results. A finished skill assessment is repeatable and remains in
+history for comparison. New storage and API must be additive and retain the legacy
+test/placement contract (D-009, D-108). Proposed section schema and rollout are in
+`ASSESSMENT_MODES.md`; its exact table/API shape is an implementation detail to
+validate against the existing schema before migration.
+
 ### Replaced or extended by the 2026-11-25 answers
 
 | Earlier decision | Now |
@@ -256,10 +292,10 @@ replay of past attempts, no new response shapes for existing endpoints.
 Describes hexagonal/gin/wire/MySQL, none of which exist here. *Options:* delete; replace
 with a 10-line pointer to `ARCHITECTURE.md` section 2 (recommended); leave. *Blocks:* nothing.
 
-**D-005 · Create an agent instruction file · AWAITING.**
-No `AGENTS.md`/`CLAUDE.md` is tracked. *Recommendation:* add a short root `AGENTS.md` that
-points to `docs/learning/README.md` and `ARCHITECTURE.md` section 2 and states the three hard
-rules (push = deploy; additive migrations; no secrets in the repo). *Blocks:* nothing.
+**D-005 · Create an agent instruction file · ACCEPTED (2026-11-26).**
+The owner requested a root `AGENTS.md`. It points to `docs/learning/README.md` and
+`ARCHITECTURE.md` section 2 and states the hard rules (push = deploy; additive migrations;
+no secrets in the repo). *Blocks:* nothing.
 
 **D-006 · New package names and extraction timing · AWAITING (recommend accept).**
 `learningkb`, `learningprofile`, `learningassess`, `learningexercise`, `learningreview`,
@@ -279,3 +315,5 @@ tests first, e2e later. *Blocks:* P0-06.
 | 2026-11-25 | Audit executed; D-001 made; section C compiled; no code changed |
 | 2026-11-25 | Backend brief compared with code and plan (`BACKEND_BRIEF_FIT.md`); D-024..D-029 added, D-002 restated; no code changed |
 | 2026-11-25 | Owner accepted D-024, D-002, revised D-025 and D-026; D-003 interpreted; D-030..D-033 added; `VERTICAL_SLICE_V1.md` written; implementation of V1 started |
+| 2026-11-25 | D-034 recorded the first P3 delivery and compatibility policy for Quick Screening |
+| 2026-11-26 | Owner requested the root agent instruction file; D-005 accepted and `AGENTS.md` created |

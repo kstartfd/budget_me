@@ -139,6 +139,40 @@ Status of each row lives in `IMPLEMENTATION_STATUS.md`.
 | 9 Tutor | chat `done` event | adds optional `evidence` summary (what was logged) — additive |
 | 10 Advanced | speech/pronunciation upload, audio assessment | designed when started (multipart; size limits; storage decision) |
 
+### Implemented Quick Screening
+
+This contract is additive to `/api/v1/learning/path/tests`. The legacy test fields keep
+their current enum values. The optional `assessment` object carries the lifecycle,
+result and an additive `sections[]` for the persisted grammar section, including its
+ID, progress, status and recorded result if present. Legacy attempts without a recorded
+section result leave it absent. See [Quick Screening](QUICK_SCREENING.md) and the
+[endpoint reference](../../apps/learning/backend/docs/learning-api.md#quick-screening-session-only).
+
+### Revised assessment API target (D-035..D-037; PROPOSED)
+
+**Implemented first capability read:** session-only
+`GET /learning/path/assessments/capabilities?language=` returns
+`{language,available:[{type,blueprintVersion,skills[]}]}` (canonical details in
+`learning-api.md`). Currently only grammar Quick for English/Spanish appears.
+The remaining routes and mode capability expansion in this subsection are proposed.
+
+The `purpose` input and `/tests/:id/assessment/:action` and `/tests/:id/results`
+routes already serve **grammar-only Quick Screening**. The table in section 5 predates
+that delivery; its `/stop` and profile-history routes are not implemented. The next
+contract must extend the existing `assessment` object rather than create a parallel
+test API. It will require a mode (`quick_screening|full_assessment|skill_assessment`),
+and `skill` only for individual skill mode, plus language and optional start point.
+Quick now returns its one ordered section with skill, status, answered/budget counts,
+stop reason and result when recorded. Future mode responses need independent required
+coverage and additional section descriptors. A section result should
+be read as soon as that section completes, regardless of whether the overall Full
+Assessment is done. List/history responses must retain distinct run IDs and prior
+results for comparison. Exact route names and schemas remain to be finalized in the
+canonical API reference before code is shipped. Authorization remains session-only
+and user/profile-scoped; a foreign assessment ID returns 404. The capability response
+must explicitly list mode/skill availability per language so onboarding does not
+enable a backend-incomplete option. See [ASSESSMENT_MODES.md](ASSESSMENT_MODES.md).
+
 ## 6. Shape rules for new payloads
 
 - Percentages and scores are **fractions 0..1** with `null` when not enough data (never `0` as "unknown").

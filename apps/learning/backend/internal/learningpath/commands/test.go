@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"slices"
 	"strings"
+	"time"
 	"unicode/utf8"
 
 	"github.com/google/uuid"
@@ -17,8 +18,10 @@ import (
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
 	learningcommands "learning_app/backend/internal/learning/commands"
+	"learning_app/backend/internal/learningpath/assessment"
 	"learning_app/backend/internal/learningpath/placement"
 	"learning_app/backend/internal/llm"
+	"learning_app/backend/internal/ratelimit"
 )
 
 const maxTestAnswerRunes = 400
@@ -42,15 +45,24 @@ type StartTest struct {
 }
 
 type TestHandler struct {
-	pool  *pgxpool.Pool
-	q     *db.Queries
-	clock clock.Clock
-	agent Agent
+	pool   *pgxpool.Pool
+	q      *db.Queries
+	clock  clock.Clock
+	agent  Agent
+	limit  *ratelimit.Limiter
+	policy assessment.Policy
 }
 
-func NewTestHandler(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, agent Agent) TestHandler {
-	return TestHandler{pool: pool, q: q, clock: clk, agent: agent}
+func NewTestHandler(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, agent Agent, limit *ratelimit.Limiter, policy assessment.Policy) TestHandler {
+	if policy.Version == "" {
+		policy = assessment.QuickPolicy()
+	}
+	return TestHandler{pool: pool, q: q, clock: clk, agent: agent, limit: limit, policy: policy}
 }
+
+type TestRateError struct{ RetryAfter time.Duration }
+
+func (TestRateError) Error() string { return "the test agent is being asked too fast" }
 
 func (h TestHandler) Start(ctx context.Context, cmd StartTest) (db.LearningPathTest, error) {
 	for _, code := range []string{cmd.Language, cmd.TranslationLanguage} {
@@ -199,12 +211,24 @@ func (h TestHandler) nextLevel(ctx context.Context, cmd StartTest) (string, erro
 // the test again: after a reset the program is built straight at a level they
 // proved before. Nothing else grants a level without a test, so the history is
 // the proof: a language with no closed program has no level to pick.
+//
+// With SelfReported the learner names the level they believe they are at, which
+// proves nothing: it is allowed with no history (up to C1), the program built
+// from it says so (source "self_reported"), and it never counts as a reached
+// level, so a later reset cannot pick it again without a test.
 type ChooseLevel struct {
 	UserID              uuid.UUID
 	Language            string
 	TranslationLanguage string
 	Level               string
+	SelfReported        bool
 }
+
+// SelfReportedSource is what a program built at a level the learner only
+// claimed is called in the history.
+const SelfReportedSource = "self_reported"
+
+const assessmentPathSource = "assessment"
 
 // ReachedLevel is the highest level any closed program of a language was built
 // at, which is how far the learner has proved themselves in it. The bool is
@@ -213,7 +237,11 @@ func ReachedLevel(history []db.LearningPath, language string) (placement.Level, 
 	best, found := placement.A1, false
 
 	for _, path := range history {
-		if path.Language != language {
+		// A screening plan earns a reached level when the learner passes its final test.
+		if path.Language != language || path.Source == SelfReportedSource {
+			continue
+		}
+		if path.Source == assessmentPathSource && path.Status != db.LearningPathStatusFinished {
 			continue
 		}
 
@@ -264,9 +292,16 @@ func (h TestHandler) Choose(ctx context.Context, cmd ChooseLevel) (db.LearningPa
 		return db.LearningPathTest{}, err
 	}
 
-	reached, ok := ReachedLevel(history, cmd.Language)
-	if !ok || placement.Index(level) > placement.Index(reached) {
-		return db.LearningPathTest{}, apperr.NewInvalid("only a level you have already reached can be picked: take the test for a new one")
+	if cmd.SelfReported {
+		// The top rung is not offered: the planner has no program to write for it.
+		if level == placement.C2 {
+			return db.LearningPathTest{}, apperr.NewInvalid("invalid level")
+		}
+	} else {
+		reached, ok := ReachedLevel(history, cmd.Language)
+		if !ok || placement.Index(level) > placement.Index(reached) {
+			return db.LearningPathTest{}, apperr.NewInvalid("only a level you have already reached can be picked: take the test for a new one")
+		}
 	}
 
 	tx, err := h.pool.Begin(ctx)
@@ -403,11 +438,12 @@ func questionOf(row db.LearningPathTestQuestion) placement.Question {
 // TestProgress is where a test stands: how the current batch has gone and
 // which questions are still to answer. A done test carries the verdict.
 type TestProgress struct {
-	Test      db.LearningPathTest
-	Questions []placement.Question // what is still to answer on the current level
-	Asked     int                  // answered on the current level
-	Correct   int                  // right on the current level
-	Needed    int                  // questions of the current level's batch
+	Assessment *AssessmentProgress
+	Test       db.LearningPathTest
+	Questions  []placement.Question // what is still to answer on the current level
+	Asked      int                  // answered on the current level
+	Correct    int                  // right on the current level
+	Needed     int                  // questions of the current level's batch
 	// StartLevel is the rung the test began at, so a screen can say how many
 	// pages (one per rung) a test can have at most.
 	StartLevel string
@@ -423,6 +459,10 @@ func (h TestHandler) Progress(ctx context.Context, userID, testID uuid.UUID) (Te
 
 	if err != nil {
 		return TestProgress{}, err
+	}
+
+	if test.AssessmentType.Valid {
+		return h.assessmentProgress(ctx, test)
 	}
 
 	answers, questions, err := h.stored(ctx, test.ID)
@@ -502,8 +542,10 @@ func progressOf(test db.LearningPathTest, answers []db.LearningPathTestAnswer, q
 
 // Answer is one answered question of a batch.
 type Answer struct {
-	Key    string
-	Answer string
+	Skip     bool
+	Assisted bool
+	Key      string
+	Answer   string
 }
 
 // AnswerBatch records a batch of answers and moves the ladder. Every key must
@@ -521,6 +563,16 @@ func (h TestHandler) Answer(ctx context.Context, userID, testID uuid.UUID, given
 	if err != nil {
 		return TestProgress{}, err
 	}
+
+	if test.AssessmentType.Valid {
+		return h.answerAssessment(ctx, test, given)
+	}
+
+	release, wait, ok := h.limit.Acquire(userID)
+	if !ok {
+		return TestProgress{}, TestRateError{RetryAfter: wait}
+	}
+	defer release()
 
 	if test.Status != db.LearningPathTestStatusInProgress {
 		return TestProgress{}, apperr.NewConflict("this test is already done")

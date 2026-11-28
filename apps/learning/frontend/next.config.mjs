@@ -4,6 +4,8 @@ const withNextIntl = createNextIntlPlugin("./src/i18n/request.ts")
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Keep development status and issue badges away from the sidebar account link.
+  devIndicators: { position: "top-right" },
   // Self-contained server bundle (.next/standalone/server.js) for the prod
   // Docker image — see infra/learning/docker/frontend.Dockerfile.
   output: "standalone",

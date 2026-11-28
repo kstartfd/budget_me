@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useTranslations } from "next-intl"
-import { IconChevronLeft, IconChevronRight } from "@tabler/icons-react"
+import { IconChevronLeft, IconChevronRight, IconSearch } from "@tabler/icons-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -14,7 +14,7 @@ import { ExplainSwitch } from "./explain-switch"
 import { RuleCard, rulePath, rulesPath } from "./rule-card"
 import { RulePractice } from "./rule-practice"
 
-const wrap = "anim-fade space-y-4 lg:mx-auto lg:w-full lg:max-w-[704px]"
+const wrap = "anim-fade space-y-4 lg:mx-auto lg:w-full lg:max-w-[1120px]"
 
 /** Said where the rule book is closed: it opens for a teacher whose language it covers. */
 function Closed() {
@@ -36,8 +36,11 @@ function Closed() {
  */
 export function RulesIndex({ language }: { language?: string }) {
   const t = useTranslations("path")
+  const workspace = useTranslations("workspace")
   const rules = useRules(language)
   const [query, setQuery] = useState("")
+  const [category, setCategory] = useState("")
+  const [level, setLevel] = useState("")
   // The spot of the teacher's screen the learner came from, if they came from it.
   const from = useReturnPoint()
 
@@ -54,38 +57,38 @@ export function RulesIndex({ language }: { language?: string }) {
       </div>
     )
 
-  const needle = query.trim().toLowerCase()
-  const shown = (rules.data ?? []).filter(
-    (rule) => !needle || `${rule.title} ${rule.unit}`.toLowerCase().includes(needle),
+  const all = rules.data ?? []
+  const needle = query.trim().toLocaleLowerCase()
+  const categories = Array.from(new Set(all.map((rule) => rule.unit))).sort((a, b) => a.localeCompare(b))
+  const levels = Array.from(new Set(all.map((rule) => rule.level))).sort((a, b) => a.localeCompare(b))
+  const shown = all.filter((rule) =>
+    (!category || rule.unit === category) &&
+    (!level || rule.level === level) &&
+    (!needle || `${rule.title} ${rule.unit} ${rule.level}`.toLocaleLowerCase().includes(needle)),
   )
-  const levels = Array.from(new Set(shown.map((rule) => rule.level)))
 
   return (
     <div className={wrap}>
-      <header className="space-y-1">
-        <Button asChild variant="ghost" size="sm" className="-ml-2 h-auto px-2 py-1 text-xs">
-          <Link href={from?.href ?? "/learning/path"}>
-            <IconChevronLeft size={14} />
-            {t(from ? "rulesBackToProgram" : "backToTeachers")}
-          </Link>
-        </Button>
-        <h1 className="text-[22px] font-semibold tracking-[-0.01em] lg:text-2xl">
-          {t("rulesTitle")}
-        </h1>
-        <p className="text-muted-foreground text-xs leading-relaxed lg:text-sm">
-          {t("rulesSubtitle")}
-        </p>
-      </header>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <header className="space-y-1">
+          <h2 className="text-lg font-semibold tracking-tight">{t("rulesTitle")}</h2>
+          <p className="text-muted-foreground text-xs leading-relaxed lg:text-sm">{t("rulesSubtitle")}</p>
+        </header>
+        {from && <Button asChild variant="outline" size="sm"><Link href={from.href}><IconChevronLeft size={14} />{t("rulesBackToProgram")}</Link></Button>}
+      </div>
 
       <ExplainSwitch language={language} />
 
-      <Input
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder={t("rulesSearch")}
-        aria-label={t("rulesSearch")}
-        className="bg-background h-10 text-sm md:text-sm"
-      />
+      <div className="border-border bg-card flex items-center gap-2 rounded-lg border px-3">
+        <IconSearch size={17} className="text-muted-foreground" aria-hidden="true" />
+        <Input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder={t("rulesSearch")}
+          aria-label={t("rulesSearch")}
+          className="h-11 border-0 bg-transparent px-0 shadow-none focus-visible:ring-0 md:text-sm"
+        />
+      </div>
 
       {rules.isPending && (
         <div className="space-y-2">
@@ -95,34 +98,43 @@ export function RulesIndex({ language }: { language?: string }) {
         </div>
       )}
 
-      {rules.isSuccess && shown.length === 0 && (
-        <p className="text-muted-foreground text-sm">{t("rulesEmpty")}</p>
-      )}
-
-      {levels.map((level) => (
-        <section key={level} className="space-y-2">
-          <h2 className="text-muted-foreground text-xs font-semibold tracking-wider uppercase">
-            {level}
-          </h2>
-          <ul className="space-y-1.5">
-            {shown
-              .filter((rule) => rule.level === level)
-              .map((rule) => (
-                <li key={rule.id}>
-                  <Link
-                    href={rulePath(rule.id, language)}
-                    className="bg-background border-border hover:bg-muted/50 flex items-center gap-3 rounded-lg border px-4 py-3 transition-colors"
-                  >
-                    <span className="min-w-0 flex-1 text-sm leading-snug font-medium">
-                      {rule.title}
-                    </span>
-                    <IconChevronRight size={14} className="text-faint shrink-0" aria-hidden="true" />
-                  </Link>
-                </li>
-              ))}
-          </ul>
-        </section>
-      ))}
+      {rules.isSuccess && <div className="grid items-start gap-4 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="border-border bg-card rounded-xl border p-3" aria-label={workspace("categories") }>
+          <p className="text-muted-foreground mb-2 px-2 text-[11px] font-semibold tracking-wide uppercase">{workspace("categories")}</p>
+          <button type="button" onClick={() => setCategory("")} aria-pressed={!category} className={`flex w-full justify-between rounded-md px-2.5 py-2 text-left text-sm ${!category ? "bg-muted font-semibold" : "hover:bg-muted/60"}`}>
+            {workspace("allRules")} <span>{all.length}</span>
+          </button>
+          {categories.map((unit) => <button key={unit} type="button" onClick={() => setCategory(unit)} aria-pressed={category === unit} className={`flex w-full justify-between gap-2 rounded-md px-2.5 py-2 text-left text-sm ${category === unit ? "bg-muted font-semibold" : "hover:bg-muted/60"}`}>
+            <span>{unit}</span><span className="text-muted-foreground">{all.filter((rule) => rule.unit === unit).length}</span>
+          </button>)}
+        </aside>
+        <div className="min-w-0 space-y-3">
+          <section className="border-border bg-card rounded-xl border p-5">
+            <p className="text-muted-foreground text-xs">{workspace("referenceLibrary")}</p>
+            <h3 className="mt-1 text-lg font-semibold">{workspace("grammarRules")}</h3>
+            <p className="text-muted-foreground mt-1 text-sm">{workspace("ruleCount", { count: all.length })}</p>
+            <p className="text-muted-foreground mt-2 text-xs">{workspace("ruleLevelNote")}</p>
+          </section>
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-muted-foreground text-xs">{workspace("filteredCount", { count: shown.length })}</p>
+            <label className="text-muted-foreground flex items-center gap-2 text-xs">{workspace("levelFilter")}
+              <select value={level} onChange={(event) => setLevel(event.target.value)} className="border-border bg-card min-h-9 rounded-md border px-2 text-sm">
+                <option value="">{workspace("allLevels")}</option>
+                {levels.map((value) => <option key={value} value={value}>{value}</option>)}
+              </select>
+            </label>
+          </div>
+          {shown.length === 0 ? <p className="border-border bg-card rounded-xl border p-5 text-sm text-muted-foreground">{t("rulesEmpty")}</p> :
+            <ul className="border-border bg-card overflow-hidden rounded-xl border">
+              {shown.map((rule) => <li key={rule.id} className="border-border border-t first:border-t-0">
+                <Link href={rulePath(rule.id, language)} className="hover:bg-muted/50 focus-visible:bg-muted/50 flex min-h-20 items-center gap-4 px-4 py-3 transition-colors focus-visible:outline-2 focus-visible:outline-ring">
+                  <span className="min-w-0 flex-1"><span className="block text-sm font-medium">{rule.title} <span className="text-muted-foreground text-xs font-normal">{rule.level}</span></span><span className="text-muted-foreground mt-1 block text-xs">{rule.unit}</span></span>
+                  <span className="border-border rounded-md border px-2.5 py-1.5 text-xs">{workspace("previewRule")}</span><IconChevronRight size={14} className="text-muted-foreground" aria-hidden="true" />
+                </Link>
+              </li>)}
+            </ul>}
+        </div>
+      </div>}
     </div>
   )
 }

@@ -1,12 +1,17 @@
 # Data model
 
-Two parts: **A. current schema** (migrations `0001`-`0035`, read from code at `4662ad7`) and
+Two parts: **A. current schema** (migrations `0001`-`0038`, read from the current backend tree) and
 **B. proposed target schema** (everything in B is `PROPOSED` until its phase starts; see
 `DECISIONS.md`). The source of truth for A is `apps/learning/backend/migrations/`; sqlc
 generates `internal/db` from it (`sqlc.yaml`: `schema: migrations/`).
 
 ## 0. Conventions (apply to A and B)
 
+- Learning-owned tables use descriptive names with the `learning_` prefix. The
+  physical knowledge item table is `learning_knowledge_items` from migration 0038;
+  `kb_items` remains an updatable compatibility view. `learner_item_state` and
+  other unprefixed B-stage proposals need separate reconciliation before new
+  migrations; see `IMPLEMENTATION_PLAN.md`.
 - Primary keys: `uuid` generated in Go by `internal/ids` (time-ordered, UUIDv7-shaped). Exception: `learning_chat_messages.id bigserial`.
 - Timestamps: `timestamptz`, set by the caller from `clock.Clock` (never `now()` in SQL), so tests control time.
 - Ownership: every user-owned table carries `user_id` and **every query filters by it**. Child tables enforce it with a composite FK, e.g. `FOREIGN KEY (topic_id, user_id) REFERENCES learning_topics(id, user_id)` backed by `UNIQUE (id, user_id)`. New tables follow this pattern.
@@ -97,7 +102,7 @@ Added by the first vertical slice (`VERTICAL_SLICE_V1.md`); expand-only, one con
 
 | Table | Role | Notes |
 | --- | --- | --- |
-| `kb_items` | Identity of a piece of knowledge: `(language, key)` unique, `kind` (`grammar`/`topic`), `skill`, `cefr_level`, `unit` | Made from the embedded library the first time evidence exists; the text stays in the library. Subset of B.1; the CHECKs are widened by P1 |
+| `learning_knowledge_items` (formerly `kb_items`) | Identity of a piece of knowledge: `(language, key)` unique, `kind` (`grammar`/`topic`), `skill`, `cefr_level`, `unit` | Migration 0038 renames the same physical relation and keeps `kb_items` as a write-compatible view; no rows or FKs are copied. Text stays in the embedded library. The CHECKs are widened by P1. |
 | `learning_evidence` | Append-only proof of what the learner showed | `source`, `practice_mode` (`tracked`/`assessment`; free practice writes nothing), `ref_type='attempt'` + `ref_id` (**no FK**, so clearing history keeps it), `mode`, `outcome`, `score`, `weight` (double precision), `assisted`, `attempt_no`, `hints_used`; `UNIQUE (ref_type, ref_id)`; composite FK to the teacher, cascade |
 | `learner_item_state` | Derived state per teacher and item | `state`, recency-weighted sums, counters, `stage`, `lapses`, `last_success_at`, `due_at`; PK `(teacher_id, item_id)`; the review state is **not** stored |
 | `learning_activities` | Typed learning activities | `type` (`learn/practice/review/apply/assess`), `status` (`open/completed/skipped`), `reason` (`path/due`), `goal`, `item_id`, `topic_id`, `params`; partial unique indexes: one open review per item, one open practice per topic |
@@ -107,6 +112,46 @@ Differences from the proposal in B.2: `source_type` became `source` + `practice_
 there (nothing in V1 presents a probability); state names follow D-028 on the wire. Deleting a
 teacher cascades to all four tables; deleting program history (`DELETE /history`) does not touch them.
 
+### A.7 Quick Screening (migration `0037_adaptive_assessment.sql`)
+
+Opt-in assessment metadata extends `learning_path_tests` with a profile FK, type, lifecycle
+state, policy snapshot, active batch and structured result. Existing test rows have null
+assessment metadata. Questions snapshot an opaque version, canonical knowledge item ID and key,
+objective, format and private grading key. Answers have a unique assessment attempt ID,
+an outcome and an assistance flag. `learning_evidence.ref_type = 'assessment_attempt'`
+links to that attempt ID. All state and outcome additions use text checks. Deleting a profile
+removes its assessments and evidence, and clearing program history preserves them.
+
+### A.8 Knowledge item table name (migration `0038_learning_knowledge_items_name.sql`)
+
+`learning_knowledge_items` is the same relation and holds the same rows and UUIDs as
+the original `kb_items`. Existing foreign keys follow the renamed relation. The
+simple `kb_items` view supports the previous application's reads and
+`INSERT ... ON CONFLICT` writes during blue-green deployment. Migration Down drops
+the view and renames the same table back; it does not delete knowledge or evidence.
+
+### A.9 Assessment section storage (migration `0039_assessment_sections.sql`)
+
+`learning_assessment_sections` stores test ID, skill, order, lifecycle status, policy
+and optional blueprint snapshots, current band/batch, answered count, stop reason,
+section result and timestamps. `(test_id, skill)` and `(test_id, position)` are unique;
+at most one section can be in progress, paused or evaluating per test. The table is
+ready for multiple independent skill sections, but only the Quick grammar workflow is
+exposed. `learning_assessment_section_questions` links a question to the section with
+matching test and skill through composite FKs. Answers retain `(test_id, question_key)`;
+`learning_assessment_section_evidence` joins them to the unique evidence attempt ID,
+checks skill, user and teacher, and exposes the association without changing the
+append-only evidence row. Unattributable historical evidence is not fabricated.
+
+The migration backfills Quick as one grammar section. Its ID equals the test ID so it
+survives a safe rollback and reapplication; original policy and results remain on the
+legacy test. An old Quick row lacking a full blueprint or section result keeps NULL.
+Triggers mirror writes by old and new binaries during rollout; new policy JSON also
+contains the full section blueprint, ignored by old decoders. Down refuses independently
+stored section data that cannot be reproduced from the legacy test. Full/Skill
+orchestration, history and additional skill evaluators remain future work. See
+[Assessment Modes](ASSESSMENT_MODES.md#5-storage-and-api-rollout).
+
 ## B. Proposed target schema (PROPOSED)
 
 Design goals: (1) stable **knowledge item** identity independent of generated programs;
@@ -114,10 +159,19 @@ Design goals: (1) stable **knowledge item** identity independent of generated pr
 (mastery, estimates) recomputable from evidence; (4) additive changes to existing tables,
 no rewrite of the teacher/program universe.
 
+The SQL sketches below are target shapes, not migration-ready DDL. Unprefixed
+names such as new `learner_*`, `assessment_*`, and `study_*` tables are provisional.
+The B.1 `CREATE TABLE learning_knowledge_items` block describes the intended
+final fields; migration 0038 already supplies the physical
+`learning_knowledge_items` table. P1 must extend that table, use descriptive
+`learning_` names for new relations and preserve the old `kb_items` view while
+older application versions may run. `learner_item_state` is still a table.
+See [the P1 naming and rollout rule](IMPLEMENTATION_PLAN.md).
+
 ### B.1 Knowledge Base (Phase 1)
 
 ```sql
-CREATE TABLE kb_items (
+CREATE TABLE learning_knowledge_items (
     id            uuid PRIMARY KEY,
     language      text NOT NULL,              -- the studied language, BCP-47 base tag
     key           text NOT NULL,              -- stable slug, e.g. 'a1-to-be' (existing library id)
@@ -129,14 +183,14 @@ CREATE TABLE kb_items (
     unit          text NOT NULL DEFAULT '',   -- grouping inside a level
     position      integer NOT NULL DEFAULT 0, -- authored order inside a level
     status        text NOT NULL CHECK (status IN ('draft','published','deprecated')),
-    superseded_by uuid REFERENCES kb_items(id),
+    superseded_by uuid REFERENCES learning_knowledge_items(id),
     created_at    timestamptz NOT NULL,
     UNIQUE (language, key)
 );
 
 -- Content is per explanation language and versioned; an item's identity never changes.
-CREATE TABLE kb_item_versions (
-    item_id              uuid NOT NULL REFERENCES kb_items(id) ON DELETE RESTRICT,
+CREATE TABLE learning_knowledge_item_versions (
+    item_id              uuid NOT NULL REFERENCES learning_knowledge_items(id) ON DELETE RESTRICT,
     explanation_language text NOT NULL,
     version              integer NOT NULL,
     title                text NOT NULL,
@@ -149,24 +203,24 @@ CREATE TABLE kb_item_versions (
     PRIMARY KEY (item_id, explanation_language, version)
 );
 
-CREATE TABLE kb_item_relations (
-    from_item uuid NOT NULL REFERENCES kb_items(id) ON DELETE CASCADE,
-    to_item   uuid NOT NULL REFERENCES kb_items(id) ON DELETE CASCADE,
+CREATE TABLE learning_knowledge_item_relations (
+    from_item uuid NOT NULL REFERENCES learning_knowledge_items(id) ON DELETE CASCADE,
+    to_item   uuid NOT NULL REFERENCES learning_knowledge_items(id) ON DELETE CASCADE,
     relation  text NOT NULL CHECK (relation IN ('prerequisite','related','contrasts_with','part_of')),
     strength  smallint NOT NULL DEFAULT 1,      -- 1 hard / 2 soft for prerequisite
     PRIMARY KEY (from_item, to_item, relation),
     CHECK (from_item <> to_item)
 );
 
-CREATE TABLE kb_categories (id uuid PRIMARY KEY, language text NOT NULL, slug text NOT NULL, parent_id uuid REFERENCES kb_categories(id), UNIQUE (language, slug));
-CREATE TABLE kb_item_categories (item_id uuid REFERENCES kb_items(id) ON DELETE CASCADE, category_id uuid REFERENCES kb_categories(id) ON DELETE CASCADE, PRIMARY KEY (item_id, category_id));
+CREATE TABLE learning_knowledge_categories (id uuid PRIMARY KEY, language text NOT NULL, slug text NOT NULL, parent_id uuid REFERENCES learning_knowledge_categories(id), UNIQUE (language, slug));
+CREATE TABLE learning_knowledge_item_categories (item_id uuid REFERENCES learning_knowledge_items(id) ON DELETE CASCADE, category_id uuid REFERENCES learning_knowledge_categories(id) ON DELETE CASCADE, PRIMARY KEY (item_id, category_id));
 
-CREATE TABLE kb_sources (id uuid PRIMARY KEY, kind text NOT NULL CHECK (kind IN ('cefr_descriptor','textbook','corpus','authored','other')), citation text NOT NULL, url text NOT NULL DEFAULT '', license text NOT NULL DEFAULT '');
-CREATE TABLE kb_item_sources (item_id uuid REFERENCES kb_items(id) ON DELETE CASCADE, source_id uuid REFERENCES kb_sources(id), locator text NOT NULL DEFAULT '', PRIMARY KEY (item_id, source_id, locator));
+CREATE TABLE learning_knowledge_sources (id uuid PRIMARY KEY, kind text NOT NULL CHECK (kind IN ('cefr_descriptor','textbook','corpus','authored','other')), citation text NOT NULL, url text NOT NULL DEFAULT '', license text NOT NULL DEFAULT '');
+CREATE TABLE learning_knowledge_item_sources (item_id uuid REFERENCES learning_knowledge_items(id) ON DELETE CASCADE, source_id uuid REFERENCES learning_knowledge_sources(id), locator text NOT NULL DEFAULT '', PRIMARY KEY (item_id, source_id, locator));
 
 -- Can-do objectives (CEFR descriptors or authored), many items serve one objective.
-CREATE TABLE kb_objectives (id uuid PRIMARY KEY, language text NOT NULL, cefr_level text NOT NULL, skill text NOT NULL, descriptor text NOT NULL, source_id uuid REFERENCES kb_sources(id), UNIQUE (language, cefr_level, skill, descriptor));
-CREATE TABLE kb_item_objectives (item_id uuid REFERENCES kb_items(id) ON DELETE CASCADE, objective_id uuid REFERENCES kb_objectives(id) ON DELETE CASCADE, PRIMARY KEY (item_id, objective_id));
+CREATE TABLE learning_knowledge_objectives (id uuid PRIMARY KEY, language text NOT NULL, cefr_level text NOT NULL, skill text NOT NULL, descriptor text NOT NULL, source_id uuid REFERENCES learning_knowledge_sources(id), UNIQUE (language, cefr_level, skill, descriptor));
+CREATE TABLE learning_knowledge_item_objectives (item_id uuid REFERENCES learning_knowledge_items(id) ON DELETE CASCADE, objective_id uuid REFERENCES learning_knowledge_objectives(id) ON DELETE CASCADE, PRIMARY KEY (item_id, objective_id));
 ```
 
 Import is **idempotent** from the embedded JSON by `(language, key)`; `learning_path_topics.source_id`
@@ -190,7 +244,7 @@ CREATE TABLE learning_evidence (            -- APPEND-ONLY, the single record of
     id            uuid PRIMARY KEY,
     user_id       uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
     teacher_id    uuid NOT NULL,
-    item_id       uuid REFERENCES kb_items(id),               -- NULL when not attributable yet
+    item_id       uuid REFERENCES learning_knowledge_items(id),               -- NULL when not attributable yet
     skill         text NOT NULL,
     source_type   text NOT NULL CHECK (source_type IN ('assessment','exercise','review','session','tutor','self_report','manual')),
     source_id     uuid,                                        -- attempt / test answer / chat message ...
@@ -211,7 +265,7 @@ CREATE INDEX learning_evidence_time ON learning_evidence(teacher_id, occurred_at
 
 CREATE TABLE learner_item_state (            -- DERIVED, recomputable from evidence (Phase 6)
     teacher_id uuid NOT NULL, user_id uuid NOT NULL,
-    item_id    uuid NOT NULL REFERENCES kb_items(id),
+    item_id    uuid NOT NULL REFERENCES learning_knowledge_items(id),
     state      text NOT NULL CHECK (state IN ('unseen','introduced','learning','practiced','mastered','relearning')),
     mastery    real NOT NULL DEFAULT 0 CHECK (mastery BETWEEN 0 AND 1),
     confidence real NOT NULL DEFAULT 0 CHECK (confidence BETWEEN 0 AND 1),
@@ -234,7 +288,7 @@ CREATE TABLE learner_skill_estimates (       -- DERIVED + history of assessments
 
 CREATE TABLE learner_mistakes (              -- journal (Phases 6, 9); recurring errors are a query over this
     id uuid PRIMARY KEY, teacher_id uuid NOT NULL, user_id uuid NOT NULL,
-    item_id uuid REFERENCES kb_items(id), evidence_id uuid REFERENCES learning_evidence(id),
+    item_id uuid REFERENCES learning_knowledge_items(id), evidence_id uuid REFERENCES learning_evidence(id),
     category text NOT NULL, learner_text text NOT NULL, corrected_text text NOT NULL, note text NOT NULL DEFAULT '',
     resolved_at timestamptz, created_at timestamptz NOT NULL,
     FOREIGN KEY (teacher_id, user_id) REFERENCES learning_teachers(id, user_id) ON DELETE CASCADE
@@ -248,7 +302,7 @@ Evidence is **never updated or deleted** except by account/teacher deletion (cas
 
 | Phase | Table | Change |
 | --- | --- | --- |
-| 1 | `learning_path_topics` | `kb_item_id uuid NULL REFERENCES kb_items(id)`; backfill from `source_id` + `language`; keep `source_id` for rollback |
+| 1 | `learning_path_topics` | `kb_item_id uuid NULL REFERENCES learning_knowledge_items(id)`; backfill from `source_id` + `language`; keep `source_id` for rollback |
 | 3 | `learning_path_tests` | `purpose text` (`placement`, `final`, `skill`, `diagnostic`, `reassessment`), `target_skill text NULL`, `stop_reason text` (non-null `stop_reason` + `status='done'` = finished; `learner_stopped` = incomplete — **avoids adding a value to the `learning_path_test_status` enum and breaking the frontend's closed `z.enum`, R-07**); `level_reached` stays (compat) |
 | 3 | `learning_path_test_questions` | `kb_item_id uuid NULL`, `objective_id uuid NULL`, `difficulty real NULL`, `generated_by text` |
 | 3 | new `assessment_results` | per test per skill: `cefr_level, score, confidence, evidence_count` (also written to `learner_skill_estimates`) |
@@ -263,8 +317,8 @@ Evidence is **never updated or deleted** except by account/teacher deletion (cas
 
 | Existing | Becomes |
 | --- | --- |
-| Library JSON topic | `kb_items` (kind by skill: grammar -> `grammar`, vocabulary -> `lexeme` set, etc.) + `kb_item_versions` per explanation language |
-| Library `tags`, rule `related` | `kb_item_relations` (`related`); prerequisites are **new authored content** (D-013) |
+| Library JSON topic | `learning_knowledge_items` (kind by skill: grammar -> `grammar`, vocabulary -> `lexeme` set, etc.) + `learning_knowledge_item_versions` per explanation language |
+| Library `tags`, rule `related` | `learning_knowledge_item_relations` (`related`); prerequisites are **new authored content** (D-013) |
 | Library `vocabulary[]` | child `lexeme` items `part_of` the topic item |
 | `learning_teachers` | learner profile root |
 | `learning_paths.preferences` | copied to `learning_teachers.goals` (latest program wins), still written to the program for history |

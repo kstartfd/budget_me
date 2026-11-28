@@ -74,15 +74,17 @@ func (h BuildHandler) Enqueue(ctx context.Context, cmd BuildProgram) (db.Learnin
 		return db.LearningPathJob{}, false, apperr.NewInvalid("only a placement test builds a program")
 	}
 
-	if test.Status != db.LearningPathTestStatusDone {
+	if !canBuildFromTest(test) {
 		return db.LearningPathJob{}, false, apperr.NewConflict("finish the test first")
 	}
 
 	// Without an agent there is nothing to queue: say so now, not from a job.
-	if _, err := h.q.GetLearningAISettings(ctx, ids.ToPg(cmd.UserID)); db.IsNotFound(err) {
-		return db.LearningPathJob{}, false, apperr.NewInvalid("this needs an AI agent: set one up in settings")
-	} else if err != nil {
-		return db.LearningPathJob{}, false, err
+	if !test.AssessmentType.Valid {
+		if _, err := h.q.GetLearningAISettings(ctx, ids.ToPg(cmd.UserID)); db.IsNotFound(err) {
+			return db.LearningPathJob{}, false, apperr.NewInvalid("this needs an AI agent: set one up in settings")
+		} else if err != nil {
+			return db.LearningPathJob{}, false, err
+		}
 	}
 
 	now := h.clock.Now()

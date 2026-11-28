@@ -50,6 +50,8 @@ type stubProvider struct {
 	examiner func(level string, correct, asked int) string
 	// breakQuestions makes the question writer answer garbage.
 	breakQuestions bool
+	// diagnosticStatus simulates a failed screening generation call.
+	diagnosticStatus int
 	// answer, when set, may answer a call itself, whatever is queued: it gets
 	// the request body and says whether it did. It runs under the lock.
 	answer func(prompt string) (string, bool)
@@ -134,6 +136,13 @@ func (p *stubProvider) serve(w http.ResponseWriter, r *http.Request) {
 	raw, _ := io.ReadAll(r.Body)
 
 	p.mu.Lock()
+	if p.diagnosticStatus != 0 && strings.Contains(string(raw), "Write original, tightly constrained language assessment tasks") {
+		status := p.diagnosticStatus
+		p.prompts = append(p.prompts, string(raw))
+		p.mu.Unlock()
+		w.WriteHeader(status)
+		return
+	}
 	text, isTest := p.testReply(string(raw))
 	if isTest {
 		p.testPrompts = append(p.testPrompts, string(raw))

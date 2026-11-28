@@ -22,7 +22,7 @@ const maxOpenReviews = 5
 // PlannedActivity is an open learning activity with what a screen needs to show it.
 type PlannedActivity struct {
 	Activity db.LearningActivity
-	Item     *db.KbItem
+	Item     *db.LearningKnowledgeItem
 	// Title and Goal are in the language the teacher explains in; empty when the
 	// activity is not tied to a library topic.
 	Title string
@@ -178,7 +178,7 @@ func (h ActivityHandler) openPractice(ctx context.Context, teacher db.LearningTe
 		return err
 	}
 
-	var item db.KbItem
+	var item db.LearningKnowledgeItem
 
 	if topic.SourceID != "" {
 		made, _, ok, err := ensureItem(ctx, h.q, teacher, language, topic.SourceID, now)

@@ -49,7 +49,9 @@ nodes), not once per pair.
 
 - Natural key `(language, key)`; `key` is the existing library id for migrated items (`a1-to-be`). **Keys are immutable.** Renaming = new item + `superseded_by` on the old one; deleting = `status = deprecated` (kept, never reused).
 - Today's keys **embed the level** (`a1-to-be`; `TestLibraryIsWellFormed` requires the id to start with the file's level). After migration the key is just an opaque slug: if an item's level is corrected the key stays and only `cefr_level` changes. The "id starts with level" assertion applies to legacy keys only and must be relaxed for new ones.
-- `kb_items.id` (uuid) is generated on first import and is what every foreign key uses.
+- `learning_knowledge_items.id` (uuid) is generated on first import and is what
+  every foreign key uses. The old `learning_knowledge_items` name is a compatibility view after
+  migration 0038.
 - Evidence references **items**, never versions; versions describe how the item was taught at a time.
 - A program topic stores a snapshot of the text shown (as today) **and** `kb_item_id` + the `version` it was built from, so history stays readable after edits.
 
@@ -59,7 +61,7 @@ Two orthogonal axes plus free categories:
 
 1. **Skill** (`grammar, vocabulary, reading, writing, listening, speaking, pronunciation`).
 2. **CEFR level** per item (`A1..C2`) — a property of the item, not a gate.
-3. **Categories** (`kb_categories`, a tree per language): e.g. grammar -> verbs/tenses, nouns & articles, modality, clauses, questions & negation; vocabulary -> everyday, travel, work, health; function -> social, transactional, opinion. The existing `unit` strings seed the first tree; goal domains (`travel`, `work`, `exam`) are categories on tasks and vocabulary.
+3. **Categories** (`learning_knowledge_categories`, a tree per language): e.g. grammar -> verbs/tenses, nouns & articles, modality, clauses, questions & negation; vocabulary -> everyday, travel, work, health; function -> social, transactional, opinion. The existing `unit` strings seed the first tree; goal domains (`travel`, `work`, `exam`) are categories on tasks and vocabulary.
 
 ### 2.4 Relations
 
@@ -74,7 +76,7 @@ Constraints enforced by import and tests, not by SQL: the prerequisite graph is 
 a hard prerequisite has `cefr_level <=` its dependent's; no dangling ids; every `kind` has
 the required `body` fields.
 
-### 2.5 Content body per kind (`kb_item_versions.body`, `jsonb`)
+### 2.5 Content body per kind (`learning_knowledge_item_versions.body`, `jsonb`)
 
 Versioned JSON Schema files in the repo (`kb/schemas/*.json`), validated on import.
 `grammar` keeps today's shape exactly (`theory`, `forms`, `examples`, `mistakes`) so the
@@ -83,7 +85,7 @@ optional fields, e.g. Spanish `gender`, `accent_notes`; English `article_notes`.
 
 ### 2.6 Sources
 
-`kb_sources` records where knowledge comes from (a CEFR descriptor, a textbook section, a
+`learning_knowledge_sources` records where knowledge comes from (a CEFR descriptor, a textbook section, a
 corpus, "authored by the project"). Each item links to >= 1 source with a `locator`.
 **Licensing rule:** a source is a *citation*; copyrighted lists or text are never copied
 into the repo. Reference candidates to evaluate (not yet used): the CEFR and its Companion
@@ -92,7 +94,7 @@ Plan curricular for Spanish. Each needs a licence check before any import (D-015
 
 ## 3. Versioning
 
-- `version` increments **when `content_hash` changes** during import (hash of the canonical JSON body + title + goal). Old versions stay (`kb_item_versions` rows are never deleted).
+- `version` increments **when `content_hash` changes** during import (hash of the canonical JSON body + title + goal). Old versions stay (`learning_knowledge_item_versions` rows are never deleted).
 - `published_at` NULL = draft; the importer publishes only when the full validation suite passes.
 - Existing learners see an edited item only on newly built topics; a program topic keeps its snapshot. A "content updated" marker is a possible later UI.
 - A change that alters the *meaning* of the item (new prerequisite, different level) bumps a `major` flag in `change_note` and requires a path re-validation job (`AdjustPath` for affected profiles).
@@ -125,7 +127,7 @@ come from `Extra.mistakes` and `related`.
 For assessment (`ASSESSMENT_ENGINE.md` section 5) and exercises, the KB also holds optional
 **curated question items** linked to knowledge items and objectives, with a verified key.
 They are the preferred source; AI-written items are the fallback. A curated item is just
-`kb_items` kind `assessment_item` with `body = {format, prompt, options, answer, rationale}`
+`learning_knowledge_items` kind `assessment_item` with `body = {format, prompt, options, answer, rationale}`
 (add the kind in Phase 3). Seed from today's `forms/examples/mistakes` of each rule, which
 already contain verified right/wrong pairs.
 
@@ -133,7 +135,7 @@ already contain verified right/wrong pairs.
 
 - Items are keyed per **studied** language; nothing in code may assume English or Spanish.
 - A new studied language = new items + explanation-language versions for the languages it
-  is offered in; a new explanation language = new `kb_item_versions` for existing items.
+  is offered in; a new explanation language = new `learning_knowledge_item_versions` for existing items.
 - Writing-system/phonology differences live in `pronunciation` items and optional `body`
   fields (accents, gender, script), not in code branches.
 - Until a language has KB items, the existing AI-generated fallback applies (`LEARNING_ENGINE.md` section 2.2).

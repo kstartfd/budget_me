@@ -12,6 +12,7 @@ import (
 	"learning_app/backend/internal/db"
 	"learning_app/backend/internal/ids"
 	learningcommands "learning_app/backend/internal/learning/commands"
+	"learning_app/backend/internal/learningpath/assessment"
 	"learning_app/backend/internal/learningpath/curriculum"
 	"learning_app/backend/internal/learningpath/placement"
 	"learning_app/backend/internal/llm"
@@ -53,7 +54,7 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 		return db.LearningPath{}, nil, apperr.NewInvalid("only a placement test builds a program")
 	}
 
-	if test.Status != db.LearningPathTestStatusDone {
+	if !canBuildFromTest(test) {
 		return db.LearningPath{}, nil, apperr.NewConflict("finish the test first")
 	}
 
@@ -63,74 +64,15 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 		return db.LearningPath{}, nil, err
 	}
 
-	answers, err := h.q.ListLearningPathTestAnswers(ctx, test.ID)
-	if err != nil {
-		return db.LearningPath{}, nil, err
-	}
-
-	rows, err := h.q.ListLearningPathTestQuestions(ctx, test.ID)
-	if err != nil {
-		return db.LearningPath{}, nil, err
-	}
-
-	written := make(map[string]db.LearningPathTestQuestion, len(rows))
-	for _, r := range rows {
-		written[r.QuestionKey] = r
-	}
-
-	var asked, correct int
-	var wrong []wrongAnswer
-
-	for _, a := range answers {
-		r, ok := written[a.QuestionKey]
-		if !ok {
-			continue
-		}
-
-		asked++
-
-		if a.Correct {
-			correct++
-		} else {
-			wrong = append(wrong, wrongAnswer{question: questionOf(r), level: placement.Level(r.Level), chosen: a.Answer})
-		}
-	}
-
 	prefs := cmd.Preferences.Clean()
-
-	// The program is written in the language the learner's teacher explains in:
-	// their own, or the one they learn.
-	explainCode := explanationOf(ctx, h.q, test.UserID, test.Language, test.TranslationLanguage)
-	learned := learningcommands.LanguageName(test.Language)
-	explain := learningcommands.LanguageName(explainCode)
-
-	reached := placement.Level(test.LevelReached)
-
 	var plan program
-
-	// A pair with a library is planned from it, so the rules and words a
-	// learner reads were written by people; otherwise the agent writes it all.
-	if library := libraryFor(test.Language, explainCode, reached); len(library) > 0 {
-		// Key words stay translated into the learner's own language whatever
-		// the explanations are written in.
-		vocabulary := func(id string) []curriculum.Word {
-			own, _ := curriculum.Find(test.Language, test.TranslationLanguage, id)
-
-			return own.Vocabulary
-		}
-
-		plan, err = h.planFromLibrary(ctx, cmd.UserID, learned, explain, reached, asked, correct, wrong, prefs, library, vocabulary)
-		if err != nil {
-			return db.LearningPath{}, nil, err
-		}
+	if test.AssessmentType.Valid {
+		plan, err = analyzeScreening(test, prefs)
 	} else {
-		system, prompt := analyzePrompt(learned, explain, reached, asked, correct, wrong, prefs)
-
-		if err := h.agent.completeJSON(ctx, cmd.UserID, llm.PurposeProgram, system, prompt, &plan, func() error {
-			return validateProgram(&plan)
-		}); err != nil {
-			return db.LearningPath{}, nil, err
-		}
+		plan, err = h.legacyPlan(ctx, cmd.UserID, test, prefs)
+	}
+	if err != nil {
+		return db.LearningPath{}, nil, err
 	}
 
 	prefsJSON, err := json.Marshal(prefs)
@@ -146,6 +88,11 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 	defer func() { _ = tx.Rollback(ctx) }()
 
 	tq := h.q.WithTx(tx)
+	if test.AssessmentType.Valid {
+		if _, err := lockAssessment(ctx, tq, test.UserID, test.ID); err != nil {
+			return db.LearningPath{}, nil, err
+		}
+	}
 	now := h.clock.Now()
 
 	path, err := tq.InsertLearningPath(ctx, db.InsertLearningPathParams{
@@ -193,15 +140,28 @@ func (h AnalyzeHandler) Handle(ctx context.Context, cmd Analyze) (db.LearningPat
 }
 
 // sourceOf calls the first program of a language a placement, every later one a
-// re-analysis after a reset, and one built at a level the learner picked
-// without a test (a placement with no questions) a pick, so the history shows
-// how each program came to be.
+// re-analysis after a reset, one built at a level the learner had reached
+// without a test (a placement with no questions) a pick, and one built at a
+// level they only claimed a self-reported one, so the history shows how each
+// program came to be.
 func (h AnalyzeHandler) sourceOf(ctx context.Context, test db.LearningPathTest) string {
-	if questions, err := h.q.ListLearningPathTestQuestions(ctx, test.ID); err == nil && len(questions) == 0 {
-		return "chosen"
+	if test.AssessmentType.Valid {
+		return assessmentPathSource
 	}
 
 	history, err := h.q.ListLearningPathHistory(ctx, test.UserID)
+
+	if questions, qerr := h.q.ListLearningPathTestQuestions(ctx, test.ID); qerr == nil && len(questions) == 0 {
+		// No questions: a pick of a proven level, unless the history does not reach it.
+		if err == nil {
+			if reached, ok := ReachedLevel(history, test.Language); !ok || placement.Index(placement.Level(test.LevelReached)) > placement.Index(reached) {
+				return SelfReportedSource
+			}
+		}
+
+		return "chosen"
+	}
+
 	if err != nil {
 		return "placement"
 	}
@@ -213,4 +173,84 @@ func (h AnalyzeHandler) sourceOf(ctx context.Context, test db.LearningPathTest) 
 	}
 
 	return "placement"
+}
+
+func (h AnalyzeHandler) legacyPlan(ctx context.Context, userID uuid.UUID, test db.LearningPathTest, prefs Preferences) (program, error) {
+	answers, err := h.q.ListLearningPathTestAnswers(ctx, test.ID)
+	if err != nil {
+		return program{}, err
+	}
+
+	rows, err := h.q.ListLearningPathTestQuestions(ctx, test.ID)
+	if err != nil {
+		return program{}, err
+	}
+
+	written := make(map[string]db.LearningPathTestQuestion, len(rows))
+	for _, r := range rows {
+		written[r.QuestionKey] = r
+	}
+
+	var asked, correct int
+	var wrong []wrongAnswer
+
+	for _, a := range answers {
+		r, ok := written[a.QuestionKey]
+		if !ok {
+			continue
+		}
+
+		asked++
+
+		if a.Correct {
+			correct++
+		} else {
+			wrong = append(wrong, wrongAnswer{question: questionOf(r), level: placement.Level(r.Level), chosen: a.Answer})
+		}
+	}
+
+	// The program is written in the language the learner's teacher explains in:
+	// their own, or the one they learn.
+	explainCode := explanationOf(ctx, h.q, test.UserID, test.Language, test.TranslationLanguage)
+	learned := learningcommands.LanguageName(test.Language)
+	explain := learningcommands.LanguageName(explainCode)
+
+	reached := placement.Level(test.LevelReached)
+
+	var plan program
+
+	// A pair with a library is planned from it, so the rules and words a
+	// learner reads were written by people; otherwise the agent writes it all.
+	if library := libraryFor(test.Language, explainCode, reached); len(library) > 0 {
+		// Key words stay translated into the learner's own language whatever
+		// the explanations are written in.
+		vocabulary := func(id string) []curriculum.Word {
+			own, _ := curriculum.Find(test.Language, test.TranslationLanguage, id)
+
+			return own.Vocabulary
+		}
+
+		plan, err = h.planFromLibrary(ctx, userID, learned, explain, reached, asked, correct, wrong, prefs, library, vocabulary)
+		if err != nil {
+			return program{}, err
+		}
+	} else {
+		system, prompt := analyzePrompt(learned, explain, reached, asked, correct, wrong, prefs)
+
+		if err := h.agent.completeJSON(ctx, userID, llm.PurposeProgram, system, prompt, &plan, func() error {
+			return validateProgram(&plan)
+		}); err != nil {
+			return program{}, err
+		}
+	}
+
+	return plan, nil
+}
+
+func canBuildFromTest(test db.LearningPathTest) bool {
+	if test.Status != db.LearningPathTestStatusDone {
+		return false
+	}
+	return !test.AssessmentType.Valid || test.AssessmentStatus.String == assessment.Completed ||
+		test.AssessmentStatus.String == assessment.Partial
 }

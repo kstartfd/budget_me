@@ -166,17 +166,19 @@ tables). No backfill. Rollback = the Down migration or the Rollback workflow.
 
 **Current implementation.** Embedded JSON, topic-level, ids unique per file, no relations/versions/sources; rule book served from it; program topics reference it by free-text `source_id` (`KNOWLEDGE_BASE.md` section 1).
 
-**Required changes.** `kb_*` tables; idempotent importer; DB-backed read path behind a flag with a parity test; backfill `kb_item_id`; categories from `unit`; `related` relations from rule extras; `authored` source; read endpoints; generalise library validation tests to every pair; (per D-010) lexeme items or defer.
+**Naming rule before P1 schema work.** Every new Learning-owned table uses a descriptive `learning_` prefix. Migration 0038 renames the shipped `kb_items` table to `learning_knowledge_items` without copying rows; its original name remains an updatable view for the old application during blue-green deployment. Keep that view until all old versions are retired; do not edit migration 0036. All other proposed `kb_*` names in `DATA_MODEL.md` B.1 are provisional and must become `learning_knowledge_*` names before writing migrations. Review other unprefixed planned names at their phase boundaries too.
+
+**Required changes.** Extend `learning_knowledge_items` and add the remaining `learning_knowledge_*` tables; idempotent importer; DB-backed read path behind a flag with a parity test; backfill item reference; categories from `unit`; `related` relations from rule extras; `authored` source; read endpoints; generalise library validation tests to every pair; (per D-010) lexeme items or defer.
 
 **Dependencies.** D-002/D-003 (owner's "go"), **D-008, D-009, D-010, D-014, D-018, D-020**; recommended before it: P0-05, P0-06, P0-07, P0-11.
 
-**Database changes.** `DATA_MODEL.md` B.1 (all new tables) + `learning_path_topics.kb_item_id` (+ `kb_version`). No existing column changed.
+**Database changes.** Extend the existing `learning_knowledge_items` table toward `DATA_MODEL.md` B.1 and add the remaining B.1 relations; add `learning_path_topics.kb_item_id` (+ `kb_version`). Preserve the `kb_items` compatibility view during the rollout.
 
 **API changes.** New session-only `GET /learning/kb/items`, `/kb/items/:id`, `/kb/categories`. Rule-book endpoints byte-identical.
 
 **Implementation tasks.**
 - P1-01 JSON Schemas for `body` per kind (grammar/rule first) and generalise `curriculum_test` field checks to all five pairs (M)
-- P1-02 Migration `kb_*` tables (expand only) with Down (S)
+- P1-02 Migration extending `learning_knowledge_items` and adding the remaining `learning_knowledge_*` tables (expand only, with Down; keep the `kb_items` view) (S)
 - P1-03 `learningkb` package: sqlc queries, `Importer` (idempotent, per-item transaction, content-hash versioning, report) (L)
 - P1-04 Import topics of all pairs as items + versions per explanation language; assert counts (85/91 topics) (M)
 - P1-05 Import `related`/tags -> relations; categories from `unit`; `authored` source (M)
@@ -246,6 +248,47 @@ tables). No backfill. Rollback = the Down migration or the Rollback workflow.
 
 ### P3 — Assessment Engine
 
+**Scope revision (D-035..D-037, 2026-11-26).** The Quick-only first delivery below
+is an implementation milestone, not the final assessment product. The current target
+and release gates are in [ASSESSMENT_MODES.md](ASSESSMENT_MODES.md). The work order
+is now: (1) shared section/mode engine and persistence; (2) grammar section;
+(3) vocabulary section; (4) reading section; (5) integrate all three into Quick;
+(6) repeatable individual Skill Assessment with history; (7) Full orchestration,
+partial completion and resume; (8) writing; (9) listening; (10) speaking;
+(11) pronunciation after validated audio analysis. A mode remains disabled until its
+entire journey is verified. Full cannot claim completion while required skills lack
+support. This order supersedes the earlier assumption that listening/speaking arrive
+only after all other phases in P10; their capability work can be developed in P3/P10
+increments as dependencies become ready.
+
+| Slice | Deliverable and release gate | Dependency |
+| --- | --- | --- |
+| P3-14 | Versioned mode/skill blueprint, section lifecycle, question/evaluator interfaces and capability contract; preserve current Quick behavior | 0037 compatibility, P3-03/04 |
+| P3-15 | Independent section storage/results, additive migration, per-answer evidence attribution, migration up/down/up | P3-14, D-025/D-037 |
+| P3-16 | Grammar section through shared engine with Quick regression and browser gate | P3-14/15, existing grammar bank |
+| P3-17 | Vocabulary objectives, keyed bank, semantic validator, recognition + independent recall, adaptation and result tests | P1 lexical content/identity, P3-16 |
+| P3-18 | Passage-linked reading bank, main idea/detail/inference tasks, scoring, adaptation and result tests | passage provenance, P3-16 |
+| P3-19 | Quick mode covers grammar + vocabulary + reading and produces partial/overall result, gap analysis and path input | P3-17/18, P4 path contract |
+| P3-20 | Skill selection, one-section run, repeatable history/comparison, authorization and UI tests | P3-15 plus each enabled skill |
+| P3-21 | Full orchestration, section progress/pause/resume, completed-section results, capability gating | P3-20, required skills as released |
+| P3-22 | Writing prompts and versioned rubric, bounded AI evaluator, calibration and end-to-end tests | rubric contract, evaluation budget |
+| P3-23 | Listening audio item assets/playback, hidden transcript, comprehension scoring and accessibility policy | TTS/cache, audio content review |
+| P3-24 | Recorded speaking tasks, secure upload/retention, recognition and calibrated audio-aware rubric | recording/storage/consent decisions |
+| P3-25 | Optional pronunciation section using validated acoustic analysis, never transcript-only | P3-24, calibration corpus |
+
+P3-14, P3-15 and P3-16 have local verification records V-008, V-014 and V-015.
+P3-17 is next and depends on P1 lexical content/identity; 0039 section storage does not enable Full, Skill or additional
+skills. See the [status ledger](IMPLEMENTATION_STATUS.md) for the exact gates.
+
+Each implemented mode needs unit tests for blueprint/adaptation, generator/validator
+fixtures, API lifecycle and authorization tests, and an onboarding-to-result browser
+test. Capability and status are recorded per **mode and skill**, not just per phase.
+
+**First delivery:** [Quick Screening](QUICK_SCREENING.md) uses the existing V1 evidence
+ledger, Rule Book and path builder. It delivers a bounded English and Spanish grammar
+screening with deterministic rules. The remainder of this phase covers calibration,
+expanded skills and purposes, item analysis and the legacy placement transition.
+
 **Objective.** Backend-owned, adaptive, evidence-based assessment per skill with confidence, partial results and manual starting points; the AI writes items and explanations but never decides a result.
 
 **Current implementation.** `ASSESSMENT_ENGINE.md` section 1.
@@ -279,9 +322,11 @@ tables). No backfill. Rollback = the Down migration or the Rollback workflow.
 
 **Migration strategy.** `ASSESSMENT_ENGINE.md` section 7 (frontend tolerance -> expand -> replay backfill -> shadow -> switch -> contract).
 
-**Current status.** `NOT_STARTED`.
+**Current status.** Quick Screening is verified locally. The broader P3 work remains pending.
 
-**Known limitations.** Listening/speaking items arrive in P10; free-form scoring evidence weight capped; curated bank starts small (seeded from rules).
+**Known limitations of the first delivery.** Only grammar is assessed; free-form
+scoring evidence weight is capped; the curated bank starts small. Later audio skill
+work is itemized above and is unavailable until its release gates pass.
 
 ---
 

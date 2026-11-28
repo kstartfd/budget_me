@@ -24,6 +24,8 @@ import { ScreenBar } from "@/components/screen-bar";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLearning } from "@/features/learning/hooks";
+import { useAiSettings } from "@/features/ai";
+import { useActiveTeacher } from "@/features/home/setup";
 import { cn } from "@/lib/utils";
 
 import { useArchiveTopicChat, useTopicChat, useTopicChatTurn } from "../hooks";
@@ -62,6 +64,9 @@ const iconButton =
 export function TeacherChatScreen() {
   const t = useTranslations("chat");
   const learning = useTranslations("learning");
+  const workspace = useTranslations("workspace");
+  const { active } = useActiveTeacher();
+  const ai = useAiSettings();
   const { topics } = useLearning();
   // A guided exercise links here with the notebook and the question to ask.
   // window.location is still the previous page while a client-side navigation
@@ -74,8 +79,8 @@ export function TeacherChatScreen() {
   );
   useClaimFullScreen();
 
-  const topic =
-    topics.data?.find((item) => item.id === picked) ?? topics.data?.[0];
+  const availableTopics = topics.data?.filter((item) => !active || item.language === active.language) ?? [];
+  const topic = availableTopics.find((item) => item.id === picked) ?? availableTopics[0];
 
   const heading = (
     <header className="hidden min-w-0 flex-1 lg:block">
@@ -93,9 +98,14 @@ export function TeacherChatScreen() {
       <ScreenBar
         className="lg:hidden"
         backLabel={learning("title")}
-        backHref="/learning"
+        backHref="/learning/overview"
         title={t("teacherTitle")}
       />
+      <div className="bg-card border-border rounded-lg border px-4 py-3 text-xs text-muted-foreground">
+        {workspace("tutorEvidenceNote")}
+        {active?.path && <Link href={`/learning/path?language=${encodeURIComponent(active.language)}`} className="ml-2 underline">{workspace("returnToActivity")}</Link>}
+      </div>
+      {ai.isSuccess && !ai.data && <p role="status" className="bg-card border-border rounded-lg border p-4 text-sm">{workspace("missingAiKey")} <Link href="/learning/settings" className="underline">{learning("settings")}</Link></p>}
 
       {topics.isPending ? (
         <>

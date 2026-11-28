@@ -1,8 +1,8 @@
 # Architecture
 
 Part 1 is the target logical architecture. Part 2 records the **real conventions of the
-code today** (there is no `AGENTS.md`/`CLAUDE.md` in the repo, and `CODING_STYLE.md` is a
-stale template — TD-01/TD-02), so a new agent can write code that fits. Part 3 maps the two.
+code today** (`AGENTS.md` points here; `CODING_STYLE.md` is a stale template — TD-02),
+so a new agent can write code that fits. Part 3 maps the two.
 
 The platform stays a **modular monolith**: one Go service, one Next.js app, one Postgres
 (+ the shared account DB). Domains below are package boundaries, not services.
@@ -18,7 +18,7 @@ The platform stays a **modular monolith**: one Go service, one Next.js app, one 
                                                   │ reads context, proposes evidence
  ┌───────────────┐  ┌───────────────┐   ┌─────────▼─────────┐   ┌───────────────────┐
  │ Knowledge Base│◄─┤ Learner       │◄──┤ Evidence          │◄──┤ Exercise Engine   │
- │ kb_items,     │  │ Profile       │   │ (append-only)     │   │ (generate,grade)  │
+ │ items,        │  │ Profile       │   │ (append-only)     │   │ (generate,grade)  │
  │ relations,    │  │ goals, prefs, │   └─────────▲─────────┘   └─────────▲─────────┘
  │ versions      │  │ skill est.,   │             │                       │
  └──────▲────────┘  │ item state    │   ┌─────────┴─────────┐   ┌─────────┴─────────┐
@@ -42,10 +42,12 @@ handler — they call its command/query handler.
 
 Follows the existing `learning<feature>` naming. Existing code is **not moved**; new
 domains are new packages and `learningpath` calls into them (strangler pattern).
+Unprefixed proposed table names in the map are provisional; section 2.7 governs
+names used in new migrations.
 
 | Domain (plan section) | Package | Owns (tables, `DATA_MODEL.md` B) | Status today |
 | --- | --- | --- | --- |
-| 6.1 Knowledge Base | `learningkb` | `kb_*` | partly `learningpath/curriculum` (embedded JSON) |
+| 6.1 Knowledge Base | `learningkb` | `learning_knowledge_items` (0038), legacy `kb_items` view; new tables use `learning_knowledge_*` | partly `learningpath/curriculum` (embedded JSON) |
 | 6.2 Learner Profile | `learningprofile` | `learning_teachers` (+cols), `learner_skill_estimates`, `learning_evidence`, `learner_item_state`, `learner_mistakes` | partly `learningpath/commands/teacher.go` |
 | 6.3 Assessment | `learningassess` | `learning_path_tests/*` (kept), `assessment_results` | `learningpath/commands/test*.go`, `placement` |
 | 6.4 Learning Path | `learningpath` (existing) | `learning_paths`, `learning_path_topics`, revisions | exists, static |
@@ -60,6 +62,12 @@ Extraction is done **when a phase needs it**, not up front: a phase that adds
 `learningkb` moves only what that phase touches.
 
 ---
+
+The assessment target now has three configured modes sharing one engine. Each skill
+has its own item, evaluation and stop policy, and Full Assessment persists independent
+sections; see [ASSESSMENT_MODES.md](ASSESSMENT_MODES.md) and D-035..D-037. The
+existing `learningpath/assessment` package implements the grammar Quick slice only.
+The target `learningassess` package in the map above is not yet a shipped module.
 
 ## 2. Real conventions today (write code like this)
 
@@ -146,6 +154,17 @@ No broker. Patterns in use, reuse them:
 - **Never** `@latest` / `:latest` in Dockerfile/CI: pin versions.
 - sqlc regeneration: `make sqlc` from the repo root (pinned `sqlc/sqlc:1.31.1` Docker image; it regenerates budget, learning and account — commit only the learning diff you intended).
 
+### 2.7 Database table names
+
+Every new table owned by the Learning application uses a descriptive `learning_`
+prefix. Name the domain and entity in full. Migration 0038 renamed the physical
+knowledge identity table to `learning_knowledge_items`; a simple updatable
+`kb_items` view preserves old application queries during blue-green deployment.
+The `kb_*`, `learner_*`, `assessment_*`, and `study_*` names in older proposed DDL
+are provisional and must be reconciled before a migration is written.
+`learner_item_state` is still a shipped naming exception.
+The shared account schema and the existing `users` table are outside this rule.
+
 ---
 
 ## 3. Gap between target and today
@@ -155,7 +174,7 @@ No broker. Patterns in use, reuse them:
 | Where validators live | inside `learningpath/commands/*.go` next to prompts | shared `learningaicontract` with versioned schemas and golden tests |
 | Evidence | none (boolean `correct` per attempt/answer) | one append-only table written transactionally by every engine |
 | Decisions made by AI | placement verdict climb/stop | backend rules decide; AI may *propose* (explanations, classification) |
-| Knowledge identity | free-text `source_id` | `kb_items` with stable ids |
+| Knowledge identity | free-text `source_id` | `learning_knowledge_items` with stable ids |
 | Read models | per-screen endpoints | `learningprogress` aggregations (Phase 8) |
 | Feature rollout | big-bang per push | additive migrations + config flags (D-014) |
 

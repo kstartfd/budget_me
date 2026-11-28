@@ -96,16 +96,27 @@ func TestLearningLoopMigration(t *testing.T) {
 	legacy.check(t, ctx, pool, "after down")
 	mustHaveLoopTables(t, ctx, pool, false)
 
-	if err := goose.UpContext(ctx, sqlDB, "."); err != nil {
+	if err := goose.UpToContext(ctx, sqlDB, ".", 37); err != nil {
 		t.Fatalf("up again: %v", err)
 	}
 
 	legacy.check(t, ctx, pool, "after up again")
 	mustHaveLoopTables(t, ctx, pool, true)
+
+	if err := goose.DownContext(ctx, sqlDB, "."); err != nil {
+		t.Fatalf("assessment down: %v", err)
+	}
+	legacy.check(t, ctx, pool, "after assessment down")
+	mustHaveLoopTables(t, ctx, pool, true)
+	if err := goose.UpToContext(ctx, sqlDB, ".", 37); err != nil {
+		t.Fatalf("assessment up again: %v", err)
+	}
+	legacy.check(t, ctx, pool, "after assessment up again")
+
 }
 
 type legacyRows struct {
-	user, teacher, path, topic, exercise, attempt uuid.UUID
+	user, teacher, placement, path, topic, exercise, attempt uuid.UUID
 }
 
 func seedLegacy(t *testing.T, ctx context.Context, pool *pgxpool.Pool) legacyRows {
@@ -113,7 +124,7 @@ func seedLegacy(t *testing.T, ctx context.Context, pool *pgxpool.Pool) legacyRow
 
 	q := db.New(pool)
 	now := db.Time(time.Now().UTC())
-	l := legacyRows{ids.New(), ids.New(), ids.New(), ids.New(), ids.New(), ids.New()}
+	l := legacyRows{ids.New(), ids.New(), ids.New(), ids.New(), ids.New(), ids.New(), ids.New()}
 
 	must := func(err error) {
 		t.Helper()
@@ -127,10 +138,20 @@ func seedLegacy(t *testing.T, ctx context.Context, pool *pgxpool.Pool) legacyRow
 	must(err)
 	_, err = q.InsertLearningTeacher(ctx, db.InsertLearningTeacherParams{ID: ids.ToPg(l.teacher), UserID: ids.ToPg(l.user), Language: "en", TranslationLanguage: "ru", CreatedAt: now})
 	must(err)
-	placement := ids.New()
-	_, err = q.InsertLearningPathTest(ctx, db.InsertLearningPathTestParams{ID: ids.ToPg(placement), UserID: ids.ToPg(l.user), Kind: db.LearningPathTestKindPlacement, Language: "en", TranslationLanguage: "ru", Level: "A1", CreatedAt: now})
+	// Use the v35 column contract. Current generated queries return fields
+	// that were added by the assessment migration.
+	_, err = pool.Exec(ctx, `INSERT INTO learning_path_tests
+		(id, user_id, kind, language, translation_language, level, status, created_at)
+		VALUES ($1, $2, 'placement', 'en', 'ru', 'A1', 'in_progress', $3)`, l.placement, l.user, now)
 	must(err)
-	_, err = q.InsertLearningPath(ctx, db.InsertLearningPathParams{ID: ids.ToPg(l.path), UserID: ids.ToPg(l.user), Language: "en", TranslationLanguage: "ru", Level: "A1", Summary: "s", Source: "test", PlacementTestID: ids.ToPg(placement), Preferences: []byte(`{}`), CreatedAt: now})
+	_, err = pool.Exec(ctx, `INSERT INTO learning_path_test_questions
+		(test_id, question_key, level, position, skill, prompt, options, answer)
+		VALUES ($1, 'q1', 'A1', 0, 'grammar', 'I ___ ready.', '["am","are","is","be"]', 'am')`, l.placement)
+	must(err)
+	_, err = pool.Exec(ctx, `INSERT INTO learning_path_test_answers
+		(test_id, question_key, answer, correct) VALUES ($1, 'q1', 'am', true)`, l.placement)
+	must(err)
+	_, err = q.InsertLearningPath(ctx, db.InsertLearningPathParams{ID: ids.ToPg(l.path), UserID: ids.ToPg(l.user), Language: "en", TranslationLanguage: "ru", Level: "A1", Summary: "s", Source: "test", PlacementTestID: ids.ToPg(l.placement), Preferences: []byte(`{}`), CreatedAt: now})
 	must(err)
 	_, err = q.InsertLearningPathTopic(ctx, db.InsertLearningPathTopicParams{ID: ids.ToPg(l.topic), PathID: ids.ToPg(l.path), Position: 0, Skill: "grammar", Title: "To be", Goal: "g", Vocabulary: []byte(`[]`), CreatedAt: now, SourceID: "a1-to-be"})
 	must(err)
@@ -150,6 +171,7 @@ func (l legacyRows) check(t *testing.T, ctx context.Context, pool *pgxpool.Pool,
 	for _, c := range []struct{ table, id string }{
 		{"users", l.user.String()},
 		{"learning_teachers", l.teacher.String()},
+		{"learning_path_tests", l.placement.String()},
 		{"learning_paths", l.path.String()},
 		{"learning_path_topics", l.topic.String()},
 		{"learning_path_exercises", l.exercise.String()},
@@ -159,6 +181,12 @@ func (l legacyRows) check(t *testing.T, ctx context.Context, pool *pgxpool.Pool,
 		if err := pool.QueryRow(ctx, fmt.Sprintf("SELECT COUNT(*) FROM %s WHERE id = $1", c.table), c.id).Scan(&n); err != nil || n != 1 {
 			t.Fatalf("%s: %s row %s: count %d, err %v", when, c.table, c.id, n, err)
 		}
+	}
+
+	var answer string
+	if err := pool.QueryRow(ctx, `SELECT a.answer FROM learning_path_test_answers a
+		JOIN learning_path_test_questions q USING (test_id, question_key) WHERE a.test_id = $1`, l.placement).Scan(&answer); err != nil || answer != "am" {
+		t.Fatalf("%s: the legacy assessment response changed: %q, %v", when, answer, err)
 	}
 
 	var source string

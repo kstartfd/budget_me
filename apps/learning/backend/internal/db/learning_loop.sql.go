@@ -234,12 +234,12 @@ func (q *Queries) GetCurrentPracticeTopic(ctx context.Context, arg GetCurrentPra
 }
 
 const getKBItem = `-- name: GetKBItem :one
-SELECT id, language, key, kind, skill, cefr_level, unit, created_at FROM kb_items WHERE id = $1
+SELECT id, language, key, kind, skill, cefr_level, unit, created_at FROM learning_knowledge_items WHERE id = $1
 `
 
-func (q *Queries) GetKBItem(ctx context.Context, id pgtype.UUID) (KbItem, error) {
+func (q *Queries) GetKBItem(ctx context.Context, id pgtype.UUID) (LearningKnowledgeItem, error) {
 	row := q.db.QueryRow(ctx, getKBItem, id)
-	var i KbItem
+	var i LearningKnowledgeItem
 	err := row.Scan(
 		&i.ID,
 		&i.Language,
@@ -254,7 +254,7 @@ func (q *Queries) GetKBItem(ctx context.Context, id pgtype.UUID) (KbItem, error)
 }
 
 const getKBItemByKey = `-- name: GetKBItemByKey :one
-SELECT id, language, key, kind, skill, cefr_level, unit, created_at FROM kb_items WHERE language = $1 AND key = $2
+SELECT id, language, key, kind, skill, cefr_level, unit, created_at FROM learning_knowledge_items WHERE language = $1 AND key = $2
 `
 
 type GetKBItemByKeyParams struct {
@@ -262,9 +262,9 @@ type GetKBItemByKeyParams struct {
 	Key      string
 }
 
-func (q *Queries) GetKBItemByKey(ctx context.Context, arg GetKBItemByKeyParams) (KbItem, error) {
+func (q *Queries) GetKBItemByKey(ctx context.Context, arg GetKBItemByKeyParams) (LearningKnowledgeItem, error) {
 	row := q.db.QueryRow(ctx, getKBItemByKey, arg.Language, arg.Key)
-	var i KbItem
+	var i LearningKnowledgeItem
 	err := row.Scan(
 		&i.ID,
 		&i.Language,
@@ -475,7 +475,7 @@ func (q *Queries) InsertLearningEvidence(ctx context.Context, arg InsertLearning
 const listDueReviewItems = `-- name: ListDueReviewItems :many
 SELECT s.item_id, s.state, s.stage, s.due_at, i.key, i.skill, i.cefr_level
 FROM learner_item_state s
-JOIN kb_items i ON i.id = s.item_id
+JOIN learning_knowledge_items i ON i.id = s.item_id
 WHERE s.teacher_id = $1 AND s.user_id = $2 AND s.evidence_count > 0
   AND s.due_at IS NOT NULL AND s.due_at <= $3
   AND EXISTS (
@@ -775,9 +775,9 @@ func (q *Queries) SkipStaleReviewActivities(ctx context.Context, arg SkipStaleRe
 
 const upsertKBItem = `-- name: UpsertKBItem :one
 
-INSERT INTO kb_items (id, language, key, kind, skill, cefr_level, unit, created_at)
+INSERT INTO learning_knowledge_items (id, language, key, kind, skill, cefr_level, unit, created_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-ON CONFLICT (language, key) DO UPDATE SET key = kb_items.key
+ON CONFLICT (language, key) DO UPDATE SET key = learning_knowledge_items.key
 RETURNING id, language, key, kind, skill, cefr_level, unit, created_at
 `
 
@@ -797,7 +797,7 @@ type UpsertKBItemParams struct {
 // rows is scoped by user_id; an id of another learner is simply not found.
 // An item is made from the library the first time the learner shows something
 // about it; the no-op update makes the row come back on a repeat.
-func (q *Queries) UpsertKBItem(ctx context.Context, arg UpsertKBItemParams) (KbItem, error) {
+func (q *Queries) UpsertKBItem(ctx context.Context, arg UpsertKBItemParams) (LearningKnowledgeItem, error) {
 	row := q.db.QueryRow(ctx, upsertKBItem,
 		arg.ID,
 		arg.Language,
@@ -808,7 +808,7 @@ func (q *Queries) UpsertKBItem(ctx context.Context, arg UpsertKBItemParams) (KbI
 		arg.Unit,
 		arg.CreatedAt,
 	)
-	var i KbItem
+	var i LearningKnowledgeItem
 	err := row.Scan(
 		&i.ID,
 		&i.Language,

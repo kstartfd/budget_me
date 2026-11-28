@@ -61,6 +61,21 @@ export function usePath(language: string, nativeLanguage: string) {
   return { active, history, startPlacement, chooseLevel, reset, clearHistory, startFinal, setGoal }
 }
 
+/**
+ * The learning loop of a language (what is due, what to do now). The teacher
+ * must exist, so a language with no teacher is not asked for.
+ */
+export function useLoopDashboard(language: string | null) {
+  const { user } = useAuth()
+
+  return useQuery({
+    queryKey: ["path", user?.id, "loop", language],
+    queryFn: () => api.fetchLoopDashboard(language!),
+    enabled: !!user && !!language,
+    retry: false,
+  })
+}
+
 const hour = 60 * 60 * 1000
 
 /**

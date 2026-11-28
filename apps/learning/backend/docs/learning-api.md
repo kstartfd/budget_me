@@ -305,8 +305,7 @@ Extension tokens get **401**. The image installs the language data named in `OCR
 ## Teachers and the study program (session only)
 
 A teacher is a language the learner studies, with the language its rules are
-explained in; there is one per language. Everything here spends the learner's
-own agent and is never reachable with a topic-scoped extension token. Paths are
+explained in. There is one per language. These routes require a session token. Paths are
 under `/api/v1/learning/path`.
 
 | Method and path | What it does |
@@ -314,10 +313,10 @@ under `/api/v1/learning/path`.
 | `GET /teachers` | The learner's teachers, each with a line about its running program (`level`, `topicsDone`, `topicsTotal`). |
 | `POST /teachers` | `{language, translationLanguage}`. Adds a teacher; a language that has one hands it back with its own pair. |
 | `DELETE /teachers/:id` | Removes a teacher. Its running program is closed into the history, not thrown away. |
-| `POST /tests` | Opens a placement test (`{language, translationLanguage, level?}`; `level` starts above A1 and is accepted only as the rung after a confirmed final test). The first batch is written by the agent before the test exists, so without a reachable agent it fails and leaves nothing open. |
+| `POST /tests` | Without `purpose`, opens a legacy placement test (`{language, translationLanguage, level?}`; `level` starts above A1 and is accepted only as the rung after a confirmed final test). The first batch is written by the agent before the test exists, so without a reachable agent it fails and leaves nothing open. |
 | `POST /final-tests` | Opens the final test of the running program's level. |
-| `POST /levels` | `{language, translationLanguage, level}`. Picks a level the learner has already reached instead of taking the test again: it answers `201` with a finished placement at that level (no questions, no agent call), which is built into a program with `POST /tests/:id/analyze` like any other, the program's `source` is then `chosen`. The levels that can be picked are `A1` up to the highest level of the language's closed programs (the history is the proof), so `400` with no history or above it, `409` while a program is running. |
-| `GET /tests/:id`, `POST /tests/:id/answers` | The state of a test, and one batch of answers; a full batch goes to the examiner (the agent), which climbs or places the learner. |
+| `POST /levels` | `{language, translationLanguage, level}`. Picks a level the learner has already reached instead of taking the test again: it answers `201` with a finished placement at that level (no questions, no agent call), which is built into a program with `POST /tests/:id/analyze` like any other, the program's `source` is then `chosen`. The levels that can be picked are `A1` up to the highest level of the language's closed programs (the history is the proof), so `400` with no history or above it, `409` while a program is running. With `selfReported: true` the level is only a claim: any level from `A1` to `C1` is accepted with no history, the program's `source` is `self_reported`, and such a program never counts as a reached level, so it cannot be picked again after a reset without a test. |
+| `GET /tests/:id`, `POST /tests/:id/answers` | The state of a test and answer submission. The legacy flow uses the agent examiner at a full batch. Quick Screening uses the rules below. |
 | `POST /tests/:id/analyze` | Queues building the program from a finished placement test and answers `202` with a job; asking again hands the same job back. |
 | `GET /jobs/:id` | `queued`, `running`, `done` (with the program) or `failed` (with why). |
 | `DELETE /history?language=` | Clears the learner's history of a language: its closed programs, with their topics, exercises, attempts and lessons (`{deleted: n}`). The running program stays. The newest finished program is also what lets a test start above A1, so after clearing the next test starts from A1. |
@@ -348,6 +347,39 @@ the current set.
 For a language pair that has a library (English and Spanish for Russian speakers, A1 to B2)
 the program is planned from it: the agent only picks topics, and each topic
 carries the library's own rule, words and goal.
+
+### Quick Screening (session only)
+
+`GET /learning/path/assessments/capabilities?language=en` returns
+`{language, available:[{type, blueprintVersion, skills[]}]}`. It requires a
+session, sends `Cache-Control: no-store`, and lists **only runnable** mode/skill
+combinations. At this stage English and Spanish return
+`quick_screening`/`grammar-quick-v1` with `skills:["grammar"]`; other languages
+return an empty array. Full and Skill Assessment are not advertised. Missing
+`language` returns 400. This is a capability boundary, not a claim that the
+target three-skill Quick mode is finished.
+
+| Method and path | Request and response |
+| --- | --- |
+| `POST /tests` | `{language, translationLanguage, purpose:"quick_screening", startPoint?}`. English and Spanish have curated assessments. `startPoint` accepts A1–B2 and defaults to A2. The route returns `201` with the open assessment for the profile or starts a new one. |
+| `GET /tests/:id` | Returns the persisted state and remaining questions in the active batch. The additive `assessment` object contains `type`, `status`, `learnerProfileId`, `batch`, `answered`, `maxQuestions`, optional `stopReason` and `result`, plus `sections[]`. Quick has one persisted grammar section with `id`, `skill`, zero-based `position`, `status`, `currentBand`, `batch`, `answered`, `maxQuestions`, optional `stopReason` and optional section `result`. Historical attempts without a recorded section result omit that field; no result is reconstructed. |
+| `POST /tests/:id/answers` | `{answers:[{key, answer?, skip?, assisted?}]}`. Submit one or more current questions. Blank answers or an explicit skip record an unknown response. Identical retries return current state and conflicting edits return `409`. The response never includes grading keys or individual correctness. |
+| `POST /tests/:id/assessment/:action` | `pause`, `resume`, `complete` with available evidence, or `cancel`. Returns the current state. Resume retries preparing a pending batch after an interrupted request. |
+| `GET /tests/:id/results` | Full result once persisted, or `409` while pending. Provides profile and assessment IDs, evidence sufficiency, optional difficulty range, skill estimates and unassessed skills, `sections[]` (currently one grammar section with status, stop reason, sufficiency, difficulty range, usable evidence and evidence IDs), per-item outcomes, gaps, strengths, recommended checks and objectives, and evidence IDs. |
+| `POST /tests/:id/analyze` | For `completed` or `partial`, queues an evidence-based library plan using the same build job contract. |
+
+Assessment lifecycle states are `created`, `in_progress`, `paused`, `evaluating`,
+`completed`, `partial`, `failed`, and `cancelled`. The legacy top-level
+`status` stays `in_progress` or `done`. Active tasks add `type`, `version`,
+`knowledgeItemKey`, `learningObjective` and `category` to the existing question
+fields. Question keys and accepted answers are associated with their stored section;
+assessment evidence is attributed through those keys and its attempt ID. The section
+policy and private grading keys are not returned. Grammar allocation, evaluation and
+aggregation use the shared section engine and the stored versioned policy. Existing
+top-level fields remain available. Use the optional `result.difficultyRange` and `result.evidenceSufficiency` when
+showing a screening result. `levelReached` remains a legacy planning label. Foreign IDs
+return `404`. Methodology and limits are documented in
+[Quick Screening](../../../../docs/learning/QUICK_SCREENING.md).
 
 ## Rule book and practice on a rule (session only)
 

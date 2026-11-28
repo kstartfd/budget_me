@@ -10,11 +10,14 @@ import (
 // be able to do.
 func (c *Controller) Routes(protected *echo.Group) {
 	protected.POST("/learning/path/tests", c.startTest, echomw.BodyLimit("16K"))
+	protected.GET("/learning/path/assessments/capabilities", c.assessmentCapabilities)
 	protected.POST("/learning/path/final-tests", c.startFinal, echomw.BodyLimit("16K"))
 	protected.POST("/learning/path/levels", c.chooseLevel, echomw.BodyLimit("16K"))
 	protected.GET("/learning/path/tests/:id", c.testState)
 	protected.POST("/learning/path/tests/:id/answers", c.answer, echomw.BodyLimit("64K"))
 	protected.POST("/learning/path/tests/:id/analyze", c.analyze)
+	protected.POST("/learning/path/tests/:id/assessment/:action", c.assessmentAction)
+	protected.GET("/learning/path/tests/:id/results", c.assessmentResults)
 	protected.GET("/learning/path/jobs/:id", c.job)
 	protected.GET("/learning/path/teachers", c.listTeachers)
 	protected.POST("/learning/path/teachers", c.createTeacher, echomw.BodyLimit("16K"))

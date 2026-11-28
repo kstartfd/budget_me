@@ -23,6 +23,7 @@ export function TestRunner({
   chosen = false,
   onClose,
   onNextLevel,
+  onFinished,
 }: {
   id: string
   /** The language being learned: the survey suggests its own varieties. */
@@ -32,6 +33,11 @@ export function TestRunner({
   onClose: (analyzed: boolean) => void
   /** Starts a new test at the given rung, after a final test is passed. */
   onNextLevel?: (level: string) => void
+  /**
+   * A finished placement is handed to the host instead of the verdict screen:
+   * the host already has the survey's answers and builds the program itself.
+   */
+  onFinished?: (test: PathTest) => void
 }) {
   const t = useTranslations("path.test")
   const query = usePathTest(id)
@@ -74,6 +80,10 @@ export function TestRunner({
   if (!current) return null
 
   if (current.status === "done") {
+    if (onFinished && current.kind === "placement") {
+      return <HandOver test={current} onFinished={onFinished} />
+    }
+
     return (
       <Done
         test={current}
@@ -162,6 +172,23 @@ export function TestRunner({
       </div>
     </div>
   )
+}
+
+/** Tells the host once that the placement is done; it draws nothing. */
+function HandOver({
+  test,
+  onFinished,
+}: {
+  test: PathTest
+  onFinished: (test: PathTest) => void
+}) {
+  useEffect(() => {
+    onFinished(test)
+    // The host is told about this test once, however often it re-renders.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [test.id])
+
+  return null
 }
 
 function QuestionCard({

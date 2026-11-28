@@ -17,6 +17,7 @@ import (
 // questionResponse is a test question as the test-taker sees it: never the
 // answer.
 type questionResponse struct {
+	*commands.QuestionMetadata
 	Key     string   `json:"key"`
 	Skill   string   `json:"skill"`
 	Text    string   `json:"text"`
@@ -39,25 +40,27 @@ func questionsDTO(list []placement.Question) []questionResponse {
 
 // testResponse is a test and where it stands.
 type testResponse struct {
-	ID                  string             `json:"id"`
-	Kind                string             `json:"kind"`
-	Language            string             `json:"language"`
-	TranslationLanguage string             `json:"translationLanguage"`
-	Level               string             `json:"level"`
-	StartLevel          string             `json:"startLevel"`
-	LevelReached        string             `json:"levelReached"`
-	Passed              bool               `json:"passed"`
-	Status              string             `json:"status"`
-	Questions           []questionResponse `json:"questions"`
-	Asked               int                `json:"asked"`
-	Correct             int                `json:"correct"`
-	Needed              int                `json:"needed"`
-	CreatedAt           time.Time          `json:"createdAt"`
-	CompletedAt         *time.Time         `json:"completedAt"`
+	Assessment          *commands.AssessmentProgress `json:"assessment,omitempty"`
+	ID                  string                       `json:"id"`
+	Kind                string                       `json:"kind"`
+	Language            string                       `json:"language"`
+	TranslationLanguage string                       `json:"translationLanguage"`
+	Level               string                       `json:"level"`
+	StartLevel          string                       `json:"startLevel"`
+	LevelReached        string                       `json:"levelReached"`
+	Passed              bool                         `json:"passed"`
+	Status              string                       `json:"status"`
+	Questions           []questionResponse           `json:"questions"`
+	Asked               int                          `json:"asked"`
+	Correct             int                          `json:"correct"`
+	Needed              int                          `json:"needed"`
+	CreatedAt           time.Time                    `json:"createdAt"`
+	CompletedAt         *time.Time                   `json:"completedAt"`
 }
 
 func testDTO(p commands.TestProgress) testResponse {
 	out := testResponse{
+		Assessment:          p.Assessment,
 		ID:                  ids.FromPg(p.Test.ID).String(),
 		Kind:                string(p.Test.Kind),
 		Language:            p.Test.Language,
@@ -72,6 +75,13 @@ func testDTO(p commands.TestProgress) testResponse {
 		Correct:             p.Correct,
 		Needed:              p.Needed,
 		CreatedAt:           p.Test.CreatedAt.Time,
+	}
+
+	if p.Assessment != nil {
+		for i := range out.Questions {
+			meta := p.Assessment.Questions[out.Questions[i].Key]
+			out.Questions[i].QuestionMetadata = &meta
+		}
 	}
 
 	if p.Test.CompletedAt.Valid {

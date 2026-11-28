@@ -21,17 +21,22 @@ coding agent (or a person) can continue the work **without the original conversa
 | 4b | [`VERTICAL_SLICE_V1.md`](VERTICAL_SLICE_V1.md) | The first end-to-end learning loop (D-024): design, rules, API, tests, limits |
 | 5 | [`DECISIONS.md`](DECISIONS.md) | Decision log; section "Awaiting approval" lists what blocks which phase |
 | 6 | [`ARCHITECTURE.md`](ARCHITECTURE.md) | Real code conventions today + target domain boundaries |
-| 7 | [`DATA_MODEL.md`](DATA_MODEL.md) | Current schema (migrations 0001-0035) and the proposed target schema |
+| 7 | [`DATA_MODEL.md`](DATA_MODEL.md) | Current schema (migrations 0001-0038, including the knowledge-item name compatibility view) and the proposed target schema |
 | 8 | [`API_CONTRACTS.md`](API_CONTRACTS.md) | API conventions, endpoint index, compatibility rules, planned endpoints |
 | 9 | [`AI_CONTRACTS.md`](AI_CONTRACTS.md) | Every AI call today, its validation, and the target contract rules |
 | 10 | [`KNOWLEDGE_BASE.md`](KNOWLEDGE_BASE.md) | Current library, target knowledge-item model, authoring and versioning |
 | 11 | [`LEARNING_METHODOLOGY.md`](LEARNING_METHODOLOGY.md) | How each pedagogical approach becomes a concrete system rule |
-| 12 | [`ASSESSMENT_ENGINE.md`](ASSESSMENT_ENGINE.md) | Placement/final tests today, evidence-based assessment target |
+| 12 | [`ASSESSMENT_ENGINE.md`](ASSESSMENT_ENGINE.md) and [`ASSESSMENT_MODES.md`](ASSESSMENT_MODES.md) | Legacy audit and current shared Quick/Full/Skill target; read modes first |
 | 13 | [`LEARNING_ENGINE.md`](LEARNING_ENGINE.md) | Path generation, adaptation, review scheduling, sessions |
 | 14 | [`PROGRESS_MODEL.md`](PROGRESS_MODEL.md) | Mastery states, evidence, skill estimates, analytics definitions |
 | 15 | [`TESTING_STRATEGY.md`](TESTING_STRATEGY.md) | How to run the gates, what exists, what each phase must add |
 
 ## Existing documentation (kept, not duplicated)
+
+For Learning UI work, read the [local frontend design handoff](frontend/README.md)
+first. It owns the runnable visual source, screenshots and visual specification;
+the linked [navigation map](frontend/NAVIGATION_HANDOFF.md) separates design
+intent from implemented behavior. The hosted MagicPath preview is historical.
 
 These stay the source of truth for what they cover; the files above link to them instead of
 copying them:
@@ -67,6 +72,6 @@ conventions; see `DECISIONS.md` D-004 for what to do with the stale file.
 
 ## Agent instruction file
 
-The repository has **no** `AGENTS.md` / `CLAUDE.md` (the local `.claude/` directory is
-git-ignored). Nothing was overwritten. Whoever adds one should reference this README and
-`ARCHITECTURE.md` section "Conventions" (see `DECISIONS.md` D-005).
+The root [`AGENTS.md`](../../AGENTS.md) points to this index and
+`ARCHITECTURE.md` section 2. It records the deploy, migration and secret-handling
+rules (see `DECISIONS.md` D-005). The local `.claude/` directory is git-ignored.

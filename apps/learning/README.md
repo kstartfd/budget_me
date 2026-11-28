@@ -6,14 +6,17 @@ is retained.
 
 ## Local development
 
-From the repository root, copy `apps/learning/.env.example` to
-`apps/learning/.env` and set a local `AUTH_SECRET` and bot URL. Then:
+From the repository root:
 
 ```sh
-docker compose --env-file apps/learning/.env -f infra/learning/compose/dev.yml up -d --build postgres
-docker compose --env-file apps/learning/.env -f infra/learning/compose/dev.yml --profile tools run --rm migrate
-docker compose --env-file apps/learning/.env -f infra/learning/compose/dev.yml up -d --build backend frontend
+make learning.up
 ```
+
+The command creates a local, ignored `apps/learning/.env` with a generated
+`AUTH_SECRET` if needed, builds the current backend and frontend, applies
+migrations, and checks the frontend API proxy. Set `LEARNING_API_PORT` to change
+the host API port (default `8082`); the frontend uses `3001`. Run
+`make learning.down` to stop the stack. Re-run `make learning.up` after code changes.
 
 Frontend: `http://localhost:3001`. The new bot's production Mini App URL will
 be `https://<learning-domain>` after the VPS move.

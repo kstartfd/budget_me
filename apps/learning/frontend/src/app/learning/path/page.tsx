@@ -1,5 +1,10 @@
+import { Suspense } from "react"
 import { PathScreen } from "@/features/path"
 
 export default function PathPage() {
-  return <PathScreen />
+  return (
+    <Suspense>
+      <PathScreen />
+    </Suspense>
+  )
 }

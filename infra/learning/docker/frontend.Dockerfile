@@ -26,6 +26,9 @@ COPY . .
 
 ARG NEXT_PUBLIC_LEARNING_BOT_URL
 ENV NEXT_PUBLIC_LEARNING_BOT_URL=${NEXT_PUBLIC_LEARNING_BOT_URL}
+# Next resolves rewrites during build, so the API target must be available here.
+ARG BACKEND_URL=http://localhost:8080
+ENV BACKEND_URL=${BACKEND_URL}
 RUN pnpm build
 
 # ── runner ───────────────────────────────────────────────────────────────────

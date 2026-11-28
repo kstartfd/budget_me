@@ -690,6 +690,41 @@ type LearningAiSetting struct {
 	Teacher       bool
 }
 
+type LearningAssessmentSection struct {
+	ID                pgtype.UUID
+	TestID            pgtype.UUID
+	Skill             string
+	Position          int32
+	Status            string
+	BlueprintVersion  pgtype.Text
+	PolicySnapshot    []byte
+	BlueprintSnapshot []byte
+	CurrentBand       string
+	CurrentBatch      int32
+	Answered          int32
+	StopReason        pgtype.Text
+	ResultSnapshot    []byte
+	CreatedAt         pgtype.Timestamptz
+	CompletedAt       pgtype.Timestamptz
+}
+
+type LearningAssessmentSectionEvidence struct {
+	SectionID           pgtype.UUID
+	TestID              pgtype.UUID
+	QuestionKey         string
+	Skill               string
+	AssessmentAttemptID pgtype.UUID
+	EvidenceID          pgtype.UUID
+	UserID              pgtype.UUID
+}
+
+type LearningAssessmentSectionQuestion struct {
+	TestID      pgtype.UUID
+	QuestionKey string
+	Skill       string
+	SectionID   pgtype.UUID
+}
+
 type LearningAudioCache struct {
 	ID          pgtype.UUID
 	Language    string
@@ -822,6 +857,17 @@ type LearningEvidence struct {
 	OccurredAt   pgtype.Timestamptz
 }
 
+type LearningKnowledgeItem struct {
+	ID        pgtype.UUID
+	Language  string
+	Key       string
+	Kind      string
+	Skill     string
+	CefrLevel string
+	Unit      string
+	CreatedAt pgtype.Timestamptz
+}
+
 type LearningPath struct {
 	ID                  pgtype.UUID
 	UserID              pgtype.UUID
@@ -894,37 +940,60 @@ type LearningPathLesson struct {
 }
 
 type LearningPathTest struct {
-	ID                  pgtype.UUID
-	UserID              pgtype.UUID
-	PathID              pgtype.UUID
-	Kind                LearningPathTestKind
-	Language            string
-	TranslationLanguage string
-	Level               string
-	LevelReached        string
-	Passed              bool
-	Status              LearningPathTestStatus
-	CreatedAt           pgtype.Timestamptz
-	CompletedAt         pgtype.Timestamptz
+	ID                            pgtype.UUID
+	UserID                        pgtype.UUID
+	PathID                        pgtype.UUID
+	Kind                          LearningPathTestKind
+	Language                      string
+	TranslationLanguage           string
+	Level                         string
+	LevelReached                  string
+	Passed                        bool
+	Status                        LearningPathTestStatus
+	CreatedAt                     pgtype.Timestamptz
+	CompletedAt                   pgtype.Timestamptz
+	AssessmentProfileID           pgtype.UUID
+	AssessmentType                pgtype.Text
+	AssessmentStatus              pgtype.Text
+	StartBand                     pgtype.Text
+	AssessmentPolicy              []byte
+	AssessmentExplanationLanguage pgtype.Text
+	AssessmentBatch               int32
+	AssessmentResult              []byte
+	AssessmentStopReason          pgtype.Text
 }
 
 type LearningPathTestAnswer struct {
-	TestID      pgtype.UUID
-	QuestionKey string
-	Answer      string
-	Correct     bool
+	TestID              pgtype.UUID
+	QuestionKey         string
+	Answer              string
+	Correct             bool
+	AssessmentAttemptID pgtype.UUID
+	AssessmentOutcome   pgtype.Text
+	AssessmentAssisted  bool
 }
 
 type LearningPathTestQuestion struct {
-	TestID      pgtype.UUID
-	QuestionKey string
-	Level       string
-	Position    int32
-	Skill       string
-	Text        string
-	Prompt      string
-	Options     []byte
-	Answer      string
+	TestID                 pgtype.UUID
+	QuestionKey            string
+	Level                  string
+	Position               int32
+	Skill                  string
+	Text                   string
+	Prompt                 string
+	Options                []byte
+	Answer                 string
+	AssessmentItemID       pgtype.UUID
+	AssessmentItemKey      pgtype.Text
+	AssessmentCategory     pgtype.Text
+	AssessmentObjective    pgtype.Text
+	AssessmentFormat       pgtype.Text
+	AssessmentVersion      pgtype.Text
+	AssessmentOrigin       pgtype.Text
+	AssessmentFingerprint  pgtype.Text
+	AssessmentBatch        pgtype.Int4
+	AssessmentAlternatives []byte
+	AssessmentRepeated     bool
 }
 
 type LearningPathTopic struct {

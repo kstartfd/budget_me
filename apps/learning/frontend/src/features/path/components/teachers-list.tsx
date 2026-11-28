@@ -34,11 +34,16 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
   // the language of the interface is only the guess for someone with no teacher.
   const [chosenNative, setNative] = useState<string | null>(null)
   const known = teachers.data?.[0]?.translationLanguage
-  const native = chosenNative ?? known ?? (["en", "es"].includes(locale.split("-")[0]) ? locale.split("-")[0] : "ru")
+  const localeLanguage = locale.split("-")[0]
+  const defaultNative = known ?? (["en", "es"].includes(localeLanguage) ? localeLanguage : "ru")
+  const preferredNative = chosenNative ?? defaultNative
 
   const have = new Set(teachers.data?.map((teacher) => teacher.language))
-  const choices = languages.filter((code) => !have.has(code) && code !== native)
-  const picked = language && choices.includes(language) ? language : (choices[0] ?? "")
+  const choices = languages.filter((code) => !have.has(code))
+  const defaultLanguage = choices.find((code) => code !== defaultNative) ?? choices[0] ?? ""
+  const picked = choices.includes(language) ? language : defaultLanguage
+  const nativeChoices = languages.filter((code) => code !== picked)
+  const native = nativeChoices.includes(preferredNative) ? preferredNative : ""
   const empty = teachers.isSuccess && teachers.data.length === 0
   const form = adding || empty
 
@@ -199,14 +204,14 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
             {(
               [
                 [picked, setLanguage, "language", choices],
-                [native, setNative, "nativeLanguage", languages.filter((code) => code !== picked)],
+                [native, setNative, "nativeLanguage", nativeChoices],
               ] as const
             ).map(([value, setValue, name, options]) => (
               <label key={name} className="block space-y-1.5 text-[13px] font-medium">
                 <span>{t(name)}</span>
                 <Select value={value} onValueChange={setValue}>
-                  <SelectTrigger className="bg-background h-10 w-full px-3 text-sm">
-                    <SelectValue />
+                  <SelectTrigger aria-label={t(name)} className="bg-background h-10 w-full px-3 text-sm">
+                    <SelectValue placeholder={t(name)} />
                   </SelectTrigger>
                   <SelectContent>
                     {options.map((code) => (
@@ -227,7 +232,7 @@ export function TeachersList({ onOpen }: { onOpen: (pair: TeacherPair) => void }
           <div className="flex gap-3">
             <Button
               size="lg"
-              disabled={create.isPending || !picked}
+              disabled={create.isPending || !picked || !native}
               onClick={() =>
                 create.mutate(
                   { language: picked, translationLanguage: native },

@@ -1,9 +1,15 @@
 # Assessment engine
 
-Phase 3. Today's code lives in `learningpath/commands/{test,testgen}.go` and
-`learningpath/placement`. Everything in section 3 onward is `PROPOSED` until Phase 3 starts.
+**Current target:** [Assessment modes and shared engine](ASSESSMENT_MODES.md) defines
+Quick, Full and individual Skill Assessment. The owner expanded the scope on
+2026-11-26; the earlier Quick-only restriction was an MVP boundary, not a product
+requirement. [Quick Screening](QUICK_SCREENING.md) documents the locally verified
+grammar-only implementation. The remainder below is a legacy audit and earlier
+Phase 3 proposal. In particular, sections 3-8 are proposals where they differ from
+`ASSESSMENT_MODES.md`; no Bayesian posterior, audio assessment or new mode is
+implemented merely because it is described here.
 
-## 1. Current implementation (facts)
+## 1. Legacy implementation (audit baseline)
 
 ```
 POST /path/tests {language, translationLanguage, level?}

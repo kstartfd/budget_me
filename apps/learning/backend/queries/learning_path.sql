@@ -7,7 +7,7 @@ SELECT * FROM learning_path_tests WHERE id = $1 AND user_id = $2;
 
 -- name: GetOpenLearningPathTest :one
 SELECT * FROM learning_path_tests
-WHERE user_id = $1 AND language = $2 AND kind = $3 AND status = 'in_progress'
+WHERE user_id = $1 AND language = $2 AND kind = $3 AND status = 'in_progress' AND assessment_type IS NULL
 ORDER BY created_at DESC, id LIMIT 1;
 
 -- name: FinishLearningPathTest :exec

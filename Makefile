@@ -2,6 +2,8 @@
 COMPOSE      := docker compose --env-file apps/budget/backend/.env -f infra/budget/compose/dev.yml
 COMPOSE_TEST := docker compose -f infra/budget/compose/test.yml
 COMPOSE_LEARNING := docker compose --env-file apps/learning/.env -f infra/learning/compose/dev.yml
+LEARNING_API_PORT ?= 8082
+export LEARNING_API_PORT
 # Production stack (manual fallback — CI/CD is the primary path, see
 # infra/budget/CI_CD.md). Images are pulled from the registry, never built here, so the
 # .env must also carry BACKEND_IMAGE / FRONTEND_IMAGE (see infra/budget/.env.prod.example).
@@ -13,7 +15,7 @@ COMPOSE_PROD := docker compose --env-file infra/budget/compose/.env --project-di
 .PHONY: migrate.up migrate.down migrate.status migrate.reset account.db
 .PHONY: tidy front sqlc build vet test fmt lint
 .PHONY: prod.pull prod.up prod.down prod.migrate prod.logs
-.PHONY: learning.up learning.down learning.logs learning.migrate
+.PHONY: learning.env learning.up learning.down learning.logs learning.migrate learning.ps learning.check
 
 # golangci-lint via the official pinned image (no host install, mirrors the
 # sqlc target). Host Go caches are mounted so it reuses already-downloaded
@@ -59,6 +61,8 @@ help:
 	@echo "  learning.up     - build and start isolated learning dev stack"
 	@echo "  learning.down   - stop learning dev stack"
 	@echo "  learning.migrate - apply learning migrations"
+	@echo "  learning.ps     - show learning service status"
+	@echo "  learning.check  - check frontend and API proxy"
 
 up:
 	$(COMPOSE) up -d --build
@@ -154,10 +158,19 @@ lint:
 front:
 	cd apps/budget/frontend && pnpm dev
 
-learning.up:
+learning.env:
+	@if [ ! -f apps/learning/.env ]; then \
+		umask 077; \
+		python3 -c 'from pathlib import Path; import secrets; p = Path("apps/learning/.env"); p.write_text("AUTH_SECRET=" + secrets.token_urlsafe(48) + "\nLEARNING_BOT_URL=https://t.me/your_learning_bot\n"); p.chmod(0o600)'; \
+		echo "Created apps/learning/.env with a local AUTH_SECRET"; \
+	fi
+
+learning.up: learning.env
 	$(COMPOSE_LEARNING) up -d --build postgres
+	$(COMPOSE_LEARNING) --profile tools build migrate backend frontend
 	$(COMPOSE_LEARNING) --profile tools run --rm migrate
-	$(COMPOSE_LEARNING) up -d --build backend frontend
+	$(COMPOSE_LEARNING) up -d --no-build backend frontend
+	$(MAKE) learning.check
 
 learning.down:
 	$(COMPOSE_LEARNING) down
@@ -165,8 +178,25 @@ learning.down:
 learning.logs:
 	$(COMPOSE_LEARNING) logs -f
 
-learning.migrate:
+learning.migrate: learning.env
+	$(COMPOSE_LEARNING) --profile tools build migrate
 	$(COMPOSE_LEARNING) --profile tools run --rm migrate
+
+learning.ps:
+	$(COMPOSE_LEARNING) ps
+
+learning.check:
+	@for i in $$(seq 1 30); do \
+		frontend=$$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/); \
+		api=$$(curl -s -o /dev/null -w '%{http_code}' http://127.0.0.1:3001/api/v1/me); \
+		if [ "$$frontend" = 200 ] && [ "$$api" = 401 ]; then \
+			echo "Learning ready: http://localhost:3001 (API proxy returns expected 401 without login)"; \
+			exit 0; \
+		fi; \
+		sleep 1; \
+	done; \
+	echo "Learning health check failed (frontend=$$frontend, API proxy=$$api)" >&2; \
+	exit 1
 
 # ── production stack (manual fallback; CI/CD is primary — see infra/budget/CI_CD.md) ──
 # Requires a `docker login ghcr.io` first and BACKEND_IMAGE /

@@ -5,16 +5,16 @@
 -- name: UpsertKBItem :one
 -- An item is made from the library the first time the learner shows something
 -- about it; the no-op update makes the row come back on a repeat.
-INSERT INTO kb_items (id, language, key, kind, skill, cefr_level, unit, created_at)
+INSERT INTO learning_knowledge_items (id, language, key, kind, skill, cefr_level, unit, created_at)
 VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-ON CONFLICT (language, key) DO UPDATE SET key = kb_items.key
+ON CONFLICT (language, key) DO UPDATE SET key = learning_knowledge_items.key
 RETURNING *;
 
 -- name: GetKBItem :one
-SELECT * FROM kb_items WHERE id = $1;
+SELECT * FROM learning_knowledge_items WHERE id = $1;
 
 -- name: GetKBItemByKey :one
-SELECT * FROM kb_items WHERE language = $1 AND key = $2;
+SELECT * FROM learning_knowledge_items WHERE language = $1 AND key = $2;
 
 -- name: InsertLearningEvidence :execrows
 -- One attempt gives at most one row, so a repeated write changes nothing.
@@ -73,7 +73,7 @@ WHERE teacher_id = @teacher_id AND user_id = @user_id;
 -- exercise to be answered: a history that was cleared leaves nothing to ask.
 SELECT s.item_id, s.state, s.stage, s.due_at, i.key, i.skill, i.cefr_level
 FROM learner_item_state s
-JOIN kb_items i ON i.id = s.item_id
+JOIN learning_knowledge_items i ON i.id = s.item_id
 WHERE s.teacher_id = $1 AND s.user_id = $2 AND s.evidence_count > 0
   AND s.due_at IS NOT NULL AND s.due_at <= $3
   AND EXISTS (

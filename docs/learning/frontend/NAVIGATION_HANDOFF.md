@@ -21,7 +21,9 @@ The prototype language selector changes the visible language context across all 
 
 ## Preview state matrix
 
-The same nine `Preview state` choices are available in every section. Overview, Learning Path, Practice, Assessments, Progress, AI Tutor and Settings use the header selector; Knowledge Base places the same selector in its catalogue toolbar. The selection carries across navigation. **No language** is a separate global onboarding gate selected through the language switcher. The local [state check](preview/scripts/verify-states.mjs) opens all nine states in all eight sections; representative [screenshots](screenshots/README.md) show the layout at desktop and Telegram width.
+The canonical `docs/learning/frontend/preview` source has nine `Preview state` choices in every section. On 2026-11-27 the separately running `learning-product-design` preview on port 4173 contained a later, untracked workspace source with **12** choices: it adds **Ready to create path**, **Creating learning path**, and **Path creation failed**. Its Assessment component differs from the canonical mirror only in the create-path button caption. The Assessment flow was inspected for P3-16; the three Path states have not yet been transferred to this version-controlled handoff. Do not assume that the nine-state matrix describes that running preview, or that the untracked copy replaces this directory's design authority.
+
+Overview, Learning Path, Practice, Assessments, Progress, AI Tutor and Settings use the header selector; Knowledge Base places the same selector in its catalogue toolbar. The selection carries across navigation. **No language** is a separate global onboarding gate selected through the language switcher. The local [state check](preview/scripts/verify-states.mjs) opens all nine canonical states in all eight sections; representative [screenshots](screenshots/README.md) show the layout at desktop and Telegram width.
 
 | State | Connected screen behavior in the local design |
 | --- | --- |
@@ -41,6 +43,7 @@ Settings reflects the selected missing-key or unavailable condition. The no-lang
 
 - **No language:** onboarding creates a language profile with explanation language, goals, priorities and routine, then offers Quick grammar if supported, a claimed starting level, or A1 from scratch. Goals/routine in the current UI are stored in browser localStorage; this is not yet a server-owned learner profile.
 - **Language without a program:** Overview repeats the three starting methods. Quick can pause and resume; completing it produces preliminary evidence, not mastery or certification.
+- **Assessment question:** the application retains desktop navigation and the Telegram menu while an answer is open. Submitted answers persist; navigating away or pausing resumes at the next unanswered question. The result does not offer **Complete another section**, because grammar is the only available Quick section.
 - **Active program:** Overview's continue action and Path return to the current topic. Due reviews open an existing tracked exercise; free practice is visibly separate.
 - **Completed program:** Overview offers review/extra practice. Path retains completed topics and offers **Start a new plan**. The action archives the active program; prior programs and results remain in history. Deleting history/progress is a separate product action, not part of restart.
 

@@ -1,18 +1,19 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useLocale, useTranslations } from "next-intl"
 import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { IconCheck, IconChevronLeft } from "@tabler/icons-react"
+import { useActiveLanguage } from "@/features/home/profile"
 import { usePath, useTeachers } from "../hooks"
-import { useReturnPoint } from "../return-point"
+import { forgetReturnPoint, useReturnPoint } from "../return-point"
 import { ExplainSwitch } from "./explain-switch"
 import { pickableLevels } from "./level-scale"
 import { ProgramView } from "./program-view"
 import { StartError } from "./start-error"
-import { TeachersList, type TeacherPair } from "./teachers-list"
+import { TeachersList } from "./teachers-list"
 import { TestRunner } from "./test-runner"
 
 /**
@@ -47,25 +48,36 @@ export function PathScreen({
 }
 
 function Teachers({ onTestChange }: { onTestChange?: (testActive: boolean) => void }) {
-  // undefined: nothing was picked here yet, so a teacher whose rule book the
-  // learner came back from is the one shown; null: the list was chosen.
-  const [picked, setPicked] = useState<TeacherPair | null | undefined>(undefined)
+  const router = useRouter()
   const pathname = usePathname()
   const left = useReturnPoint()
-  const selected =
-    picked !== undefined
-      ? picked
-      : left && left.href.split("?")[0] === pathname
-        ? { language: left.language, translationLanguage: left.translationLanguage }
-        : null
+  const { teachers } = useTeachers()
+  const params = useSearchParams()
+  const wanted = params.get("language")
+  const topicId = params.get("topic")
+  const returning = !wanted && left?.href === pathname ? left.language : null
+  const selected = teachers.data?.find((teacher) => teacher.language === (wanted ?? returning))
+  const [, setActiveLanguage] = useActiveLanguage()
+  const selectedLanguage = selected?.language
 
-  if (!selected) return <TeachersList onOpen={setPicked} />
+  useEffect(() => {
+    if (selectedLanguage) setActiveLanguage(selectedLanguage)
+  }, [selectedLanguage, setActiveLanguage])
+
+  if (!selected) {
+    return <TeachersList onOpen={({ language }) => router.push(`/learning/path?language=${language}`)} />
+  }
 
   return (
     <Program
+      key={`${selected.language}:${topicId ?? ""}`}
       language={selected.language}
       nativeLanguage={selected.translationLanguage}
-      onBack={() => setPicked(null)}
+      topicId={topicId}
+      onBack={() => {
+        forgetReturnPoint()
+        router.push("/learning/path")
+      }}
       onTestChange={onTestChange}
     />
   )
@@ -74,16 +86,19 @@ function Teachers({ onTestChange }: { onTestChange?: (testActive: boolean) => vo
 function Program({
   language,
   nativeLanguage,
+  topicId,
   embedded = false,
   onBack,
   onTestChange,
 }: {
   language: string
   nativeLanguage: string
+  topicId?: string | null
   embedded?: boolean
   onBack?: () => void
   onTestChange?: (testActive: boolean) => void
 }) {
+  const router = useRouter()
   const t = useTranslations("path")
   const locale = useLocale()
   const [testId, setTestId] = useState<string | null>(null)
@@ -162,13 +177,16 @@ function Program({
       ) : active ? (
         <ProgramView
           path={active}
+          initialTopicId={topicId}
           onStartFinal={() =>
             path.startFinal.mutate(active.translationLanguage, {
               onSuccess: (test) => setTestId(test.id),
             })
           }
-          onReset={() => path.reset.mutate()}
-          startError={path.startFinal.isError ? path.startFinal.error.message : null}
+          onReset={() => path.reset.mutate(undefined, {
+            onSuccess: () => router.push(`/learning/assessment?newPlan=1`),
+          })}
+          startError={path.startFinal.isError ? path.startFinal.error.message : path.reset.isError ? path.reset.error.message : null}
           starting={path.startFinal.isPending}
           asOf={path.active.dataUpdatedAt}
         />

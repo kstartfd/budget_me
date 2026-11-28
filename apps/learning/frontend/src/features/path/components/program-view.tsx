@@ -44,6 +44,7 @@ const badgeShape = "h-auto rounded-full px-2.5 py-[3px] text-xs"
 /** ProgramView is the active program: level, summary, topics, actions. */
 export function ProgramView({
   path,
+  initialTopicId,
   onStartFinal,
   onReset,
   startError,
@@ -51,6 +52,7 @@ export function ProgramView({
   asOf,
 }: {
   path: Path
+  initialTopicId?: string | null
   /** When the program was last read (ms): the moment its exercises are judged at. */
   asOf: number
   onStartFinal: () => void
@@ -72,10 +74,9 @@ export function ProgramView({
       ? point
       : null
   })
-  const [openTopic, setOpenTopic] = useState<string | null>(
-    left?.topicId && path.topics.some((topic) => topic.id === left.topicId)
-      ? left.topicId
-      : null,
+  const requestedTopic = left?.topicId ?? initialTopicId
+  const [openTopic, setOpenTopic] = useState(
+    path.topics.find((topic) => topic.id === requestedTopic)?.id ?? null,
   )
   const [returnTo, setReturnTo] = useState<string | null>(left?.anchor ?? null)
   const [confirmReset, setConfirmReset] = useState(false)
@@ -199,6 +200,7 @@ export function ProgramView({
           )}
           {confirmReset ? (
             <>
+              <p className="text-muted-foreground basis-full text-[13px]">{t("resetKeepsHistory")}</p>
               <Button
                 variant="destructive"
                 size="lg"

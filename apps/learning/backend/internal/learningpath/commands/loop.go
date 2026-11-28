@@ -110,10 +110,10 @@ func recordEvidence(ctx context.Context, tq *db.Queries, cfg learningprofile.Con
 // first time something is shown about it. ok is false when the library has no
 // such topic (it was renamed, or the pair has no library): there is no item to
 // attach anything to.
-func ensureItem(ctx context.Context, tq *db.Queries, teacher db.LearningTeacher, language, sourceID string, at time.Time) (db.KbItem, curriculum.Topic, bool, error) {
+func ensureItem(ctx context.Context, tq *db.Queries, teacher db.LearningTeacher, language, sourceID string, at time.Time) (db.LearningKnowledgeItem, curriculum.Topic, bool, error) {
 	lib, ok := curriculum.Find(language, ExplainLanguage(teacher), sourceID)
 	if !ok {
-		return db.KbItem{}, curriculum.Topic{}, false, nil
+		return db.LearningKnowledgeItem{}, curriculum.Topic{}, false, nil
 	}
 
 	// Most answers are about an item that exists: read it, and write only the first time.
@@ -123,7 +123,7 @@ func ensureItem(ctx context.Context, tq *db.Queries, teacher db.LearningTeacher,
 	}
 
 	if !db.IsNotFound(err) {
-		return db.KbItem{}, curriculum.Topic{}, false, err
+		return db.LearningKnowledgeItem{}, curriculum.Topic{}, false, err
 	}
 
 	kind := "topic"

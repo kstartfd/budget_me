@@ -7,6 +7,7 @@ import (
 	"math"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -19,6 +20,7 @@ import (
 	"learning_app/backend/internal/httpx"
 	"learning_app/backend/internal/ids"
 	"learning_app/backend/internal/learningaudio"
+	"learning_app/backend/internal/learningpath/assessment"
 	"learning_app/backend/internal/learningpath/commands"
 	"learning_app/backend/internal/learningpath/curriculum"
 	"learning_app/backend/internal/learningpath/placement"
@@ -44,49 +46,55 @@ var testRate = ratelimit.Config{Burst: 12, Every: 3 * time.Second, InFlight: 2}
 var agentFailed = httpx.New(30004, http.StatusBadGateway, "the AI agent's answer could not be read, try again")
 
 type Controller struct {
-	tests     commands.TestHandler
-	analysis  commands.AnalyzeHandler
-	builds    commands.BuildHandler
-	exercises commands.ExerciseHandler
-	attempts  commands.AttemptHandler
-	activity  commands.ActivityHandler
-	clock     clock.Clock
-	topics    commands.TopicHandler
-	teachers  commands.TeacherHandler
-	lessons   commands.LessonHandler
-	practices commands.PracticeHandler
-	resets    commands.ResetHandler
-	goals     commands.GoalHandler
-	clears    commands.ClearHistoryHandler
-	read      queries.ReadHandler
-	limit     *ratelimit.Limiter
-	audio     learningaudio.Service
-	testLimit *ratelimit.Limiter
+	tests            commands.TestHandler
+	analysis         commands.AnalyzeHandler
+	builds           commands.BuildHandler
+	exercises        commands.ExerciseHandler
+	attempts         commands.AttemptHandler
+	activity         commands.ActivityHandler
+	clock            clock.Clock
+	topics           commands.TopicHandler
+	teachers         commands.TeacherHandler
+	lessons          commands.LessonHandler
+	practices        commands.PracticeHandler
+	resets           commands.ResetHandler
+	goals            commands.GoalHandler
+	clears           commands.ClearHistoryHandler
+	read             queries.ReadHandler
+	limit            *ratelimit.Limiter
+	audio            learningaudio.Service
+	testLimit        *ratelimit.Limiter
+	assessmentPolicy assessment.Policy
 }
 
-func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent commands.Completer, prefetch int, audio learningaudio.Service) *Controller {
+func NewController(pool *pgxpool.Pool, q *db.Queries, clk clock.Clock, vault secretbox.Box, agent commands.Completer, prefetch int, audio learningaudio.Service, policy assessment.Policy) *Controller {
+	if policy.Version == "" {
+		policy = assessment.QuickPolicy()
+	}
 	analysis := commands.NewAnalyzeHandler(pool, q, clk, commands.NewAgent(q, vault, agent))
 	exercises := commands.NewExerciseHandler(pool, q, clk, commands.NewAgent(q, vault, agent))
 
+	testLimit := ratelimit.New(testRate)
 	return &Controller{
-		tests:     commands.NewTestHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
-		analysis:  analysis,
-		builds:    commands.NewBuildHandler(q, clk, analysis, exercises, prefetch),
-		exercises: exercises,
-		attempts:  commands.NewAttemptHandler(pool, q, clk, commands.NewAgent(q, vault, agent), ratelimit.New(aiRate)),
-		activity:  commands.NewActivityHandler(q, clk),
-		clock:     clk,
-		topics:    commands.NewTopicHandler(q, clk),
-		teachers:  commands.NewTeacherHandler(q, clk),
-		lessons:   commands.NewLessonHandler(q, clk),
-		practices: commands.NewPracticeHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
-		resets:    commands.NewResetHandler(q, clk),
-		goals:     commands.NewGoalHandler(q),
-		clears:    commands.NewClearHistoryHandler(q),
-		read:      queries.NewReadHandler(q),
-		limit:     ratelimit.New(aiRate),
-		testLimit: ratelimit.New(testRate),
-		audio:     audio,
+		tests:            commands.NewTestHandler(pool, q, clk, commands.NewAgent(q, vault, agent), testLimit, policy),
+		analysis:         analysis,
+		builds:           commands.NewBuildHandler(q, clk, analysis, exercises, prefetch),
+		exercises:        exercises,
+		attempts:         commands.NewAttemptHandler(pool, q, clk, commands.NewAgent(q, vault, agent), ratelimit.New(aiRate)),
+		activity:         commands.NewActivityHandler(q, clk),
+		clock:            clk,
+		topics:           commands.NewTopicHandler(q, clk),
+		teachers:         commands.NewTeacherHandler(q, clk),
+		lessons:          commands.NewLessonHandler(q, clk),
+		practices:        commands.NewPracticeHandler(pool, q, clk, commands.NewAgent(q, vault, agent)),
+		resets:           commands.NewResetHandler(q, clk),
+		goals:            commands.NewGoalHandler(q),
+		clears:           commands.NewClearHistoryHandler(q),
+		read:             queries.NewReadHandler(q),
+		limit:            ratelimit.New(aiRate),
+		testLimit:        testLimit,
+		assessmentPolicy: policy,
+		audio:            audio,
 	}
 }
 
@@ -130,24 +138,28 @@ func (c *Controller) startTest(ctx echo.Context) error {
 		return apperr.NewInvalid("invalid body")
 	}
 
-	// The agent writes the questions, so starting a test spends the learner's
-	// key like any other agent call, and fails when it cannot be reached.
-	release, wait, ok := c.testLimit.Acquire(userOf(ctx))
-	if !ok {
-		return tooManyRequests(ctx, wait)
+	cmd := commands.StartTest{
+		UserID: userOf(ctx), Kind: "placement", Language: req.Language,
+		TranslationLanguage: req.TranslationLanguage, StartLevel: req.Level,
 	}
-
-	defer release()
-
-	test, err := c.tests.Start(ctx.Request().Context(), commands.StartTest{
-		UserID:              userOf(ctx),
-		Kind:                "placement",
-		Language:            req.Language,
-		TranslationLanguage: req.TranslationLanguage,
-		StartLevel:          req.Level,
-	})
-	if err = agentError(err); err != nil {
-		return err
+	var test db.LearningPathTest
+	var err error
+	if req.Purpose != "" {
+		startPoint := req.StartPoint
+		if startPoint == "" {
+			startPoint = req.Level
+		}
+		test, err = c.tests.StartAssessment(ctx.Request().Context(), cmd, strings.ToLower(req.Purpose), startPoint)
+	} else {
+		release, wait, ok := c.testLimit.Acquire(cmd.UserID)
+		if !ok {
+			return tooManyRequests(ctx, wait)
+		}
+		defer release()
+		test, err = c.tests.Start(ctx.Request().Context(), cmd)
+	}
+	if err != nil {
+		return testError(ctx, err)
 	}
 
 	p, err := c.tests.Progress(ctx.Request().Context(), userOf(ctx), ids.FromPg(test.ID))
@@ -206,6 +218,7 @@ func (c *Controller) chooseLevel(ctx echo.Context) error {
 		Language:            req.Language,
 		TranslationLanguage: req.TranslationLanguage,
 		Level:               req.Level,
+		SelfReported:        req.SelfReported,
 	})
 	if err != nil {
 		return err
@@ -248,20 +261,12 @@ func (c *Controller) answer(ctx echo.Context) error {
 
 	given := make([]commands.Answer, len(req.Answers))
 	for i, a := range req.Answers {
-		given[i] = commands.Answer{Key: a.Key, Answer: a.Answer}
+		given[i] = commands.Answer{Key: a.Key, Answer: a.Answer, Skip: a.Skip, Assisted: a.Assisted}
 	}
-
-	// A full batch goes to the examiner, which is an agent call.
-	release, wait, ok := c.testLimit.Acquire(userOf(ctx))
-	if !ok {
-		return tooManyRequests(ctx, wait)
-	}
-
-	defer release()
 
 	p, err := c.tests.Answer(ctx.Request().Context(), userOf(ctx), id, given)
-	if err = agentError(err); err != nil {
-		return err
+	if err != nil {
+		return testError(ctx, err)
 	}
 
 	ctx.Response().Header().Set("Cache-Control", "no-store")

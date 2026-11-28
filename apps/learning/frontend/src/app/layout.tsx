@@ -52,8 +52,8 @@ export default async function RootLayout({
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
-          {/* Design default is dark; the header toggle switches explicitly. */}
-          <ThemeProvider defaultTheme="dark" enableSystem={false}>
+          {/* The Overview design uses a light canvas; saved user choices still win. */}
+          <ThemeProvider defaultTheme="light" enableSystem={false}>
             <AppProviders>
               <AppShell>{children}</AppShell>
             </AppProviders>

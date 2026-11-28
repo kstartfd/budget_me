@@ -1,4 +1,5 @@
 import { z } from "zod"
+import { assessmentProgressSchema, assessmentQuestionTypeSchema } from "@/features/assessment/schemas"
 
 /** One placement-test question as the test-taker sees it — never the answer. */
 export const pathQuestionSchema = z.object({
@@ -6,7 +7,8 @@ export const pathQuestionSchema = z.object({
   skill: z.string(),
   text: z.string(),
   prompt: z.string(),
-  options: z.array(z.string()),
+  options: z.array(z.string()).nullable().transform((value) => value ?? []),
+  type: assessmentQuestionTypeSchema.optional(),
 })
 export type PathQuestion = z.infer<typeof pathQuestionSchema>
 
@@ -47,6 +49,7 @@ export const pathTestSchema = z.object({
   startLevel: z.string().optional(),
   createdAt: z.string(),
   completedAt: z.string().nullable(),
+  assessment: assessmentProgressSchema.optional(),
 })
 export type PathTest = z.infer<typeof pathTestSchema>
 
@@ -231,6 +234,62 @@ export const lessonTotalsSchema = z.object({
   month: z.number(),
 })
 export type LessonTotals = z.infer<typeof lessonTotalsSchema>
+
+/**
+ * One thing to do now, from the learning loop: the review of an item that is
+ * due, or the practice of the topic being worked on. A review's exercise comes
+ * without its key and its rule.
+ */
+export const loopActivitySchema = z.object({
+  id: z.string(),
+  type: z.enum(["review", "practice", "learn", "apply", "assess"]),
+  status: z.enum(["open", "completed", "skipped"]),
+  reason: z.string(),
+  title: z.string(),
+  goal: z.string(),
+  item: z
+    .object({ id: z.string(), key: z.string(), level: z.string(), skill: z.string() })
+    .nullable(),
+  topic: z.object({ id: z.string(), title: z.string() }).nullable(),
+  /** The item's knowledge state: learning, practiced or mastered; empty when it has none. */
+  state: z.string(),
+  /** Learnt once and then forgotten: it is back in learning. */
+  lapsed: z.boolean(),
+  dueAt: z.string().nullable(),
+  exercise: z
+    .object({
+      id: z.string(),
+      kind: z.string(),
+      text: z.string(),
+      prompt: z.string(),
+      options: z.array(z.string()),
+    })
+    .nullable(),
+  createdAt: z.string(),
+})
+export type LoopActivity = z.infer<typeof loopActivitySchema>
+
+/** The learning loop in numbers: what is known, what is due, how much evidence there is. */
+export const loopDashboardSchema = z.object({
+  language: z.string(),
+  teacherId: z.string(),
+  items: z.object({
+    tracked: z.number(),
+    learning: z.number(),
+    practiced: z.number(),
+    mastered: z.number(),
+    lapsed: z.number(),
+  }),
+  reviews: z.object({
+    due: z.number(),
+    overdue: z.number(),
+    upcoming: z.number(),
+    nextDueAt: z.string().nullable(),
+  }),
+  evidence: z.object({ total: z.number(), last7Days: z.number() }),
+  activities: z.array(loopActivitySchema),
+})
+export type LoopDashboard = z.infer<typeof loopDashboardSchema>
 
 /** The survey answered before the program is built; every part is optional. */
 export interface Preferences {

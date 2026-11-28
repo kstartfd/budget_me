@@ -1,0 +1,97 @@
+# language|band|Rule Book key|category|format|source sentence or passage|prompt|accepted answers separated by ;|options separated by ;|partial answers separated by ;
+en|A1|a1-to-be|verb_forms|multiple_choice||Pia and Jo ___ at the station.|are|am;is;are;be
+en|A1|a1-to-be|verb_forms|open_gap_fill||I ___ ready. (be)|am
+en|A1|a1-articles|noun_phrase|multiple_choice||Kim has ___ old camera.|an|a;an;some;many
+en|A1|a1-articles|noun_phrase|open_gap_fill||This is ___ red cup. (indefinite article)|a
+en|A1|a1-plurals|noun_phrase|open_gap_fill||I can see two ___. (bus)|buses
+en|A1|a1-plurals|noun_phrase|error_correction|There are three box on the shelf.|box|boxes
+en|A1|a1-present-simple|verb_forms|open_gap_fill||My brother ___ lunch at noon. (eat)|eats
+en|A1|a1-present-simple|verb_forms|error_correction|Mina walk to work on Fridays.|walk|walks
+en|A1|a1-there-is|sentence_structure|multiple_choice||There ___ a small key in the drawer.|is|is;are;am;have
+en|A1|a1-there-is|sentence_structure|open_gap_fill||There ___ two pens on the desk. (be)|are
+en|A1|a1-present-simple-questions|sentence_structure|open_gap_fill||___ your neighbours have a car? (do)|Do
+en|A1|a1-present-simple-questions|sentence_structure|sentence_transformation|I play chess on Mondays.|I ___ chess on Mondays. (negative)|do not play;don't play
+en|A2|a2-past-simple-regular|verb_forms|open_gap_fill||We ___ the flat yesterday. (clean)|cleaned
+en|A2|a2-past-simple-regular|verb_forms|error_correction|She call me last night.|call|called
+en|A2|a2-past-simple-irregular|verb_forms|multiple_choice||Last Tuesday, I ___ a lost glove under my desk.|found|find;found;finded;have found
+en|A2|a2-past-simple-irregular|verb_forms|open_gap_fill||Yesterday Sam ___ the first train. (take)|took
+en|A2|a2-comparatives|noun_phrase|open_gap_fill||Your bag is ___ than mine. (heavy)|heavier
+en|A2|a2-comparatives|noun_phrase|error_correction|This hill is steepest than that one.|steepest|steeper
+en|A2|a2-quantifiers|noun_phrase|multiple_choice||How ___ chairs do we need for the meeting?|many|much;many;any;some
+en|A2|a2-quantifiers|noun_phrase|open_gap_fill||How ___ milk is left? (much / many)|much
+en|A2|a2-past-simple-questions|sentence_structure|sentence_transformation|Luis bought the last ticket.|Did Luis ___ the last ticket?|buy
+en|A2|a2-past-simple-questions|sentence_structure|error_correction|Did Ava brought the keys?|brought|bring
+en|A2|a2-present-continuous|sentence_structure|open_gap_fill||Look! The dog ___ across the field. (run, present continuous)|is running
+en|A2|a2-present-continuous|sentence_structure|multiple_choice||I can't open the door right now. I ___ some plates.|am carrying|am carrying;is carrying;carrying;am carry
+en|B1|b1-present-perfect|verb_forms|open_gap_fill||This is my first visit here. I ___ this town before. (never visit, present perfect)|have never visited
+en|B1|b1-present-perfect|verb_forms|error_correction|Rui has never saw snow.|saw|seen
+en|B1|b1-past-continuous|verb_forms|multiple_choice||While we ___ for the bus, it started to snow.|were waiting|waits;were waiting;was waiting;have waited
+en|B1|b1-past-continuous|verb_forms|open_gap_fill||At 7 a.m. yesterday, the twins ___ beside the river when the rain began. (jog, past continuous)|were jogging
+en|B1|b1-second-conditional|clause_linking|open_gap_fill||If I had a spare room, I ___ a piano. (buy, second conditional)|would buy
+en|B1|b1-second-conditional|clause_linking|multiple_choice||If she lived closer, we ___ her every week. (second conditional)|would see|saw;had seen;would see;will see
+en|B1|b1-relative-clauses|clause_linking|reading_comprehension|Amina met the florist whose bike had been stolen. The florist called her brother.|Whose bike had been stolen?|The florist’s.|Amina’s.;The florist’s.;The brother’s.;The passage does not say.
+en|B1|b1-relative-clauses|clause_linking|error_correction|Mia is the cyclist which won the race.|which|who;that
+en|B1|b1-passive|sentence_structure|sentence_transformation|A local club planted the trees last April.|The trees ___ by a local club last April. (passive)|were planted
+en|B1|b1-passive|sentence_structure|sentence_transformation|The library repairs old books here.|Old books ___ here. (passive, keep the tense)|are repaired
+en|B1|b1-gerund-infinitive|sentence_structure|error_correction|We enjoy to cook together.|to cook|cooking
+en|B1|b1-gerund-infinitive|sentence_structure|open_gap_fill||I decided ___ home before sunset. (cycle)|to cycle
+en|B2|b2-past-perfect|verb_forms|open_gap_fill||When we reached the pier, the ferry ___ the harbour. (leave, past perfect)|had left
+en|B2|b2-past-perfect|verb_forms|error_correction|The lights were off when we arrived because everyone had went home.|went|gone
+en|B2|b2-present-perfect-continuous|verb_forms|open_gap_fill||My hands are covered in paint because I ___ the fence all morning. (paint, present perfect continuous)|have been painting
+en|B2|b2-present-perfect-continuous|verb_forms|multiple_choice||The queue has barely moved. We ___ here for almost an hour. (present perfect continuous)|have been standing|have been standing;had been standing;are standing;have standing
+en|B2|b2-third-conditional|clause_linking|sentence_transformation|We missed the bus because we left too late.|If we ___ earlier, we would have caught the bus. (leave)|had left
+en|B2|b2-third-conditional|clause_linking|open_gap_fill||If they had brought a map, they ___ lost. (not get, third conditional)|would not have got;wouldn't have got;would not have gotten;wouldn't have gotten
+en|B2|b2-wish|clause_linking|open_gap_fill||I should have kept the postcard. I wish I ___ it away. (not throw, past regret)|had not thrown;hadn't thrown
+en|B2|b2-wish|clause_linking|multiple_choice||I didn't take a photo. I wish I ___ one. (past regret)|had taken|had taken;would take;take;have taken
+en|B2|b2-passive-advanced|sentence_structure|sentence_transformation|They will have cleared the road by noon.|The road ___ by noon. (passive, keep the tense)|will have been cleared||will be cleared
+en|B2|b2-passive-advanced|sentence_structure|multiple_choice||People believe the vase is over 200 years old. The vase ___ over 200 years old.|is believed to be|is believed to be;believed being;is believing to be;has believed to be
+en|B2|b2-reported-advanced|sentence_structure|error_correction|He asked me where was the exit.|was the exit|the exit was
+en|B2|b2-reported-advanced|sentence_structure|sentence_transformation|“Please don't move the chairs,” she said to us.|She asked us ___ the chairs.|not to move
+es|A1|a1-articulo-indeterminado|noun_phrase|multiple_choice||Necesito ___ llave para abrir la puerta.|una|un;una;unos;unas
+es|A1|a1-articulo-indeterminado|noun_phrase|open_gap_fill||En la mesa hay ___ cuaderno. (artículo indeterminado)|un
+es|A1|a1-plural|noun_phrase|open_gap_fill||Veo dos ___. (árbol)|árboles
+es|A1|a1-plural|noun_phrase|error_correction|Tengo tres reloj de pared.|reloj|relojes
+es|A1|a1-ser|verb_forms|open_gap_fill||Yo ___ la hermana de Raúl. (ser)|soy
+es|A1|a1-ser|verb_forms|multiple_choice||Nora y Luz ___ primas. (ser)|son|somos;son;es;sois
+es|A1|a1-presente-regular|verb_forms|open_gap_fill||Mi padre ___ aquí todos los días. (trabajar)|trabaja
+es|A1|a1-presente-regular|verb_forms|error_correction|Nosotros vive cerca del mercado.|vive|vivimos
+es|A1|a1-gustar|sentence_structure|open_gap_fill||A Leo le ___ las ciruelas. (gustar)|gustan
+es|A1|a1-gustar|sentence_structure|error_correction|Me gusta los trenes.|gusta|gustan
+es|A1|a1-tener-hay|sentence_structure|multiple_choice||¿Cuántas sillas ___ en la sala?|hay|ha;hay;hayan;habemos
+es|A1|a1-tener-hay|sentence_structure|open_gap_fill||En el cajón ___ dos lápices. (haber, presente)|hay
+es|A2|a2-preterito-indefinido|verb_forms|open_gap_fill||Ayer yo ___ la entrada en la taquilla. (comprar, indefinido)|compré
+es|A2|a2-preterito-indefinido|verb_forms|error_correction|Anoche mis amigos salieron tarde y yo salíste temprano.|salíste|salí
+es|A2|a2-preterito-imperfecto|verb_forms|open_gap_fill||Antes ___ al parque todos los sábados. (nosotros, ir, imperfecto)|íbamos
+es|A2|a2-preterito-imperfecto|verb_forms|multiple_choice||De niña, Sara ___ con sus tíos cada verano. (imperfecto)|vivía|vivirá;vive;vivió;vivía
+es|A2|a2-adjetivos|noun_phrase|open_gap_fill||Compré unas cortinas ___. (blanco)|blancas
+es|A2|a2-adjetivos|noun_phrase|error_correction|Las botas nuevo están junto a la puerta.|nuevo|nuevas
+es|A2|a2-comparativos|noun_phrase|multiple_choice||La maleta de Pablo pesa doce kilos. La mía pesa solo cuatro. Mi maleta es ___ pesada que la de Pablo.|menos|tan;más;menos;tanto
+es|A2|a2-comparativos|noun_phrase|open_gap_fill||Las dos cajas pesan diez kilos. Esta caja es ___ pesada como la otra.|tan
+es|A2|a2-pronombres-complemento|sentence_structure|sentence_transformation|Marta compra las entradas.|Marta ___ compra. (las entradas)|las
+es|A2|a2-pronombres-complemento|sentence_structure|multiple_choice||¿Buscas el mapa? Sí, ___ busco.|lo|la;las;los;lo
+es|A2|a2-futuro-ir-a|sentence_structure|sentence_transformation|Nosotros cenamos en casa.|Esta noche ___ en casa. (ir a + infinitivo)|vamos a cenar
+es|A2|a2-futuro-ir-a|sentence_structure|error_correction|Mañana voy hacer una tarta.|voy hacer|voy a hacer
+es|B1|b1-pluscuamperfecto|verb_forms|open_gap_fill||Cuando entré, Carmen ya ___ la cena. (preparar, pluscuamperfecto)|había preparado
+es|B1|b1-pluscuamperfecto|verb_forms|error_correction|Ya habían escribido las cartas cuando llegó Ana.|escribido|escrito
+es|B1|b1-condicional|verb_forms|multiple_choice||Sin ese descuento, el billete ___ treinta euros más. (condicional simple)|costaría|costará;costó;costaba;costaría
+es|B1|b1-condicional|verb_forms|open_gap_fill||Con algo más de tiempo, nosotros ___ visitar el faro. (poder, condicional simple)|podríamos
+es|B1|b1-subjuntivo-presente|clause_linking|open_gap_fill||Es necesario que ustedes ___ la puerta con llave. (cerrar)|cierren
+es|B1|b1-subjuntivo-presente|clause_linking|error_correction|Es importante que tú vienes antes de las ocho.|vienes|vengas
+es|B1|b1-relativos|clause_linking|multiple_choice||Esta es la panadería ___ trabaja mi tía.|donde|cuyo;quien;donde;cuando
+es|B1|b1-relativos|clause_linking|open_gap_fill||Vi al músico ___ conociste el año pasado. (que / donde)|que
+es|B1|b1-pronombres-combinados|sentence_structure|sentence_transformation|Yo entrego la carta a Eva.|Yo ___ entrego. (la carta a Eva, dos pronombres)|se la
+es|B1|b1-pronombres-combinados|sentence_structure|error_correction|¿Enviaste los billetes a Omar? Sí, le los envié.|le los|se los
+es|B1|b1-perifrasis|sentence_structure|vocabulary_in_context|«Acabamos de ver una película», dijo Raquel al salir del cine.|¿Qué significa «acabamos de ver» aquí?|La vimos hace muy poco.|La vimos hace muy poco.;Todavía la estamos viendo.;Vamos a verla pronto.;Dejamos de verla antes del final.
+es|B1|b1-perifrasis|sentence_structure|open_gap_fill||Normalmente Luis dibuja al salir del trabajo. Luis ___ dibujar al salir del trabajo. (soler, presente)|suele
+es|B2|b2-subjuntivo-imperfecto|verb_forms|open_gap_fill||Les pedí que ___ las ventanas. (ellos, abrir, imperfecto de subjuntivo)|abrieran;abriesen
+es|B2|b2-subjuntivo-imperfecto|verb_forms|multiple_choice||La encargada pidió que ___ allí a las nueve. (ellos, imperfecto de subjuntivo)|estuvieran|estuvieran;estarían;estuvieron;estaban
+es|B2|b2-tiempos-compuestos|verb_forms|open_gap_fill||A finales de mes, Julia ya ___ el informe. (entregar, futuro perfecto)|habrá entregado
+es|B2|b2-tiempos-compuestos|verb_forms|error_correction|Mañana a las cinco ya habremos volvido a casa.|volvido|vuelto
+es|B2|b2-condicionales-si|clause_linking|sentence_transformation|No reservamos mesa y tuvimos que esperar.|Si ___ mesa, no habríamos tenido que esperar. (nosotros, reservar)|hubiéramos reservado;hubiésemos reservado
+es|B2|b2-condicionales-si|clause_linking|open_gap_fill||Si el ascensor funcionara, no ___ por las escaleras. (yo, subir, condicional simple)|subiría
+es|B2|b2-temporales-subjuntivo|clause_linking|multiple_choice||Te enviaré la dirección antes de que ___ de casa. (tú, salir)|salgas|saliste;salgas;saldrás;sales
+es|B2|b2-temporales-subjuntivo|clause_linking|error_correction|Avísame cuando llegas mañana al aeropuerto.|llegas|llegues
+es|B2|b2-pasiva|sentence_structure|sentence_transformation|Un rayo dañó la torre.|La torre ___ por un rayo. (pasiva con ser, mismo tiempo verbal)|fue dañada
+es|B2|b2-pasiva|sentence_structure|error_correction|Se alquila bicicletas en la estación.|alquila|alquilan
+es|B2|b2-estilo-indirecto|sentence_structure|sentence_transformation|“¿Está abierta la piscina?”, preguntó Joel.|Joel preguntó ___ la piscina estaba abierta. (estilo indirecto, en pasado)|si
+es|B2|b2-estilo-indirecto|sentence_structure|multiple_choice||“He perdido el paraguas”, dijo Ada ayer. Ada dijo que ___ el paraguas. (acción anterior a lo que dijo)|había perdido|habrá perdido;había perdido;perderá;perdía

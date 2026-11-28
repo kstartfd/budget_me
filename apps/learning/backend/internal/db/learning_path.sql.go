@@ -540,7 +540,7 @@ func (q *Queries) GetLearningPathLesson(ctx context.Context, arg GetLearningPath
 }
 
 const getLearningPathTest = `-- name: GetLearningPathTest :one
-SELECT id, user_id, path_id, kind, language, translation_language, level, level_reached, passed, status, created_at, completed_at FROM learning_path_tests WHERE id = $1 AND user_id = $2
+SELECT id, user_id, path_id, kind, language, translation_language, level, level_reached, passed, status, created_at, completed_at, assessment_profile_id, assessment_type, assessment_status, start_band, assessment_policy, assessment_explanation_language, assessment_batch, assessment_result, assessment_stop_reason FROM learning_path_tests WHERE id = $1 AND user_id = $2
 `
 
 type GetLearningPathTestParams struct {
@@ -564,6 +564,15 @@ func (q *Queries) GetLearningPathTest(ctx context.Context, arg GetLearningPathTe
 		&i.Status,
 		&i.CreatedAt,
 		&i.CompletedAt,
+		&i.AssessmentProfileID,
+		&i.AssessmentType,
+		&i.AssessmentStatus,
+		&i.StartBand,
+		&i.AssessmentPolicy,
+		&i.AssessmentExplanationLanguage,
+		&i.AssessmentBatch,
+		&i.AssessmentResult,
+		&i.AssessmentStopReason,
 	)
 	return i, err
 }
@@ -659,8 +668,8 @@ func (q *Queries) GetNextLearningPathExerciseGeneration(ctx context.Context, top
 }
 
 const getOpenLearningPathTest = `-- name: GetOpenLearningPathTest :one
-SELECT id, user_id, path_id, kind, language, translation_language, level, level_reached, passed, status, created_at, completed_at FROM learning_path_tests
-WHERE user_id = $1 AND language = $2 AND kind = $3 AND status = 'in_progress'
+SELECT id, user_id, path_id, kind, language, translation_language, level, level_reached, passed, status, created_at, completed_at, assessment_profile_id, assessment_type, assessment_status, start_band, assessment_policy, assessment_explanation_language, assessment_batch, assessment_result, assessment_stop_reason FROM learning_path_tests
+WHERE user_id = $1 AND language = $2 AND kind = $3 AND status = 'in_progress' AND assessment_type IS NULL
 ORDER BY created_at DESC, id LIMIT 1
 `
 
@@ -686,6 +695,15 @@ func (q *Queries) GetOpenLearningPathTest(ctx context.Context, arg GetOpenLearni
 		&i.Status,
 		&i.CreatedAt,
 		&i.CompletedAt,
+		&i.AssessmentProfileID,
+		&i.AssessmentType,
+		&i.AssessmentStatus,
+		&i.StartBand,
+		&i.AssessmentPolicy,
+		&i.AssessmentExplanationLanguage,
+		&i.AssessmentBatch,
+		&i.AssessmentResult,
+		&i.AssessmentStopReason,
 	)
 	return i, err
 }
@@ -919,7 +937,7 @@ func (q *Queries) InsertLearningPathLesson(ctx context.Context, arg InsertLearni
 
 const insertLearningPathTest = `-- name: InsertLearningPathTest :one
 INSERT INTO learning_path_tests (id, user_id, path_id, kind, language, translation_language, level, status, created_at)
-VALUES ($1, $2, $3, $4, $5, $6, $7, 'in_progress', $8) RETURNING id, user_id, path_id, kind, language, translation_language, level, level_reached, passed, status, created_at, completed_at
+VALUES ($1, $2, $3, $4, $5, $6, $7, 'in_progress', $8) RETURNING id, user_id, path_id, kind, language, translation_language, level, level_reached, passed, status, created_at, completed_at, assessment_profile_id, assessment_type, assessment_status, start_band, assessment_policy, assessment_explanation_language, assessment_batch, assessment_result, assessment_stop_reason
 `
 
 type InsertLearningPathTestParams struct {
@@ -958,6 +976,15 @@ func (q *Queries) InsertLearningPathTest(ctx context.Context, arg InsertLearning
 		&i.Status,
 		&i.CreatedAt,
 		&i.CompletedAt,
+		&i.AssessmentProfileID,
+		&i.AssessmentType,
+		&i.AssessmentStatus,
+		&i.StartBand,
+		&i.AssessmentPolicy,
+		&i.AssessmentExplanationLanguage,
+		&i.AssessmentBatch,
+		&i.AssessmentResult,
+		&i.AssessmentStopReason,
 	)
 	return i, err
 }
@@ -1342,7 +1369,7 @@ func (q *Queries) ListLearningPathLessons(ctx context.Context, userID pgtype.UUI
 }
 
 const listLearningPathTestAnswers = `-- name: ListLearningPathTestAnswers :many
-SELECT test_id, question_key, answer, correct FROM learning_path_test_answers WHERE test_id = $1
+SELECT test_id, question_key, answer, correct, assessment_attempt_id, assessment_outcome, assessment_assisted FROM learning_path_test_answers WHERE test_id = $1
 `
 
 func (q *Queries) ListLearningPathTestAnswers(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestAnswer, error) {
@@ -1359,6 +1386,9 @@ func (q *Queries) ListLearningPathTestAnswers(ctx context.Context, testID pgtype
 			&i.QuestionKey,
 			&i.Answer,
 			&i.Correct,
+			&i.AssessmentAttemptID,
+			&i.AssessmentOutcome,
+			&i.AssessmentAssisted,
 		); err != nil {
 			return nil, err
 		}
@@ -1371,7 +1401,7 @@ func (q *Queries) ListLearningPathTestAnswers(ctx context.Context, testID pgtype
 }
 
 const listLearningPathTestQuestions = `-- name: ListLearningPathTestQuestions :many
-SELECT test_id, question_key, level, position, skill, text, prompt, options, answer FROM learning_path_test_questions WHERE test_id = $1 ORDER BY level, position
+SELECT test_id, question_key, level, position, skill, text, prompt, options, answer, assessment_item_id, assessment_item_key, assessment_category, assessment_objective, assessment_format, assessment_version, assessment_origin, assessment_fingerprint, assessment_batch, assessment_alternatives, assessment_repeated FROM learning_path_test_questions WHERE test_id = $1 ORDER BY level, position
 `
 
 func (q *Queries) ListLearningPathTestQuestions(ctx context.Context, testID pgtype.UUID) ([]LearningPathTestQuestion, error) {
@@ -1393,6 +1423,17 @@ func (q *Queries) ListLearningPathTestQuestions(ctx context.Context, testID pgty
 			&i.Prompt,
 			&i.Options,
 			&i.Answer,
+			&i.AssessmentItemID,
+			&i.AssessmentItemKey,
+			&i.AssessmentCategory,
+			&i.AssessmentObjective,
+			&i.AssessmentFormat,
+			&i.AssessmentVersion,
+			&i.AssessmentOrigin,
+			&i.AssessmentFingerprint,
+			&i.AssessmentBatch,
+			&i.AssessmentAlternatives,
+			&i.AssessmentRepeated,
 		); err != nil {
 			return nil, err
 		}

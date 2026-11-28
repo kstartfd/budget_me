@@ -7,13 +7,19 @@ evidence in `PROGRESS_MODEL.md`.
 
 ## 1. Current implementation (facts)
 
-**Program creation** (`BuildProgram` -> job -> `Analyze`):
+**Legacy program creation** (`BuildProgram` -> job -> `Analyze`):
 
 1. Input: a finished *placement* test (level reached + every wrong answer) and the learner's survey (interests, variant, goal, hours/week).
 2. Needs an AI agent (`400 "this needs an AI agent"` without one).
 3. If the pair has a library and `reached <= B2`: the agent receives the library topics up to `reached + 1` (`libraryFor`) and returns `{summary, topics:[{id, why}]}`; backend validates (ids exist, 6-14 topics, unique, >= 2 non-grammar, listening+speaking present); topic text comes from the library.
 4. Otherwise the agent writes the whole program (title/goal/theory/vocabulary per topic).
 5. Saved in one transaction as a `learning_paths` row plus ordered `learning_path_topics`; exercise sets for the first `PathPrefetch` topics are then written in the background.
+
+**Quick Screening:** the same job reads the persisted result and creates a canonical library plan
+from gaps, recommended checks, documented prerequisites, goal tags and study hours. It adds
+practice for unassessed skills and uses the existing path and review activity stores. The plan
+can be created with the assessment evidence and library alone. A provider remains necessary
+when exercises need to be generated. See [Quick Screening](QUICK_SCREENING.md).
 
 **Progress inside a program:** a topic is `not_started -> in_progress` on the first answer
 and `completed` when every exercise of its current set has a correct attempt

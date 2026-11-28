@@ -2,10 +2,13 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
+	"learning_app/backend/internal/learningpath/assessment"
 	"learning_app/backend/internal/llm"
 	"learning_app/backend/internal/ratelimit"
 )
@@ -47,7 +50,8 @@ type Config struct {
 	// read from the environment: Load sets the default (every topic, as a program
 	// has at most sixteen), tests leave it at zero so the stub provider only sees
 	// the calls a test makes itself.
-	PathPrefetch int
+	PathPrefetch     int
+	AssessmentPolicy assessment.Policy
 }
 
 func Load() (Config, error) {
@@ -63,6 +67,7 @@ func Load() (Config, error) {
 		TelegramMiniAppURL:   value("TELEGRAM_MINIAPP_URL", "http://localhost:3001"),
 		AudioCacheDir:        value("AUDIO_CACHE_DIR", "/var/lib/learning/audio"),
 		PathPrefetch:         allTopics,
+		AssessmentPolicy:     assessment.QuickPolicy(),
 	}
 	if cfg.DatabaseURL == "" {
 		return cfg, errors.New("DATABASE_URL is required")
@@ -72,6 +77,25 @@ func Load() (Config, error) {
 	}
 	if cfg.AuthSecret == "" {
 		return cfg, errors.New("AUTH_SECRET is required")
+	}
+	for _, setting := range []struct {
+		key   string
+		value *int
+	}{
+		{"ASSESSMENT_BATCH_SIZE", &cfg.AssessmentPolicy.BatchSize},
+		{"ASSESSMENT_MIN_QUESTIONS", &cfg.AssessmentPolicy.MinQuestions},
+		{"ASSESSMENT_MAX_QUESTIONS", &cfg.AssessmentPolicy.MaxQuestions},
+	} {
+		if raw := os.Getenv(setting.key); raw != "" {
+			n, err := strconv.Atoi(raw)
+			if err != nil {
+				return cfg, fmt.Errorf("%s must be an integer: %w", setting.key, err)
+			}
+			*setting.value = n
+		}
+	}
+	if err := cfg.AssessmentPolicy.Validate(); err != nil {
+		return cfg, err
 	}
 	return cfg, nil
 }

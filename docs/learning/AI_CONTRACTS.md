@@ -104,6 +104,17 @@ All replies are a single JSON object, no prose, no code fence (as today).
 ```
 Extra validation: `level` equals the requested level; `itemId` in the sent list; `rationale` present (stored, shown after the answer). The backend, not the AI, assigns `difficulty` from `level`.
 
+**Scope update (D-035..D-037).** C-1 is a proposed generic contract, not the
+implemented grammar fallback. The current prompt/strict reply are in
+`commands/assessment_items.go`; they still target grammar slots. The shared generator
+must include `assessmentType`, `sectionSkill`, `blueprintVersion`, allowed formats,
+passage/audio reference when relevant, and one backend-selected target per slot.
+Varying only the `skill` string while reusing grammar keys is invalid. Reading items
+must reference the same passage version; listening items must reference an audio
+version with transcript hidden from the learner. Validators are skill-specific and
+must reject unsupported media formats before persistence. A generator reply cannot
+declare a mode complete or set an estimate.
+
 **C-2 `assess.rubric/v1`** (Phases 5/10) — free-form scoring (replaces `review` for translate/write/read/task)
 ```json
 {"criteria":[{"id":"task","score":0.0,"comment":""},{"id":"accuracy","score":0.0,"comment":""}],"errors":[{"category":"tense_aspect","itemId":null,"learnerText":"","corrected":"","note":""}],"feedback":""}
@@ -111,6 +122,12 @@ Extra validation: `level` equals the requested level; `itemId` in the sent list;
 Backend sends the criteria ids and CEFR descriptors; clamps scores to 0..1; keeps only
 errors whose `category` is in the taxonomy; computes `outcome` and `score` itself from the
 criteria (weights set by the backend); evidence `weight <= 0.7`.
+For writing, the rubric must score task fulfillment, coherence/comprehensibility,
+range and accuracy. For speaking, audio-aware scoring adds fluency and task-relevant
+interaction; transcripts can assist lexical/grammar analysis but cannot support
+pronunciation or other acoustic claims. Rubric versions, anchors, score weights,
+uncertainty and evaluation failures must be persisted with the section result. These
+contracts remain proposals until calibrated, validated and end-to-end tested.
 
 **C-3 `mistake.classify/v1`** (Phase 5/6) — optional second pass when deterministic grading marked an answer wrong: input is the exercise, the key and the learner's answer; output `{"category","note","relatedItemIds":[...]}` restricted to the sent candidate ids. Skipped when the category is derivable from the exercise kind and the item.
 
@@ -121,6 +138,15 @@ criteria (weights set by the backend); evidence `weight <= 0.7`.
 **C-6 `tutor.evidence/v1`** (Phase 9) — see section 5. Input: the last user message(s) and the candidate items retrieved by the backend; output `{"evidence":[{"itemId","outcome","errorCategory","quote","note"}]}`.
 
 **C-7 `results.phrase/v1`** (Phase 3/8) — input: numbers computed by the backend; output: `{"text"}` phrasing only. A test asserts every number in the text appears in the input (no new figures).
+
+### Implemented Quick Screening fallback
+
+When there is no fresh curated question for a selected slot, `test-questions` is reused
+for `grammar-quick-v1`. The request contains the learning language and backend-selected
+targets and prior prompts. The response is `{"questions":[{"text":"","prompt":"","options":[],"answers":["..."]}]}`
+in slot order. Unknown fields, invalid options, keys and duplicate prompts are rejected.
+The existing one-retry budget applies. This call supplies content only. The Quick
+Screening path never calls `test-judge`. See [Quick Screening](QUICK_SCREENING.md).
 
 ## 7. Prompt-injection and safety rules
 

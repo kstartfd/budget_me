@@ -17,13 +17,18 @@ export function nextLevel(level: string): string | undefined {
  * since the history is the proof they have been there. Empty without one.
  */
 export function pickableLevels(
-  history: { language: string; level: string }[],
+  history: { language: string; level: string; source?: string; status?: string }[],
   language: string,
 ): string[] {
   const top = Math.max(
     -1,
     ...history
-      .filter((item) => item.language === language)
+      .filter(
+        (item) =>
+          item.language === language &&
+          item.source !== "self_reported" &&
+          (item.source !== "assessment" || item.status === "finished"),
+      )
       .map((item) => LEVELS.indexOf(item.level as (typeof LEVELS)[number])),
   )
 
